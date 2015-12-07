@@ -9,7 +9,8 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="23rd USENIX Security Symposium 에서 발표된 On the Feasibility of Large-Scale Infections of iOS Devices 을 따라가보자. 저자는 Tielei Wang, Yeongjin Jang, Yizheng &hellip;">
+  <meta name="description" content="
+">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -65,6 +66,35 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/09/22/android-sop-bypass/">Android SOP Bypass</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-09-22T09:40:47+09:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>22</span><span class='date-suffix'>nd</span>, <span class='date-year'>2014</span></span> <span class='time'>9:40 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content">
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -580,120 +610,6 @@ m2.invoke(sm, null, pdu, null, null, false, false);
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/08/06/intent-spoofing-on-android/">Intent Spoofing on Android</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2014-08-06T15:37:16+09:00'><span class='date'><span class='date-month'>Aug</span> <span class='date-day'>6</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>3:37 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><ul>
-<li><a href="http://pwntest.wordpress.com/2012/11/17/168935099/">FourGoats Vulnerabilities: Intent Spoofing</a></li>
-<li><a href="http://blog.palominolabs.com/2013/05/13/android-security/">Intent Spoofing on Android</a></li>
-<li><a href="http://www.slideshare.net/mrtompa/android-app-security-what-not-to-do/">Android App Security: What (not) to do!</a></li>
-</ul>
-
-
-<h4>Action</h4>
-
-<p>Intent spoofing 에 취약한 App 을 exploit 하는 것은 다음 코드와 같다. <code>startActivityForResult()</code> 로 인텐트를 날린다.</p>
-
-<pre><code>protected void onCreate(Bundle paramBundle)
-{
-    super.onCreate(paramBundle);
-    setContentView(2130903063);
-    Intent localIntent = new Intent();
-    localIntent.putExtra("galleryFlowID", 100);
-    localIntent.putExtra("carowner", "suzuki");
-    localIntent.putExtra("Intent_new_title", "Toyota");
-    localIntent.setComponent(new ComponentName("com.toyota.tconnect", "com.toyota.tconnect.RemoteStartPINActivity"));
-    startActivityForResult(localIntent, 0);
-}
-</code></pre>
-
-<h4>Intent spoofing</h4>
-
-<p>이런 취약점이 발생하는 이유는, 인텐트 receiver 를 정의할때, 퍼미션 세팅을 안했기때문.</p>
-
-<pre><code>&lt;receiver android:name="one.special.receiver"&gt;
-  &lt;intent-filter&gt;
-    &lt;action android:name="one.intent.action" /&gt;
-  &lt;/intent-filter&gt;
-&lt;/receiver&gt;
-</code></pre>
-
-<ul>
-<li>Public components and senders with weak permissions</li>
-<li>Malicious app sends Intent resulting in data injection or state change</li>
-</ul>
-
-
-<h4>Intent spoofing 방지</h4>
-
-<pre><code>&lt;receiver android:name="one.special.receiver" 
-            android:exported=false&gt;
-  &lt;intent-filter&gt;
-    &lt;action android:name="one.intent.action" /&gt;
-  &lt;/intent-filter&gt;
-&lt;/receiver&gt;
-
-&lt;receiver android:name="one.special.receiver" 
-            android:exported=false
-            android:permission="one.permission"&gt;
-  &lt;intent-filter&gt;
-    &lt;action android:name="one.intent.action" /&gt;
-  &lt;/intent-filter&gt;
-&lt;/receiver&gt;
-</code></pre>
-
-<h4>Unauthorized Intent Receipt</h4>
-
-<p>인텐트를 다음과 같이 보내면 안된다.</p>
-
-<pre><code>Intent intent = new Intent();
-intent.setAction("a.special.action");
-startActivity(intent);
-</code></pre>
-
-<ul>
-<li>Given a public Intent which doesn&rsquo;t require strong permission in the receiving component</li>
-<li>Intercepted by malicious app</li>
-<li>May leak sensitive data and/or change in control flow</li>
-</ul>
-
-
-<p>좋은 예</p>
-
-<pre><code>Intent fixedIntent = new Intent();
-fixedIntent.setClassName("pkg.name","pkg.name.DestinationName");
-
-Intent fixedIntent2 = new Intent();
-fixedIntent2.setAction("a.special.action");
-sendBroadcast(fixedIntent2, "a.special.permission");
-</code></pre>
-
-<p>위와 같이 보내는 것이 좋다.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/12">&larr; Older</a>
@@ -711,6 +627,10 @@ sendBroadcast(fixedIntent2, "a.special.permission");
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2015/12/07/trustnone/">TRUSTNONE</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2015/10/04/return-oriented-programming-for-the-arm-architecture/">Return Oriented Programming for the ARM Architecture</a>
       </li>
     
@@ -724,10 +644,6 @@ sendBroadcast(fixedIntent2, "a.special.permission");
     
       <li class="post">
         <a href="/blog/2015/09/13/sophail-applied-attacks-against-sophos-antivirus/">Sophail: Applied Attacks Against Sophos Antivirus</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/09/13/stagefright/">Stagefright</a>
       </li>
     
   </ul>

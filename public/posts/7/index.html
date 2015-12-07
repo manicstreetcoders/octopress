@@ -9,7 +9,8 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="Doug Lea 의 dlmalloc 소스를 보다가 간단하게 하나 만들어 보기로 했다. find-first-fit 으로 그냥 대충 만들어봤다. unlink() 가 들어있어서, exploit 은 가능한 버전으로. binning 은 없다. ㅋㅋㅋ sbrk() 로 grow &hellip;">
+  <meta name="description" content="heap overflow 하는 김에 traceroute heap overflow 를 디벼본다. traceroot: A Local root Exploit for Red Hat Linux 6.1 and 6.2
+exploit-db ">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -65,6 +66,41 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/04/27/traceroot/">Traceroot</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-04-27T20:36:24+09:00'><span class='date'><span class='date-month'>Apr</span> <span class='date-day'>27</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>8:36 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>heap overflow 하는 김에 traceroute heap overflow 를 디벼본다.</p>
+
+<ul>
+<li><a href="http://www.giac.org/paper/gcih/133/traceroot-local-root-exploit-red-hat-linux-61-62/100588">traceroot: A Local root Exploit for Red Hat Linux 6.1 and 6.2</a></li>
+<li><a href="https://www.exploit-db.com/exploits/20252/">exploit-db</a></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1216,41 +1252,6 @@ DLL 의 <code>DLL_PROCESS_ATTACH</code> 때 돌아가게 코드를 만들어 놓
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/04/07/weaponizing-femtocells/">Weaponizing Femtocells</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2015-04-07T11:06:55+09:00'><span class='date'><span class='date-month'>Apr</span> <span class='date-day'>7</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>11:06 am</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p><a href="http://www.tu-berlin.de/fileadmin/fg214/Papers/femto_ndss12.pdf">Weaponizing Femtocells: The Effect of Rogue Devices on Mobile Telecommunication</a> 을 읽고 정리한다.</p>
-
-<ul>
-<li>We believe that it is a fundamental flaw of the 3G specifications to treat base stations as trusted devices. This becomes even more important in the context of femtocells.</li>
-<li>It is well known that it is possible to get root level access to femtocell devices.</li>
-</ul>
-
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/8">&larr; Older</a>
@@ -1268,6 +1269,10 @@ DLL 의 <code>DLL_PROCESS_ATTACH</code> 때 돌아가게 코드를 만들어 놓
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2015/12/07/trustnone/">TRUSTNONE</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2015/10/04/return-oriented-programming-for-the-arm-architecture/">Return Oriented Programming for the ARM Architecture</a>
       </li>
     
@@ -1281,10 +1286,6 @@ DLL 의 <code>DLL_PROCESS_ATTACH</code> 때 돌아가게 코드를 만들어 놓
     
       <li class="post">
         <a href="/blog/2015/09/13/sophail-applied-attacks-against-sophos-antivirus/">Sophail: Applied Attacks Against Sophos Antivirus</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/09/13/stagefright/">Stagefright</a>
       </li>
     
   </ul>

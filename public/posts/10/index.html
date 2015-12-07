@@ -9,7 +9,8 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="vic.c 이제 vulnerable 한 실행화일을 외부에서 exploit 해보자. 일단 우분투에서 echo 0 | sudo tee /proc/sys/kernel/randomize_va_space 커맨드로 ASLR 을 끄고, -fno-stack-protector -z &hellip;">
+  <meta name="description" content="ret2libc 이제 바로 system() 으로 튀는 경우를 상정해본다. 참고 Solar Designer: Getting around non-executable stack (and fix)
+Nergal: Advanced return-into-lib&copy; &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -65,6 +66,45 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/11/10/linux-x86-64-shellcode-6/">Linux X86_64 Shellcode 6</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-11-10T22:26:49+09:00'><span class='date'><span class='date-month'>Nov</span> <span class='date-day'>10</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>10:26 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h4>ret2libc</h4>
+
+<p>이제 바로 system() 으로 튀는 경우를 상정해본다.</p>
+
+<h4>참고</h4>
+
+<ul>
+<li><a href="http://seclists.org/bugtraq/1997/Aug/63">Solar Designer: Getting around non-executable stack (and fix)</a></li>
+<li><a href="http://phrack.org/issues/58/4.html">Nergal: Advanced return-into-lib&copy; exploits (PaX case study)</a></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -937,35 +977,6 @@ public class Main {
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/09/22/android-sop-bypass/">Android SOP Bypass</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2014-09-22T09:40:47+09:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>22</span><span class='date-suffix'>nd</span>, <span class='date-year'>2014</span></span> <span class='time'>9:40 am</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content">
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/11">&larr; Older</a>
@@ -983,6 +994,10 @@ public class Main {
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2015/12/07/trustnone/">TRUSTNONE</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2015/10/04/return-oriented-programming-for-the-arm-architecture/">Return Oriented Programming for the ARM Architecture</a>
       </li>
     
@@ -996,10 +1011,6 @@ public class Main {
     
       <li class="post">
         <a href="/blog/2015/09/13/sophail-applied-attacks-against-sophos-antivirus/">Sophail: Applied Attacks Against Sophos Antivirus</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/09/13/stagefright/">Stagefright</a>
       </li>
     
   </ul>

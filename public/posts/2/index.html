@@ -9,16 +9,9 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="REPNZ SCAS Assembly Instruction Specifics 스택오버플로우에서 strlen(s) 의 idiom 을 보게되었다. REPNE SCASB 1
-2
-3
-4
-5
-6
-7
-8
-9
-while (ecx != 0) { ZF = (al == *(BYTE *) &hellip;">
+  <meta name="description" content="IPsec L2TP VPN Auto Install Script for Ubuntu 14.04 &amp; 12.04 and Debian 8 &amp; 7
+PPTP VPN 서버
+How to setup Poptop (pptpd) VPN server on Linux &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -74,6 +67,122 @@ while (ecx != 0) { ZF = (al == *(BYTE *) &hellip;">
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/08/05/setting-up-l2tp-vpn/">Setting Up L2TP VPN</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-08-05T16:25:16+09:00'><span class='date'><span class='date-month'>Aug</span> <span class='date-day'>5</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>4:25 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><ul>
+<li><p><a href="https://gist.github.com/hwdsl2/9030462">IPsec L2TP VPN Auto Install Script for Ubuntu 14.04 &amp; 12.04 and Debian 8 &amp; 7</a></p></li>
+<li><p><a href="https://wordpress.update.sh/archives/16">PPTP VPN 서버</a></p></li>
+<li><a href="http://thuannvn.blogspot.kr/2009/03/how-to-setup-poptop-pptpd-vpn-server-on.html">How to setup Poptop (pptpd) VPN server on Linux</a></li>
+<li><a href="https://kldp.org/node/73417">pptpd vpn 서버접속후 특정 web 사이트가 안여리는 증상 도움 부탁 드립니다.</a></li>
+<li><a href="http://guni.tistory.com/326">CentOS에서 PPTP 및 L2TP/IPSec 프로토콜을 이용한 VPN 서버 구축하기</a></li>
+<li><a href="http://www.myhowto.org/java/81-intercepting-and-decrypting-ssl-communications-between-android-phone-and-3rd-party-server/">Intercepting and decrypting SSL communications between Android phone and 3rd party server</a></li>
+<li><a href="http://security.stackexchange.com/questions/33374/whats-an-easy-way-to-perform-a-man-in-the-middle-attack-on-ssl">What&rsquo;s an easy way to perform a man-in-the-middle attack on SSL?</a></li>
+</ul>
+
+
+<h4>Forging Certificates (by blukat29)</h4>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ openssl genrsa -des3 -out ca.key 4096
+</span><span class='line'>$ openssl req -new -x509 -days 365 -key ca.key -out ca.crt
+</span><span class='line'>$ openssl genrsa -des3 -out server.key 4096
+</span><span class='line'>$ openssl req -new -key server.key -out server.csr
+</span><span class='line'>$ openssl x509 -req -days 365 -in server.csr -CA ca.crt -CAkey ca.key -set_serial 01 -out server.crt</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>socat</h4>
+
+<p>socat 옵션.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>root@zomo:~# socat -v OPENSSL-LISTEN:4443,reuseaddr,verify=0,cert=./server.crt,key=./server.kecafile=./ca.crt,debug,fork OPENSSL:api.xxx.com:443,verify=0</span></code></pre></td></tr></table></div></figure>
+
+
+<p>nat 쪽 iptable</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>root@zomo:~# ip -t nat -L
+</span><span class='line'>Chain PREROUTING (policy ACCEPT)
+</span><span class='line'>target     prot opt source               destination
+</span><span class='line'>REDIRECT   tcp  --  anywhere             anywhere             tcp dpt:https redir ports 4443
+</span><span class='line'>
+</span><span class='line'>Chain INPUT (policy ACCEPT)
+</span><span class='line'>target     prot opt source               destination
+</span><span class='line'>
+</span><span class='line'>Chain OUTPUT (policy ACCEPT)
+</span><span class='line'>target     prot opt source               destination
+</span><span class='line'>
+</span><span class='line'>Chain POSTROUTING (policy ACCEPT)
+</span><span class='line'>target     prot opt source               destination
+</span><span class='line'>MASQUERADE  all  --  anywhere             anywhere</span></code></pre></td></tr></table></div></figure>
+
+
+<p>iptable</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>root@zomo:~# ip -L
+</span><span class='line'>Chain INPUT (policy ACCEPT)
+</span><span class='line'>target     prot opt source               destination
+</span><span class='line'>DROP       all  --  43.0.0.0/8           anywhere
+</span><span class='line'>
+</span><span class='line'>Chain FORWARD (policy ACCEPT)
+</span><span class='line'>target     prot opt source               destination
+</span><span class='line'>
+</span><span class='line'>Chain OUTPUT (policy ACCEPT)
+</span><span class='line'>target     prot opt source               destination</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1818,51 +1927,6 @@ while (ecx != 0) { ZF = (al == *(BYTE *) &hellip;">
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/07/17/http-strict-transport-security/">HTTP Strict Transport Security</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2015-07-17T15:04:07+09:00'><span class='date'><span class='date-month'>Jul</span> <span class='date-day'>17</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>3:04 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><h4>HTTP Strict Transport Security</h4>
-
-<p>HSTS 를 안쓰면, HTTP -> 301 Moved Permanently -> HTTPS 로 바꿔야한다.</p>
-
-<p>HSTS 를 쓰면, HTTP -> 307 Internal Redirect -> HTTPS 로 간다.</p>
-
-<p>HSTS 의 경우 Chrome 이 request 조차 보내지 않는다.</p>
-
-<p><code>Strict-Transport-Security: max-age=31536000; includeSubdomains; preload</code> 와 같은 헤더때문인데.</p>
-
-<p>웹사이트가 HSTS 인지 아닌지 처음엔 모르기때문에, 첫 커넥션까지 HTTPS 로 가게 하려면,</p>
-
-<p><a href="https://hstspreload.appspot.com">https://hstspreload.appspot.com</a> 에 등록해야한다.</p>
-
-<h4>HTTP Public Key Pinning</h4>
-
-<p>HTTP Public Key Pinning 의 경우도 중요한 기술.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/3">&larr; Older</a>
@@ -1880,6 +1944,10 @@ while (ecx != 0) { ZF = (al == *(BYTE *) &hellip;">
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2015/12/07/trustnone/">TRUSTNONE</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2015/10/04/return-oriented-programming-for-the-arm-architecture/">Return Oriented Programming for the ARM Architecture</a>
       </li>
     
@@ -1893,10 +1961,6 @@ while (ecx != 0) { ZF = (al == *(BYTE *) &hellip;">
     
       <li class="post">
         <a href="/blog/2015/09/13/sophail-applied-attacks-against-sophos-antivirus/">Sophail: Applied Attacks Against Sophos Antivirus</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/09/13/stagefright/">Stagefright</a>
       </li>
     
   </ul>

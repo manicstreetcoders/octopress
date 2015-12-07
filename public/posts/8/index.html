@@ -9,8 +9,7 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="A Tangled Mass: The Android Root Certificate Stores 를 읽고 정리해본다. 일단 CA/RA 에 대한 공격으로 잘못된 인증서가 발급된 사례들 the COMODO Incident
-the CNNIC Incident ">
+  <meta name="description" content="Weaponizing Femtocells: The Effect of Rogue Devices on Mobile Telecommunication 을 읽고 정리한다. We believe that it is a fundamental flaw of the 3G &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -66,6 +65,41 @@ the CNNIC Incident ">
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/04/07/weaponizing-femtocells/">Weaponizing Femtocells</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-04-07T11:06:55+09:00'><span class='date'><span class='date-month'>Apr</span> <span class='date-day'>7</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>11:06 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><a href="http://www.tu-berlin.de/fileadmin/fg214/Papers/femto_ndss12.pdf">Weaponizing Femtocells: The Effect of Rogue Devices on Mobile Telecommunication</a> 을 읽고 정리한다.</p>
+
+<ul>
+<li>We believe that it is a fundamental flaw of the 3G specifications to treat base stations as trusted devices. This becomes even more important in the context of femtocells.</li>
+<li>It is well known that it is possible to get root level access to femtocell devices.</li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -2361,93 +2395,6 @@ Breakpoint 3, futex_requeue (uaddr1=0xb6ea1000, flags=1, uaddr2=0xb6ea1008, nr_w
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/11/18/linux-memory-layout/">Linux Memory Layout</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2014-11-18T09:02:27+09:00'><span class='date'><span class='date-month'>Nov</span> <span class='date-day'>18</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>9:02 am</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>간단한 프로그램.</p>
-
-<pre><code>#include &lt;stdio.h&gt;
-#include &lt;stdlib.h&gt;
-
-static char buf[1];
-char buf2[1];
-static char buf3[] = "b";
-long rip()
-{
-    long *p;
-    p = (long*)&amp;p;
-    p++;
-    p++;
-    return *p;
-}
-int main()
-{
-    char arr[128];
-    char *heap;
-
-    printf("stack %p\n", arr);
-    printf("static uninitialized %p\n", buf);
-    printf("(implicit) static uninitialized %p\n", buf2);
-    printf("static initialized %p\n", buf3);
-    printf("rip %p\n", (void*)rip());
-    heap = (char*)malloc(128);
-    printf("heap %p\n", heap);
-}
-
-./a.out
-stack 0x7fff9caa8b50 (Stack)
-static uninitialized 0x601051 (Uninitialized data)
-(implicit) static uninitialized 0x601052 (Uninitialized data)
-static initialized 0x4006f4 (Initialized data)
-rip 0x400648 (Code)
-heap 0x2232010 (Heap)
-</code></pre>
-
-<p>스택은 아주 윗쪽에,
-Text 는 0x400648 언저리에 놓여있고,
-Initialized data 는 Text 바로 뒤에 놓여있으며, (0x4006f4)
-Uninitialized data (bss) 는 Initialized data 뒷쪽에,
-그리고 힙은 bss 뒷편에</p>
-
-<pre><code>---------------------------
-| Stack                   |
----------------------------
-| Heap                    |
----------------------------
-| Uninitialized data (bss)|
----------------------------
-| Initialized data        |
----------------------------
-| Code                    |
----------------------------
-</code></pre>
-
-<p>그러면, <code>/proc/&lt;pid&gt;/maps</code> 를 보고 확인해본다.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/9">&larr; Older</a>
@@ -2465,6 +2412,10 @@ Uninitialized data (bss) 는 Initialized data 뒷쪽에,
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2015/12/07/trustnone/">TRUSTNONE</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2015/10/04/return-oriented-programming-for-the-arm-architecture/">Return Oriented Programming for the ARM Architecture</a>
       </li>
     
@@ -2478,10 +2429,6 @@ Uninitialized data (bss) 는 Initialized data 뒷쪽에,
     
       <li class="post">
         <a href="/blog/2015/09/13/sophail-applied-attacks-against-sophos-antivirus/">Sophail: Applied Attacks Against Sophos Antivirus</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/09/13/stagefright/">Stagefright</a>
       </li>
     
   </ul>

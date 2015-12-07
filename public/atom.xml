@@ -4,7 +4,7 @@
   <title><![CDATA[KC's blog]]></title>
   <link href="http://zomo.heroku.com/atom.xml" rel="self"/>
   <link href="http://zomo.heroku.com/"/>
-  <updated>2015-12-07T16:43:57+09:00</updated>
+  <updated>2015-12-07T17:19:07+09:00</updated>
   <id>http://zomo.heroku.com/</id>
   <author>
     <name><![CDATA[KC]]></name>
@@ -12,6 +12,15 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[TRUSTNONE]]></title>
+    <link href="http://zomo.heroku.com/blog/2015/12/07/trustnone/"/>
+    <updated>2015-12-07T17:14:52+09:00</updated>
+    <id>http://zomo.heroku.com/blog/2015/12/07/trustnone</id>
+    <content type="html"><![CDATA[
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Return Oriented Programming for the ARM Architecture]]></title>
@@ -3125,31 +3134,6 @@ BoxType 은 4 글자 코드로 구성된다. FourCC 라고 불리는데, <code>c
 <h4>Mitigations: stronger randomization for the Flash heap</h4>
 
 <h4>Mitigations: <code>Vector.&lt;*&gt;</code> length validation</h4>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[HTTP Strict Transport Security]]></title>
-    <link href="http://zomo.heroku.com/blog/2015/07/17/http-strict-transport-security/"/>
-    <updated>2015-07-17T15:04:07+09:00</updated>
-    <id>http://zomo.heroku.com/blog/2015/07/17/http-strict-transport-security</id>
-    <content type="html"><![CDATA[<h4>HTTP Strict Transport Security</h4>
-
-<p>HSTS 를 안쓰면, HTTP -> 301 Moved Permanently -> HTTPS 로 바꿔야한다.</p>
-
-<p>HSTS 를 쓰면, HTTP -> 307 Internal Redirect -> HTTPS 로 간다.</p>
-
-<p>HSTS 의 경우 Chrome 이 request 조차 보내지 않는다.</p>
-
-<p><code>Strict-Transport-Security: max-age=31536000; includeSubdomains; preload</code> 와 같은 헤더때문인데.</p>
-
-<p>웹사이트가 HSTS 인지 아닌지 처음엔 모르기때문에, 첫 커넥션까지 HTTPS 로 가게 하려면,</p>
-
-<p><a href="https://hstspreload.appspot.com">https://hstspreload.appspot.com</a> 에 등록해야한다.</p>
-
-<h4>HTTP Public Key Pinning</h4>
-
-<p>HTTP Public Key Pinning 의 경우도 중요한 기술.</p>
 ]]></content>
   </entry>
   
