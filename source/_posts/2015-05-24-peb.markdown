@@ -1,0 +1,46 @@
+---
+layout: post
+title: "PEB"
+date: 2015-05-24 12:43:54 +0900
+comments: true
+categories: 
+---
+
+* youmin3.egloos.com/1650047
+* anster.egloos.com/2128538
+
+#### PEB & TEB
+
+* EPROCESS (in kernel)
+* ETHREAD (in kernel)
+
+* KPROCESS(Process Control Block) in EPROCESS (in kernel)
+* KTHREAD(Thread Control Block) in ETHREAD (in kernel)
+
+* PEB (in user space)
+* TEB (in user space)
+
+#### WinDbg
+
+```
+kd> dt _PEB
+
+kd> dt _EPROCESS
+
+kd> dt _KPROCESS
+
+kd> dt -a -b _TEB
+
+kd> dt _ETHREAD
+
+kd> dt _KTHREAD
+
+```
+
+#### GetCurrentProcessID
+
+```
+kd> uf kernel32!GetCurrentProcessID
+
+kd> uf kernel32!GetCurrentThreadID
+```

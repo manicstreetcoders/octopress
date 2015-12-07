@@ -1,0 +1,246 @@
+---
+layout: post
+title: "300ms Delay"
+date: 2012-10-18 23:05
+comments: true
+categories: 
+---
+
+UIWebView 에서 onclick event 를 잡을때, 터치 후 event 발사까지 300ms 정도의 딜레이가 있다.
+래깅이 느껴지고, 손가락이 오그라든다.
+
+그 딜레이를 없애고 최대한 반응 속도를 올리기 위한 방법이 있다.
+
+아래의 아티클들에 소개되어 있는데,
+
+* [FT Fastclick](http://labs.ft.com/articles/ft-fastclick)
+* [FastClick: native-like tapping for touch apps](http://labs.ft.com/2011/08/fastclick-native-like-tapping-for-touch-apps/)
+* [FastClick redux](http://labs.ft.com/2012/08/fastclick-redux/)
+* [ftlabs/fastclick](http://github.com/ftlabs/fastclick)
+* [dave1010/jquery-fast-click](http://github.com/dave1010/jquery-fast-click)
+
+번역 & 정리해본다.
+
+모바일 브라우저에서 다음과 같은 페이지를 로드했을 경우
+
+    <button onclick='signup()'>Sign Up!</button>
+
+유저가 button 을 누르고, 브라우저가 click event 를 쏘기까지 약 300ms 의 딜레이가 있다.
+모바일 브라우저가 이런 딜레이를 두는 이유는 더블탭을 감지하기 위해서이다.
+이 딜레이를 없앨 수 없을까?
+
+FT Labs 에서 제작한 FT FastClick 에서 쓴 방식은 TouchEnd event 가 잡혔을때, click event 를 쏴주는 식이다. 
+
+고려해야 할 상황은 ([Creating Fast Button for Mobile Web Applications](http://code.google.com/mobile/articles/fast_buttons.html))
+
+1. 딴데를 터치한 다음에 버튼 위로 손을 끌고 와서 놔버려서 button 에 touchend 가 뜬 경우 -> click event 를 쏘면 안됨.
+2. 버튼을 터치하고 화면을 드래그한다음에 손을 놔버려서 button 에 touchend 가 뜬 경우 -> 버튼을 누를 의도였다기보다는 화면을 스크롤하고 싶었던 것. 그래서 click event 를 쏘면 안됨.
+
+### FT Fastclick
+
+[ftlabs/fastclick](http://github.com/ftlabs/fastclick) 의 사용법은.
+
+    <script type='application/javascript' src='/path/to/fastclick.js'></script>
+
+    window.addEventListener('load'), function() {
+      new FastClick(document.body);
+    }, false);
+
+으로 간단하다. 사용해보니 잘 동작한다. UIWebView 에서 터치가 native app 처럼 빠르게 인식된다. 하지만 여기에 만족할 수 없었다. 소스를 디벼야 직성이 풀릴 듯 했다.
+
+그래서 [FastClick() 소스](http://labs.ft.com/wp-content/uploads/2011/08/fastclick.js) 를 디비기 시작했다.
+
+    // Determine whether touch handling is supported
+    var touchSupport = 'ontouchstart' in window;
+
+*ontouchstart* 가 있으면 touch 를 지원하는 디바이스로 판단.
+
+    // Set up event handlers as required
+    if (touchSupport) {
+      layer.addEventListener('touchstart', onTouchStart, true);
+      layer.addEventListener('touchmove', onTouchMove, true);
+      layer.addEventListener('touchend', onTouchEnd, true);
+      layer.addEventListener('touchcancel', onTouchCancel, true);
+    }
+    layer.addEventListener('click', onClick, true);
+
+addEventListener() 를 통해서 touchstart / touchmove / touchend / touchcancel 에 listener 를 등록한다.
+
+addEventListener() 의 문법은
+
+    target.addEventListener(type, listener[, useCapture]);
+
+여기서 *useCapture* 는 무얼까? 
+
+> If true, useCapture indicates that the user wishes to initiate capture. After initiating capture, all events of the specified type will be dispatched to the registered listener before being dispatched to any EventTarget beneath it in the DOM tree. Events which are bubbling upward through the tree will not trigger a listener designated to use capture.
+
+capture phase 는 *DefaultView* -> *Document* -> *<html>* -> ... 해서 *target* 까지 내려오는 구간. bubbling phase 는 *target* 에서 다시 위로 올라가는 구간인데,
+*useCapture* 를 쓰면, *the capture and target phases* 에만 event listener 를 붙이는 것이다. 그리고, 하나의 타겟에 여러개의 event listener 들이 붙을 수 있음.
+
+실험을 해보자.  useCapture 를 *true* 로 세팅하면, DOM tree 의 child node 한테 가는 이벤트를 먼저 잡는 것을 볼 수 있다.
+
+Parent node 에 listener 를 붙이고, *useCapture = true* 로 listener 를 붙이고,
+child node 에는 *useCapture = false* 로 listener 를 붙인다.
+그리고, parent 쪽 listener 에서는 stopPropagation() 으로 propagation 을 끊는다.
+*two* 를 클릭해도, parent node 에 붙은 listener 가 control 을 가져가며, 
+event propagation 을 stop 해버리므로 *two* 에 붙은 listner 는 수행될 기회를 가지지 못한다. 그래서 *three* 가 아닌 *four* 로 변해버린다.
+
+jsfiddle 에서 실험해보자.
+
+<iframe style="width: 100%; height: 300px" src="http://jsfiddle.net/zomojj/mtd8d/1/embedded/" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
+
+아무리 클릭해도 *three* 는 나오지 않고 *four* 만 나온다. *useCapture* 의 effect 를 알 수 있다.
+
+FT FastClick 코드로 다시 돌아가면, touchstart, touchend, touchmove, touchcancel 에 listener 를 붙이고, click 에도 listener 를 붙인다.
+그리고 이미 onclick 핸들러가 있었다면, listener 로 전환시켜서 나중에 불리도록 조치한다. 기존의 onclick 핸들러는 리셋.
+
+    // If a handler is already declared in the element's onclick attribute, it will be fired before
+    // FastClick's onClick handler. Fix this by pulling out the user-defined handler function and
+    // adding it as listener.
+    if (layer.onclick instanceof Function) {
+      layer.addEventListener('click', layer.onclick, false);
+      layer.onclick = '';
+    }
+
+### Event Canceling
+
+DOM event 를 cancel 하는데, 3 가지 method 가 있는데,
+
+* preventDefault()
+* stopPropagation()
+* stopImmediatePropagation()
+
+우선 preventDefault() 부터 보면,
+
+> preventDefault()
+>
+> If an event is cancelable, the preventDefault method is used to signify that the event is to be canceled, meaning any default action normally taken by the implementation as a result of the event will not occur. If, during any stage of event flow, the preventDefault method is called the event is canceled. Any default action associated with the event will not occur. Calling this method for a non-cancelable event has no effect. Once preventDefault has been called it will remain in effect throughout the remainder of the event's propagation. This method may be used during any stage of event flow.
+
+예제를 해봤다. <em>checkbox 에 클릭을 해도 check 가 되지 않는다!</em>
+
+    <!DOCTYPE html>
+    <html>
+    <head>
+    <title>DOM Event Example</title> 
+    <script>
+    // Function to change the content of t2
+    function stopDefAction(evt) {
+        evt.preventDefault();
+    }  
+    // Function to add event listener to t
+    function load() { 
+      document.getElementById('my-checkbox').addEventListener(
+        'click', stopDefAction, false
+      );
+    } 
+     
+    document.addEventListener("DOMContentLoaded", load, false);
+    </script>
+     
+    </head>
+    <body>
+     
+    <p>Please click on the checkbox control.</p>
+     
+    <form>
+        <input type="checkbox" id="my-checkbox" />
+        <label for="my-checkbox">Checkbox</label>
+    </form>
+     
+    </body>
+    </html>
+
+HTML 섹션을 클릭해서 보도록.
+<iframe style="width: 100%; height: 300px" src="http://jsfiddle.net/zomojj/b2BPD/3/embedded/" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
+
+그럼 다음은 stopPropagation().
+
+> stopPropagation() 
+>
+> Prevents all other event listeners from being triggered, excluding any remaining candiate event listeners. Once it has been called, further calls to this method have no additional effect.
+
+그럼 preventDefault() 와 stopPropagation() 의 차이는 무엇일까 궁금해졌다.
+
+간단히 정리하면, preventDefault() 는 event 에 대한 default functionality 가 일어나는 것을 막는다. 하지만 event 는 propagate 된다.
+
+반대로 stopPropagation() 은 default functionality 는 일어나지만, parent 로 propagate 되지는 않는다.
+
+> [What's the difference between event.stopPropagation and event.preventDefault?](http://stackoverflow.com/questions/5963669/whats-the-difference-between-event-stoppropagation-and-event-preventdefault)
+
+> stopPropagation stops the event from bubbling up the event chain.
+
+> preventDefault prevents the default action the browser makes on that event.
+
+     <!DOCTYPE html>
+     <html>
+     <head>
+     <script type="application/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+     <title>DOM Event Example</title>  
+     </head>
+     <body>
+     <div id="foo">
+       <button id="but" />
+     </div>   
+     <script>
+     $("#foo").click( function () { 
+       console.log("#foo click")
+     });
+     
+     $("#but").click( function (ev) {
+       console.log("#but click");
+       ev.stopPropagation(); 
+     })
+     </script>
+     </body>
+     </html>
+
+위의 예제에서 보면, `ev.stopPropagation()` 을 하면 console 에
+
+     #but click 
+
+만 나온다.
+
+하지만 `//ev.stopPropagation()` 로 comment-out 하면 console 에 
+
+     #but click
+     #foo click
+
+이라고 나온다. parent node 로 event 가 propagate 된 것이다.
+
+그럼 stopPropagation() 과 stopImmediatePropagation() 의 차이는 무엇일까?
+
+[jquery: stopPropagation vs stopImmediatePropagation](http://stackoverflow.com/questions/5299740/jquery-stoppropagation-vs-stopimmediatepropagation) 에 설명이 되어 있다.
+
+우선 [jsfiddle 예제](http://jsfiddle.net/syT6K/) 를 보자.
+
+### Exceptions thrown inside event listener
+
+> Exceptions thrown inside event listeners must not stop the propagation of the event or affect the propagation path. The exception itself must not propogate outside the scope of the event handler.
+
+    var e = document.createEvent("Event");
+    e.initEvent("myevent", false, false);
+    var target = document.createElement("div");
+    target.addEventListener("myevent", function () {
+       throw "Error";
+    });
+    target.dispatchEvent(e); // Causes the event listener to throw an exception...
+    // The previously thrown exception doesn't affect the code that follows:
+    console.log("Exceptions? No problem");
+
+실행해보면 "Exceptions? No problem" 이 출력된다. event listener 에서 던진 "Error" 가 parent scope 로 올라오지 않는다는 이야기.
+
+### Further works:
+
+1. DOM Level 2 Events Spec 과 DOM Level 3 Events Spec 를 정독해봐야겠다.
+2. DOM Event Flow 와 addEventListener(), preventDefault(), stopPropagation(), stopImmediatePropagation() 부분을 정독해야겠다.
+3. Touch event 를 tracking 해서 drawing 을 하는 예제를 만들어 iPad 로 테스트해봐야겠다.
+4. FastClick.js 의 line-by-line 분석.
+
+### Further readings:
+
+* [MDN: element.addEventListener](https://developer.mozilla.org/en-US/docs/DOM/element.addEventListener)
+* [Event dispatch and DOM event flow](http://www.w3.org/TR/DOM-Level-3-Events/#event-flow)
+* [Touch event example](https://developer.mozilla.org/en-US/docs/DOM/Touch_events#Example)
+* [David Walsh's blog](http://davidwalsh.name/javascript-events)
+* [Playing Around With JavaScript's stopPropagation and preventDefault Methods ](http://blog.bittersweetryan.com/2012/07/playing-around-with-javascripts.html)
+* [Quick Tips:event.preventDefault() and event.stopPropagation and event.stopImmediatePropagation](http://dev-tricks.com/event-preventdefault-and-event-stoppropagation-and-event-stopimmediatepropagation/)

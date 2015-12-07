@@ -1,0 +1,16 @@
+---
+layout: post
+title: "MOV EDI, EDI"
+date: 2013-09-27 10:57
+comments: true
+categories: 
+---
+
+Raymond Chen 의 블로그 중에서 재미난 것을 찾았다.
+
+[Why do Windows functions all begin with a pointless MOV EDI, EDI instruction?]
+(http://blogs.msdn.com/b/oldnewthing/archive/2011/09/21/10214405.aspx)
+
+    MOV EDI, EDI
+    PUSH EBP
+    MOV EBP, ESP

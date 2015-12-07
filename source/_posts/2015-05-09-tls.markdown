@@ -1,0 +1,207 @@
+---
+layout: post
+title: "TLS"
+date: 2015-05-09 13:54:37 +0900
+comments: true
+categories: 
+---
+
+#### TLS Data Structures
+
+```
+struct {
+    uint8 major;
+    uint8 minor;
+} ProtocolVersion;
+
+enum {
+    change_cipher_spec (20),
+    alert (21),
+    handshake (22),
+    application_data (23)
+} ContentType;
+
+struct {
+    ContentType type;
+    ProtocolVersion version;
+    uint16 length;
+    opaque fragment[TLSPlaintext.length];
+} TLSPlaintext;
+
+struct {
+    HandshakeType msg_type;
+    uint24 length;
+    HandshakeMessage message;
+} Handshake;
+```
+
+#### Full Handshake
+
+1. [ClientHello] Client begins a new handshake and submits its capabilities to the server.
+2. [ServerHello] Sever selects connection parameters.
+3. [Certificate] Server sends its certificate chain (only if server authentication is required).
+4. [ServerKeyExchange] Depending on the selected key exchange, the server sends additional information required to generate the master secret.
+5. [ServerHelloDone] Server indicates completion of its side of the negotiation.
+6. [ClientKeyExchange] Client sends additional information required to generate the master secret. 
+7. [ChangeCipherSpec] Client switches to encryption and informs the server.
+8. [Finished] Client sends a MAC of the handshake messages it sent and received.
+9. [ChangeCipherSpec] Server switches to encryption and informs the client.
+10. [Finished] Server sends a MAC of the handshake messages it received and sent.
+
+#### ClientHello
+
+* 프로토콜 버전은 클라이언트가 지원하는 가장 높은 버전.
+* 그 다음은 랜덤 28 바이트 + 4 바이트 클락.
+* 첫 연결에서는 세션 ID 는 empty. 리쥼할 경우에는 32 바이트. 서버 세션 캐쉬 ID.
+* 그리고 클라이언트에서 지원하는 cipher suites.
+
+```
+Handshake protocol: ClientHello
+    Version: TLS 1.2
+    Random
+        Client time: May 22, 2030 02:43:46 GMT
+        Random bytes: b76b...
+    Session ID: (empty)
+    Cipher Suites
+        Suite: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+        Suite: TLS_DHE_RSA_WITH_AES_128_GCM_SHA256
+        Suite: TLS_RSA_WITH_AES_128_GCM_SHA256
+        ...
+    Compression methods
+        Method: null
+    Extensions
+        Extension: server_name
+            Hostname: www.babo.com
+        Extension: renegotiation_info
+        Extension: elliptic_curves
+            Named curve: secp256r1
+            Named curve: secp384r1
+        Extension: signature_algorithms
+            Algorithm: sha1/rsa
+            Algorithm: sha256/rsa
+            Algorithm: sha1/ecdsa
+            Algorithm: sha256/ecdsa
+```
+
+#### ServerHello
+
+옵션들중에서 서버가 선택한 초이스를 클라이언트에게 알려준다.
+
+```
+Handshake protocol: ServerHello
+    Version: TLS 1.2
+    Random
+        Server time: Mar 10, 2059 02:35:57 GMT
+        Random bytes: 8469...
+    Session ID: 4cae75...
+    Cipher Suite: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+    Compression method: null
+    Extensions
+        Extension: server_name
+        Extension: renegotiation_info
+```
+
+#### Certificate
+
+* 서버의 X.509 인증서 체인. ASN.1 DER 인코딩.
+* 서버 인증서가 첫번쨰. 그리고, validation chain 이 주르륵 따라간다. root 는 브라우저에 있으니 생략한다.
+* 선택된 cipher suite 와 호환되는 인증서여야한다.
+
+#### Finished
+
+* verify_data = PRF(master_secret, finished_label, Hash(handshake_message))
+
+#### Key Exchange
+
+* dh_anon, dhe_rsa, ecdh_anon, ecdhe_rsa, ecdhe_ecdsa, krb5, rsa, psk, dhe_psk, rsa_psk, srp
+
+```
+struct {
+    select (KeyExchangeAlgorithm) {
+        case dh_anon:
+            ServerDHParams      params;
+        case dhe_rsa:
+            ServerDHParams      params;
+            Signature           params_signature;
+        case ecdh_anon:
+            ServerECDHParams    params;
+        case ecdhe_rsa:
+        case ecdhe_ecdsa:
+            ServerECDHParams    params;
+            Signature           params_signature;
+        case rsa:
+        case dh_rsa:
+            /* no message */
+    };
+} ServerKeyExchange;
+```
+
+#### RSA Key Exchange
+
+굉장히 심플. 클라이언트가 premaster secret (46-byte random number) 를 생성해서, 서버의 public key 로 암호화해서 `ClientKeyExchange` 메시지로 보낸다. TLS 에서는 `RSAES-PKCS1-v1_5` 스킴을 사용. Forward secrecy 가 보장이 안되서 문제.
+
+#### Diffie-Hellman Key Exchange
+
+```
+struct {
+    opaque dh_p;
+    opaque dh_g;
+    opaque dh_Ys;
+} ServerDHParams;
+
+struct {
+    select (PublicValueEncoding) {
+        case implicit:
+            /* empty; used when the client's public parameter is embedded in its certificate */
+        case explicit:
+            opaque dh_Yc;
+    } dh_public;
+} ClientDiffieHellmanPublic;
+```
+
+Ephemeral Diffie-Hellman (DHE) key exchange 는 파라메터 재사용을 안하는 키교환. 반대로 static DH key exchange 도 있지만, TLS 에서 사용되지는 않는다.
+
+#### Elliptic Curve Diffie-Hellman Key Exchange
+
+#### Authentication
+
+RSA key exchange 에서는 프로토콜을 계속 진행할 수 있다면, 서버가 제시한 인증서의 당사자가 반대편에 있다는 것이 implicit 하게 보장이 된다.
+
+DHE / ECDHE 에서는 서버가 보낸 파라메터에 서명이 딸려온다. 서버의 public key 로 검증할 수 있다.
+
+#### Encryption
+
+Sequence #, Header, Plaintext 를 concat 해서 MAC 을 구해서, Plaintext 에 append 한다. 이 녀석을 encrypt 한 것이 TLS 의 ciphertext. Header + ciphertext 를 전송한다.
+
+Block encryption algorithm 을 사용할 경우 padding 이 들어가는데, Plaintext + MAC + Padding 을 encrypt 하는데, IV 를 generate 한다음에 CBC mode 로 Plaintext + MAC + Padding 을 encrypt 한다. Header + IV + Ciphertext 를 전송한다.
+
+예전에는 전의 ciphertext 를 IV 로 쓰는 chaining 을 했었는데, TLS 1.1 부터 모든 레코드에 IV 가 generate 된다.
+
+#### Authenticated Encryption
+
+1. Generate a unique 64-bit nounce.
+2. Encrypt plaintext with the authenticated encryption algorithm; at the same time feed it the sequence number and record header for it to take into account as additional data for purposes of integrity validation.
+3. Send the nounce and ciphertext together.
+
+Authenticated encryption is currently favored as the best encryption mode available in TLS, because it avoids the issues inherent with the MAC-then-encrypt approach.
+
+#### PRF
+
+```
+PRF(secret, label, seed) = P_hash(secret, label + seed)
+P_hash(secret, seed) = HMAC_hash(secret, A(1) + seed) + HMAC_hash(secret, A(2) + seed) + ...
+A(1) = HMAC_hash(secret, seed)
+A(2) = HMAC_hash(secret, A(1))
+A(3) = HMAC_hash(secret, A(2))
+...
+```
+
+#### Master Secret
+
+master_secret = PRF(pre_master_secret, "master secret", ClientHello.random + ServerHello.random)
+
+#### Key Generation
+
+key_block = PRF(SecurityParameters.master_secret, "key expansion", SecurityParameters.server_random + SecurityParameters.client_random)
+
+The key block is divided into up to six keys: two MAC keys, two encryption keys, two IVs.

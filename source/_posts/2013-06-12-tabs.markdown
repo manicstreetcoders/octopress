@@ -1,0 +1,106 @@
+---
+layout: post
+title: "Tabs"
+date: 2013-06-12 11:48
+comments: true
+categories: 
+---
+
+Ted Logan's [Secrets of tabs in vim](http://tedlogan.com/techblog3.html) 에서 읽은 내용을 정리.
+
+Vim 에서.
+
+vim 에서 눈에 보이는 indentation 은 '\t' 와 space 의 조합으로 이루어져 있음.
+
+tabstop 은,
+'\t' 을 렌더링할 때 기준이 될 hard 한 column grid 의 간격을 결정함.
+
+일반적으로 tabstop 과 softtabstop 을 같게 설정하나,
+
+tabstop 과 softtabstop 의 개념을 설명하기 위해서
+
+굳이 다르게 설정해보겠음.
+
+noexpandtab 기준으로 설명하면,
+
+:set tabstop=4 softtabstop=4 noexpandtab 입력 후
+1[TAB]2[TAB]3[TAB]4 입력.
+
+화면에 이렇게 나타남.
+
+<pre>
+1234567890123456789012345678901234567890
+1   2   3   4
+</pre>
+
+[RETURN] 치고, :set tabstop=4 softtabstop=3 noexpandtab 입력 후
+동일하게 1[TAB]2[TAB]3[TAB]4 입력.
+
+<pre>
+1234567890123456789012345678901234567890
+1   2   3   4
+1  2  3  4  5
+</pre>
+
+이제 :set list 로 특수문자 표시.
+
+<pre>
+1234567890123456789012345678901234567890$
+1^I2^I3^I4$
+1  2  3^I 4^I5$
+</pre>
+
+그럼, 설명 시작.
+
+tabstop=4
+softtabstop=3
+일 경우.
+
+[TAB] 키를 누르면,
+soft 한 tab grid 는 3 column 간격으로 이루어져 있지만,
+hard 한 tab grid 는 4 column 간격으로 이루어져 있기 때문에,
+둘째줄 처음 2,3 는 space 만 가지고 전진했고, 4 는 '\t' + space 로 전진.
+
+즉 noexpandtab 일 경우, softtabstop 그리드와 (hard)tabstop 그리드가
+틀리니까, vim 이 '\t' 와 space 조합으로 인덴테이션을 만들어냄.
+
+정리하면 tabstop 는 '\t' 를 포지셔닝할 그리드를 만들때 사용.
+softtabstop 는 눈에 보이는 그리드.
+
+tabstop != softtabstop 일 경우, '\t' 만으로 softtabstop 그리드에 인덴트할 수
+없기때문에, space 로 메꿔줌.
+
+그런데, 인덴테이션이 '\t' + space 로 만들어지면, 
+space 파트는 안변하지만 '\t' 파트는 tabstop 에 따라서 달라짐.
+
+문제는 어떤 인덴트는 space 만으로, 어떤 인덴트는 '\t' + two spaces 로,
+이런 식으로 중구난방이기 때문에, tabstop 이 달라지면 인덴트가 다 깨짐.
+
+그럼으로 인덴테이션은 '\t' 이나 space 어느 한가지만으로 만들어지는게 좋음.
+
+softtabstop == tabstop 은 같게 하면 좋음.
+
+당연한 이야기를 어렵게 설명했음.
+
+shiftwidth 는 [TAB] 이 아니라 vim 의 < < / > > 로 reindent 할 때 사용됨.
+
+:set tabstop=8 softtabstop=8 shiftwidth=8 noexpandtab
+
+으로 일치를 시켜주던가.
+
+아니면, 
+
+:set softtabstop=4 shiftwidth=4 expandtab
+
+으로 '\t' 를 space 로 대체하면, tabstop 에 영향받지도 않고 굳이 설정할 필요도 없음.
+
+Ruby 사용자라면,
+
+:set ts=2 sts=2 sw=2 expandtab
+
+이 적절.
+
+Tab 을 눈에 보이게 하는 법.
+
+    syntax match Tab /\t/
+    hi Tab gui=underline guifg=blue ctermbg=blue

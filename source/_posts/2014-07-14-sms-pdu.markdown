@@ -1,0 +1,40 @@
+---
+layout: post
+title: "SMS PDU"
+date: 2014-07-14 12:09:41 +0900
+comments: true
+categories: 
+---
+
+### Terminology
+
+* IMSI: Internation Mobile Subscriber Identity
+* MIN: Mobile Identify Number
+* MDN: Mobile Directory Number
+
+MIN 은 원래 북미의 이동전화 단말기를 식별하기 위한 것이었는데, 
+10 자리 MIN 이 국제 로밍을 위한 정보를 포함할 수 없어서 
+IMSI 가 만들어짐.
+GSM 에서는 IMSI 를 사용. MCC + MNC + MSIN = IMSI.
+
+* MCC: Mobile Country Code. 3 자리. ITU(TSB) 에서 할당.
+* MNC: Mobile Network Code. 2~3 자리. 
+* MSIN: Mobile Subscriber Identification Number.
+
+MCC + MNC 로 이동전화 가입자의 홈 네트웍을 전 세계 어느 망에서든지 유일하게 식별 가능하다.
+
+* MSISDN: Mobile Station International ISDN Number. GSM 표준에서 IS-41 표준의 MDN 역할을 한다.
+
+### 3gpp PDU Format
+
+### Resources
+
+* [너른공간](http://dragonheart.tistory.com/4)
+* [통신 용어 - min, mdn, imsi, imei, msisdn](http://knight76.tistory.com/entry/%ED%86%B5%EC%8B%A0-%EC%9A%A9%EC%96%B4-min-mdn)
+* [3gpp SMS spec](http://www.qtc.jp/3GPP/Specs/23040-681.pdf)
+* [3gpp Cellular Radiotelecommunications Intersystem Operations](http://www.3gpp2.org/public_html/specs/N.S0005-0_v1.0.pdf)
+* [Charlie Miller's Fuzzing the Phone in your Phone](https://www.blackhat.com/presentations/bh-usa-09/MILLER/BHUSA09-Miller-FuzzingPhone-PAPER.pdf)
+* [Injecting SMS Messages into Smart Phones for Security Analysis](https://www.usenix.org/legacy/event/woot09/tech/full_papers/mulliner.pdf)
+* [Verizon M2M](http://m2msupport.net/m2msupport/verizon-wireless-m2m-modules-certification/)
+* [SMS PDU Format](http://www.smartposition.nl/resources/sms_pdu.html#PDU)
+* [CDMA PDU parsing on Android](http://stackoverflow.com/questions/11182650/cdma-pdu-parsing-on-android)

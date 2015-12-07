@@ -1,0 +1,158 @@
+---
+layout: post
+title: "dotfiles"
+date: 2012-08-30 14:59
+comments: true
+categories: 
+---
+
+.bashrc 라던가 .vimrc 라던가 이런 dotfiles 들이 너덜너덜해져서 정리를 시작했는데, 이런 일들은 한번 시작하면 대책없이 커지기 시작한다.
+꽤 오랜 시간 들여서 정리를 했는데, 앞으로 해야할 일들이 더 많아졌다.
+
+2012/10/27 github 에 dotfiles repo 를 만들고 .tmux.conf 를 올려놓았다.
+
+### OS
+* OS X Mountain Lion 컨피그는
+[mathiasbynens/dotfiles](https://github.com/mathiasbynens/dotfiles) 의 .osx 에서 적당히 뺄 것 빼고 해서 커스터마이즈했음.
+
+### Terminal
+* iTerm2 을 쓰며, 칼라 프리셋은 
+[hardcore/iTerm-colors](https://github.com/hardcore/iTerm-colors) 를 사용.
+
+### Shell
+* bash & zsh 둘다 사용.
+
+### dotfiles
+* [ryanb/dotfiles](https://github.com/ryanb/dotfiles) - 개발자는 아니지만, Rails 로 프로토타입을 자주 만들고 있고,
+RailsCasts 를 자주 참조하기 때문에,
+Ryan Bates 의 dotfiles 을 그대로 사용하고 있는데 rails 개발에 편리함.
+oh-my-zsh 을 베이스로 사용하며, vimrc, irbrc, gitconfig, gemrc 등이 들어있음.
+
+### vimrc
+* [spf13/spf13-vim](https://github.com/spf13/spf13-vim)
+
+### TextMate
+* [jashkenas/coffee-script-tmbundle](https://github.com/jashkenas/coffee-script-tmbundle)
+* [JavaScript Tools TextMate Bundle ](https://github.com/subtleGradient/javascript-tools.tmbundle) 
+
+JavaScript Tools Bundle 이 쓸만한데, Minifier 와 Formatter 가 요긴하다.
+
+OS X Lion + TextMate 1.5.11 에 JavaScript Tools Bundle 을 설치하는 방법.
+
+    $ cd /Applications/TextMate.app/Contents/SharedSupport/Bundles
+    $ git clone git@github.com:subtleGradient/javascript-tools.tmbundle
+    Cloning into javascript-tools.tmbundle...
+    remote: Counting objects: 550, done.
+    remote: Compressing objects: 100% (320/320), done.
+    remote: Total 550 (delta 311), reused 445 (delta 217)
+    Receiving objects: 100% (550/550), 12.40 MiB | 1.97 MiB/s, done.
+    Resolving deltas: 100% (311/311), done.
+
+TextMate 의 Bundles -> Bundle Editor -> Reload Bundles 를 선택해서 reload!
+
+### Screen Multiplexer
+* tmux - screen 을 쓰다가 pane 관리가 좋아서, tmux 로 갈아탐.
+* config 화일은 [jseidl/tmux.conf](https://github.com/jseidl/tmux.conf) 사용.
+* Ubuntu 의 경우, `setxkbmap -option "ctrl:nocaps"` 로 Caps Lock 을 Ctrl 로 매핑해주는 것이 편리.
+* XPS13 + Ubuntu 12.04 LTS 에서의 WiFi 문제는
+
+/etc/pm/power.d/wireless 화일에
+
+    #!/bin/sh
+    /sbin/iwconfig wlan0 power off
+
+을 넣어서 Wireless lan 에 대한 power management 를 off 시키고,
+
+    $ echo "options iwlwifi 11n_disable=1" | sudo tee /etc/modprobe.d/iwlwifi.conf
+    $ sudo modprobe -rfv iwlwifi
+    $ sudo modprobe -v iwlwifi
+
+로 802.11n 사용을 꺼버리면 해결된다. 제 속도가 나온다.
+
+Key binding 을 screen 과 유사하게 세팅하는 것이 편하다. 아무래도 Ctrl-a 같은 키는 손에 익어서 바꾸기가 힘들다.
+
+    # Screen Compatibility
+    set-option -g prefix C-a
+    unbind l
+    bind C-a last-window
+    set -g base-index 0
+    set-option -g default-terminal "screen-256color"
+
+    # Splitting
+    unbind %
+    bind | split-window -h
+    bind - split-window -v
+
+    # Vi Compatibility
+    setw -g mode-keys vi
+    bind-key -t vi-copy 'v' begin-selection
+    bind-key -t vi-copy 'y' copy-selection
+
+### Ruby
+설치 순서는 
+
+#### OS X "Software Update" 
+#### Xcode 설치
+#### Xcode 메뉴에서 Command Line Tools 설치
+#### Install Homebrew
+
+    $ ruby -e "$(curl -fsSkL raw.github.com/mxcl/homebrew/go)"
+
+#### Git 설치
+
+    $ brew install git
+
+#### rbenv 설치
+
+    # Using Homebrew
+    $ brew update
+    $ brew install rbenv
+    $ brew install ruby-build
+
+    사용하는 shell profile 에 따라서 다음 두줄 추가
+    $ echo 'export PATH="$HOME/.rbenv/bin:$PATH"' >> ~/.zshrc
+    $ echo 'eval "$(rbenv init -)"' >> ~/.zshrc
+
+    # Using git
+    $ cd
+    $ git clone git://github.com/sstephenson/rbenv.git .rbenv
+    $ echo 'export PATH="$HOME/.rbenv/bin:$PATH"' >> ~/.zshrc
+    $ echo 'eval "$(rbenv init -)"' >> ~/.zshrc
+
+    $ mkdir -p ~/.rbenv/plugins
+    $ cd ~/.rbenv/plugins
+    $ git clone git://github.com/sstephenson/ruby-build.git
+
+#### Ruby 1.9.3 설치
+
+    $ rbenv install 1.9.3-p327
+
+#### Ruby 1.9.3 을 글로벌 버전으로 설정
+
+    $ rbenv global 1.9.3-p327
+    $ rbenv rehash
+
+#### Rails
+
+    $ gem install bundle; rbenv rehash
+    $ gem install rails; rbenv rehash
+
+Ruby performance patch 를 적용하기 위해서는 CFLAGS 도 조정해주고, 
+[Ruby-1.9.3-p327 cumulative performance patch for rbenv ](https://gist.github.com/1688857)
+도 사용해서 Ruby 를 인스톨하면 좋다.
+
+참조:
+* [Ruby 1.9.3 Without Xcode or GCC](http://blog.envylabs.com/post/29008340375/ruby-1-9-3-without-xcode-or-gcc)
+* [Xcode, GCC, and Homebrew](http://kennethreitz.com/xcode-gcc-and-homebrew.html)
+
+### Misc.
+* [rupa/z](https://github.com/rupa/z) - z jumper. 예전 도스 시절의 노턴 NCD 같은 툴. 디렉토리 변경을 regexp 로 할 수 있음. 정말 좋음.
+* [ack](http://betterthangrep.com) - ack is a tool like grep, optimized for programmers. 
+* [Use Ack Instead of Grep to Parse Text Files](http://stevengharms.com/blog/2012/04/10/use-ack-instead-of-grep-to-parse-text-files/)
+
+### Future works
+* spf13 에서 [F/ Vim](https://github.com/factorylabs/vimfiles) 으로 vim configuration 을 이동.
+* JavaScript 에 대한 Live Linting
+* Snow Leopard 에서 MacVim 컴파일 & 인스톨
+* Gianni Chiappetta’s [dotfiles](https://github.com/gf3/dotfiles)
+* Ryan Bates's [dotfiles](https://github.com/ryanb/dotfiles)

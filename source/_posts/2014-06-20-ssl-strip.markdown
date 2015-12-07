@@ -1,0 +1,16 @@
+---
+layout: post
+title: "SSL Strip"
+date: 2014-06-20 11:57:47 +0900
+comments: true
+categories: 
+---
+
+* [New Tricks for Defeating SSL in Practice - Black Hat 2009](https://www.blackhat.com/presentations/bh-dc-09/Marlinspike/BlackHat-DC-09-Marlinspike-Defeating-SSL.pdf)
+* [More Tricks for Defeating SSL in Pracetice - Black Hat](https://www.blackhat.com/presentations/bh-usa-09/MARLINSPIKE/BHUSA09-Marlinspike-DefeatSSL-SLIDES.pdf) 
+* [SSL and the Future of Authenticity](http://www.youtube.com/watch?v=Z7Wl2FW2TcA)
+* [Moxie Marlinspike's Blog](http://www.thoughtcrime.org/blog/)
+
+BlackHat USA 2011 에 발표되었던 [SSL And The Future of Authenticity](http://www.youtube.com/watch?v=Z7Wl2FW2TcA) 를 보았다.
+
+Comodo 해킹 이슈를 예로 들면서 현재 인터넷에서 쓰이는 PKI 가 맛이 갔음을 이야기한다.

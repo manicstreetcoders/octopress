@@ -1,0 +1,14 @@
+---
+layout: post
+title: "heapLib 2.0"
+date: 2014-05-21 19:38:45 +0900
+comments: true
+categories: 
+---
+
+* [Alexander Sotirov 의 heapLib](http://retrogod.altervista.org/heapLib_js.html)
+* [IOActive 의 Chris Valesek 이 공개한 heapLib2.0](http://blog.ioactive.com/2013/11/heaplib-20.html)
+* [BlackHat 07 Alexander Sotirov, Heap Feng Shui](https://www.blackhat.com/presentations/bh-europe-07/Sotirov/Whitepaper/bh-eu-07-sotirov-WP.pdf)
+* [Blackhat 08 Alexander Sotirov, Bypassing Browser Memory Protections](https://www.blackhat.com/presentations/bh-usa-08/Sotirov_Dowd/bh08-sotirov-dowd.pdf)
+
+여러 화일들이 있는데, 이중에서 유요한 것은 heapLib2.js
