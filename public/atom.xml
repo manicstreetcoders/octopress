@@ -4,7 +4,7 @@
   <title><![CDATA[KC's blog]]></title>
   <link href="http://zomo.heroku.com/atom.xml" rel="self"/>
   <link href="http://zomo.heroku.com/"/>
-  <updated>2015-12-07T17:19:07+09:00</updated>
+  <updated>2015-12-07T17:31:40+09:00</updated>
   <id>http://zomo.heroku.com/</id>
   <author>
     <name><![CDATA[KC]]></name>
@@ -18,7 +18,7 @@
     <link href="http://zomo.heroku.com/blog/2015/12/07/trustnone/"/>
     <updated>2015-12-07T17:14:52+09:00</updated>
     <id>http://zomo.heroku.com/blog/2015/12/07/trustnone</id>
-    <content type="html"><![CDATA[
+    <content type="html"><![CDATA[<p><a href="http://theroot.ninja/disclosures/TRUSTNONE_1.0-11282015.pdf">TRUSTNONE</a> 을 읽고 정리해본다.</p>
 ]]></content>
   </entry>
   
