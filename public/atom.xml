@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[My Octopress Blog]]></title>
-  <link href="http://yoursite.com/atom.xml" rel="self"/>
-  <link href="http://yoursite.com/"/>
-  <updated>2015-12-07T16:40:40+09:00</updated>
-  <id>http://yoursite.com/</id>
+  <title><![CDATA[KC's blog]]></title>
+  <link href="http://zomo.heroku.com/atom.xml" rel="self"/>
+  <link href="http://zomo.heroku.com/"/>
+  <updated>2015-12-07T16:43:57+09:00</updated>
+  <id>http://zomo.heroku.com/</id>
   <author>
-    <name><![CDATA[Your Name]]></name>
+    <name><![CDATA[KC]]></name>
     
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[Return Oriented Programming for the ARM Architecture]]></title>
-    <link href="http://yoursite.com/blog/2015/10/04/return-oriented-programming-for-the-arm-architecture/"/>
+    <link href="http://zomo.heroku.com/blog/2015/10/04/return-oriented-programming-for-the-arm-architecture/"/>
     <updated>2015-10-04T16:30:36+09:00</updated>
-    <id>http://yoursite.com/blog/2015/10/04/return-oriented-programming-for-the-arm-architecture</id>
+    <id>http://zomo.heroku.com/blog/2015/10/04/return-oriented-programming-for-the-arm-architecture</id>
     <content type="html"><![CDATA[<p>Tim Kornau 의 논문, <a href="">Return Oriented Programming for the ARM Architecture</a> 를 읽고 정리해본다.</p>
 
 <h4>Contents</h4>
@@ -31,18 +31,18 @@
   
   <entry>
     <title type="html"><![CDATA[The Inside Story Behind MS08-067]]></title>
-    <link href="http://yoursite.com/blog/2015/10/02/the-inside-story-behind-ms08-067/"/>
+    <link href="http://zomo.heroku.com/blog/2015/10/02/the-inside-story-behind-ms08-067/"/>
     <updated>2015-10-02T13:34:09+09:00</updated>
-    <id>http://yoursite.com/blog/2015/10/02/the-inside-story-behind-ms08-067</id>
+    <id>http://zomo.heroku.com/blog/2015/10/02/the-inside-story-behind-ms08-067</id>
     <content type="html"><![CDATA[<p><a href="http://blogs.technet.com/b/johnla/archive/2015/09/26/the-inside-story-behind-ms08-067.aspx">The Inside Story Behind MS08-067</a> 을 읽고 정리해본다.</p>
 ]]></content>
   </entry>
   
   <entry>
     <title type="html"><![CDATA[ROP and ARM]]></title>
-    <link href="http://yoursite.com/blog/2015/09/17/rop-and-arm/"/>
+    <link href="http://zomo.heroku.com/blog/2015/09/17/rop-and-arm/"/>
     <updated>2015-09-17T17:38:41+09:00</updated>
-    <id>http://yoursite.com/blog/2015/09/17/rop-and-arm</id>
+    <id>http://zomo.heroku.com/blog/2015/09/17/rop-and-arm</id>
     <content type="html"><![CDATA[<p>ARM 에서 메모리에다가 인스트럭션을 쓰고, 바로 control flow 를 그리로 돌리면, cache 때문에 공격자의 payload 가 실행되지 않는 케이스가 몇가지 있다. ARM 에서 첫단계는 ROP 로 구성해야하는 이유. Instruction cache flushing 을 하는 system call 이 있기는 한데, i.e. Linux 는 <code>cacheflush()</code>, 저걸 부르기 위해서는 먼저 code 수행을 만들어야하니 닭과 달걀의 문제가 되버린다고. 다행히 <code>mprotect()</code> 를 부르면 cache 가 flushing 되니, ROP 에서 mprotect() 로 payload 를 executable 하게 마크해주면 일거양득.</p>
 
 <h4>Basics of ROP on ARM</h4>
@@ -123,18 +123,18 @@
   
   <entry>
     <title type="html"><![CDATA[Sophail: Applied Attacks Against Sophos Antivirus]]></title>
-    <link href="http://yoursite.com/blog/2015/09/13/sophail-applied-attacks-against-sophos-antivirus/"/>
+    <link href="http://zomo.heroku.com/blog/2015/09/13/sophail-applied-attacks-against-sophos-antivirus/"/>
     <updated>2015-09-13T21:17:29+09:00</updated>
-    <id>http://yoursite.com/blog/2015/09/13/sophail-applied-attacks-against-sophos-antivirus</id>
+    <id>http://zomo.heroku.com/blog/2015/09/13/sophail-applied-attacks-against-sophos-antivirus</id>
     <content type="html"><![CDATA[<p>Tavis Ormandy 의 <a href="https://lock.cmpxchg8b.com/sophailv2.pdf">Sophail: Applied attacks against Sophos Antivirus</a> 을 읽고 요약해본다.</p>
 ]]></content>
   </entry>
   
   <entry>
     <title type="html"><![CDATA[Stagefright]]></title>
-    <link href="http://yoursite.com/blog/2015/09/13/stagefright/"/>
+    <link href="http://zomo.heroku.com/blog/2015/09/13/stagefright/"/>
     <updated>2015-09-13T20:55:51+09:00</updated>
-    <id>http://yoursite.com/blog/2015/09/13/stagefright</id>
+    <id>http://zomo.heroku.com/blog/2015/09/13/stagefright</id>
     <content type="html"><![CDATA[<p>Android 의 Stagefright 버그를 정리해본다.</p>
 
 <ul>
@@ -514,7 +514,7 @@ BoxType 은 4 글자 코드로 구성된다. FourCC 라고 불리는데, <code>c
 
 <p>아래 그림은 구글 블로그에서 가져온 것인데. text 를 두개 alloc 하는데, 하나는 정상, 그리고 또 하나는 extended chunk size 로 0xffffffffffffffff 을 세팅하는 mp3 데이터이다.</p>
 
-<p><img src="http://yoursite.com/images/tx3g.png"></p>
+<p><img src="http://zomo.heroku.com/images/tx3g.png"></p>
 
 <p>저자는 MPEGExtractor.cpp 쪽에 로그를 집어넣고 빌드를 다시해서, PoC MP4 를 로드해본 결과 다음과 같은 로그가 잡혔다고 한다.</p>
 
@@ -1023,9 +1023,9 @@ BoxType 은 4 글자 코드로 구성된다. FourCC 라고 불리는데, <code>c
   
   <entry>
     <title type="html"><![CDATA[0-day Deserialization Vulnerabilities in Android]]></title>
-    <link href="http://yoursite.com/blog/2015/09/13/0-day-deserialization-vulnerabilities-in-android/"/>
+    <link href="http://zomo.heroku.com/blog/2015/09/13/0-day-deserialization-vulnerabilities-in-android/"/>
     <updated>2015-09-13T20:53:16+09:00</updated>
-    <id>http://yoursite.com/blog/2015/09/13/0-day-deserialization-vulnerabilities-in-android</id>
+    <id>http://zomo.heroku.com/blog/2015/09/13/0-day-deserialization-vulnerabilities-in-android</id>
     <content type="html"><![CDATA[<p>WOOT15 에 나온 <a href="https://www.usenix.org/system/files/conference/woot15/woot15-paper-peles.pdf">One Class to Rule Them All: 0-day Deserialization Vulnerabilities in Android</a> 를 읽고 정리해본다.</p>
 
 <p>저자는 IBM Security 의 Or Peles, Rose Hay.</p>
@@ -1038,9 +1038,9 @@ BoxType 은 4 글자 코드로 구성된다. FourCC 라고 불리는데, <code>c
   
   <entry>
     <title type="html"><![CDATA[Own Your Android! Yet Another Universal Root]]></title>
-    <link href="http://yoursite.com/blog/2015/09/02/own-your-android-yet-another-universal-root/"/>
+    <link href="http://zomo.heroku.com/blog/2015/09/02/own-your-android-yet-another-universal-root/"/>
     <updated>2015-09-02T09:26:22+09:00</updated>
-    <id>http://yoursite.com/blog/2015/09/02/own-your-android-yet-another-universal-root</id>
+    <id>http://zomo.heroku.com/blog/2015/09/02/own-your-android-yet-another-universal-root</id>
     <content type="html"><![CDATA[<p>BlackHat 2015 에 발표된 Own your Android! Yet Another Universal Root, Wen Xu, Yubin Fu. 를 정리해본다.</p>
 
 <h4>Bug analysis</h4>
@@ -1322,9 +1322,9 @@ BoxType 은 4 글자 코드로 구성된다. FourCC 라고 불리는데, <code>c
   
   <entry>
     <title type="html"><![CDATA[Offensive and Defensive Android Reverse Engineering]]></title>
-    <link href="http://yoursite.com/blog/2015/08/22/offensive-and-defensive-android-reverse-engineering/"/>
+    <link href="http://zomo.heroku.com/blog/2015/08/22/offensive-and-defensive-android-reverse-engineering/"/>
     <updated>2015-08-22T22:03:57+09:00</updated>
-    <id>http://yoursite.com/blog/2015/08/22/offensive-and-defensive-android-reverse-engineering</id>
+    <id>http://zomo.heroku.com/blog/2015/08/22/offensive-and-defensive-android-reverse-engineering</id>
     <content type="html"><![CDATA[<p>DEFCON 2015, Offensive and Defensive Android Reverse Engineering 에서.</p>
 
 <p>Github.com 의 rednaga/training 에 가보면 있음.</p>
@@ -1395,9 +1395,9 @@ BoxType 은 4 글자 코드로 구성된다. FourCC 라고 불리는데, <code>c
   
   <entry>
     <title type="html"><![CDATA[Type Casting Verification: Stopping an Emerging Attack Vector]]></title>
-    <link href="http://yoursite.com/blog/2015/08/20/type-casting-verification-stopping-an-emerging-attack-vector/"/>
+    <link href="http://zomo.heroku.com/blog/2015/08/20/type-casting-verification-stopping-an-emerging-attack-vector/"/>
     <updated>2015-08-20T17:23:58+09:00</updated>
-    <id>http://yoursite.com/blog/2015/08/20/type-casting-verification-stopping-an-emerging-attack-vector</id>
+    <id>http://zomo.heroku.com/blog/2015/08/20/type-casting-verification-stopping-an-emerging-attack-vector</id>
     <content type="html"><![CDATA[<p>USENIX 2015 에 발표된, Type Casting Verification: Stopping an Emerging Attack Vector.</p>
 
 <h4>C++ Bad-casting Demystified</h4>
@@ -1471,9 +1471,9 @@ BoxType 은 4 글자 코드로 구성된다. FourCC 라고 불리는데, <code>c
   
   <entry>
     <title type="html"><![CDATA[Setting Up L2TP VPN]]></title>
-    <link href="http://yoursite.com/blog/2015/08/05/setting-up-l2tp-vpn/"/>
+    <link href="http://zomo.heroku.com/blog/2015/08/05/setting-up-l2tp-vpn/"/>
     <updated>2015-08-05T16:25:16+09:00</updated>
-    <id>http://yoursite.com/blog/2015/08/05/setting-up-l2tp-vpn</id>
+    <id>http://zomo.heroku.com/blog/2015/08/05/setting-up-l2tp-vpn</id>
     <content type="html"><![CDATA[<ul>
 <li><p><a href="https://gist.github.com/hwdsl2/9030462">IPsec L2TP VPN Auto Install Script for Ubuntu 14.04 &amp; 12.04 and Debian 8 &amp; 7</a></p></li>
 <li><p><a href="https://wordpress.update.sh/archives/16">PPTP VPN 서버</a></p></li>
@@ -1567,9 +1567,9 @@ BoxType 은 4 글자 코드로 구성된다. FourCC 라고 불리는데, <code>c
   
   <entry>
     <title type="html"><![CDATA[REPNE SCASB]]></title>
-    <link href="http://yoursite.com/blog/2015/08/04/repne-scasb/"/>
+    <link href="http://zomo.heroku.com/blog/2015/08/04/repne-scasb/"/>
     <updated>2015-08-04T17:59:16+09:00</updated>
-    <id>http://yoursite.com/blog/2015/08/04/repne-scasb</id>
+    <id>http://zomo.heroku.com/blog/2015/08/04/repne-scasb</id>
     <content type="html"><![CDATA[<p><a href="http://stackoverflow.com/questions/26783797/repnz-scas-assembly-instruction-specifics">REPNZ SCAS Assembly Instruction Specifics</a></p>
 
 <p>스택오버플로우에서 <code>strlen(s)</code> 의 idiom 을 보게되었다.</p>
@@ -1738,9 +1738,9 @@ BoxType 은 4 글자 코드로 구성된다. FourCC 라고 불리는데, <code>c
   
   <entry>
     <title type="html"><![CDATA[Unveiling the Hidden Dangers of Public IP Addresses in 4G/LTE Cellular Data Networks]]></title>
-    <link href="http://yoursite.com/blog/2015/08/04/unveiling-the-hidden-dangers-of-public-ip-addresses-in-4g-slash-lte-cellular-data-networks/"/>
+    <link href="http://zomo.heroku.com/blog/2015/08/04/unveiling-the-hidden-dangers-of-public-ip-addresses-in-4g-slash-lte-cellular-data-networks/"/>
     <updated>2015-08-04T17:13:45+09:00</updated>
-    <id>http://yoursite.com/blog/2015/08/04/unveiling-the-hidden-dangers-of-public-ip-addresses-in-4g-slash-lte-cellular-data-networks</id>
+    <id>http://zomo.heroku.com/blog/2015/08/04/unveiling-the-hidden-dangers-of-public-ip-addresses-in-4g-slash-lte-cellular-data-networks</id>
     <content type="html"><![CDATA[<p>Unveiling the Hidden Dangers of Public IP Addresses in 4G/LTE Cellular Data Networks 라는 논문을 읽고 정리해본다.</p>
 
 <h4>Abstract</h4>
@@ -1749,18 +1749,18 @@ BoxType 은 4 글자 코드로 구성된다. FourCC 라고 불리는데, <code>c
   
   <entry>
     <title type="html"><![CDATA[CVE-2008-2009/CVE-2008-2010: Linux Kernel Vmsplice LPE]]></title>
-    <link href="http://yoursite.com/blog/2015/07/30/cve-2008-2009-slash-cve-2008-2010-linux-kernel-vmsplice-lpe/"/>
+    <link href="http://zomo.heroku.com/blog/2015/07/30/cve-2008-2009-slash-cve-2008-2010-linux-kernel-vmsplice-lpe/"/>
     <updated>2015-07-30T13:40:24+09:00</updated>
-    <id>http://yoursite.com/blog/2015/07/30/cve-2008-2009-slash-cve-2008-2010-linux-kernel-vmsplice-lpe</id>
+    <id>http://zomo.heroku.com/blog/2015/07/30/cve-2008-2009-slash-cve-2008-2010-linux-kernel-vmsplice-lpe</id>
     <content type="html"><![CDATA[<p><a href="https://xorl.wordpress.com/2009/08/10/cve-2008-0600cve-2008-0010-linux-kernel-vmsplice2-privilege-escalation/">xor %eax,%eax 블로그의 분석</a> 을 정리해본다.</p>
 ]]></content>
   </entry>
   
   <entry>
     <title type="html"><![CDATA[How ../sms Could Bypass Authy 2 Factor Authentication]]></title>
-    <link href="http://yoursite.com/blog/2015/07/19/how-dot-slash-sms-could-bypass-authy-2-factor-authentication/"/>
+    <link href="http://zomo.heroku.com/blog/2015/07/19/how-dot-slash-sms-could-bypass-authy-2-factor-authentication/"/>
     <updated>2015-07-19T13:17:49+09:00</updated>
-    <id>http://yoursite.com/blog/2015/07/19/how-dot-slash-sms-could-bypass-authy-2-factor-authentication</id>
+    <id>http://zomo.heroku.com/blog/2015/07/19/how-dot-slash-sms-could-bypass-authy-2-factor-authentication</id>
     <content type="html"><![CDATA[<p><a href="http://sakurity.com/blog/2015/03/15/authy_bypass.html">How &ldquo;../sms&rdquo; could bypass Authy 2 Factor Authentication</a></p>
 
 <p>Sakurity 블로그의 글 또 하나.</p>
@@ -1769,9 +1769,9 @@ BoxType 은 4 글자 코드로 구성된다. FourCC 라고 불리는데, <code>c
   
   <entry>
     <title type="html"><![CDATA[CVE-2013-2094 Kernel: Perf_swevent_enabled Array Out-of-bound Access]]></title>
-    <link href="http://yoursite.com/blog/2015/07/18/cve-2013-2094-kernel-perf-swevent-enabled-array-out-of-bound-access/"/>
+    <link href="http://zomo.heroku.com/blog/2015/07/18/cve-2013-2094-kernel-perf-swevent-enabled-array-out-of-bound-access/"/>
     <updated>2015-07-18T19:41:53+09:00</updated>
-    <id>http://yoursite.com/blog/2015/07/18/cve-2013-2094-kernel-perf-swevent-enabled-array-out-of-bound-access</id>
+    <id>http://zomo.heroku.com/blog/2015/07/18/cve-2013-2094-kernel-perf-swevent-enabled-array-out-of-bound-access</id>
     <content type="html"><![CDATA[<ul>
 <li><a href="https://bugzilla.redhat.com/show_bug.cgi?id=962792#c16">CVE-2013-2094 kernel: perf_swevent_enabled array out-of-bound access</a></li>
 <li><a href="http://timetobleed.com/a-closer-look-at-a-recent-privilege-escalation-bug-in-linux-cve-2013-2094/">A closer look at a recent privilege escalation bug in Linux (CVE-2013-2094)</a></li>
@@ -2390,11 +2390,11 @@ BoxType 은 4 글자 코드로 구성된다. FourCC 라고 불리는데, <code>c
 
 <p>공개된 exploit 에서는 interrupt 0x4 를 hijack 했다.</p>
 
-<p><img src="http://yoursite.com/images/interrupts.png"></p>
+<p><img src="http://zomo.heroku.com/images/interrupts.png"></p>
 
 <p>16-byte descriptor 구조를 보면,</p>
 
-<p><img src="http://yoursite.com/images/id.png"></p>
+<p><img src="http://zomo.heroku.com/images/id.png"></p>
 
 <figure class='code'><figcaption><span>static_key_slow_inc()</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -3001,18 +3001,18 @@ BoxType 은 4 글자 코드로 구성된다. FourCC 라고 불리는데, <code>c
   
   <entry>
     <title type="html"><![CDATA[All Your Biases Belong to Us]]></title>
-    <link href="http://yoursite.com/blog/2015/07/17/all-your-biases-belong-to-us/"/>
+    <link href="http://zomo.heroku.com/blog/2015/07/17/all-your-biases-belong-to-us/"/>
     <updated>2015-07-17T20:34:21+09:00</updated>
-    <id>http://yoursite.com/blog/2015/07/17/all-your-biases-belong-to-us</id>
+    <id>http://zomo.heroku.com/blog/2015/07/17/all-your-biases-belong-to-us</id>
     <content type="html"><![CDATA[<p><a href="http://www.rc4nomore.com/vanhoef-usenix2015.pdf">All Your Biases Belong To Us</a></p>
 ]]></content>
   </entry>
   
   <entry>
     <title type="html"><![CDATA[Hacking Starbucks for Unlimited Coffee]]></title>
-    <link href="http://yoursite.com/blog/2015/07/17/hacking-starbucks-for-unlimited-coffee/"/>
+    <link href="http://zomo.heroku.com/blog/2015/07/17/hacking-starbucks-for-unlimited-coffee/"/>
     <updated>2015-07-17T20:15:05+09:00</updated>
-    <id>http://yoursite.com/blog/2015/07/17/hacking-starbucks-for-unlimited-coffee</id>
+    <id>http://zomo.heroku.com/blog/2015/07/17/hacking-starbucks-for-unlimited-coffee</id>
     <content type="html"><![CDATA[<p><a href="http://sakurity.com/blog/2015/05/21/starbucks.html">Hacking Starbucks for unlimited coffee</a></p>
 
 <p>Sakurity 의 글 하나를 요약해본다.</p>
@@ -3043,9 +3043,9 @@ BoxType 은 4 글자 코드로 구성된다. FourCC 라고 불리는데, <code>c
   
   <entry>
     <title type="html"><![CDATA[Hacking Team's Android Browser Exploit]]></title>
-    <link href="http://yoursite.com/blog/2015/07/17/hacking-teams-android-browser-exploit/"/>
+    <link href="http://zomo.heroku.com/blog/2015/07/17/hacking-teams-android-browser-exploit/"/>
     <updated>2015-07-17T17:20:22+09:00</updated>
-    <id>http://yoursite.com/blog/2015/07/17/hacking-teams-android-browser-exploit</id>
+    <id>http://zomo.heroku.com/blog/2015/07/17/hacking-teams-android-browser-exploit</id>
     <content type="html"><![CDATA[<p>Tencent 보안팀의 <a href="https://translate.google.com/translate?sl=zh-CN&amp;tl=en&amp;js=y&amp;prev=_t&amp;hl=en&amp;ie=UTF-8&amp;u=http%3A%2F%2Fsecurity.tencent.com%2Findex.php%2Fblog%2Fmsg%2F87&amp;edit-text=">Hacking Team Android Browser Exploit</a> 을 요약해본다.</p>
 
 <p><code>vector-exploit-master\src\ht-webkit-Android4-src</code> 디렉토리에 Android Browser exploit 코드가 있다.</p>
@@ -3085,9 +3085,9 @@ BoxType 은 4 글자 코드로 구성된다. FourCC 라고 불리는데, <code>c
   
   <entry>
     <title type="html"><![CDATA[Significant Flash Exploit Mitigations Are Live in v18.0.0.209]]></title>
-    <link href="http://yoursite.com/blog/2015/07/17/significant-flash-exploit-mitigations-are-live-in-v18-dot-0-0-dot-209/"/>
+    <link href="http://zomo.heroku.com/blog/2015/07/17/significant-flash-exploit-mitigations-are-live-in-v18-dot-0-0-dot-209/"/>
     <updated>2015-07-17T15:38:05+09:00</updated>
-    <id>http://yoursite.com/blog/2015/07/17/significant-flash-exploit-mitigations-are-live-in-v18-dot-0-0-dot-209</id>
+    <id>http://zomo.heroku.com/blog/2015/07/17/significant-flash-exploit-mitigations-are-live-in-v18-dot-0-0-dot-209</id>
     <content type="html"><![CDATA[<p>Project Zero 의 Flash mitigation 에 관한 글을 요약 정리해본다.</p>
 
 <p>이번에 버전업된 18.0.0.209 의 경우.</p>
@@ -3130,9 +3130,9 @@ BoxType 은 4 글자 코드로 구성된다. FourCC 라고 불리는데, <code>c
   
   <entry>
     <title type="html"><![CDATA[HTTP Strict Transport Security]]></title>
-    <link href="http://yoursite.com/blog/2015/07/17/http-strict-transport-security/"/>
+    <link href="http://zomo.heroku.com/blog/2015/07/17/http-strict-transport-security/"/>
     <updated>2015-07-17T15:04:07+09:00</updated>
-    <id>http://yoursite.com/blog/2015/07/17/http-strict-transport-security</id>
+    <id>http://zomo.heroku.com/blog/2015/07/17/http-strict-transport-security</id>
     <content type="html"><![CDATA[<h4>HTTP Strict Transport Security</h4>
 
 <p>HSTS 를 안쓰면, HTTP -> 301 Moved Permanently -> HTTPS 로 바꿔야한다.</p>
