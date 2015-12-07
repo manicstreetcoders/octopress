@@ -1,0 +1,220 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Using Facebook Notes to DDoS Any Website - My Octopress Blog</title>
+  <meta name="author" content="Your Name">
+
+  
+  <meta name="description" content="Using Facebook Notes to DDoS any website 요약해본다. Step 1. Facebook Notes 는 &lt;img&gt; 태그를 받아준다. 원 소스에서 가져다가 캐쉬하는데, 파라메터를 쓰면 caching 을 바이패스할 수 있다. &lt; &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://yoursite.com/blog/2014/04/28/using-facebook-notes-to-ddos-any-website/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="My Octopress Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">My Octopress Blog</a></h1>
+  
+    <h2>A blogging framework for hackers.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="yoursite.com">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Using Facebook Notes to DDoS Any Website</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-04-28T08:43:15+09:00'><span class='date'><span class='date-month'>Apr</span> <span class='date-day'>28</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>8:43 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p><a href="http://chr13.com/2014/04/20/using-facebook-notes-to-ddos-any-website/">Using Facebook Notes to DDoS any website</a></p>
+
+<p>요약해본다.</p>
+
+<p>Step 1. Facebook Notes 는 <code>&lt;img&gt;</code> 태그를 받아준다. 원 소스에서 가져다가 캐쉬하는데, 파라메터를 쓰면 caching 을 바이패스할 수 있다.</p>
+
+<pre><code>&lt;img src=http://targethost/file?=1&gt;&lt;/img&gt;
+&lt;img src=http://targethost/file?=2&gt;&lt;/img&gt;
+&lt;img src=http://targethost/file?=3&gt;&lt;/img&gt;
+&lt;img src=http://targethost/file?=4&gt;&lt;/img&gt;
+...
+&lt;img src=http://targethost/file?=1000&gt;&lt;/img&gt;
+</code></pre>
+
+<p>Step 2. 이제 m.facebook.com 을 사용해 <code>note</code> 를 만든다. 900 언저리에서 사이즈 제한으로 짤릴 것이다.</p>
+
+<p>Step 3. 동일한 내용으로 <code>note</code> 를 십여개 만든다. 이제 글 하나당 약 900 ~ 1000 개의 http request 공격이 된다.</p>
+
+<p>Step 4. 이 <code>note</code> 들을 한꺼번에 본다. 타겟 서버는 9000 (900 x 10) 개의 http request 을 받게 된다.</p>
+
+<p>많은 DDoS trick 의 요체는 input size v.s. output size 의 비대칭이다.
+내가 가진 제한된 upstream bandwidth 에 비해 대단히 비대칭적인 size 의 output packet 을 만들어낼 수 있냐가 핵심이다.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Your Name</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2014-04-28T08:43:15+09:00'><span class='date'><span class='date-month'>Apr</span> <span class='date-day'>28</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>8:43 am</span></time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://yoursite.com/blog/2014/04/28/using-facebook-notes-to-ddos-any-website/" data-via="" data-counturl="http://yoursite.com/blog/2014/04/28/using-facebook-notes-to-ddos-any-website/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2014/04/25/android-paranoid-network/" title="Previous Post: ANDROID_PARANOID_NETWORK">&laquo; ANDROID_PARANOID_NETWORK</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2014/05/02/heap-feng-shui-in-javascript/" title="Next Post: Heap Feng Shui in JavaScript">Heap Feng Shui in JavaScript &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/10/04/return-oriented-programming-for-the-arm-architecture/">Return Oriented Programming for the ARM Architecture</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/02/the-inside-story-behind-ms08-067/">The Inside Story Behind MS08-067</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/17/rop-and-arm/">ROP and ARM</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/13/sophail-applied-attacks-against-sophos-antivirus/">Sophail: Applied Attacks Against Sophos Antivirus</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/13/stagefright/">Stagefright</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - Your Name -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,1637 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>My Octopress Blog</title>
+  <meta name="author" content="Your Name">
+
+  
+  <meta name="description" content="Paul Irish 의 10 Things I Learned from the jQuery Source 에서. Self-invoking anonymous function (function( window, undefined ) { })(window); (function &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://yoursite.com/posts/20/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="My Octopress Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">My Octopress Blog</a></h1>
+  
+    <h2>A blogging framework for hackers.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="yoursite.com">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div class="blog-index">
+  
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/09/18/paul-irish-10-things-i-learned-from-the-jquery-source/">Paul Irish: 10 Things I Learned From the jQuery Source</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2012-09-18T11:01:00+09:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>18</span><span class='date-suffix'>th</span>, <span class='date-year'>2012</span></span> <span class='time'>11:01 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Paul Irish 의 <a href="http://vimeo.com/12529436#at=0">10 Things I Learned from the jQuery Source</a> 에서.</p>
+
+<h3>Self-invoking anonymous function</h3>
+
+
+<pre><code> (function( window, undefined ) {
+ })(window);
+
+ (function () {
+ })()
+
+ !function () {
+ }()
+
+ +function () {
+ }()
+</code></pre>
+
+<p>Everyone&rsquo;s favorite pattern:</p>
+
+<pre><code> (function(window,document,undefined){
+   // scope traversal benefit. document 를 refer 하면, 
+   // local scope 만 찾아보면 되니까 약간의 성능 향상이 있을 수도.
+   document.getElementById('') 
+ })(this,this.document);
+</code></pre>
+
+<p>아규먼트의 끝에 undefined 를 붙이는 이유는, undefined 변수를 reset 하기 위함.
+&ldquo;undefined = true&rdquo; 와 같은 코드를 누군가 짰다면 문제가 생길수도 있음.</p>
+
+<p>미니파이를 해서</p>
+
+<pre><code> (function(A,B,C){
+   // document.getElementById('whatever_id')
+   B.getElementById('whatever_id')
+ })(this,document)
+</code></pre>
+
+<h3>Asynchronous Recursion</h3>
+
+
+<pre><code> setInterval(function(){
+ },100);
+
+ (function(){
+   doStuff();
+   setTimeout(arguments.callee,100)
+ })()
+
+ (function loopsiloopsiloo(){
+   doStuff();
+   setTimeout(loopsiloopsiloo,100)
+ })()
+
+ (function loopsiloopsiloo(){
+   doStuff();
+   $('#update').load('awesomething.php'',function(){
+     loopsiloopsiloo();
+   })
+ })();
+</code></pre>
+
+<p>위의 예제에서처럼, setInterval 을 사용하면,
+function(){} 수행에 100 milliseconds 이상이 걸릴 경우에,
+문제가 될 수 있다.
+이 경우에는 setTimeout(arguments.callee,100) 을 사용해야 한다.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/09/05/rails-is-hard/">Rails Is Hard</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2012-09-05T10:55:00+09:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>5</span><span class='date-suffix'>th</span>, <span class='date-year'>2012</span></span> <span class='time'>10:55 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>코딩에서 손을 놓고 사업과 매니징만 한지 8년이 지났었다.
+내 손으로 할 수 있는 일이 점점 없어지자 갑갑해졌다.
+머리속에 떠오르는 아이디어들은 어디서인가 읽은 듯한 느낌이 드는 신선하지
+않은 것들.
+새로운 아이디어를 가지기 위해서는,
+Hands-on Experience 가 필요하다는 생각이 들었다.
+LEGO 블럭을 가지고 꾸준히 놀아봐야, 손이 가는대로 뭔가를 만들 수 있지 않을까?
+블럭으로 자동차를 만들다가 소방차를 만들고, 비행기를 만들다가 공항을 만드는 것같은 느낌으로.</p>
+
+<p>이 정도의 생각으로 몇 개월동안 아래의 기술들을 사용해서 뭔가를 만들어보려고 노력했다.</p>
+
+<p>그리고 이제는 프로토타입 정도는 혼자 만들 수 있게 되었다. 좀 욕심내면 Parse.com 의 프로토타입 정도는 혼자 만들 수 있겠다 싶다. :-)</p>
+
+<p>아 그런데, 요즘의 웹 개발은 너무 복잡하다.
+물론 대부분의 기술이 Open Source 인 덕분에, 커뮤니티도 활성화되어 있고,
+참고할만한 리소스들도 많이 있다.
+클라우드 서비스들이 많아서 돈도 얼마 들지 않는다.
+그 덕택에 감각이 있는 개발자라면 그럭저럭 쉽게 배워 뭔가를 만들어 낼 수 있기는
+하겠지만, 마스터하기는 쉽지 않다. 배워야 할 것들이 너무 많고, 새로운 것들이 계속해서 쏟아져 나오고 있다. 책들이 소프트웨어의 버전업을 따라가지 못하는 상황이다.</p>
+
+<p>이러쿵저러쿵했지만, 그래도 다양한 기술들이 각자 발전해나가면서 멋진 세상이 만들어지고 있다.</p>
+
+<p>예를 들면, 지금 이 시간에도 아마존 EC2 (도쿄) 와 Heroku (버지니아) 와
+Linode (도쿄) 의 데이터센터에서 내가 만든 뭔가가 돌아가고 있다.
+유지하는데 큰 비용이 필요치 않다.
+10 년전에는 생각도 할 수 없었던 일이 벌어지고 있다.
+(그리고 한국에는 실체가 아무것도 없다는 점이 웬지 근사하다.
+케이맨 군도에 설립한 페이퍼 컴패니같은 느낌이랄까)
+클라우드와 모바일, 트위터가 이런 변화를 만들어내고 있다고 생각한다.</p>
+
+<p>다시 주제로 돌아와서,
+<a href="http://vimeo.com/5362441">A blog in 15 minutes with Ruby on Rails</a>
+에서는 Rails 를 쓰면 블로그를 15 분만에 개발할 수 있다고 이야기한다.
+하지만 Rails 를 제대로 쓸려면,
+&ldquo;Rails 가 어떻게 대신 해주는지, Rails 가 미리 가정하고 해버리는 것들은 무엇인지&rdquo; 를 알아야 한다. 이러다가 HTTP 프로토콜보다 훨씬 더 복잡한 Routing 이나 Controller, Rack 인터페이스 소스를 뒤져야 하는 상황까지 가면, 배보다 배꼽이 더 커진 건 아닌지 자문하게 된다.</p>
+
+<p>또한 RoR 은 많은 dependencies 를 가지고 있다. <a href="http://www.readysetrails.com/index.php/181/this-is-why-learning-rails-is-hard/">Ruby on Rails Has Many Dependencies</a></p>
+
+<p>마지막으로 Yehuda Katz 의 강의 <a href="http://youtu.be/2Ex8EEv-WPs">Why Rails is Hard (Railsberry 2012)</a></p>
+
+<p><br \></p>
+
+<h2>하다보니까 익혀야 할 기술들 - Whoa!</h2>
+
+
+<h3>Basic Web Concepts</h3>
+
+
+<ul>
+<li>HTTP</li>
+<li>DOM</li>
+<li>HTML5</li>
+<li>CSS3</li>
+</ul>
+
+
+<h3>Languages, Mark-up Languages & Data Exchange Formats</h3>
+
+
+<ul>
+<li>Ruby</li>
+<li>JavaScript</li>
+<li>CoffeeScript</li>
+<li>Sass</li>
+<li>Less</li>
+<li>ERB</li>
+<li>YAML</li>
+<li>HAML</li>
+<li>Markdown</li>
+<li>JSON</li>
+<li>Jade (Node.js template engine)</li>
+</ul>
+
+
+<h3>Databases, Web Servers, Caches & Proxies</h3>
+
+
+<ul>
+<li>Unicorn</li>
+<li><a href="http://code.macournoyer.com/thin/">Thin</a></li>
+<li>Nginx</li>
+<li>PostgreSQL</li>
+<li>Londiste for master/slave replication.</li>
+<li><a href="https://github.com/greg2ndQuadrant/repmgr">repmgr</a></li>
+<li>MySQL</li>
+<li>Redis</li>
+<li>Memcached</li>
+<li>MemcacheDB</li>
+<li>HAproxy</li>
+<li>Varnish</li>
+<li>statsd</li>
+<li>Dogslow</li>
+<li>Solr for searching</li>
+</ul>
+
+
+<h3>Performance Monitoring Tools</h3>
+
+
+<ul>
+<li>Monit</li>
+<li>New Relic</li>
+<li>Site24x7</li>
+<li>Pingdom</li>
+</ul>
+
+
+<h3>Deployments & Configuration Managements</h3>
+
+
+<ul>
+<li>Capistrano</li>
+<li>Rubber</li>
+<li>Puppet</li>
+<li>Chef</li>
+<li>Asgard by NetFlix</li>
+<li>Rubber for EC2</li>
+</ul>
+
+
+<h3>OS Administrations</h3>
+
+
+<ul>
+<li>Ubuntu</li>
+<li>OS X</li>
+</ul>
+
+
+<h3>Installers & Managers</h3>
+
+
+<ul>
+<li>Homebrew</li>
+<li>rbenv</li>
+<li>rvm</li>
+<li>Bundler</li>
+<li><a href="http://rubygems.org">RubyGems</a></li>
+<li><a href="https://npmjs.org">npm</a></li>
+<li><a href="https://github.com/twitter/bower">Twitter Bower</a></li>
+</ul>
+
+
+<h3>Cloud Platforms, VPS, PaaS, SaaS</h3>
+
+
+<ul>
+<li>Amazon EC2, S3, Route 53, CloudFront, RDS</li>
+<li>Heroku</li>
+<li>Uhuru AppCloud</li>
+<li>Engine Yard</li>
+<li>Joyent</li>
+<li>Google AppEngine</li>
+<li>Linode (VPS)</li>
+<li>Brightbox</li>
+<li>Parse.com (A backend for iOS &amp; Android Apps)</li>
+<li>Fastly.com (CDN)</li>
+<li>CoudFlare (CDN)</li>
+<li><a href="http://cdnjs.com">cdnjs</a> for JS hosting</li>
+<li><a href="http://phpfog.com">phpfog</a> for PHP hosting</li>
+<li><a href="http://nodejitsu.com">nodejitsu</a> for Node.js hosting</li>
+<li><a href="http://sendgrid.com">SendGrid</a> for E-mail delivery</li>
+<li><a href="https://vimeo.com/46745200">Zemanta</a> for Social Linking</li>
+<li><a href="http://www.directededge.com">DirectedEdge</a> for Recommendation (Amazon-like)</li>
+<li><a href="http://www.paygate.net">PayGate</a> for Payment (Korea)</li>
+<li><a href="http://www.twilio.com">Twilio</a> for SMS &amp; VOIP</li>
+</ul>
+
+
+<h3>Tools</h3>
+
+
+<ul>
+<li>git</li>
+<li>GitHub</li>
+<li>ssh</li>
+<li>Mercurial SCM</li>
+<li>Project Hosting by Google Code</li>
+<li>Codeplane</li>
+</ul>
+
+
+<h3>Rails & The Asset Pipeline</h3>
+
+
+<ul>
+<li>MVC</li>
+<li>ORM</li>
+<li>TDD</li>
+<li>REST</li>
+<li>Routing</li>
+<li>CLI i.e. rake, rails</li>
+<li>REPL i.e. rails console, rails dbconsle, irb</li>
+<li>Sprockets &amp; <a href="https://github.com/ndbroadbent/turbo-sprockets-rails3">Turbo Sprockets</a></li>
+</ul>
+
+
+<h3>Testing Driven Development</h3>
+
+
+<ul>
+<li>RSpec</li>
+<li>Cucumber</li>
+</ul>
+
+
+<h3>JavaScript Frameworks, AMDs, Templates, & Libraries</h3>
+
+
+<ul>
+<li>AJAX</li>
+<li>jQuery &amp; jQuery UI</li>
+<li>MooTools</li>
+<li>Backbone.js</li>
+<li>PhantomJS</li>
+<li>Ember.js</li>
+<li>YUI3</li>
+<li>Socket.IO</li>
+<li>RequireJS - a JavaScript file and module loader.</li>
+<li>Underscore.js - a templating library</li>
+<li>Prototype.js</li>
+<li><a href="http://yeoman.io">Yeoman.io</a></li>
+<li><a href="http://expressjs.com">expressjs</a></li>
+<li><a href="https://github.com/janl/mustache.js/">mustache.js</a> - a templating library</li>
+<li>CommonJS</li>
+<li>Async - a utility module for working with asynchronous JavaScript.</li>
+</ul>
+
+
+<h3>JavaScript Tools</h3>
+
+
+<ul>
+<li>JSLint</li>
+<li>jsfiddle.net</li>
+</ul>
+
+
+<h3>CSS Frameworks & CSS Hacks</h3>
+
+
+<ul>
+<li>960Grid.gs</li>
+<li>Normalize.css</li>
+<li>Reset.css</li>
+<li>Modernizr.css</li>
+<li>HTML5 Boilerplate</li>
+<li>Bootstrap</li>
+<li>Zurb Foundation</li>
+<li><a href="https://github.com/markdotto/Preboot.less">Preboot.less</a></li>
+<li>Compass</li>
+</ul>
+
+
+<h3>Mobile</h3>
+
+<ul>
+<li>popapp.in</li>
+<li>Adobe PhoneGap Build</li>
+<li>Sencha</li>
+</ul>
+
+
+<h3>Audio/Video</h3>
+
+
+<ul>
+<li><a href="http://www.jplayer.org">jPlayer</a></li>
+<li><a href="http://mediaelementjs.com">MediaElement.js</a></li>
+</ul>
+
+
+<h3>Editor that can be used in web pages</h3>
+
+
+<ul>
+<li><a href="http://code.google.com/p/pagedown/">pagedown</a></li>
+<li><a href="http://ckeditor.com">CKEditor</a></li>
+</ul>
+
+
+<h3>Map API</h3>
+
+
+<ul>
+<li><a href="https://github.com/HPNeo/gmaps">GMaps.js</a></li>
+<li><a href="http://mapbox.com">MapBox</a></li>
+<li>OpenStreetMap</li>
+<li>Skyhook</li>
+</ul>
+
+
+<h3>Comment Add-ons</h3>
+
+
+<ul>
+<li>Disqus</li>
+<li>Facebook comments</li>
+</ul>
+
+
+<h3>Editors, IDEs, Terminals & Screen Multiplexers</h3>
+
+
+<ul>
+<li>vim, spf13-vim, <a href="https://github.com/factorylabs/vimfiles">F/ Vim</a></li>
+<li>TextMate &amp; Bundles (i.e. CoffeeScript bundle by jashkenas)</li>
+<li>Sublime Text 2</li>
+<li>Zen Coding</li>
+<li>screen</li>
+<li>tmux</li>
+<li>iTerm2</li>
+<li>WebStorm</li>
+</ul>
+
+
+<h3>Builders</h3>
+
+
+<ul>
+<li>CodeKit</li>
+<li>brunch.io</li>
+<li><a href="http://gruntjs.com">gruntjs</a></li>
+<li>LiveReload(<a href="http://www.youtube.com/watch?feature=player_embedded&amp;v=EZ8vy_cNMVQ">Walkthrough</a>)</li>
+</ul>
+
+
+<h3>Analytics & Conversion Optimizations</h3>
+
+
+<ul>
+<li>Google Analytics</li>
+<li>Woopra</li>
+<li>KISSmetric</li>
+<li>MixPanel</li>
+</ul>
+
+
+<h3>Speed Optimizations</h3>
+
+
+<ul>
+<li>yslow</li>
+<li>PageSpeed</li>
+<li><a href="http://www.igvita.com/2012/08/28/web-performance-power-tool-http-archive-har/">HTTP Archive(HAR)</a></li>
+</ul>
+
+
+<h3>Ad</h3>
+
+
+<ul>
+<li>Admob</li>
+</ul>
+
+
+<h3>CMS, Blog Engines, Static Website Generators, & Web builders</h3>
+
+
+<ul>
+<li>XpressEngine</li>
+<li>GnuBoard</li>
+<li>Refinery CMS</li>
+<li>WordPress</li>
+<li>Drupal</li>
+<li>Octopress</li>
+<li><a href="https://github.com/jipiboily/monologue">Monologue</a></li>
+<li><a href="http://textpress.shameerc.com/">TextPress</a></li>
+<li><a href="www.wix.com">wix</a></li>
+<li><a href="http://www.getpantheon.com">Pantheon</a> (for Drupal)</li>
+<li><a href="https://github.com/koenbok/Cactus">Cactus</a></li>
+<li><a href="https://github.com/mojombo/jekyll">Jekyll</a></li>
+</ul>
+
+
+<h3>Crowdsourcing platforms</h3>
+
+
+<ul>
+<li><a href="http://www.cloudspokes.com">CloudSpokes</a></li>
+<li><a href="http://www.crowdspring.com">crowdSPRING</a></li>
+<li><a href="http://99designs.com">99designs</a></li>
+<li><a href="http://www.brandcrowd.com">BrandCrowd</a></li>
+<li><a href="http://www.logogala.com">LOGOGALA</a></li>
+<li><a href="http://wslogos.com">WS LOGOS</a></li>
+<li><a href="http://logopond.com">logopond</a></li>
+<li><a href="http://designnlogo.com">DesignNLogo</a></li>
+<li><a href="http://www.hiretheworld.com">HIRE the WORLD</a></li>
+<li><a href="http://sortfolio.com">Sortfolio</a></li>
+</ul>
+
+
+<h3>Project Management & Issue Tracking</h3>
+
+
+<ul>
+<li>Basecamp</li>
+<li>Asana</li>
+<li>HipChat</li>
+<li><a href="http://lighthouseapp.com">Lighthouse</a> (Issue tracking)</li>
+<li><a href="http://www.pivotaltracker.com/">Pivotal Tracker</a></li>
+<li>Trello</li>
+</ul>
+
+
+<h3>Online Learning</h3>
+
+
+<ul>
+<li>RailsCasts</li>
+<li>Udacity</li>
+<li>Coursera</li>
+<li>Khan Academy</li>
+<li>Udemy</li>
+<li>MIT OCW</li>
+<li>iTunes-U Stanford</li>
+<li>Vimcasts</li>
+<li>Rails Lab</li>
+<li>Codecademy</li>
+<li><a href="http://tutsplus.com">tuts+</a></li>
+</ul>
+
+
+<h3>Blogs</h3>
+
+
+<ul>
+<li><a href="http://tomayko.com">Ryan Tomakyo</a></li>
+<li><a href="http://igvita.com">Ilya Grigorik</a></li>
+<li><a href="http://paulirish.com">Paul Irish</a></li>
+<li><a href="http://patshaughnessy.net">Pat Shaughnessy</a></li>
+<li><a href="http://addyosmani.com/blog">Addy Osmani</a></li>
+<li><a href="http://johndyer.name">John Dyer</a></li>
+<li><a href="http://adam.heroku.com">Adam Wiggins</a></li>
+<li><a href="http://worrydream.com">Bret Victor</a></li>
+<li><a href="http://antirez.com">Salvatore Sanfilippo aka antirez</a></li>
+<li><a href="http://weblog.jamisbuck.org">Jamis Buck</a></li>
+<li><a href="http://m.onkey.org">Pratik Naik</a></li>
+<li><a href="http://devblog.avdi.org">Virtuous Code</a></li>
+<li><a href="http://davidwalsh.name/">David Walsh</a></li>
+<li><a href="http://www.robbyonrails.com">Robby on Rails</a></li>
+<li><a href="http://tech.karbassi.com/">Mind Mining Medium</a></li>
+<li><a href="http://eigenjoy.com/">Eigenjoy </a> (for Big-data, ruby)</li>
+<li><a href="http://blog.headius.com/">Headius</a></li>
+</ul>
+
+
+<h3>Conferences</h3>
+
+
+<ul>
+<li><a href="http://confreaks.com/events/railsconf2012">RailsConf 2012</a></li>
+<li><a href="http://confreaks.com/events/jqcon2012">jQuery Conference San Francisco 2012</a></li>
+</ul>
+
+
+<h3>Books</h3>
+
+<ul>
+<li>How Google Tests Software - James Whittaker, Jason Arbon, &amp; Jeff Carollo</li>
+<li>Running Lean, Iterate from Plan A to a Plan That Works - Ash Maurya</li>
+<li>Elemental Design Patterns - Jason M. Smith</li>
+<li>Elements of Programming - Stepanov and Smith</li>
+<li>iOS Programming, The Big Nerd Ranch Guide, 3rd Ed. - Joe Conway &amp; AAron Hillegass</li>
+<li>HTML5 Developer&rsquo;s Cookbook - Chuck Hudson and Tom Leadbetter</li>
+<li>Specification by Example - Gojko Adzic</li>
+</ul>
+
+
+<h4>JavaScript</h4>
+
+<ul>
+<li><a href="http://eloquentjavascript.net">Eloquent JavaScript</a></li>
+<li><a href="http://bonsaiden.github.com/JavaScript-Garden/">JavaScript Garden</a></li>
+<li>[JavaScript Patterns]</li>
+<li>[JavaScript The Definitive Guide]</li>
+<li>[Maintainable JavaScript]</li>
+<li>[Principles Of Writing Idiomatic JavaScript]</li>
+<li>[JavaScript: The Good Parts]</li>
+</ul>
+
+
+<h4>Rails</h4>
+
+<ul>
+<li>[Ruby on Rails 3 Tutorial]</li>
+<li>[Agile Web Development with Rails]</li>
+<li>[The Rails 3 Way]</li>
+<li>[Rails Recipe]</li>
+</ul>
+
+
+<h3>Etc</h3>
+
+
+<ul>
+<li>Adobe Shadow</li>
+<li>MAMP</li>
+<li><a href="http://testflightapp.com">TestFlight</a> (for Distributing iOS Beta App)</li>
+<li><a href="http://builtwith.com">BuiltWith.com</a></li>
+<li><a href="http://whoishostingthis.com">WhoIsHostingThis?</a></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/08/30/dotfiles/">Dotfiles</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2012-08-30T14:59:00+09:00'><span class='date'><span class='date-month'>Aug</span> <span class='date-day'>30</span><span class='date-suffix'>th</span>, <span class='date-year'>2012</span></span> <span class='time'>2:59 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>.bashrc 라던가 .vimrc 라던가 이런 dotfiles 들이 너덜너덜해져서 정리를 시작했는데, 이런 일들은 한번 시작하면 대책없이 커지기 시작한다.
+꽤 오랜 시간 들여서 정리를 했는데, 앞으로 해야할 일들이 더 많아졌다.</p>
+
+<p>2012/10/27 github 에 dotfiles repo 를 만들고 .tmux.conf 를 올려놓았다.</p>
+
+<h3>OS</h3>
+
+<ul>
+<li>OS X Mountain Lion 컨피그는
+<a href="https://github.com/mathiasbynens/dotfiles">mathiasbynens/dotfiles</a> 의 .osx 에서 적당히 뺄 것 빼고 해서 커스터마이즈했음.</li>
+</ul>
+
+
+<h3>Terminal</h3>
+
+<ul>
+<li>iTerm2 을 쓰며, 칼라 프리셋은
+<a href="https://github.com/hardcore/iTerm-colors">hardcore/iTerm-colors</a> 를 사용.</li>
+</ul>
+
+
+<h3>Shell</h3>
+
+<ul>
+<li>bash &amp; zsh 둘다 사용.</li>
+</ul>
+
+
+<h3>dotfiles</h3>
+
+<ul>
+<li><a href="https://github.com/ryanb/dotfiles">ryanb/dotfiles</a> - 개발자는 아니지만, Rails 로 프로토타입을 자주 만들고 있고,
+RailsCasts 를 자주 참조하기 때문에,
+Ryan Bates 의 dotfiles 을 그대로 사용하고 있는데 rails 개발에 편리함.
+oh-my-zsh 을 베이스로 사용하며, vimrc, irbrc, gitconfig, gemrc 등이 들어있음.</li>
+</ul>
+
+
+<h3>vimrc</h3>
+
+<ul>
+<li><a href="https://github.com/spf13/spf13-vim">spf13/spf13-vim</a></li>
+</ul>
+
+
+<h3>TextMate</h3>
+
+<ul>
+<li><a href="https://github.com/jashkenas/coffee-script-tmbundle">jashkenas/coffee-script-tmbundle</a></li>
+<li><a href="https://github.com/subtleGradient/javascript-tools.tmbundle">JavaScript Tools TextMate Bundle </a></li>
+</ul>
+
+
+<p>JavaScript Tools Bundle 이 쓸만한데, Minifier 와 Formatter 가 요긴하다.</p>
+
+<p>OS X Lion + TextMate 1.5.11 에 JavaScript Tools Bundle 을 설치하는 방법.</p>
+
+<pre><code>$ cd /Applications/TextMate.app/Contents/SharedSupport/Bundles
+$ git clone git@github.com:subtleGradient/javascript-tools.tmbundle
+Cloning into javascript-tools.tmbundle...
+remote: Counting objects: 550, done.
+remote: Compressing objects: 100% (320/320), done.
+remote: Total 550 (delta 311), reused 445 (delta 217)
+Receiving objects: 100% (550/550), 12.40 MiB | 1.97 MiB/s, done.
+Resolving deltas: 100% (311/311), done.
+</code></pre>
+
+<p>TextMate 의 Bundles -> Bundle Editor -> Reload Bundles 를 선택해서 reload!</p>
+
+<h3>Screen Multiplexer</h3>
+
+<ul>
+<li>tmux - screen 을 쓰다가 pane 관리가 좋아서, tmux 로 갈아탐.</li>
+<li>config 화일은 <a href="https://github.com/jseidl/tmux.conf">jseidl/tmux.conf</a> 사용.</li>
+<li>Ubuntu 의 경우, <code>setxkbmap -option "ctrl:nocaps"</code> 로 Caps Lock 을 Ctrl 로 매핑해주는 것이 편리.</li>
+<li>XPS13 + Ubuntu 12.04 LTS 에서의 WiFi 문제는</li>
+</ul>
+
+
+<p>/etc/pm/power.d/wireless 화일에</p>
+
+<pre><code>#!/bin/sh
+/sbin/iwconfig wlan0 power off
+</code></pre>
+
+<p>을 넣어서 Wireless lan 에 대한 power management 를 off 시키고,</p>
+
+<pre><code>$ echo "options iwlwifi 11n_disable=1" | sudo tee /etc/modprobe.d/iwlwifi.conf
+$ sudo modprobe -rfv iwlwifi
+$ sudo modprobe -v iwlwifi
+</code></pre>
+
+<p>로 802.11n 사용을 꺼버리면 해결된다. 제 속도가 나온다.</p>
+
+<p>Key binding 을 screen 과 유사하게 세팅하는 것이 편하다. 아무래도 Ctrl-a 같은 키는 손에 익어서 바꾸기가 힘들다.</p>
+
+<pre><code># Screen Compatibility
+set-option -g prefix C-a
+unbind l
+bind C-a last-window
+set -g base-index 0
+set-option -g default-terminal "screen-256color"
+
+# Splitting
+unbind %
+bind | split-window -h
+bind - split-window -v
+
+# Vi Compatibility
+setw -g mode-keys vi
+bind-key -t vi-copy 'v' begin-selection
+bind-key -t vi-copy 'y' copy-selection
+</code></pre>
+
+<h3>Ruby</h3>
+
+<p>설치 순서는</p>
+
+<h4>OS X &ldquo;Software Update&rdquo;</h4>
+
+<h4>Xcode 설치</h4>
+
+<h4>Xcode 메뉴에서 Command Line Tools 설치</h4>
+
+<h4>Install Homebrew</h4>
+
+<pre><code>$ ruby -e "$(curl -fsSkL raw.github.com/mxcl/homebrew/go)"
+</code></pre>
+
+<h4>Git 설치</h4>
+
+<pre><code>$ brew install git
+</code></pre>
+
+<h4>rbenv 설치</h4>
+
+<pre><code># Using Homebrew
+$ brew update
+$ brew install rbenv
+$ brew install ruby-build
+
+사용하는 shell profile 에 따라서 다음 두줄 추가
+$ echo 'export PATH="$HOME/.rbenv/bin:$PATH"' &gt;&gt; ~/.zshrc
+$ echo 'eval "$(rbenv init -)"' &gt;&gt; ~/.zshrc
+
+# Using git
+$ cd
+$ git clone git://github.com/sstephenson/rbenv.git .rbenv
+$ echo 'export PATH="$HOME/.rbenv/bin:$PATH"' &gt;&gt; ~/.zshrc
+$ echo 'eval "$(rbenv init -)"' &gt;&gt; ~/.zshrc
+
+$ mkdir -p ~/.rbenv/plugins
+$ cd ~/.rbenv/plugins
+$ git clone git://github.com/sstephenson/ruby-build.git
+</code></pre>
+
+<h4>Ruby 1.9.3 설치</h4>
+
+<pre><code>$ rbenv install 1.9.3-p327
+</code></pre>
+
+<h4>Ruby 1.9.3 을 글로벌 버전으로 설정</h4>
+
+<pre><code>$ rbenv global 1.9.3-p327
+$ rbenv rehash
+</code></pre>
+
+<h4>Rails</h4>
+
+<pre><code>$ gem install bundle; rbenv rehash
+$ gem install rails; rbenv rehash
+</code></pre>
+
+<p>Ruby performance patch 를 적용하기 위해서는 CFLAGS 도 조정해주고,
+<a href="https://gist.github.com/1688857">Ruby-1.9.3-p327 cumulative performance patch for rbenv </a>
+도 사용해서 Ruby 를 인스톨하면 좋다.</p>
+
+<p>참조:
+* <a href="http://blog.envylabs.com/post/29008340375/ruby-1-9-3-without-xcode-or-gcc">Ruby 1.9.3 Without Xcode or GCC</a>
+* <a href="http://kennethreitz.com/xcode-gcc-and-homebrew.html">Xcode, GCC, and Homebrew</a></p>
+
+<h3>Misc.</h3>
+
+<ul>
+<li><a href="https://github.com/rupa/z">rupa/z</a> - z jumper. 예전 도스 시절의 노턴 NCD 같은 툴. 디렉토리 변경을 regexp 로 할 수 있음. 정말 좋음.</li>
+<li><a href="http://betterthangrep.com">ack</a> - ack is a tool like grep, optimized for programmers.</li>
+<li><a href="http://stevengharms.com/blog/2012/04/10/use-ack-instead-of-grep-to-parse-text-files/">Use Ack Instead of Grep to Parse Text Files</a></li>
+</ul>
+
+
+<h3>Future works</h3>
+
+<ul>
+<li>spf13 에서 <a href="https://github.com/factorylabs/vimfiles">F/ Vim</a> 으로 vim configuration 을 이동.</li>
+<li>JavaScript 에 대한 Live Linting</li>
+<li>Snow Leopard 에서 MacVim 컴파일 &amp; 인스톨</li>
+<li>Gianni Chiappetta’s <a href="https://github.com/gf3/dotfiles">dotfiles</a></li>
+<li>Ryan Bates&rsquo;s <a href="https://github.com/ryanb/dotfiles">dotfiles</a></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/06/09/the-thought-patterns-of-success/">The Thought-Patterns of Success</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2012-06-09T18:47:00+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>9</span><span class='date-suffix'>th</span>, <span class='date-year'>2012</span></span> <span class='time'>6:47 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>HBR 블로그에서
+<a href="http://blogs.hbr.org/cs/2012/04/the_thought-patterns_of_succes.html">The Thought-Patterns of Success</a>
+라는 글을 읽게 되었다.</p>
+
+<p>일을 안정되게 하는데 도움이 된다. 시간이 나면 차차 번역해봐야겠다.</p>
+
+<p><br \></p>
+
+<h3>Evaluation of Worth</h3>
+
+
+<h4>Helpful</h4>
+
+
+<ul>
+<li>내 존재 자체에 가치가 있다. 내가 하는 일때문에 가치있는 것이 아니다.
+나는 세상에 하나밖에 없는 존재이며, 수입이나 성취나 가진 것과는 관계없이
+나만의 특별한 소명을 가지고 있다.</li>
+<li>완벽함이란 것은 현실 세계에는 존재할 수 없는 내 마음이 만들어낸 허상이며 이상적이고 추상적인 개념일뿐이다.
+불완전함도 성공이라고 평가할 수 있도록 내 마음의 기준을 바꾸어나가도록 해야 한다.</li>
+<li>살면서 겪는 모든 일에서 배울 수 있다. 매일매일 나는 최선을 다한다. 실수를 저지르면 고친다.
+다음을 위해서 배워둔다. 과거는 미래를 위한 든든한 발판이다.</li>
+</ul>
+
+
+<h4>Harmful</h4>
+
+
+<ul>
+<li>I am important and of value because of what I achieve, produce or have.
+Therefore if I stop achieving, producing or having, my life no longer has value, meaning or purpose.</li>
+<li>Perfect is the only option. Less than perfect is failure.</li>
+<li>I am only as good as my last _____________.
+If I stop or rest or don&rsquo;t perform to the same or better level in the future, I will lose everything.</li>
+</ul>
+
+
+<h3>Sense of Over-Responsibility</h3>
+
+
+<h4>Helpful</h4>
+
+
+<ul>
+<li>일이란 계획대로 되는 법이 거의 없다. 그리고 모든 사람이 만족해할만한 식으로 흘러가지도 않는다.
+내가 책임질 수 있는 부분까지는 내가 책임지지만, 내가 어찌할 수 없는 부분은 책임도 어쩔 수가 없다.
+예측할 수 없었던 상황이나 다른이들의 감정적인 부분들은 내가 어찌할 수 없는 부분들이다.</li>
+<li>There will always be more work to do. By choosing to rest at reasonable intervals, I increase my productivity, accomplish more, enjoy life and stop feeling resentful toward others who take breaks.</li>
+<li>It&rsquo;s good for me to be considerate of others' needs, but I also have a legitimate need for proper self-care. When I take time to nurture my physical, mental, emotional and spiritual health, I have a greater capacity to truly connect with and support others.</li>
+</ul>
+
+
+<h4>Harmful</h4>
+
+
+<ul>
+<li>If everything doesn&rsquo;t go according to plan and make everyone happy, it&rsquo;s my fault. I should have planned more, done more, been more.</li>
+<li>I can only rest without guilt once all the work is done. If I stop any sooner, I am lazy, selfish and irresponsible.</li>
+<li>My needs are the lowest priority. I will only get enough sleep, eat well, exercise and do activities I enjoy once everyone else has their needs — and most of their wants — met.</li>
+</ul>
+
+
+<h3>Insecurity in Relationships</h3>
+
+
+<h4>Helpful</h4>
+
+
+<ul>
+<li>I can choose to not allow my perception of other people&rsquo;s opinions of me dictate my opinion of myself. I am free to live as I please and make the choices that are right for me.</li>
+<li>It may not be easy for me at first, but I can learn how to form and maintain better relationships. I may not always meet everyone&rsquo;s expectations, but I have a better chance of success when I make a good effort.</li>
+<li>I can choose to stay in a place of security and isolation, or I can choose to open my life up to others. I may experience some loss of control, but ultimately I create the possibility of great joy in true relationship with others.</li>
+</ul>
+
+
+<h4>Harmful</h4>
+
+
+<ul>
+<li>Everyone is watching and evaluating me. If I don&rsquo;t appear to meet their standards for outward success, they will think badly of me.</li>
+<li>I&rsquo;m bad at forming and maintaining relationships. I can never make my friends and family happy so why should I try to have a life outside of work?</li>
+<li>I feel in control at work because certain actions predictably produce specific results. It&rsquo;s too much of a risk to venture into areas where I don&rsquo;t always know what to do, and I can&rsquo;t count on other people&rsquo;s response to my actions.</li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/06/07/business-of-apis/">Business of APIs</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2012-06-07T17:15:00+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>7</span><span class='date-suffix'>th</span>, <span class='date-year'>2012</span></span> <span class='time'>5:15 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><a href="http://www.amazon.com/Business-of-APIs-ebook/dp/B0055MJG7G/ref=sr_1_1?ie=UTF8&amp;qid=1339305654&amp;sr=8-1&amp;keywords=business+of+apis">Business of APIs</a>
+라는 책을 읽었다. 그 중에서 재미있었던 구절들을 적어놓고 싶다.</p>
+
+<p>API 를 제공해서 성공을 거두었던 서비스의 예로 Flickr 를 들고 있는데,
+사진을 블로그등에서 볼 수 있게 해주는 API 를 공개해서 큰 인기를 얻게 되었다고 한다.</p>
+
+<p>Flickr 의 공동창업자인 Caterina Fake 의 이야기.</p>
+
+<p>Fake 는 전통적은 Business Development 를 이렇게 묘사한다 - 옷을 차려입고,
+파워포인트 자료를 공들여 작성하고, 회의실에서 식어버린 커피를
+마시며 &lsquo;시너지'의 동의어를 찾느라 사전을 뒤적이고&hellip;</p>
+
+<p>API 가 이런 오버헤드를 없애는데 도움이 된다고.</p>
+
+<blockquote><p>Fake describes the traditional sorts of business development processes -
+&ldquo;spending a lot of money on dry cleaning, animating your
+PowerPoint, drinking stale coffee in windowless conference rooms and
+scouring the thesaurus looking for synonyms for &lsquo;synergy&rsquo;.
+Not to mention trying to get hopelessly overbooked people to return your email.
+And then after the deal was done, squabbling over who dealt with the
+customer service.&rdquo;
+An API, she contends, can help companies bypass this.</p></blockquote>
+
+<hr />
+
+<p>예전에는 컴퓨터를 주문하고, 아무리 빨라도 하루이틀 기다리고, 컴퓨터가 도착하면 데이터센터에 설치하고,
+이래야 했다면.</p>
+
+<p>이제는 AWS 에 Linux Box 를 만들어서 부팅시키고, 필요한 S/W 를 깔고, 계산할 태스크들을
+던져주고, 계산이 끝나면 Linux Box 를 없애버리는 것을 API 몇 개 가지고 할 수 있다.</p>
+
+<p>소비자나 개발자에게 큰 도움이 되지만, 서비스 자체도 이제는 API 를 제공하지 않으면 성공할 수 없는 세상이다.</p>
+
+<p>YouTube 가 웹에서 ubiquitous 한 동영상 플레이어가 되는데 \&lt;EMBED> API 의 기여가 컸다고 생각한다.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/05/21/the-pc-market-is-in-decline/">The PC Market Is in Decline</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2012-05-21T11:09:00+09:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>21</span><span class='date-suffix'>st</span>, <span class='date-year'>2012</span></span> <span class='time'>11:09 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>@asymco 의 <a href="http://www.asymco.com/2012/05/19/an-interview-with-chris-brennan-for-macuser-magazine-uk/">An interview with Chris Brennan for MacUser magazine UK</a></p>
+
+<p>는 훌륭한 인터뷰인데, 왜냐면</p>
+
+<p>인터뷰어가 좋은 질문을 했고, @asymco 가 좋은 대답을 했기 때문이다.</p>
+
+<p><br />
+Q: iPhone 은 이제 팔릴만큼 팔린 것인지?</p>
+
+<blockquote><p>Is the iPhone anywhere near saturation? Can Apple continue to shift iPhones in ever increasing numbers or is a sales plateau realistically on the horizon?</p></blockquote>
+
+<p>Q: 지금 PC 마켓은 decline 하고 있지만, Mac 판매는 성장하고 있는데, 언제까지 이럴 수 있을지?</p>
+
+<blockquote><p>Can the Mac also continue to outperform the rest of the PC market for long?</p></blockquote>
+
+<p>Q: 애플 제품의 기록적인 성장은 이제 끝날때가 된 것 아닌가? 비싼 애플 제품을 사줄 돈 잘버는 고객층이 남아있는가?</p>
+
+<blockquote><p>Finally, this exponential growth of Apple products has to end some time soon doesn’t it? How many high-income buyers for expensive products can there be left for Apple to target?</p></blockquote>
+
+<p>이것이 질문이고, @asymco 의 답변에 통찰이 넘친다.</p>
+
+<p><a href="http://www.asymco.com/2012/05/19/an-interview-with-chris-brennan-for-macuser-magazine-uk/">인터뷰 전문</a></p>
+
+<h2><br /></h2>
+
+<p><br />
+그리고 PC 제조 마켓은 10 년 뒤에는
+이제 메인프레임처럼 아무도 신경쓰지 않는 마켓이 되리라는 예상.
+개발 리소스는 모두 모바일이나 웹으로 이동.
+PC 전용 S/W 개발에는 심각한 자본이 투하되고 있지 않음.</p>
+
+<p><br />
+그렇기 때문에 &ldquo;점유율이 5% 라서 개발자를 끌어올 수 없다던가 있다던가&rdquo;
+- 맥이 예전에 겪었고 애플이 예전에 고민했던 -
+이런 논의 자체가 의미가 없게 되었음.</p>
+
+<p><br />
+S/W 가 없으니, 기계외에 추가되는 Value 가 없음. Commodity 가 되버림.</p>
+
+<blockquote><p>Applications for PCs are not an area of investment for any significant pool of capital. Development has moved almost entirely into mobile or web. Therefore, as the PC is now a commodity product, the best performers are those who can capture a larger margin. Those margins should be subsequently be invested in new platforms. PC vendors who neither capture margin, nor invest in new platforms are strategically insolvent.</p></blockquote>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/05/19/consumer-startups-without-revenue-are-products/">Consumer Startups Without Revenue Are Products, Not Businesses</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2012-05-19T18:06:00+09:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>19</span><span class='date-suffix'>th</span>, <span class='date-year'>2012</span></span> <span class='time'>6:06 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>@gregorysean 은 <a href="http://expletiveinserted.com/2012/05/17/consumer-startups-without-revenue-are-products-not-businesses/">Consumer Startups without Revenue are Products, not Businesses</a> 에서</p>
+
+<p>수익 모델이 없는 프로덕트를 개발하는 개발사의 여러가지 딜레마에 대해서 이야기한다.</p>
+
+<h3>In the Beginning</h3>
+
+<blockquote><p>Early in the life of a social product like Twitter or Tumblr, there are no ads. The product is conceived without advertising in mind, but rather with a very well intentioned focus on user experience.</p></blockquote>
+
+<p>개발 초창기에 UX 에 치중하는 이유는,</p>
+
+<ul>
+<li><p>사용자 가치에만 집중하는 비전 (i.e. 자신의 문제 해결를 해결하려 프로덕트 개발 시작했기 때문에, AD 에 신경쓸 여유도 없고 필요성이 느껴지지도 않고)</p></li>
+<li><p>초창기에는 AD 에 신경을 쓰면서 리소스를 분산시킬 이유가 없고 (백만단위의 AD impression 이나 백만단위의 UV 는 되어야 광고주들도 신경을 쓰니까 어차피 초기에는 AD 를 돌릴 수도 없고)</p></li>
+<li><p>SNS 같은 경우 UX 에만 신경쓰는 경쟁자가 많기 때문에, UX 에만 신경쓰기도 벅차</p></li>
+</ul>
+
+
+<p><br /></p>
+
+<h3>We Can Introduce Ads Later. Right?</h3>
+
+<blockquote><p>Maybe not. In the delicate cocktail that makes a great user experience, advertising is a powerful, overbearing ingredient. Adding it to the mix after the fact is almost impossible to do without changing the flavor to something completely different. And probably not very palatable.</p></blockquote>
+
+<p>UX 라는 섬세한 칵테일에, AD 는 너무나 강한 재료라서, 이것을 섞는 순간 전혀 다른 맛으로 바뀌게 된다. 맛이 없어질 가능성이 크다.</p>
+
+<p><br /></p>
+
+<blockquote><p>Even if the new ad supported product isn’t awful, it is not the same product that users grew to love. To them the addition of ads feels exactly like the bait and switch that it actually is. At best, the ads are an annoyance that devalues the product. At worst, they are a sign of that the makers of their beloved product are “selling out” and have lost their way.</p></blockquote>
+
+<p>AD 탑재 후 유저들이 &ldquo;돈에 팔렸다!&rdquo; 라고 할지도 몰라.</p>
+
+<p><br /></p>
+
+<blockquote><p>This seems obvious, so why are good product people, who are in other respects thoughtful about the minutia of user experience, so naive about this aspect of their product’s design? The answer is that they never considered it. And this wasn’t an oversight. It was intentional. Advisors and investors encouraged company leaders to delay thinking about monetization. The high order bit, in fact, the only bit that matters, is to grow the number of users and their level of engagement as quickly as possible.</p></blockquote>
+
+<p>투자자들도 수익모델 탑재는 나중에 하고 유저 베이스를 키울 것을 주문하고,
+그런 이유로 개발자들도 UX 에만 신경쓰다보니, 결국 성공한다고 해도,</p>
+
+<p><br /></p>
+
+<blockquote><p>The result if the company is successful? A product that wasn’t designed to generate advertising revenue, and a company that doesn’t have any advertising DNA.</p></blockquote>
+
+<p>이렇게 계속 달리다보면, AD 탑재 불가인 제품과 AD DNA 가 없는 회사가 만들어진다. 짜잔!</p>
+
+<p><br /></p>
+
+<h3>The Ads are a Lie</h3>
+
+<blockquote><p>The startup got to this point because the focus was never on building a real business with profitable products. After all, the product that matters to early stage investors is not the one the startup is selling, it is the startup itself. History tells them that with enough traction from users, one can sell a business without a single cent of revenue for $1 billion dollars.</p></blockquote>
+
+<p>회사가 이런 길을 따라서 쭉 가다가 성공(?)해버리면,
+&ldquo;수익이 나는 프로덕트를 가진 진짜 비즈니스"와는 거리가 먼 곳에 와있게 된다.</p>
+
+<p>투자자에게도 스타트업이 파는 것이 중요한 것이 아니라, 이 정도까지 온 회사 자체가
+중요. i.e. 1 달라의 매출도 없이 1 조에 팔리는 예가 있다보니.</p>
+
+<p><br /></p>
+
+<blockquote><p>When the investors say “the business model can come later”, they are adding “after the exit” in mental parentheses. These days that exit most often comes in the form of an acquisition. The acquirer might want the technology, the users or just to eliminate an upstart competitor. Post acquisition, they will set about integrating the new products into their own business model, whatever that may be. All is well.</p></blockquote>
+
+<p>투자자들이 &ldquo;비즈니스 모델은 나중에 붙여도 되고&rdquo; 라고 말할 때, &ldquo;나중에&rdquo; 는
+exit 이후를 말함. 사간 회사가 알아서 붙여서 moneitize 하던가. 이 정도의 마인드.</p>
+
+<p><br /></p>
+
+<h3>The Incumbents Win</h3>
+
+<blockquote><p>These whacky incentives create an environment where many startups really aren’t working towards profitability, but rather towards an acquisition exit. They are building experiences, not businesses. And since they don’t have the shackles of P&amp;L reality, they can do things that make it hard for businesses with real goals of profitability to compete.</p></blockquote>
+
+<p>Acquisition exit 을 보고 달리기 때문에, P&amp;L reality 를 볼 필요가 없이,
+P&amp;L 을 염두에 두고, 이익을 목적으로 비즈니스를 하는 진짜 회사들 입장에서
+경쟁하기 힘든 일들을 할 수가 있어.</p>
+
+<p>비즈니스를 만들 필요가 없고, (유저) 경험만 만들면 되는.</p>
+
+<p><br /></p>
+
+<blockquote><p>In fact, large companies are also where many unsuccessful consumer startups go to die, via the acqui-hire. Typically these are startups that built innovative products, got some impressive user traction, but didn’t get to the nice fat acquisition before they peaked and started the decline. In this case, the acquirer gets a waning user base and some proven product talent at a bargain basement price. The founders save face. The investors get something rather than nothing. Everybody makes out ok, except… the customers.</p></blockquote>
+
+<p>그저그런 시나리오</p>
+
+<p>혁신적인 프로덕트를 만들고, 인상적인 UV 를 만들고, 하지만 peak 를 칠 때까지
+빵빵한 인수 제안을 받지 못하고, 그리고 기울기 시작한다.</p>
+
+<p>대기업이 유저 베이스와 인력을 헐값에 인수하고, 창업자는 간신히 면을 세우고,
+투자자는 아예 없는 것보다는 나은 정도를 건지고.</p>
+
+<h2><br /></h2>
+
+<p><br />
+매출이 없는 제품을 주구장창 개발하는 것. 회사라고 보기도 뭐하고, 사업이라고 보기도 뭐하고. 프로덕트 개발 조직 정도로 보는 것이 좋을 듯.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/05/17/legends-of-the-fail/">Legends of the Fail</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2012-05-17T19:27:00+09:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>17</span><span class='date-suffix'>th</span>, <span class='date-year'>2012</span></span> <span class='time'>7:27 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Paul Krugman 은
+<a href="http://www.nytimes.com/2011/11/11/opinion/legends-of-the-fail.html?_r=1&amp;scp=19&amp;sq=paul%20krugman&amp;st=cse">Legends of the Fail</a> 에서</p>
+
+<p>유로의 탄생은 이데올로기 양편을 가로지르는 아이디어였다고 이야기함.</p>
+
+<blockquote><p>First things first: The attempt to create a common European currency was one of those ideas that cut across the usual ideological lines. It was cheered on by American right-wingers, who saw it as the next best thing to a revived gold standard, and by Britain’s left, which saw it as a big step toward a social-democratic Europe.</p></blockquote>
+
+<p><br />
+미국 우파 + 영국 좌파 | 영국 보수파 + 미국 리버럴 로 쪼개버렸기 때문에,
+기존 대립각을 골때리게 관통.</p>
+
+<blockquote><p>But it was opposed by British conservatives, who also saw it as a step toward a social-democratic Europe. And it was questioned by American liberals, who worried — rightly, I’d say (but then I would, wouldn’t I?) — about what would happen if countries couldn’t use monetary and fiscal policy to fight recessions.</p></blockquote>
+
+<p><br />
+유로 사태를 정치적으로 이용하려는 세력들이 준동. 복지를 깐다던가. 정부의 재정정책을 깐다던가.</p>
+
+<blockquote><p>The euro crisis, then, says nothing about the sustainability of the welfare state. But does it make the case for belt-tightening in a depressed economy?</p></blockquote>
+
+<p><br />
+과분한 복지와는 아무런 상관이 없다고 이야기함.</p>
+
+<blockquote><p>Oh, and Canada, which has universal health care and much more generous aid to the poor than the United States, has weathered the crisis better than we have.</p></blockquote>
+
+<p><br />
+자국의 통화로 돈을 빌릴 수 있느냐 없느냐가 핵심. 일본은 계속 국채 발행하고 저금리로 국채에 대한 이자 부담을 최소화하고 있음.</p>
+
+<blockquote><p>First, if you look around the world you see that the big determining factor for interest rates isn’t the level of government debt but whether a government borrows in its own currency. Japan is much more deeply in debt than Italy, but the interest rate on long-term Japanese bonds is only about 1 percent to Italy’s 7 percent. Britain’s fiscal prospects look worse than Spain’s, but Britain can borrow at just a bit over 2 percent, while Spain is paying almost 6 percent.</p></blockquote>
+
+<p><br />
+스페인, 이탈리아는 자국 통화 표시 국채발행으로 자금 조달이 안되는 제3세계 국가의 처지로 전락. 국가 단위에서 유로 돈 찍어낼 권한도 없음.</p>
+
+<blockquote><p>What has happened, it turns out, is that by going on the euro, Spain and Italy in effect reduced themselves to the status of third-world countries that have to borrow in someone else’s currency, with all the loss of flexibility that implies. In particular, since euro-area countries can’t print money even in an emergency, they’re subject to funding disruptions in a way that nations that kept their own currencies aren’t — and the result is what you see right now. America, which borrows in dollars, doesn’t have that problem.</p></blockquote>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/05/15/9-deadliest-start-up-sins/">9 Deadliest Start-up Sins</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2012-05-15T16:57:00+09:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>15</span><span class='date-suffix'>th</span>, <span class='date-year'>2012</span></span> <span class='time'>4:57 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>@sgblank 가 쓴, <a href="http://steveblank.com/2012/05/14/9-deadliest-start-up-sins/">9 Deadliest Start-up Sins</a> 에서.</p>
+
+<p>Excerpts from <a href="http://www.amazon.com/gp/product/0984999302/ref=as_li_tf_tl?ie=UTF8&amp;tag=wwwsteveblank-20&amp;linkCode=as2&amp;camp=1789&amp;creative=9325&amp;creativeASIN=0984999302">The Startup Owner&rsquo;s Manual: The Step-By-Step Guide for Building a Great Company</a></p>
+
+<p><br /></p>
+
+<blockquote><p><strong>Confusing traditional job titles with a startup&rsquo;s needs</strong></p>
+
+<p>Most startups simple borrow job titles from established companies.
+But remember, these are jobs in an organization that&rsquo;s executing
+a <em>known</em> business model. The term &ldquo;Sales&rdquo; at an existing company
+refers to a team that repeatedly sells a known product to a well-
+understood group of customers with standard presentations, prices,
+terms, and conditions.
+Start-ups by definition have few, if any, of these. In fact,
+they&rsquo;re out searching for them!</p></blockquote>
+
+<p>이미 돈을 버는 프로세스가 셋업된, well-established 비즈니스를 가진 조직에서
+타이틀을 가져왔는데, 사람들이 그 타이틀에 갖혀버리면 최악.</p>
+
+<p>i.e. 기존 조직의 Sales 란 자리는 이미 있는 제품을 이미 있는 고객들한테
+이미 있는 채널을 통해서 이미 정해진 가격과 조건으로 파는 것.</p>
+
+<p>v.s. 스타트업에는?</p>
+
+<p>자리가 사람을 만든다는 말이 항상 긍정적인 뜻만을 가진 것은 아님.</p>
+
+<p><br /></p>
+
+<blockquote><p><strong>Writing a business plan that doesn&rsquo;t allow for trial and error</strong></p>
+
+<p>Traditional business plans and product development models have one great advantage: They provide boards and founders an unambiguous path with clearly defined milestones the board presumes will be achieved. Financial progress is tracked using metrics like income statement, balance sheet, and cash flow. The problem is, none of these metrics are very useful because they don’t track progress against your start-up’s only goal: to find a repeatable and scalable business model.</p></blockquote>
+
+<p>손익계산서가 스타트업 초기의 목표가 될 수는 없음.</p>
+
+<p>Plan 과 그 달성 여부를 측정할 metric 선정을 잘해야 함.</p>
+
+<p>투자자와 갈등의 요소가 될 수 있음.</p>
+
+<p>스타트업의 목표는 repeatable &amp; scalable business model 을 찾아내는 것.</p>
+
+<p><br /></p>
+
+<blockquote><p><strong>Emphasizing execution instead of testing, learning, and iteration</strong></p>
+
+<p>Established companies execute business models where customers, problems, and necessary product features are all knowns; start-ups, on the other hand, need to operate in a “search” mode as they test and prove every one of their initial hypotheses.
+They learn from the results of each test, refine the hypothesis, and test again—all in search of a repeatable, scalable, and profitable business model. In practice, start-ups begin with a set of initial guesses, most of which will end up being wrong. Therefore, focusing on execution and delivering a product or service based on those initial, untested hypotheses is a going-out-of-business strategy.</p></blockquote>
+
+<p>Ram Charan 의 책에 나오는 execution 컨셉으로 접근하기에는 스타트업의 초기 시간들은 그 다이나미즘이 많이 다름.</p>
+
+<p>실행을 강조하는 문화는, 어느정도 자리가 잡힌 조직에서 효과가 발휘되며,</p>
+
+<p>스타트업에서는 빠르게 프로토타입을 만들고 런칭하고 배우고, 계속 개선하고&hellip; 이런 것들을 강조하는 것이 더 나음.</p>
+
+<p><br /></p>
+
+<blockquote><p><strong> Focusing on the launch date</strong></p>
+
+<p>Traditionally, engineering, sales, and marketing have all focused on the immovable launch date. Marketing tries to pick an “event” (trade show, conference, blog, etc.) where they can “launch” the product. Executives look at that date and the calendar, working backward to ignite fireworks on the day the product is launched. Neither management nor investors tolerate “wrong turns” that result in delays.</p></blockquote>
+
+<p>서비스 런칭 날짜를 심각하게 받아들이지 말고, 이 정도면 첫번째 릴리즈를 내보내도 되겠다&hellip; 정도로 생각할 것. 고객을 다 파악해서 완벽한 제품을 만들어서 짜잔! 이런 건 없음.</p>
+
+<p><br /></p>
+
+<blockquote><p><strong>Assuming you know what the customer wants</strong></p>
+
+<p>To succeed, founders need to turn these guesses into facts as soon as possible by getting out of the building, asking customers if the hypotheses are correct, and quickly changing those that are wrong.</p></blockquote>
+
+<p>고객이 원하는 것을 다 알고 이런 것은 없음. 부딪혀보고 Iteration.</p>
+
+<p><br /></p>
+
+<blockquote><p><strong>The &ldquo;I know what feature to build&rdquo; flaw</strong></p>
+
+<p>These founders specify, design, and build a fully featured product using classic product development methods without ever leaving their building. Yet without direct and continuous customer contact, it’s unknown whether the features will hold any appeal to customers.</p></blockquote>
+
+<ul>
+<li>고객이 원하는 것을 나는 알아!(일단 여기서부터 틀리고),</li>
+<li>어떤 기능들을 구현해야겠다로 가버려서,</li>
+<li>열심히 너무 많이 만들어 버리면,</li>
+<li>골때려지는 상황이 올수 있음.</li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/05/13/confessions-of-a-tech-entrepreneur/">Confessions of a Tech Entrepreneur</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2012-05-13T20:04:00+09:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>13</span><span class='date-suffix'>th</span>, <span class='date-year'>2012</span></span> <span class='time'>8:04 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>@shalabi 는
+<a href="http://www.samishalabi.com/2011/11/confessions-of-a-tech-entrepreneur">Confessions of a Tech Entrepreneur</a>
+에서 열가지 조언을 해준다.</p>
+
+<p>훌륭한 프로덕트는 만든 사람의 니즈를 잘 충족시켜준다.
+자신의 문제를 풀려고 할 때, 열정적이 된다.
+자신의 프로덕트를 매일 쓰고, 계속 발전시켜나가는 것.
+당신이 겪고 있는 문제는 잠재적인 비즈니스 기회라고 이야기한다.</p>
+
+<blockquote><p><strong>Be your #1 customer</strong></p>
+
+<p>I have always found that the greatest products service the needs of those that create them. Solving a real personal pain point makes you passionate about the space, and solution. Being your #1 customer makes you use your own product everyday and forces you to keep improving it before the rest of the world asks you to. Your problems are potentially business opportunities.</p></blockquote>
+
+<p><br />
+비즈니스 계획을 세우는데 시간을 쏟지 말고, 프로토타입을 만드는데 시간을 써라.</p>
+
+<blockquote><p><strong>Beauty through real things, not business plans</strong></p>
+
+<p>I always tell entrepreneurs when starting out not to focus too much on the
+business plan. That is poor use of time. Spend your time building a
+prototype and make it look beautiful. Many early stage detailed business
+plans I have seen are not worth the paper they are written on.
+A beautiful user experience that solves a real problem get most
+users and investors excited. It also proves that the team behind the idea can
+actually deliver, which is usually the biggest wild card with early stage
+entrepreneurs. So ask yourself, would you invest in a business plan or a real
+working service that looks great?</p></blockquote>
+
+<p><br />
+초기에는 규모를 키우지 마라. 프로덕트/마켓 궁합이 맞는지를
+잘 모를때 사람을 뽑으며 규모를 키우는 것은 잘못된 일.
+돈을 아껴쓰면, 제대로된 비즈니스를 만들었는지 확인할때까지 버틸 수 있다.
+비즈니스 자체에 추진력이 생기고 나서, 규모를 키워도 된다.</p>
+
+<blockquote><p><strong>Build a lean mean machine</strong></p>
+
+<p>One common mistake I have seen in many startups is scaling and hiring a lot of people quickly. I think that it is a bad idea when you do not know that you have a product market fit. The less money you spend at the beginning, the longer your runway to figure out if you have a business. Start to scale only once you see traction, otherwise it is a poor use of money. Find the cheapest path, time and money, to test the solution.</p></blockquote>
+
+<p><br />
+시작할때부터 equity vesting 에 대해서 정해놓고 가야한다.
+equity 40% 소유에 4년 vesting schedule 이면 1년에 10% 씩 vest 하게.
+그 전에 떠나면 지금까지 vest 된 것만 가지고 떠난다.</p>
+
+<blockquote><p><strong>Put everyone, including yourself on a vesting schedule</strong></p>
+
+<p>One of the most challenging problems with most startups is figuring out
+who owns what. I have a simple rule, all employees and founders must be
+on a vesting schedule from the start. Vesting is when people get their
+equity in increments over an allocated period of time. For example, if
+you own 40% and are on a 4 year vesting schedule, you get 10% every year
+for 4 years. If you leave early, then you get what is vested. There are
+many schools of thought, but I generally like to pick a vesting schedule
+of 4 to 5 years.</p></blockquote>
+
+<h2><br /></h2>
+
+<p><br />
+<strong>Bottom-up 으로 솔루션 개발</strong></p>
+
+<p>스타트업에서 시장 조사같은 Top-down 방식으로 할 일을 정하는 것은 권하고 싶지 않다.</p>
+
+<p>그 이유는,</p>
+
+<ul>
+<li>그 문제를 우리 팀이 해결할 수 있으리라는 보장이 없다.</li>
+<li>만드는 프로덕트의 유저가 내가 아닐 가능성이 많다. 그럴 경우
+좋은 제품을 만드는 것은 불가능하다.</li>
+<li>Top-down 으로 선택한 주제에 열정이 생길것이가?</li>
+</ul>
+
+
+<p>내가 겪는 문제를 해결하다는 심정으로 bottom-up 어프로치를 취하는 것이 좋다.</p>
+
+<p><strong>프로덕트/마켓 궁합이 확인될때까지 헝그리</strong></p>
+
+<p><strong>창업 멤버들이 나갈 때 equity 처리</strong></p>
+
+<p>한번 해보지 않으면 감잡기가 쉽지 않은 것.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  <div class="pagination">
+    
+      <a class="prev" href="/posts/21">&larr; Older</a>
+    
+    <a href="/blog/archives">Blog Archives</a>
+    
+    <a class="next" href="/posts/19">Newer &rarr;</a>
+    
+  </div>
+</div>
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/10/04/return-oriented-programming-for-the-arm-architecture/">Return Oriented Programming for the ARM Architecture</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/02/the-inside-story-behind-ms08-067/">The Inside Story Behind MS08-067</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/17/rop-and-arm/">ROP and ARM</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/13/sophail-applied-attacks-against-sophos-antivirus/">Sophail: Applied Attacks Against Sophos Antivirus</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/13/stagefright/">Stagefright</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - Your Name -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

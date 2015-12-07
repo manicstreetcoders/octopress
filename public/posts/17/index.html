@@ -1,0 +1,1358 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>My Octopress Blog</title>
+  <meta name="author" content="Your Name">
+
+  
+  <meta name="description" content="Breadth first search. 우선 BFS. class Vertex: def __init__(self, i): self.index = i self.adjacency = [] self.visited = False self.distance = 0 def &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://yoursite.com/posts/17/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="My Octopress Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">My Octopress Blog</a></h1>
+  
+    <h2>A blogging framework for hackers.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="yoursite.com">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div class="blog-index">
+  
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/09/16/topological-sort/">Topological Sort</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-09-16T13:05:00+09:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>16</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>1:05 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h3>Breadth first search.</h3>
+
+<p>우선 BFS.</p>
+
+<pre><code>class Vertex:
+    def __init__(self, i):
+        self.index = i
+        self.adjacency = []
+        self.visited = False
+        self.distance = 0
+    def addEdge(self, e):
+        self.adjacency.append(e)
+    def listEdge(self):
+        for e in self.adjacency:
+            print "(%d,%d)" % (self.index, e.index)
+
+if __name__ == "__main__":
+    va = []
+    for i in range(0,10):
+        va.append( Vertex(i) )
+
+    def e(v, e):
+        va[v].addEdge( va[e] )
+        pass
+
+    e(0,1)
+    e(0,2)
+
+    e(1,3)
+    e(2,4)
+
+    e(3,5)
+    e(4,5)
+
+    for v in va:
+        v.listEdge()
+
+    import Queue
+    q = Queue.Queue()
+
+    va[0].visited = True
+    q.put(item = va[0], block=False)
+
+    while ( q.empty() == False):
+        v = q.get(block=False)
+        for adj in v.adjacency:
+            if ( adj.visited == False):
+                adj.visited = True
+                adj.distance = v.distance + 1
+                q.put(item = adj, block=False)
+
+    for v in va:
+        print "%d -&gt; %d: (%d)" % (0, v.index, v.distance)
+</code></pre>
+
+<h3>DFS</h3>
+
+<p>그 다음 DFS</p>
+
+<pre><code>class Vertex:
+    def __init__(self, i):
+        self.index = i
+        self.adjacency = []
+        self.visited = False
+        self.distance = 0
+    def addEdge(self, e):
+        self.adjacency.append(e)
+    def listEdge(self):
+        for e in self.adjacency:
+            print "(%d,%d)" % (self.index, e.index)
+
+def dfs(v):
+    for n in v.adjacency:
+        if n.visited == False:
+            n.visited = True
+            n.distance = v.distance + 1
+            dfs(n)
+        else:
+            pass
+
+if __name__ == "__main__":
+    va = []
+    for i in range(0,10):
+        va.append( Vertex(i) )
+
+    def e(v, e):
+        va[v].addEdge( va[e] )
+        pass
+
+    e(0,1)
+    e(0,2)
+
+    e(1,3)
+    e(2,4)
+
+    e(3,5)
+    e(4,5)
+
+    for v in va:
+        v.listEdge()
+
+    dfs(va[0])
+
+    for v in va:
+        print "%d -&gt; %d: (%d)" % (0, v.index, v.distance)
+</code></pre>
+
+<h3>Dijkstra&rsquo;s Shortest-Path</h3>
+
+<p>다익스트라 알고리즘의 요체는 다음과 같다.</p>
+
+<pre><code>1. 그래프를 두개의 컷으로 나눈다.
+2. 한개는 explored, 다른 한개는 unexplored.
+3. 목표는 모든 vertex 를 explore 하는 것.
+4. unexplored set 을 explore 한다는 것은 무슨 의미일까?
+5. unexplored set 의 vertex 하나를 explored set 과 연결해야 한다.
+6. 그 연결하는 edge 는 어떤 edge 를 선택해야 하는 것일까?
+7. explored 된 vertex 마다 unexplored 로 가는 edge 가 있는지, 있다면 그 weight 는 얼마인지?
+7. A[v] + l_vw 를 minimize 하는 v-w (v from explored set, w from unexplored set) 를 선택한다. l_vw 는 weight.
+8. 이 부분이 greedy 한 부분이다. 단계별로 행하는 myoptic decision 이 뒤집히지 않을 것이라는 가정하에 선택하는.
+</code></pre>
+
+<p>다익스트라 알고리즘의 가정은 edge 의 weight 가 non-negative 해야 한다는 것. greedy 한 nature 때문에 어쩔 수 없다.</p>
+
+<h3>Minimum Spanning Tree</h3>
+
+<p>Prim&rsquo;s Algoritm: &ldquo;The plan is to grow a tree one edge at a time&rdquo;</p>
+
+<p>주어진 input graph 가 connected graph 라는 가정하에.</p>
+
+<p>Tree 를 한 개의 edge 씩 더해가며 키워가는 것이다.</p>
+
+<pre><code>1. Vertex 중에서 하나를 임의로 고른다.
+2. 새로운 Vertex 를 acquire 해야 한다.
+3. 그러기위해서, 어떤 edge 를 acquire 해야 할까?
+4. greedy 하게 결정한다. 가장 weight 가 적은 edge 를 선택하여 새로운 vertex 를 acquire 한다.
+5. 모든 vertex 를 acquire 하면 종료.
+</code></pre>
+
+<h3>Topological Sort</h3>
+
+<p>Kahn algorithm.</p>
+
+<pre><code>L &lt;- Empty list that will contain the sorted elements
+S &lt;- Set of all nodes with no incoming edges
+while S is non-empty do
+    remove a node n from S
+    insert n into L
+    for each node m with an edge e from n to m do
+        remove edge e from the graph
+        if m has no other incoming edges then
+            insert m into S
+if graph has edges then
+    return error (graph has at least one cycle)
+else
+    return L (a topological sorted order)
+</code></pre>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/09/13/drive-by-download-managers-perpective/">Drive-by-Download: Manager's Perpective</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-09-13T13:22:00+09:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>13</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>1:22 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Drive-by-Download 를 수행하는 팀을 구성한다면 리쿠루팅은 어떤 뽑아야 하고, 성과 평가는
+어떻게 해야 할까? 하는 관점에서 적어보았다.</p>
+
+<hr />
+
+<h4>Traffic Acquisition Engineer</h4>
+
+<p>트래픽이 많은 사이트를 해킹하여, 웹 페이지에 iframe 태그등을 삽입하여, 악성 웹사이트로 트래픽을 돌려야 한다. <strong>얼마나 많은 Traffic 을 가져오냐가 KPI</strong></p>
+
+<ol>
+<li>TCP/IP, Linux and web frameworks 에 대한 지식</li>
+<li>Linux, Windows, DNS and routing</li>
+<li>Apache, PHP, WordPress, MySQL, Rails and Django.</li>
+<li>웹 해킹 경험</li>
+<li>SQL Injection, XSS</li>
+</ol>
+
+
+<h4>Exploit Engineer</h4>
+
+<p>Browser, Java, Flash 등의 취약점을 찾아내어 쉘코드를 수행시킬 수 있는 수준까지 코드를 개발해야 한다. <strong>Acquired 된 트래픽 대비 몇 % 를 감염시키냐가 KPI. 10~20% 가 업계 표준</strong></p>
+
+<ul>
+<li>x86 Assembly/Disassembly</li>
+<li>Strong knowledge of Windows memory management</li>
+<li>JavaScript / DOM</li>
+<li>알려진 CVE 를 exploit 할 수 있는 코드 작성 능력.</li>
+<li>Browser, ActiveX control Fuzzer 개발 능력</li>
+</ul>
+
+
+<h4>Payload Engineer</h4>
+
+<p>Exploit 가 성공하는 순간 실행될 Payload 들을 개발해야 한다. 실행화일을 다운로드하여 실행한다던가, 다운로드한 수행코드를 기존 프로세스의 메모리에 집어넣어 돌린다던가 하는 등의 다양한 Payload 를 개발해야 한다. Payload 에는 Exploit 에 들어갈 쉘코드와 1st/2nd stage Dropper 가 포함된다. <strong>Anti-virus 나 IDS 에 걸리지 않고 다양한 네트워크 환경 (i.e. proxy) 에서 동작하는 Payload 개발이 KPI</strong></p>
+
+<ul>
+<li>Windows API (Process, Memory, Thread, API Hooking, PE format)</li>
+<li>Visual C++/x86 Assembly</li>
+</ul>
+
+
+<h4>Rootkit Engineer</h4>
+
+<p>제작된 다양한 소프트웨어에 rootkit 기능을 추가한다.</p>
+
+<ul>
+<li>Proficient in Windows SDK &amp; internals</li>
+<li>Experience in writing usermod &amp; kernelmod rootkits</li>
+</ul>
+
+
+<h4>Undetectability Engineer</h4>
+
+<p>JavaScript 난독화, Payload 난독화, 서버 PHP 난독화, 실행화일 난독화를 수행하는 Tool 을 제작하거나 선정한다. 빌드때마다, 3~40 개의 AV 에 직접 테스트하여 탐지되지 않을 것을 보증해야 한다. <strong>Tool 을 거쳐 작전에 투입되는 화일들이 AV 에 걸리지 않는 것이 KPI</strong></p>
+
+<ol>
+<li>JavaScript and x86 assembly 에 대한 지식</li>
+<li>다양한 JavaScript runtime (v8, spidermonkey, rhino) 에 대한 지식</li>
+<li>Lexer / Paser 제작 경험</li>
+<li>ANTLR, BISON 지식이 있으면 플러스</li>
+<li>AV /IDS Evasion 테크닉</li>
+<li>기본적인 암호 지식</li>
+<li>난독화</li>
+</ol>
+
+
+<h4>C&amp;C / Botnet Engineer</h4>
+
+<p>C&amp;C 서버를 제작한다. Massive 한 좀비 클라이언트들을 관리할 수 있는 안정적이고 스케일러블한 서버와 API 를 개발해야 한다.</p>
+
+<ul>
+<li>대용량의 웹 서버 / Socket 서버 프로그래밍</li>
+<li>PHP 프로그래밍</li>
+<li>P2P 프로토콜에 대한 지식</li>
+<li>Twitter 나 DNS 등의 다양한 통신 채널에 대한 API 활용 능력</li>
+</ul>
+
+
+<h4>Remote Administration Tool Engineer</h4>
+
+<p>피해자의 PC 에 설치되어 키스트로크나 화면 감시등을 할 RDP/VnC 와 같은 리모트 툴을 개발해야 한다. Exploit Engineer 와 협력하여 High value target 에 대한 작전을 수행할 때 사용할 툴 개발을 총괄. Spear phishing 에 사용될 무기화된 PDF/DOC 등을 만드는 일도 겸임한다. Rookit Engineer 와 협력하여 개발된 리모트 툴에 rookit 기능을 추가한다.</p>
+
+<ul>
+<li>Windows 프로그래밍에 능숙 (UI 포함)</li>
+</ul>
+
+
+<h4>Monetization Manager</h4>
+
+<p>돈을 버는 것을 총괄하는 일종의 프로덕트 매니저. 엔지니어들을 총괄 관리하여 게임/뱅킹등 버티컬에 특화된 악성 소프트웨어를 제작할 책임이 있다. 메모리에서 정보를 꺼낸다던가, 인증을 우회하여 결제를 일으키는 기술, 광고 사기 기술들을 연구해야 한다. 파밍 사이트 셋업도  Monetization Manager 의 책임이다. <strong>전체 매출을 책임지며, 특히 감염된 PC 대당 매출을 얼마나 끌어올리는가가 KPI</strong></p>
+
+<ul>
+<li>Social Engineering 이 강해야 함</li>
+<li>People skill</li>
+<li>지불 결제, 가상화폐, 아이템 거래, 광고네트워크(i.e. Ad-sense), 상품권 유통, CPC 광고등에 대한 지식과 경험</li>
+<li>PKI, challenge-response, 2 factor / 2 channel 인증에 대한 지식</li>
+<li>통장/mule/courier 관리.</li>
+<li>가상 재화를 현금화 할 수 있는 채널/네트워크 보유</li>
+</ul>
+
+
+<h4>Network Operator</h4>
+
+<p>Traffic Acquisition Engineer 에게 신규로 접수된 호스트들을 전달받아, 공격 체인에 투입될 수백/수천개의 호스트 풀을 관리한다. Google safe-browsing 이나 Microsoft SmartScreen 등의 서비스에 블랙리스팅된 호스트는 체인에서 빼고 신규 호스트를 투입한다. C&amp;C 호스트를 관리하고 C&amp;C 호스트를 NIC/DNS 에 등록/관리하는것도 Network Operator 의 책임이다.</p>
+
+<ul>
+<li>Linux/Windows Administration Skills</li>
+<li>DNS / Nameserver / Hosting 에 대한 경험</li>
+</ul>
+
+
+<hr />
+
+<p>JD 를 만들어 따져보니, 생각보다 다양한 스킬을 가진 사람들이 필요하다.</p>
+
+<p>이런 팀을 운영하려면 인건비 + 경비가 일년에 20 억 정도가 들 듯 하다.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/09/11/javascript-method-invocation-patterns/">JavaScript Method Invocation Patterns</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-09-11T12:14:00+09:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>11</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>12:14 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>JavaScript: The Good Parts 에서 funciton 에 관한 내용을 발췌/정리한다.</p>
+
+<p>자바스크립에는 function 호출에 4 가지 패턴이 있다.</p>
+
+<h3>The Method Invocation Pattern</h3>
+
+<p>function 이 Object 의 property 로 저장되어있을때.</p>
+
+<pre><code>var myObject = { 
+    value: 0, 
+    increment: function(inc) { 
+        this.value += typeof inc === 'number' ? inc : 1; 
+    }
+}
+</code></pre>
+
+<p>JavaScript 에서 <code>this</code> 의 binding 은 invocation time 에 이루어진다. late binding.</p>
+
+<p>이 경우 <code>this</code> 는<code>myObject</code> 에 바인딩된다.</p>
+
+<h3>The Function Invocation Pattern</h3>
+
+<p>Object 의 property 가 아니면 method 가 아니라 function.</p>
+
+<pre><code>var sum = add(3, 4)
+</code></pre>
+
+<p>this 는 global object 에 binding 됨. Web Browser 에서 돌고 있다면,</p>
+
+<p>DOM object 인 <code>window</code> object 에 binding 될 것.</p>
+
+<pre><code>myObject.double = function() {
+    var add = function(a,b) { return a+b; };
+    var helper = function() { 
+        this.value = add(this.value, this.value);
+    };
+    helper();
+};
+</code></pre>
+
+<p>란 코드를 보자. inner function 의 this 는 어디에 binding 이 될까?</p>
+
+<p>테스트를 해보자.</p>
+
+<pre><code>&lt;html&gt;
+&lt;head&gt;&lt;/head&gt;
+&lt;body&gt;
+&lt;script&gt;
+var myObject = {
+    value: 0,
+    increment: function(inc) {
+        this.value += typeof inc === 'number' ? inc : 1;
+    }
+};
+
+myObject.double = function() {
+    var add = function(a,b) { return a+b; };
+    var helper = function() {
+        if (this === window) console.log('this === window');
+        this.value = add(this.value, this.value);
+    };
+    helper();
+};
+
+console.log(myObject.value);
+myObject.increment();
+console.log(myObject.value);
+myObject.double();
+console.log(myObject.value);
+&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+
+% python -m SimpleHTTPServer 8888
+</code></pre>
+
+<p>이제 브라우저로 들어가 localhost:8888 을 로드하고, Console 을 띄운다.</p>
+
+<p>콘솔에 나와있는 메시지들.</p>
+
+<pre><code>0
+1
+this === window
+1
+</code></pre>
+
+<p>inner function 의 <code>this</code> 가 <code>myObject</code> 가 아닌, DOM object 인 <code>window</code> 에 바인딩되었음을
+알 수 있다.</p>
+
+<h3>The Constructor Invocation Pattern</h3>
+
+<p>constructor 를 정의하고, accessor 를 정의하였다.</p>
+
+<p>JavaScript 에서 constructor 는 new 키워드와 함께 사용된다.</p>
+
+<p><code>this</code> 는 메시지를 받는 object 에 binding 된다.</p>
+
+<pre><code>var Document = function ( name ) {
+    if (typeof name === "string")
+        this.title = name;
+    else
+        this.title = "&lt;empty&gt;";
+}
+
+Document.prototype.getTitle = function () {
+    return this.title;
+}
+
+var myDoc = new Document("confused");
+console.log( myDoc.getTitle() );
+
+% node constructor.js
+confused
+%
+</code></pre>
+
+<h3>The Apply Invocation Pattern</h3>
+
+<p>JavaScript 은 functional OO language 이기 때문에, function 이 method 를 가질 수 있다.</p>
+
+<p>function object 에 <code>apply</code> method 를 날려서, 함수를 실행시킬 수 있다.</p>
+
+<p>이 경우, arg0 에 binding 할 <code>this</code> 를 지정해줄 수 있다.</p>
+
+<pre><code>var add = function (a,b) {
+    return a+b;
+};
+
+var a = [ 1, 2 ];
+
+var sum = add.apply(this, a);
+
+console.log(sum);
+
+% node apply.js
+3
+%
+</code></pre>
+
+<p>이상 4 개의 호출 패턴 정리 끝.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/09/10/adsense-inverse-search/">AdSense: Inverse Search</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-09-10T18:08:00+09:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>10</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>6:08 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>search 는 주어진 키워드와 가장 relevant 한 document 를 찾아 사용자에게 제시한다.
+AdSense 는 역으로 주어진 document 에 대해, 가장 relevant 한 키워드를 찾아내, 그 키워드에
+비딩한 광고를 실어주어야 한다.</p>
+
+<h3>TF-IDF</h3>
+
+<ul>
+<li>rarer words make better keywords</li>
+</ul>
+
+
+<p>IDF = inverse document frequency of word w = log_2 (N/N_w)</p>
+
+<p>(N total documents, with N_w containing w)</p>
+
+<ul>
+<li>more frequent words make better keywords</li>
+</ul>
+
+
+<p>TF (Term Frequency) = frequency of w in document d</p>
+
+<p>TF-IDF (w) = Term Frequency (w) * Inverse Document Frequency (w)</p>
+
+<p>&lsquo;the&rsquo; 처럼 의미없는 말이 문서에 자주 반복되어봐야 별 가치 없으니,
+어느정도 rarer 한 단어가 어느 정도 자주나오는가? 라는 의미로 보면 될 것.</p>
+
+<p><a href="http://comminfo.rutgers.edu/~muresan/IR/Docs/Articles/ipmAizawa2003.pdf">&ldquo;An information-theoretic perspective of TF-IDF measures&rdquo;, Kiko Aizawa, Journal of Information Processing and Management, Vol. 39 (1), 2003</a></p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/09/09/mapreduce-simplified-data-processing-on-large-clusters/">MapReduce: Simplified Data Processing on Large Clusters</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-09-09T17:19:00+09:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>9</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>5:19 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Jeff Dean and Sanjay Ghemawat 의 논문 &ldquo;MapReduce: Simplified Data Processing on Large Clusters&rdquo; 를 읽고 있다.</p>
+
+<p>LISP-like 언어들의 Map(), Reduce() 함수가 MapReduce 의 시작이었다.</p>
+
+<h3>Problems</h3>
+
+<p>Map/Reduce 로 풀 수 있는 문제들을 제시한다. Scalable 하게 풀 수 있는 문제들.</p>
+
+<ul>
+<li>Distributed Grep - 패턴이 매치하면 그 라인을 emit.
+reduce 함수가 중간 데이터를 아웃풋에 출력.</li>
+<li>Count of URL Access Frequency - HTTP request log 를 프로세스해서 &lt;URL,1> 을 emit.
+reduce 함수가 같은 URL 에 대해서 값들을 summation. &lt;URL, total count> 를 emit.</li>
+<li>Reverse Web-Link Graph</li>
+<li>Term-Vector per Host</li>
+<li>Inverted Index</li>
+<li>Distributed Sort</li>
+</ul>
+
+
+<h3>Map() / Reduce()</h3>
+
+<p>JavaScript, Ruby, Python 으로 map() / reduce() 예제를 만들어본다.</p>
+
+<p>JavaScript</p>
+
+<pre><code>// map.js
+function map(fn, a) {
+    for (var i = 0; i &lt; a.length; i++) 
+        a[i] = fn(a[i]);
+}
+
+var x = [1,2,3,4,5];
+
+map( function(n) { return n*2; }, x);
+map( function(n) { process.stdout.write(n.toString()+'\n'); return n; }, x);
+
+code% node map.js
+2
+4
+6
+8
+10
+
+// mapreduce.js
+function map(fn, a) {
+    for (var i = 0; i &lt; a.length; i++) 
+        a[i] = fn(a[i]);
+}
+
+function reduce(apply, array, initial_value) {
+    var prev = initial_value;
+    for (var i = 0; i &lt; array.length; i++)
+        prev = apply(prev, array[i]);
+    return prev;        
+}
+
+var x = [1,2,3,4,5];
+
+map( function(n) { return n*2; }, x);
+process.stdout.write( 
+    reduce( function(x,y) { return x+y; }, x, 0 ).toString() + '\n' );
+
+code% node map.js
+30
+</code></pre>
+
+<p>Ruby 의 경우 map(), reduce() 가 있는데,</p>
+
+<pre><code>1.9.3-p448 :001 &gt; (1..10).map { |n| n*2 }
+ =&gt; [2, 4, 6, 8, 10, 12, 14, 16, 18, 20]
+1.9.3-p448 :002 &gt; (1..10).reduce(0) { |prev,n| prev + n }
+ =&gt; 55
+1.9.3-p448 :003 &gt; (1..10).reduce(0) { |prev,n| prev = prev + n }
+ =&gt; 55
+1.9.3-p448 :004 &gt;
+</code></pre>
+
+<p>reduce() 의 의미는, list 의 아이템을 하나의 value 로 축약해내는 것.</p>
+
+<p>축약 과정은 ( 전의 값, list 의 아이템 ) 에 apply function 을 적용하여 새로운 값을
+계속해서 만들어나가는 것.</p>
+
+<p>요약하면 Apply funciton 으로 어레이를 단계별로 처리해나가서 하나의 값으로 증류해내는 것.</p>
+
+<p>이제 ruby 의 map(), reduce() 를 구현해서 monkey patching 으로 붙여보자.</p>
+
+<p>Python 의 경우에도 map(), reduce() 함수가 있는데,</p>
+
+<pre><code>Python 2.7.2 (default, Oct 11 2012, 20:14:37)
+[GCC 4.2.1 Compatible Apple Clang 4.0 (tags/Apple/clang-418.0.60)] on darwin
+Type "help", "copyright", "credits" or "license" for more information.
+&gt;&gt;&gt; a = [ 1,2,3,4,5 ]
+&gt;&gt;&gt; map ( lambda x: x* 2, a )
+[2, 4, 6, 8, 10]
+&gt;&gt;&gt; reduce( lambda x,y: x+y, a)
+15
+</code></pre>
+
+<h3>Word Count Example</h3>
+
+<p>Map-Reduce v.s. shared-memory, low-level message passing</p>
+
+<p>Web 에서 crawling 한 document 를 가지고 word count 을 map-reduce 로 기술해본다.</p>
+
+<p>Input: 도큐먼트와 content (d_k, &lsquo;w_1 &hellip; w_n&rsquo;)
+Output: (w_k, word-count-toal)</p>
+
+<ul>
+<li>mapper: (d_k, &lsquo;w1 &hellip; w_n&rsquo;) -> emits -> [ (w_i,c_i) ]</li>
+<li>reducer:  (w_i, [c_i]) -> (w_i, sum of all c_i)</li>
+</ul>
+
+
+<p>문서는 여러개의 mapper 에 분배된다.
+mapper 는 문서를 받아서 (key,value) 를 뱉어낸다.
+그 문서에 있는 단어와 단어의 카운트. combine 을 할수도 안할수도 있다.</p>
+
+<pre><code>('abc', 4)
+('cat', 2)
+('abc', 8)
+('dog', 1)
+('gun', 7)
+('dog', 2)
+...
+</code></pre>
+
+<p>word count 예제에서는
+reducer 는 mapper 들이 생성한 (key, value) 에 sum function 을 가지고 reduce 한다.
+(&lsquo;abc&rsquo;, &hellip;) 는 1st reducer 로 가고, (&lsquo;cat&rsquo;, &hellip;) 는 2nd reducer 로 가고&hellip;</p>
+
+<p>octo.py 를 가지고 map-reduce 를 간단하게 실습해본다.</p>
+
+<h4>wc.py</h4>
+
+<pre><code>import glob
+
+files = glob.glob('*.txt')
+
+def fbuf(fname):
+    f = open(fname)
+    try:
+        return f.read()
+    finally:
+        f.close()
+
+source = dict( (fname, fbuf(fname)) for fname in files)
+
+f = open('outfile','w')
+
+def final(k,v):
+    print k,v
+    f.write( str( (k,v) ) )
+
+def mapfn(k,v):
+    for line in v.splitlines():
+        for word in line.split():
+            yield word.lower(), 1
+
+def reducefn(k,v):
+    return k,len(v)
+</code></pre>
+
+<p>octo.py server 가 file contents 를 mapper 에게 분배하고,
+mapper 는 (word, 1) 을 emit 한다.
+reducer 는 ( &lsquo;alice&rsquo; , [1,1,1,1,1,1,1,1] ) 를 reduce 한다.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/09/09/making-of-an-exploit-kit/">Making of an Exploit Kit</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-09-09T15:26:00+09:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>9</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>3:26 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Drive-by-download 공격을 수행하는 Exploit Kit 을 만들고 있다.</p>
+
+<p>중국산 EK 들이 쓰는 CVE 들과 한국에 유독 많은 ActiveX 컨트롤들의 취약점을 활용할 예정.</p>
+
+<p>Browser Fingerprinting 을 통해 적절한 Exploit 으로 대응한다.</p>
+
+<p>몇가지 아이디어와 루틴들을 실험하기 위해 실험용 웹사이트를 셋업했다.</p>
+
+<p>Browser 의 종류나 설치된 플러그인들의 버전은 deployJava.js, swfobject.js, PluginDetect.js 등을 활용하면,</p>
+
+<p>거의 정확하게 판정이 가능하다. 즉 취약한 버전의 Java Runtime 이 있는지, 취약한 버전의 Flash Player 가 있는지를 거의 정확하게 판별할 수 있다는 것.</p>
+
+<p>Applet 을 활용하면, virtual machine 인지를 확인도 가능한 듯 하다.</p>
+
+<p>난독화는 나중에 하기로 했다.</p>
+
+<p><a href="http://zomo.herokuapp.com/blog/2013/06/01/javascript-obfuscation-patterns/">JavaScript Obfuscation Patterns</a> 에 있는 패턴 뿐만 아니라, parsing tree 를 만들어서 obfuscate 하는 툴도 만들기로 했다.</p>
+
+<p>들어오는 Traffic 의 10% 정도를 감염시킬 수 있으면, 꽤 준수하지 않을까 생각하고 있다.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/09/08/ll-and-lr-parsing/">LL and LR Parsing</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-09-08T20:17:00+09:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>8</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>8:17 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><a href="http://blog.reverberate.org/2013/07/ll-and-lr-parsing-demystified.html">LL and LR parsing demystified</a> 을 보고.</p>
+
+<p>저자의 point 는 LL 과 LR 의 차이는 traversal 이라는 것.</p>
+
+<p>파서는 traversal 이라는 인사이트를 제시한다.</p>
+
+<p>blog 에 나온 postfix calculator</p>
+
+<pre><code>ops = {
+    '+': (lambda a,b: a+b),
+    '-': (lambda a,b: a-b),
+    '*': (lambda a,b: a*b)
+}
+
+def eval(tokens):
+    stack = []
+
+    for tk in tokens:
+        if (tk in ops):
+            a2 = stack.pop()
+            a1 = stack.pop()
+            stack.append(ops[tk](a1,a2))
+        else:
+            stack.append(int(tk))
+    return stack.pop()
+
+if __name__ == "__main__":
+    print eval("7 2 3 * +".split())
+</code></pre>
+
+<p>blog 에서 말한 infix -> postfix 변환하기.</p>
+
+<p>tree building 없이 stack 만 가지고 Prefix 에서 Postfix 로 변환해본다.</p>
+
+<pre><code>ops = { 
+    "+": "plus", 
+    "-": "minus",
+    "*": "mutiply"
+    }
+
+class Visit:
+    tokens = []
+    index = 0
+    stack = []
+    rev_polish = []
+
+    def __init__(self, expr):
+        self.tokens = expr.split()
+        self.index = 0
+
+    def visit(self):
+        if (self.tokens[self.index] in ops):
+            self.stack.append(self.tokens[self.index])
+            self.index += 1
+            self.visit() 
+            self.visit()
+            self.rev_polish.append(self.stack.pop())
+        else:
+            self.rev_polish.append(self.tokens[self.index])
+            self.index += 1
+
+if __name__ == "__main__":
+    visit = Visit("* + 1 2 3")
+    visit.visit()
+    print visit.rev_polish
+
+code% python polish.py
+['1', '2', '+', '3', '*']
+</code></pre>
+
+<p>그 다음에 Infix parsing 트리를 만들어봐야겠다.</p>
+
+<p>일단 문법은 NUMBER + NUMBER 형태만 지원.</p>
+
+<pre><code>class Lexer:
+    token = []
+    index = 0
+
+    def __init__(self, exp):
+        self.token = exp.split()
+        self.lookahead = self.nextToken()
+
+    def nextToken(self):
+        if self.index &lt; len(self.token):
+            tk = self.token[self.index]
+            self.index += 1
+            return tk
+        else:
+            return ""
+    def consume(self):
+        self.lookahead = self.nextToken()
+
+class Parser:
+    def __init__(self, lexer):
+        self.lexer = lexer
+    def expr(self):
+        self.match_number()
+        self.match_op()
+        self.match_number()
+    def match_number(self):
+        print "NUMBER %d" % (int(lexer.lookahead))
+        self.lexer.consume()
+    def match_op(self):
+        print "OP %s" % (lexer.lookahead)
+        self.lexer.consume()
+
+if __name__ == "__main__":
+    lexer = Lexer("1 + 2")
+    parser = Parser(lexer)
+    parser.expr()
+
+blog% python expr.py
+NUMBER 1
+OP +
+NUMBER 2
+</code></pre>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/09/06/peak-finder/">Peak Finder</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-09-06T11:50:00+09:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>6</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>11:50 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Peak Finding 을 recursive 하게 만들어 보기.</p>
+
+<p>peak 의 정의</p>
+
+<ol>
+<li>Consider an array a[1&hellip;n]:</li>
+<li>An element a[i] is a peak if it is not smaller than its neighbor(s). I.e.,</li>
+<li>if i != 1, n: a[i] >= a[i-1] and a[i] >= a[i+1]</li>
+<li>if i == 1, a[1] >= a[2]</li>
+<li>if i == n, a[n] >= a[n-1]</li>
+</ol>
+
+
+<p>처음에는 straight forward 하게 만들기</p>
+
+<pre><code>def peak(a):
+    n = len(a)
+    for i in range(0,n):
+        if i == 0:
+            if a[0] &gt;= a[1]:
+                return 0
+        elif i == n:
+            if a[n] &gt;= a[n-1]:
+                return n
+        else
+            if a[i] &gt;= a[i-1] and a[i] &gt;= a[i+1]:
+                return i
+    return -1
+
+if __name__ == "__main__":
+    a = [ 10, 13, 5, 8, 3, 2, 1 ]
+    print a[peak(a)]
+</code></pre>
+
+<p>divide &amp; conquer 로 찾아보기.</p>
+
+<pre><code>def peak(a,abs):
+    n = len(a)
+
+    if n == 1:
+        return abs
+    if n == 2:
+        if a[0] &gt; a[1]:
+            return abs
+        elif a[1] &gt; a[0]:
+            return abs+1
+        else
+            return abs
+
+    right = n/2+1
+    left = n/2-1
+    mid = n/2
+
+    if a[mid] &lt; a[left]:
+        half = a[:mid]
+        return peak(half,abs)
+    elif a[mid] &lt; a[right]:
+        half = a[mid+1:]
+        return peak(half,abs+mid+1)
+    else:
+        return abs+mid
+
+if __name__ == "__main__":
+    a = [ 2, 2 ]
+    print a[peak(a,0)]
+</code></pre>
+
+<p>이번에는 2D 어레이에서 Peak 를 찾아본다. straight forward 하게 작성하면 O(n<sup>2</sup>) 이 된다.</p>
+
+<p><a href="http://www.ncbi.nlm.nih.gov/pmc/articles/PMC2631518/">Comparison of public peak detection algorithms for MALDI mass spectrometry data analysis</a></p>
+
+<ul>
+<li>Smoothing</li>
+<li>baseline correction</li>
+<li>peak finding</li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/09/06/job-scheduling-algorithm/">Job Scheduling Algorithm</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-09-06T11:02:00+09:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>6</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>11:02 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><ul>
+<li>Job 1,2,3,&hellip; 가 있고,</li>
+<li>각각의 weight 가 w1,w2,w3,&hellip;</li>
+<li>각각의 length 가 l1,l2,l3,&hellip;</li>
+<li>Job completion time 이 c1,c2,c3,&hellip;</li>
+</ul>
+
+
+<p>가 있을때, w_i * c_i 의 합을 최소화하는 문제.</p>
+
+<p>w_i/l_i 의 decreasing order 로 job 을 스케쥴링하는 알고리즘을 디자인하고, 옵티멀하다는 것을 증명</p>
+
+<p>assumptions</p>
+
+<ol>
+<li>w_i/l_i 가 같은 Job 은 없다고 가정</li>
+<li>w_i/l_i 의 desc order 로 정렬하고, 각각을 Job 1,2,3,&hellip; 로 명명</li>
+<li>약속에 따라 w_i/l_i > w_j/l_j if i > j</li>
+<li>w_1/l_1 > w_2/l_2 > w_3/l_3 &hellip;</li>
+</ol>
+
+
+<p>proof by contradiction 으로 증명.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/09/05/java-generic-array/">Java Generic Array</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-09-05T15:59:00+09:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>5</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>3:59 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><a href="http://stackoverflow.com/a/2931240">Generic Array 를 new 할 수 없는 이유</a></p>
+
+<pre><code>It's because Java's array (unlinke generics) contain, at runtime, information
+about its component type. So you must know the component type when you create
+the array. Since you don't know what `E` is at runtime, you can't create the
+array.
+</code></pre>
+
+<p>테스트해본다.</p>
+
+<pre><code>public class GenericSet&lt;E&gt; {
+    private E a[];
+    public GenericSet() {
+        a = new E[1];
+    }
+}
+</code></pre>
+
+<p>역시 에러가 난다.</p>
+
+<pre><code>code $ !javac
+javac GenericSet.java
+GenericSet.java:4: error: generic array creation
+        a = new E[1];
+            ^
+1 error
+</code></pre>
+
+<p>Effective Java 를 찾아보았다.</p>
+
+<p>Generic 의 array 생성이 허용되면 발생할 문제를 적어놓았다.</p>
+
+<pre><code>import java.util.List;
+import java.util.Arrays;
+
+// Why generic array creation is illegal - won't compile!
+List&lt;String&gt;[] stringLists = new List&lt;String&gt;[1];   // (1) 실제 컴파일하면 에러
+List&lt;Integer&gt; intList = Arrays.asList(42);          // (2)
+Object[] objects = stringLists;                     // (3)
+objects[0] = intList;                               // (4)
+String s = stringList[0].get(0);                    // (5)
+</code></pre>
+
+<ul>
+<li>Line 3: legal (Arrays are covariant.)</li>
+<li>Line 4: legal (The runtime type of a <code>List&lt;Integer&gt;</code> instance is <code>List</code>, and the runtime type of a List<Integer>[] instance is <code>List[]</code>, and the runtime type of a <code>List&lt;String&gt;</code> instance is <code>List[]</code>.)</li>
+<li>Line 5: ClassCastException (The compiler automatically casts the retrieved element to <code>String</code>, but it&rsquo;s an <code>Integer</code>.)</li>
+</ul>
+
+
+<p><a href="http://docs.oracle.com/javase/tutorial/java/generics/erasure.html">Type Erasure: 컴파일타임때의 Generic 타입 정보가 runtime 때 사라지기때문에</a></p>
+
+<p>즉, <code>List&lt;String&gt;</code> 과 <code>List&lt;Integer&gt;</code> 의 runtime type 은 모두 <code>List</code> 이다.</p>
+
+<p>Java documentation 에서는 <a href="http://docs.oracle.com/javase/tutorial/java/generics/nonReifiableVarargsType.html#non-reifiable-types">Non-Reifiable Types</a> 라고 부르고 있다.</p>
+
+<p>Stackoverflow 의 질문: <a href="http://stackoverflow.com/questions/529085/java-how-to-generic-array-creation">Java how to: Generic Array creation</a></p>
+
+<p>Typecasting 을 해보았다.</p>
+
+<pre><code>public class GenericSet&lt;E&gt; {
+    private E a[];
+    public GenericSet() {
+        a = (E[]) new Object[1];
+    }
+}
+code $ !j
+javac GenericSet.java
+Note: GenericSet.java uses unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.
+</code></pre>
+
+<p>unchecked warning 이 나온다.</p>
+
+<p><code>@SuppressWarnings({"unchecked"})</code> 을 사용.</p>
+
+<pre><code>@SuppressWarnings({"unchecked"})
+public class GenericSet&lt;E&gt; {
+    private E a[];
+    public GenericSet() {
+        a = (E[]) new Object[1];
+    }
+}
+code $ !j
+javac GenericSet.java
+</code></pre>
+
+<p>Generic Array Creation 에 대해서 너무 타이트하게 컴파일타임에 규제하는게 아닌가 싶다.</p>
+
+<p>어쨌든 Reflection 을 사용해서 Generic type array 를 만들어 본다.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  <div class="pagination">
+    
+      <a class="prev" href="/posts/18">&larr; Older</a>
+    
+    <a href="/blog/archives">Blog Archives</a>
+    
+    <a class="next" href="/posts/16">Newer &rarr;</a>
+    
+  </div>
+</div>
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/10/04/return-oriented-programming-for-the-arm-architecture/">Return Oriented Programming for the ARM Architecture</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/02/the-inside-story-behind-ms08-067/">The Inside Story Behind MS08-067</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/17/rop-and-arm/">ROP and ARM</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/13/sophail-applied-attacks-against-sophos-antivirus/">Sophail: Applied Attacks Against Sophos Antivirus</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/13/stagefright/">Stagefright</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - Your Name -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

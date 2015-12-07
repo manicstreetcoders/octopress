@@ -1,0 +1,266 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Type Casting Verification: Stopping an Emerging Attack Vector - My Octopress Blog</title>
+  <meta name="author" content="Your Name">
+
+  
+  <meta name="description" content="USENIX 2015 에 발표된, Type Casting Verification: Stopping an Emerging Attack Vector. C++ Bad-casting Demystified 논문에 나온 코드. Downcasting 을 잘못해서 memory &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://yoursite.com/blog/2015/08/20/type-casting-verification-stopping-an-emerging-attack-vector/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="My Octopress Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">My Octopress Blog</a></h1>
+  
+    <h2>A blogging framework for hackers.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="yoursite.com">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Type Casting Verification: Stopping an Emerging Attack Vector</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-08-20T17:23:58+09:00'><span class='date'><span class='date-month'>Aug</span> <span class='date-day'>20</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>5:23 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>USENIX 2015 에 발표된, Type Casting Verification: Stopping an Emerging Attack Vector.</p>
+
+<h4>C++ Bad-casting Demystified</h4>
+
+<p>논문에 나온 코드. Downcasting 을 잘못해서 memory 에러가 나오는 경우를 예로 든다.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>class SVGElement: public Element { ... };
+</span><span class='line'>
+</span><span class='line'>Element *pDom = new Element();
+</span><span class='line'>SVGElement *pCanvas = new SVGElement();
+</span><span class='line'>
+</span><span class='line'>// valid upcast
+</span><span class='line'>Element *pEle = static_cast&lt;Element*&gt;(pCanvas);
+</span><span class='line'>
+</span><span class='line'>// valid downcast
+</span><span class='line'>SVGElement *pCanvasAgain = static_cast&lt;SVGElement*&gt;(pEle);
+</span><span class='line'>
+</span><span class='line'>// invlaid downcast
+</span><span class='line'>SVGElement *p = static_cast&lt;SVGElement*&gt;(pDom);
+</span><span class='line'>
+</span><span class='line'>// leads to memory corruption
+</span><span class='line'>p-&gt;m_className = "my-canvas";
+</span><span class='line'>
+</span><span class='line'>// invalid downcast with dynamic_cast, but no corruption
+</span><span class='line'>SVGElement *p = dynamic_cast&lt;SVGElement*&gt;(pDom);
+</span><span class='line'>if (p) {
+</span><span class='line'>    p-&gt;m_className = "my-canvas";
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>Bad-casting: CVE-2013-0912</h4>
+
+<p>논문에서는 Pwn2Own 2013 에서 Chrome 을 깨는데 사용되었던 CVE-2013-0912 를 예로.</p>
+
+<ul>
+<li>HTML5 에서, SVG 이미지는 svg 태그를 사용해 HTML 에 Embed 될 수 있다.</li>
+<li>svg 는 SVGElement class 로 구현된다.</li>
+<li>SVGElement 는 Element 의 child class 이다.</li>
+<li>Unknown tag 는 HTMLUnknownElement 로 구현.</li>
+<li>만약, HTMLUnknownElement 가 Element 로 upcasting 된다음에, SVGElement 로 downcasting 된다면? (SVG rendering 을 위해서)</li>
+<li>SVGElement 오브젝 사이즈는 160 bytes > HTMLUnknownElement 오브젝트의 사이즈는 96 bytes.</li>
+<li>HTMLUnknownElement 로 alloc 받아서, SVGElement 로 casting 해서 쓰면, 97~160 bytes 를 더 addressing 할 수 있다.</li>
+<li>이걸 활용해서, 가까이 있는 오브젝의 vtable 포인터를 오염시켜서 control-flow 하이재킹을 수행.</li>
+<li>HTMLUnknownElement 는 sibling 이 56 개 이상. Element class 는 parent 가 10 개 이상.</li>
+</ul>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Your Name</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2015-08-20T17:23:58+09:00'><span class='date'><span class='date-month'>Aug</span> <span class='date-day'>20</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>5:23 pm</span></time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://yoursite.com/blog/2015/08/20/type-casting-verification-stopping-an-emerging-attack-vector/" data-via="" data-counturl="http://yoursite.com/blog/2015/08/20/type-casting-verification-stopping-an-emerging-attack-vector/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2015/08/05/setting-up-l2tp-vpn/" title="Previous Post: Setting up L2TP VPN">&laquo; Setting up L2TP VPN</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2015/08/22/offensive-and-defensive-android-reverse-engineering/" title="Next Post: Offensive and Defensive Android Reverse Engineering">Offensive and Defensive Android Reverse Engineering &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/10/04/return-oriented-programming-for-the-arm-architecture/">Return Oriented Programming for the ARM Architecture</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/02/the-inside-story-behind-ms08-067/">The Inside Story Behind MS08-067</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/17/rop-and-arm/">ROP and ARM</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/13/sophail-applied-attacks-against-sophos-antivirus/">Sophail: Applied Attacks Against Sophos Antivirus</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/13/stagefright/">Stagefright</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - Your Name -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,619 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Tmux Pane Setting - My Octopress Blog</title>
+  <meta name="author" content="Your Name">
+
+  
+  <meta name="description" content="tmux 와 vimrc 에 몇가지를 추가했는데. tmux pane 을 vi key 로 옮겨다니기 위해서 unbind j
+unbind k
+unbind h
+unbind l
+bind j select-pane -D
+bind k select-pane -U
+bind h &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://yoursite.com/blog/2013/06/12/tmux-pane-setting/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="My Octopress Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">My Octopress Blog</a></h1>
+  
+    <h2>A blogging framework for hackers.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="yoursite.com">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Tmux Pane Setting</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-06-12T20:02:00+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>12</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>8:02 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>tmux 와 vimrc 에 몇가지를 추가했는데.</p>
+
+<h3>tmux</h3>
+
+<p>pane 을 vi key 로 옮겨다니기 위해서</p>
+
+<pre>
+unbind j
+unbind k
+unbind h
+unbind l
+bind j select-pane -D
+bind k select-pane -U
+bind h select-pane -L
+bind l select-pane -R
+</pre>
+
+
+<p>를 해서 자판에서 손을 안떼고 움직일 수 있게 하였다.</p>
+
+<p>그리고,</p>
+
+<pre>
+bind / command-prompt "split-window 'exec %%'"
+</pre>
+
+
+<p>를 추가해서 간단한 shell command 를 tmux 안에서 날릴 수 있게 하였다.</p>
+
+<p>C-a / 를 누르고 ping localhost 를 때리면, pane 이 하나 열리고 ping 이 실행된다.</p>
+
+<pre><code>bind a send-prefix
+</code></pre>
+
+<p>로 Ctrl-a a 로 Ctrl-a 기능을 살린다. Ctrl-a / Ctrl-e / Ctrl-b 등의 Emacs 스타일 cursor moving 을 자주 쓴다면 필요.</p>
+
+<p>그리고 tmux 가 최근에 1.8 로 업글되었다.
+Ubuntu 의 경우 패키지로 아직 repo 에 안올라와서, source 를 컴파일해야 한다.
+OS X 의 경우 brew 에 1.8 패키지가 올라왔다. <code>brew install tmux</code> 또는 <code>brew upgrade tmux</code> 하면 된다.
+1.8 의 큰 장점은 pane zoom 이 된다는 것. 그 전까지는 꽁수로 했었는데, 이제는 native 하게 된다.
+<code>Ctrl-a z</code> 로 zoom 을 토글할 수 있다. 줌기능 대박이다.</p>
+
+<p>Ubuntu 에서 tmux 카피 버퍼와 OS 클립보드를 통합하는 방법:</p>
+
+<pre><code>$ sudo apt-get install xclip
+
+bind C-c run "tmux save-buffer - |xclip -i -sel clipboard"
+bind C-v run "tmux set-buffer \"$(xclip -o -sel clipboard)\"; tmux paste-buffer"
+</code></pre>
+
+<p>OS X 에서 통합하는 방법:</p>
+
+<pre><code>$ git clone https://github.com/ChrisJohnsen/tmux-MacOSX-pasteboard.git
+$ cd tmux-MacOSX-pasteboard
+$ make reattach-to-user-namespace
+$ mv reattach-to-user-namespace /usr/local/bin
+$ export PATH="/usr/local/bin:$PATH"
+
+set -g default-command "reattach-to-user-namespace -l /bin/zsh"
+bind C-c run "tmux save-buffer - | reattach-to-user-namespace pbcopy"
+bind C-v run "tmux set-buffer $(reattach-to-user-namespace pbpaste); tmux paste-buffer"
+</code></pre>
+
+<p>이제 C-a C-c 로 tmux buffer -> OS X clipboard 로 카피할 수 있다.</p>
+
+<h3>vim</h3>
+
+<p>만약 Solarized 를 안쓴다면, TabLine 을 바꾸는 것이 좋다.</p>
+
+<p>.vimrc 에</p>
+
+<pre>
+hi TabLineSel ctermfg=Red ctermbg=Yellow
+hi TabLine ctermfg=Blue ctermbg=Yellow
+hi TabLineFill ctermfg=LightGreen ctermbg=DarkGreen
+</pre>
+
+
+<p>ftplugin 으로 안하고, 그냥 .vimrc 에 때려박은 것들이 있는데,</p>
+
+<pre><code>autocmd FileType python set sts=4|set sw=4|set expandtab
+autocmd FileType ruby set sts=2|set sw=2|set expandtab
+</code></pre>
+
+<p>나중에 filetype plugin 으로 정리할 생각.</p>
+
+<p>사람들이 잘 모르는 것이 sts 와 ts 와 sw 의 차이.</p>
+
+<p>expandtab 을 할 경우에는 ts 를 할 필요없이 sts 만 해줘도 된다.</p>
+
+<p>그리고</p>
+
+<pre>
+noremap &lt;CR> :
+</pre>
+
+
+<p>를 했는데.</p>
+
+<p>ESC : 로 커맨드모드를 진입하면 : 를 누를때 SHIFT 를 같이 눌러야해서,
+손이 아팠는데, 이제는 ESC ENTER 로 커맨드모드 진입이 가능해진다.</p>
+
+<p>손이 한결 편해진다.</p>
+
+<h4>10 J</h4>
+
+<p>그리고 vim 에서 흔히 텐제이라고 부르는 매핑.</p>
+
+<pre>
+map &lt;C-j> 10j
+map &lt;C-k> 10k
+</pre>
+
+
+<p>로 빠르게 상하이동이 가능하다. Ctrl + J / Ctrl + K</p>
+
+<h4>Indentation</h4>
+
+<p>Code indentation 은 visual mode 에서 &lt; &lt; 로 할 수 있는데, 좀 더 편하게 하기 위해서
+visual mode non-recursive mapping 을 추가한다.</p>
+
+<pre><code>vnoremap &lt; &lt;gv
+vnoremap &gt; &gt;gv
+</code></pre>
+
+<p>이렇게 하면, Visual mode 에서 &lt; 를 연속으로 눌러 indentation 을 들이거나 낼 수 있다.
+파이썬같이 인덴테이션이 중요한 언어에서는 꼭 필요한 매핑이다.</p>
+
+<p>vim 팁으로는,</p>
+
+<p>코드 인덴팅할때, 편리한 vim 커맨드.</p>
+
+<pre>
+5&lt;&lt;
+Vjj&lt;
+&lt;%
+]p
+</pre>
+
+
+<h4>.vimrc</h4>
+
+<pre><code>nnoremap &lt;leader&gt;ev :vsplit $MYVIMRC&lt;cr&gt;
+</code></pre>
+
+<p>하면 편하게 .vimrc 를 에디팅할 수 있다.</p>
+
+<h4>Rails</h4>
+
+<p>Rails 를 사용한다면, route 화일이나 DB 스키마를 에디트할 경우가 많다. 그래서 다음 매크로가 유용하다.</p>
+
+<pre><code>command! Rroutes :e config/routes.rb
+command! Rschema :e db/schema.rb
+</code></pre>
+
+<h4>Vim Plugin</h4>
+
+<p>vim plugin 중에서는 Command-T, Solarized, YouCompleteMe, Taglist 를 사용.</p>
+
+<p>Taglist 를 쓸 경우, .vimrc 에 (OS X 에서 brew 로 Exuberant ctags 를 깔았을 경우)</p>
+
+<pre><code>nnoremap &lt;silent&gt; &lt;F8&gt; :TlistToggle&lt;CR&gt;
+let Tlist_Ctags_Cmd='/usr/local/Cellar/ctags/5.8/bin/ctags'
+</code></pre>
+
+<p><F8> 로 클래스/함수 pane 을 on/off 시킬 수 있다.</p>
+
+<p>YouCompleteMe 때문에, OS X 에서는 MacVim 에 딸려오는 Vim 을 사용한다 (nogui). 만약 SIGSEGV 가 발생하면, 아마 python library 가 잘못 링크되었을 경우인데, 임시로 brew unlink python 으로 python 라이브러리 쫑나는 것 해결할 수 있다.</p>
+
+<p>MacVim 은 <a href="http://github.com/b4winckler/macvim/downloads">여기서</a> 다운받아 컴파일한다.</p>
+
+<p>Ubuntu 에서는 ruby 와 python 써포트를 On 하고, 링크되는 라이브러리에 신경을 써서 새로 컴파일하는 것이 좋다. 12.04 에 딸려오는 vim 이 너무 구식이라.</p>
+
+<p>OS X iTerm2 터미널도 Solarize 할 수 있는 스크립이 찾아보면 있으니. <a href="altercation/solarized/iterm2-colors-solarized">https://github.com/altercation/solarized</a></p>
+
+<p>그리고, Linux gnome 의 경우도 github 에 <a href="sigurdga/gnome-terminal-colors-solarized">https://github.com/sigurdga/gnome-terminal-colors-solarized</a> 로 찾으면 나옴.</p>
+
+<p>vim colorscheme 만 solarized 를 쓰면 terminal 로 돌아올때 번쩍해서 눈이 피곤하다. 둘 다 맞춰주는 것이 좋다.</p>
+
+<p>Command-T 를 설치할 때, Linux 는 간단한데, OS X 는 약간 까다롭다.</p>
+
+<p>$ vim &ndash;version 으로 vim 컴파일에 사용된 FLAG 랑 맞춰주는 것이 기본인데,
+OS X Mountain Lion 에서는
+처음에 아무생각없이 build 했다가 SIGSEGV 이 발생해서,</p>
+
+<pre>
+vim --version|grep arch
+vim --version|grep ruby
+ARCHFLAGS="-arch x86_64"
+rbenv local system 
+ruby --version
+ruby extconf.rb
+make
+</pre>
+
+
+<p>rbenv 로 /usr/bin/ruby 가 실행되게 하는 것.
+ruby 버전이 1.8.7 인지 확인하는 것.
+vim 이 컴파일된 아키텍쳐와 루비 써포트를 확인하는 것.</p>
+
+<p>vim 이 +ruby 가 아니라면, <a href="http://stackoverflow.com/questions/3794895/installing-vim-with-ruby-support-ruby">Installing vim with ruby support (+ruby)</a> 참조.</p>
+
+<p>15 인치 노트북에서 화면 가득한 iTerm 을 띄워놓고,
+vim window + vim tab + tmux pane + tmux screen 을 활용하면,
+마우스나 트랙패드를 사용할 필요가 없다.</p>
+
+<p>iTerm 과 크롬을 한개씩 띄워놓고 개발이 가능해진다.</p>
+
+<p>CMD-TAB 과 크롬 단축기를 사용하면, 키보드에서 손을 뗄 필요가 없어진다.</p>
+
+<p>참고로 iTerm 의 경우 CMD+OPTION+1 등으로 윈도우를 선택할 수 있다.</p>
+
+<h4>Vim Key Mapping</h4>
+
+<p>그리고 vim key mapping 에 관한 좋은 글
+Mapping keys in Vim - Tutorial -
+<a href="http://vim.wikia.com/wiki/Mapping_keys_in_Vim_-_Tutorial_(Part_1)">here</a></p>
+
+<p>vim 으로 hex edit 하는 법</p>
+
+<pre><code>:%!xxd
+:%!xxd -r
+</code></pre>
+
+<p>다량의 Tab 을 열어놓고 작업하다가 한꺼번에 닫고 나갈때,</p>
+
+<pre><code>:qa
+:wqa
+</code></pre>
+
+<p>하면 된다.</p>
+
+<h3>irb</h3>
+
+<p>ruby 를 사용하면 irb 를 많이 쓰게되는데, irb 에서 vi key 를 쓰는 방법.</p>
+
+<pre><code>$ vim ~/.editrc
+bind -v
+bind \\t rl_complete
+</code></pre>
+
+<p>이렇게 하면 ESC i j k l 등으로 이동할 수 있고, TAB 으로 completion 을 할 수 있다.</p>
+
+<p>python REPL 에서도 먹는다. Emacs 스타일보다 Vim 스타일이 더 편하다.</p>
+
+<h3>ctags &amp; cscope</h3>
+
+<p>Python 코딩은 OS X 보다는 Linux 에서 작업하는데,</p>
+
+<pre><code>sudo apt-get install ctags 
+</code></pre>
+
+<p>~/.ctags 에다가</p>
+
+<pre><code>--python-kinds=-i
+</code></pre>
+
+<p>그리고 .vimrc 에다가</p>
+
+<pre><code>set tags=./mytags
+</code></pre>
+
+<p>그리고</p>
+
+<pre><code>ctags -R -o ./mytags ~/code
+</code></pre>
+
+<p>를 해두면,</p>
+
+<p>vim 에서,</p>
+
+<pre><code>vim -t &lt;tag name&gt;
+Ctrl-] / Ctrl-T
+:tselect / :stselect
+:tnext / :tprev
+:help tags
+</code></pre>
+
+<p>으로 tag 들을 navigating 할 수 있다.</p>
+
+<p>그리고 ctags v.s. cscope 에 관한 좋은 글 <a href="http://stackoverflow.com/questions/934233/cscope-or-ctags-why-choose-one-over-the-other">cscope or ctags why choose one over the other?</a></p>
+
+<p>그리고, OS X 에서 Exuberant ctags 를 사용해서 python 등을 코딩하고 싶다면,
+Homebrew 를 사용해 인스톨한다. 오리지널 ctags 는 /usr/bin/ctags 에 있을 것이고,
+새로 인스톨된 것은 /usr/local 아래 어딘가 있을 듯.</p>
+
+<pre><code>$ brew install ctags-exuberant
+</code></pre>
+
+<p>/usr/local/bin/ctags 가 실행되도록 확인하고, 마찬가지로 ~/.ctags 에</p>
+
+<pre><code>--python-kinds=-i
+</code></pre>
+
+<p>추가.</p>
+
+<p>ctags 에 관한 좋은 블로그 <a href="http://www.scholarslab.org/research-and-development/code-spelunking-with-ctags-and-vim/">Code Spelunking with Ctags and Vim</a></p>
+
+<p>그리고 pycscope 을 쓸수도 있는데,</p>
+
+<p>OS X 에서는 <code>brew install cscope</code> 해주고, cscope_maps.vim 을 ~/vim/plugin 아래에 설치한다.
+그리고 pycscope 도 설치한다. <code>pycscope -R .</code> cscope_maps.vim 도 추가.</p>
+
+<p><a href="http://cscope.sourceforge.net/cscope_vim_tutorial.html">The Vim/Cscope tutorial</a></p>
+
+<p>개인적으로는 cscope 이 ctags 보다 편하다.</p>
+
+<p><code>Ctrl-\</code>+<code>c</code> 나 <code>Ctrl-\</code>+<code>s</code> 그리고, <code>Ctrl-\</code>+<code>d</code></p>
+
+<h3>ack &amp; z jumper</h3>
+
+<p>ack 가 grep 보다 소스코드에서 뭐 찾을때 훨 편하다.</p>
+
+<p>그리고 디렉토리 navigation 은 z jumper 가 최고다. 예전의 노턴 ncd 같은 녀석.</p>
+
+<h3>bash</h3>
+
+<p>스크린캐스트에서 본 쉘 커맨드.</p>
+
+<pre><code>~/code/jade[master]% find . -iname "*.rb" | 
+xargs grep -h '^[[:space:]]*class\|module\b' | 
+sed 's/^[[:space:]]*//' | grep -v '^#' | cut -d ' ' -f 2 | 
+while read class; 
+do echo `grep -rl "\b$class\b" app lib --include "*.rb" |wc -l` $class ; 
+done | sort -n
+</code></pre>
+
+<p>한 줄이다. ruby 의 클래스를 참조하는 화일 갯수를 세는건데.</p>
+
+<ul>
+<li>grep -l 옵션은 화일에서 패턴 존재가 확인되면 그냥 스킵. 존재 여부를 확인할때.</li>
+<li>grep -r 은 디렉토리 리커시브.</li>
+<li>grep -v 는 패턴이 없는 라인을 출력.</li>
+<li>grep -h 는 화일 이름을 출력 안함.</li>
+<li>find &hellip; | xargs 가 find &hellip; -exec 보다 빠르다.</li>
+<li>sort -n 은 numerical sort 를 하란 것인데, 그냥 sort 하면 &ldquo;10&rdquo; 이 &ldquo;2&rdquo; 보다 앞에 나온다. -n 을 해주면 &ldquo;2&rdquo; 가 &ldquo;10&rdquo; 보다 먼저 나오게 된다.</li>
+</ul>
+
+
+<h3>zsh</h3>
+
+<p>zsh 에서는 Global alias 이용해</p>
+
+<pre><code>alias -g G='|grep '
+</code></pre>
+
+<p>하면</p>
+
+<pre>
+cat log G ERROR
+</pre>
+
+
+<p>와 같은 커맨드가 가능하다.</p>
+
+<h3>bash I/O redirection</h3>
+
+<p><a href="http://www.cyberciti.biz/faq/bash-while-loop/">Bash While Loop Example</a> 에서.</p>
+
+<pre><code>cmd &gt;&gt;file.txt 2&gt;&amp;1
+</code></pre>
+
+<p> stderr, stdout 을 함께 화일에 append 할 때.</p>
+
+<pre><code>#!/bin/bash
+FILE=$1
+exec 3&lt;&amp;0
+exec 0&lt;$FILE
+while read line
+do
+  echo $line
+done
+exec 0&lt;&amp;3
+</code></pre>
+
+<p> stdin 을 3 에 카피해놓고, 화일을 stdin 으로 돌리고, 나중에 원복.</p>
+
+<pre><code>#!/bin/bash
+x=1
+while [ $x -le 5 ]
+do
+  echo "$x times"
+  x=$(( $x + 1 ))
+done
+</code></pre>
+
+<p>bash 의 arithmetic operator 는 (( )) 이다.</p>
+
+<pre><code>#!/bin/sh
+counter=$1
+factorial=1
+while [ $counter -gt 0 ]
+do
+  factorial=$(( $factorial * $counter ))
+  counter=$(( $counter - 1 ))
+done
+echo $factorial
+</code></pre>
+
+<p>factorial 구하는 것.</p>
+
+<pre><code>#!/bin/sh
+while :
+do
+  read -p "Enter two numbers ( -1 to quit ) : " a b
+  if [ $a -eq -1 ]
+  then
+    break
+  fi
+  ans=$(( a + b ))
+  echo $and
+done
+</code></pre>
+
+<p>읽을만한 shell scripting 문서: <a href="http://bash.cyberciti.biz/guide/Main_Page">Linux Shell Scripting Tutorial (LSST) v2.0</a></p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Your Name</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2013-06-12T20:02:00+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>12</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>8:02 pm</span></time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://yoursite.com/blog/2013/06/12/tmux-pane-setting/" data-via="" data-counturl="http://yoursite.com/blog/2013/06/12/tmux-pane-setting/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2013/06/12/tabs/" title="Previous Post: Tabs">&laquo; Tabs</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2013/06/23/antlr-and-language-implementation-patterns/" title="Next Post: ANTLR &amp; Language Implementation Patterns">ANTLR &amp; Language Implementation Patterns &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/10/04/return-oriented-programming-for-the-arm-architecture/">Return Oriented Programming for the ARM Architecture</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/02/the-inside-story-behind-ms08-067/">The Inside Story Behind MS08-067</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/17/rop-and-arm/">ROP and ARM</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/13/sophail-applied-attacks-against-sophos-antivirus/">Sophail: Applied Attacks Against Sophos Antivirus</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/13/stagefright/">Stagefright</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - Your Name -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

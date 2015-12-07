@@ -1,0 +1,329 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Substrate for Android - My Octopress Blog</title>
+  <meta name="author" content="Your Name">
+
+  
+  <meta name="description" content="Tools Xposed Framework
+Cydia Substrate
+Cycript
+ddi/adbi
+Frida References JustTrustMe: SSL Pinning kill switch
+XPrivacy
+iSECPartners Introspy-iOS &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://yoursite.com/blog/2014/11/03/substrate-for-android/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="My Octopress Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">My Octopress Blog</a></h1>
+  
+    <h2>A blogging framework for hackers.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="yoursite.com">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Substrate for Android</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-11-03T10:40:38+09:00'><span class='date'><span class='date-month'>Nov</span> <span class='date-day'>3</span><span class='date-suffix'>rd</span>, <span class='date-year'>2014</span></span> <span class='time'>10:40 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><h4>Tools</h4>
+
+<ul>
+<li><a href="http://repo.xposed.info">Xposed Framework</a></li>
+<li><a href="http://www.cydiasubstrate.com">Cydia Substrate</a></li>
+<li><a href="http://www.cycript.org">Cycript</a></li>
+<li><a href="https://github.com/crmulliner/">ddi/adbi</a></li>
+<li><a href="http://www.frida.re">Frida</a></li>
+</ul>
+
+
+<h4>References</h4>
+
+<ul>
+<li><a href="https://github.com/Fuzion24/JustTrustMe">JustTrustMe: SSL Pinning kill switch</a></li>
+<li><a href="https://github.com/M66B/XPrivacy">XPrivacy</a></li>
+<li><a href="https://github.com/iSECPartners/Introspy-iOS">iSECPartners Introspy-iOS </a></li>
+</ul>
+
+
+<h4>Cydia Substrate</h4>
+
+<p>우선 Violet example. Substrate 를 깔고, violet.apk 를 설치하면 일부 시스템 메시지들이 색이 violet 으로 바뀐다. Build 가 잘 안되면, SDK 폴더 밑에 있는 <code>saurikit/cydia_substrate/substrate-api.jar</code> 화일을 프로젝트 폴더로 카피.</p>
+
+<h4>AndroidManifest.xml</h4>
+
+<pre><code>&lt;?xml version="1.0" encoding="utf-8" standalone="no"?&gt;
+&lt;manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.saurik.android.violetexample"&gt;
+    &lt;application android:label="@string/app_name"&gt;
+        &lt;meta-data android:name="com.saurik.substrate.main" android:value=".Main"/&gt;
+    &lt;/application&gt;
+    &lt;uses-permission android:name="cydia.permission.SUBSTRATE"/&gt;
+&lt;/manifest&gt;
+</code></pre>
+
+<h4>Main.java</h4>
+
+<pre><code>package com.saurik.android.violetexample;
+import android.util.Log;
+import java.lang.reflect.Method;
+import android.content.res.Resources;
+import com.saurik.substrate.MS;
+import com.saurik.substrate.MS.ClassLoadHook;
+import com.saurik.substrate.MS.MethodAlteration;
+
+public class Main {
+    public static void initialize() {
+        Log.d("HOOK", "hook initialized");
+
+        MS.hookClassLoad("android.content.res.Resources", new ClassLoadHook() {
+            public void classLoaded(Class Resources) {
+                try {
+                    MS.hookMethod(Resources, Resources.getDeclaredMethod("getColor", new Class[]{Integer.TYPE}),
+                        new MethodAlteration&lt;Resources, Integer&gt;() {
+                            public Integer invoked(Resources resources, Object... args) throws Throwable {
+                                return Integer.valueOf((((Integer) invoke(resources, args)).intValue() &amp; 
+                                    ~0x0000ff00) | 0x00ff0000);
+                            }
+                        });
+                } catch (NoSuchMethodException e) {
+                }
+            }
+        });
+    }
+}
+</code></pre>
+
+<h4>com.android.internal.telephony.gsm.SmsMessage</h4>
+
+<p>이제 pdu 를 캡쳐해보자.</p>
+
+<pre><code>public class Main {
+    public static void initialize() {
+        MS.hookClassLoad("com.android.internal.telephony.gsm.SmsMessage", new MS.ClassLoadHook() {
+            public void classLoaded(Class&lt;?&gt; smsMessage) {
+                Method getSubmitPdu;
+                try {
+                    getSubmitPdu = smsMessage.getMethod("getSubmitPdu",
+                        String.class,
+                        String.class,
+                        String.class,
+                        Boolean.TYPE,
+                        byte[].class,
+                        Integer.class,
+                        Integer.class,
+                        Integer.class,
+                        Integer.class
+                        );
+                } catch (NoSuchMethodException e) { getSubmitPdu = null; }
+                if (getSubmitPdu != null) {
+                    final MS.MethodPointer old = new MS.MethodPointer();
+                    MS.hookMethod(smsMessage, getSubmitPdu, new MS.MethodHook() {
+                        public Object invoked(Object smsMessage, Object... args) throws Throwable {
+                            Object submitPdu;
+                            submitPdu = old.invoke(smsMessage, args);
+                            try {
+                                Field field;
+                                field = submitPdu.getClass().getSuperclass().getDeclaredField("encodedMessage");
+                                field.setAccessible(true);
+                                if (field.getType() == byte[].class) {
+                                    Object val = field.get(submitPdu);
+                                    Log.d("Substrate", "pdu: " + this.bytesToHex((byte []) val));
+                                }
+                            } catch (Exception e) {
+                                Log.e("Substrate", "Error in Hook_getSubmitPdu. " + e.toString());
+                            }
+                            return submitPdu;
+                        }
+                    }, old);
+                }
+            } 
+        });
+    }
+}
+</code></pre>
+
+<p>추가로, pdu 를 교체하는 것도 가능하다.</p>
+
+<h5>SELinux</h5>
+
+<ul>
+<li><a href="http://forum.xda-developers.com/showthread.php?t=2466101&amp;page=3">Saurik&rsquo;s post</a></li>
+<li><a href="http://forum.xda-developers.com/showthread.php?t=2524485">SELinuxModeChanger</a></li>
+</ul>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Your Name</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2014-11-03T10:40:38+09:00'><span class='date'><span class='date-month'>Nov</span> <span class='date-day'>3</span><span class='date-suffix'>rd</span>, <span class='date-year'>2014</span></span> <span class='time'>10:40 am</span></time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://yoursite.com/blog/2014/11/03/substrate-for-android/" data-via="" data-counturl="http://yoursite.com/blog/2014/11/03/substrate-for-android/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2014/10/24/shellshock/" title="Previous Post: Shellshock">&laquo; Shellshock</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2014/11/07/android-toolchain/" title="Next Post: Android Toolchain">Android Toolchain &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/10/04/return-oriented-programming-for-the-arm-architecture/">Return Oriented Programming for the ARM Architecture</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/02/the-inside-story-behind-ms08-067/">The Inside Story Behind MS08-067</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/17/rop-and-arm/">ROP and ARM</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/13/sophail-applied-attacks-against-sophos-antivirus/">Sophail: Applied Attacks Against Sophos Antivirus</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/13/stagefright/">Stagefright</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - Your Name -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

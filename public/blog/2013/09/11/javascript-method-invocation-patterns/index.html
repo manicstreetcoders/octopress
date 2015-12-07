@@ -1,0 +1,338 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>JavaScript Method Invocation Patterns - My Octopress Blog</title>
+  <meta name="author" content="Your Name">
+
+  
+  <meta name="description" content="JavaScript: The Good Parts 에서 funciton 에 관한 내용을 발췌/정리한다. 자바스크립에는 function 호출에 4 가지 패턴이 있다. The Method Invocation Pattern function 이 Object 의 property &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://yoursite.com/blog/2013/09/11/javascript-method-invocation-patterns/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="My Octopress Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">My Octopress Blog</a></h1>
+  
+    <h2>A blogging framework for hackers.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="yoursite.com">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">JavaScript Method Invocation Patterns</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-09-11T12:14:00+09:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>11</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>12:14 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>JavaScript: The Good Parts 에서 funciton 에 관한 내용을 발췌/정리한다.</p>
+
+<p>자바스크립에는 function 호출에 4 가지 패턴이 있다.</p>
+
+<h3>The Method Invocation Pattern</h3>
+
+<p>function 이 Object 의 property 로 저장되어있을때.</p>
+
+<pre><code>var myObject = { 
+    value: 0, 
+    increment: function(inc) { 
+        this.value += typeof inc === 'number' ? inc : 1; 
+    }
+}
+</code></pre>
+
+<p>JavaScript 에서 <code>this</code> 의 binding 은 invocation time 에 이루어진다. late binding.</p>
+
+<p>이 경우 <code>this</code> 는<code>myObject</code> 에 바인딩된다.</p>
+
+<h3>The Function Invocation Pattern</h3>
+
+<p>Object 의 property 가 아니면 method 가 아니라 function.</p>
+
+<pre><code>var sum = add(3, 4)
+</code></pre>
+
+<p>this 는 global object 에 binding 됨. Web Browser 에서 돌고 있다면,</p>
+
+<p>DOM object 인 <code>window</code> object 에 binding 될 것.</p>
+
+<pre><code>myObject.double = function() {
+    var add = function(a,b) { return a+b; };
+    var helper = function() { 
+        this.value = add(this.value, this.value);
+    };
+    helper();
+};
+</code></pre>
+
+<p>란 코드를 보자. inner function 의 this 는 어디에 binding 이 될까?</p>
+
+<p>테스트를 해보자.</p>
+
+<pre><code>&lt;html&gt;
+&lt;head&gt;&lt;/head&gt;
+&lt;body&gt;
+&lt;script&gt;
+var myObject = {
+    value: 0,
+    increment: function(inc) {
+        this.value += typeof inc === 'number' ? inc : 1;
+    }
+};
+
+myObject.double = function() {
+    var add = function(a,b) { return a+b; };
+    var helper = function() {
+        if (this === window) console.log('this === window');
+        this.value = add(this.value, this.value);
+    };
+    helper();
+};
+
+console.log(myObject.value);
+myObject.increment();
+console.log(myObject.value);
+myObject.double();
+console.log(myObject.value);
+&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+
+% python -m SimpleHTTPServer 8888
+</code></pre>
+
+<p>이제 브라우저로 들어가 localhost:8888 을 로드하고, Console 을 띄운다.</p>
+
+<p>콘솔에 나와있는 메시지들.</p>
+
+<pre><code>0
+1
+this === window
+1
+</code></pre>
+
+<p>inner function 의 <code>this</code> 가 <code>myObject</code> 가 아닌, DOM object 인 <code>window</code> 에 바인딩되었음을
+알 수 있다.</p>
+
+<h3>The Constructor Invocation Pattern</h3>
+
+<p>constructor 를 정의하고, accessor 를 정의하였다.</p>
+
+<p>JavaScript 에서 constructor 는 new 키워드와 함께 사용된다.</p>
+
+<p><code>this</code> 는 메시지를 받는 object 에 binding 된다.</p>
+
+<pre><code>var Document = function ( name ) {
+    if (typeof name === "string")
+        this.title = name;
+    else
+        this.title = "&lt;empty&gt;";
+}
+
+Document.prototype.getTitle = function () {
+    return this.title;
+}
+
+var myDoc = new Document("confused");
+console.log( myDoc.getTitle() );
+
+% node constructor.js
+confused
+%
+</code></pre>
+
+<h3>The Apply Invocation Pattern</h3>
+
+<p>JavaScript 은 functional OO language 이기 때문에, function 이 method 를 가질 수 있다.</p>
+
+<p>function object 에 <code>apply</code> method 를 날려서, 함수를 실행시킬 수 있다.</p>
+
+<p>이 경우, arg0 에 binding 할 <code>this</code> 를 지정해줄 수 있다.</p>
+
+<pre><code>var add = function (a,b) {
+    return a+b;
+};
+
+var a = [ 1, 2 ];
+
+var sum = add.apply(this, a);
+
+console.log(sum);
+
+% node apply.js
+3
+%
+</code></pre>
+
+<p>이상 4 개의 호출 패턴 정리 끝.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Your Name</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2013-09-11T12:14:00+09:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>11</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>12:14 pm</span></time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://yoursite.com/blog/2013/09/11/javascript-method-invocation-patterns/" data-via="" data-counturl="http://yoursite.com/blog/2013/09/11/javascript-method-invocation-patterns/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2013/09/10/adsense-inverse-search/" title="Previous Post: AdSense: Inverse Search">&laquo; AdSense: Inverse Search</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2013/09/13/drive-by-download-managers-perpective/" title="Next Post: Drive-by-Download: Manager's Perpective">Drive-by-Download: Manager's Perpective &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/10/04/return-oriented-programming-for-the-arm-architecture/">Return Oriented Programming for the ARM Architecture</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/02/the-inside-story-behind-ms08-067/">The Inside Story Behind MS08-067</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/17/rop-and-arm/">ROP and ARM</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/13/sophail-applied-attacks-against-sophos-antivirus/">Sophail: Applied Attacks Against Sophos Antivirus</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/13/stagefright/">Stagefright</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - Your Name -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

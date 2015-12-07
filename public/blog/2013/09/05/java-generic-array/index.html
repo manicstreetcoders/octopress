@@ -1,0 +1,289 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Java Generic Array - My Octopress Blog</title>
+  <meta name="author" content="Your Name">
+
+  
+  <meta name="description" content="Generic Array 를 new 할 수 없는 이유 It's because Java's array (unlinke generics) contain, at runtime, information
+about its component type. So you must &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://yoursite.com/blog/2013/09/05/java-generic-array/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="My Octopress Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">My Octopress Blog</a></h1>
+  
+    <h2>A blogging framework for hackers.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="yoursite.com">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Java Generic Array</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-09-05T15:59:00+09:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>5</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>3:59 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p><a href="http://stackoverflow.com/a/2931240">Generic Array 를 new 할 수 없는 이유</a></p>
+
+<pre><code>It's because Java's array (unlinke generics) contain, at runtime, information
+about its component type. So you must know the component type when you create
+the array. Since you don't know what `E` is at runtime, you can't create the
+array.
+</code></pre>
+
+<p>테스트해본다.</p>
+
+<pre><code>public class GenericSet&lt;E&gt; {
+    private E a[];
+    public GenericSet() {
+        a = new E[1];
+    }
+}
+</code></pre>
+
+<p>역시 에러가 난다.</p>
+
+<pre><code>code $ !javac
+javac GenericSet.java
+GenericSet.java:4: error: generic array creation
+        a = new E[1];
+            ^
+1 error
+</code></pre>
+
+<p>Effective Java 를 찾아보았다.</p>
+
+<p>Generic 의 array 생성이 허용되면 발생할 문제를 적어놓았다.</p>
+
+<pre><code>import java.util.List;
+import java.util.Arrays;
+
+// Why generic array creation is illegal - won't compile!
+List&lt;String&gt;[] stringLists = new List&lt;String&gt;[1];   // (1) 실제 컴파일하면 에러
+List&lt;Integer&gt; intList = Arrays.asList(42);          // (2)
+Object[] objects = stringLists;                     // (3)
+objects[0] = intList;                               // (4)
+String s = stringList[0].get(0);                    // (5)
+</code></pre>
+
+<ul>
+<li>Line 3: legal (Arrays are covariant.)</li>
+<li>Line 4: legal (The runtime type of a <code>List&lt;Integer&gt;</code> instance is <code>List</code>, and the runtime type of a List<Integer>[] instance is <code>List[]</code>, and the runtime type of a <code>List&lt;String&gt;</code> instance is <code>List[]</code>.)</li>
+<li>Line 5: ClassCastException (The compiler automatically casts the retrieved element to <code>String</code>, but it&rsquo;s an <code>Integer</code>.)</li>
+</ul>
+
+
+<p><a href="http://docs.oracle.com/javase/tutorial/java/generics/erasure.html">Type Erasure: 컴파일타임때의 Generic 타입 정보가 runtime 때 사라지기때문에</a></p>
+
+<p>즉, <code>List&lt;String&gt;</code> 과 <code>List&lt;Integer&gt;</code> 의 runtime type 은 모두 <code>List</code> 이다.</p>
+
+<p>Java documentation 에서는 <a href="http://docs.oracle.com/javase/tutorial/java/generics/nonReifiableVarargsType.html#non-reifiable-types">Non-Reifiable Types</a> 라고 부르고 있다.</p>
+
+<p>Stackoverflow 의 질문: <a href="http://stackoverflow.com/questions/529085/java-how-to-generic-array-creation">Java how to: Generic Array creation</a></p>
+
+<p>Typecasting 을 해보았다.</p>
+
+<pre><code>public class GenericSet&lt;E&gt; {
+    private E a[];
+    public GenericSet() {
+        a = (E[]) new Object[1];
+    }
+}
+code $ !j
+javac GenericSet.java
+Note: GenericSet.java uses unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.
+</code></pre>
+
+<p>unchecked warning 이 나온다.</p>
+
+<p><code>@SuppressWarnings({"unchecked"})</code> 을 사용.</p>
+
+<pre><code>@SuppressWarnings({"unchecked"})
+public class GenericSet&lt;E&gt; {
+    private E a[];
+    public GenericSet() {
+        a = (E[]) new Object[1];
+    }
+}
+code $ !j
+javac GenericSet.java
+</code></pre>
+
+<p>Generic Array Creation 에 대해서 너무 타이트하게 컴파일타임에 규제하는게 아닌가 싶다.</p>
+
+<p>어쨌든 Reflection 을 사용해서 Generic type array 를 만들어 본다.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Your Name</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2013-09-05T15:59:00+09:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>5</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>3:59 pm</span></time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://yoursite.com/blog/2013/09/05/java-generic-array/" data-via="" data-counturl="http://yoursite.com/blog/2013/09/05/java-generic-array/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2013/09/03/shell-initialization/" title="Previous Post: Shell Initialization">&laquo; Shell Initialization</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2013/09/06/job-scheduling-algorithm/" title="Next Post: Job Scheduling Algorithm">Job Scheduling Algorithm &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/10/04/return-oriented-programming-for-the-arm-architecture/">Return Oriented Programming for the ARM Architecture</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/02/the-inside-story-behind-ms08-067/">The Inside Story Behind MS08-067</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/17/rop-and-arm/">ROP and ARM</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/13/sophail-applied-attacks-against-sophos-antivirus/">Sophail: Applied Attacks Against Sophos Antivirus</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/13/stagefright/">Stagefright</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - Your Name -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

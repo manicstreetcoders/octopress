@@ -1,0 +1,334 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>iOS: Building a Basic Toolkit - My Octopress Blog</title>
+  <meta name="author" content="Your Name">
+
+  
+  <meta name="description" content="Cydia BigBoss Recommended Tools otool 1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+# Inspect the Objective-C segment to reveal class and method names:
+$ otool - &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://yoursite.com/blog/2015/06/04/ios-building-a-basic-toolkit/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="My Octopress Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">My Octopress Blog</a></h1>
+  
+    <h2>A blogging framework for hackers.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="yoursite.com">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">iOS: Building a Basic Toolkit</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-06-04T13:23:03+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>4</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>1:23 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><h4>Cydia</h4>
+
+<h4>BigBoss Recommended Tools</h4>
+
+<h4>otool</h4>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># Inspect the Objective-C segment to reveal class and method names:
+</span><span class='line'>$ otool -oV MAHHApp
+</span><span class='line'>
+</span><span class='line'># List the libraries used by the binary:
+</span><span class='line'>$ otool -L MAHHApp
+</span><span class='line'>
+</span><span class='line'># List the symbols exported by a binary
+</span><span class='line'>$ otool -IV MAHHApp
+</span><span class='line'>
+</span><span class='line'># Display the short-form header information:
+</span><span class='line'>$ otool -hV MAHHApp
+</span><span class='line'>
+</span><span class='line'># Display the binary load commands:
+</span><span class='line'>$ otool -l MAHHApp</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>nm</h4>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ nm MAHHApp</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>lipo</h4>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ lipo -info MAHHApp
+</span><span class='line'>$ lipo -thin &lt;arch_type&gt; -output MAHHApp-v7 MAHHApp</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>Debuggers</h4>
+
+<ul>
+<li>gdb (Help: <a href="http://www.pod2g.org/2012/02/working-gnu-debugger-on-ios-43.html">here</a></li>
+<li>radare (Add cydia repo as a source, <a href="http://cydia.radare.org">http://cydia.radare.org</a>)</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ lipo -thin armv7 gdb-arm-apple-darwin -output gdb-arm7</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>Tools for Signing Binaries</h4>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># To sign or replace an existing signature, use the following command:
+</span><span class='line'>$ codesign -v -fs "CodeSignIdentity" MAHHApp.app/
+</span><span class='line'>
+</span><span class='line'># To display the code signature of an application:
+</span><span class='line'>$ codesign -v -d MAHHApp.app</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>saurik&rsquo;s ldid: <a href="http://www.saurik.com/id/8">here</a></li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ ldid -S MAHHApp</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>Installipa</h4>
+
+<ul>
+<li><a href="https://github.com/autopear/ipainstaller">here</a></li>
+<li>AppSync (repo: <a href="http://cydia.appaddict.org">http://cydia.appaddict.org</a>)</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># ipainstaller Lab1.1a.ipa
+</span><span class='line'>Analyzing Lab1.1a.ipa...
+</span><span class='line'>Installing lab1.1a (v1.0)...
+</span><span class='line'>Installed lab1.1a (v1.0) successfully.</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>Exploring the Filesystem</h4>
+
+<ul>
+<li><a href="http://2013.hackitoergosum.org/presentations/Day3-04.Hacking%20apple%20accessories%20to%20pown%20iDevices%20%E2%80%93%20Wake%20up%20Neo!%20Your%20phone%20got%20pwnd%20!%20by%20Mathieu%20GoToHack%20RENARD.pdf">Mathieu Renard</a></li>
+<li>iExplorer</li>
+<li>iFunBox</li>
+</ul>
+
+
+<h4>Property Lists</h4>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># plutil com.google.Authenticator.plist
+</span><span class='line'>$ plutil -convert xml1 com.google.Authenticator.plist
+</span><span class='line'>$ plutil -convert binary1 com.google.Authenticator.plist</span></code></pre></td></tr></table></div></figure>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Your Name</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2015-06-04T13:23:03+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>4</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>1:23 pm</span></time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://yoursite.com/blog/2015/06/04/ios-building-a-basic-toolkit/" data-via="" data-counturl="http://yoursite.com/blog/2015/06/04/ios-building-a-basic-toolkit/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2015/06/02/setting-up-an-intercepting-proxy-on-linux/" title="Previous Post: Setting Up an Intercepting Proxy on Linux">&laquo; Setting Up an Intercepting Proxy on Linux</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2015/06/04/using-wireshark-with-android/" title="Next Post: Using Wireshark with Android">Using Wireshark with Android &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/10/04/return-oriented-programming-for-the-arm-architecture/">Return Oriented Programming for the ARM Architecture</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/02/the-inside-story-behind-ms08-067/">The Inside Story Behind MS08-067</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/17/rop-and-arm/">ROP and ARM</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/13/sophail-applied-attacks-against-sophos-antivirus/">Sophail: Applied Attacks Against Sophos Antivirus</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/13/stagefright/">Stagefright</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - Your Name -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

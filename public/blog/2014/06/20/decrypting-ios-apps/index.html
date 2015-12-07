@@ -1,0 +1,233 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Decrypting iOS Apps - My Octopress Blog</title>
+  <meta name="author" content="Your Name">
+
+  
+  <meta name="description" content="Decrypting iOS Apps evasi0n 으로 iPod 를 Jailbreak 했다. openssh 패키지를 설치하고, ssh root@XXX.XXX.XXX.XXX 로 접속했다.
+그리고, root 와 mobile 의 password 를 세팅하였다. &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://yoursite.com/blog/2014/06/20/decrypting-ios-apps/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="My Octopress Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">My Octopress Blog</a></h1>
+  
+    <h2>A blogging framework for hackers.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="yoursite.com">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Decrypting iOS Apps</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-06-20T10:22:20+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>20</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>10:22 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p><a href="http://www.infointox.net/?p=114">Decrypting iOS Apps</a></p>
+
+<p>evasi0n 으로 iPod 를 Jailbreak 했다.</p>
+
+<p>openssh 패키지를 설치하고, <code>ssh root@XXX.XXX.XXX.XXX</code> 로 접속했다.
+그리고, <code>root</code> 와 <code>mobile</code> 의 password 를 세팅하였다.</p>
+
+<h4>Extract the application</h4>
+
+<p><code>/private/var/mobile/Applications/</code> 에서 타겟을 담고 있는 디렉토리를 찾았다.</p>
+
+<p><code>/private/var/mobile/Application/D411A4CE-B33E-4EFE-9041-E356718123EE/OM1X.app/OM1X</code> 가 찾는 바이너리.</p>
+
+<p>scp 로 OM1X 를 가져온다.</p>
+
+<pre><code># otool -arch all -Vh OM1X
+OM1X:
+Mach header
+      magic cputype cpusubtype  caps    filetype ncmds sizeofcmds      flags
+   MH_MAGIC     ARM          9  0x00     EXECUTE    33       4056   NOUNDEFS DYLDLINK TWOLEVEL BINDS_TO_WEAK PIE
+</code></pre>
+
+<h4>Find encrypted area</h4>
+
+<p>이제 암호화된 부분을 찾아야 한다.</p>
+
+<pre><code># otool -arch all -Vl TM1G | grep -A5 LC_ENCRYP
+          cmd LC_ENCRYPTION_INFO
+      cmdsize 20
+ cryptoff  16384
+ cryptsize 819200
+ cryptid   1
+Load command 12
+</code></pre>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Your Name</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2014-06-20T10:22:20+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>20</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>10:22 am</span></time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://yoursite.com/blog/2014/06/20/decrypting-ios-apps/" data-via="" data-counturl="http://yoursite.com/blog/2014/06/20/decrypting-ios-apps/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2014/06/20/add-js-interface-mitm/" title="Previous Post: add_js_interface_mitm">&laquo; add_js_interface_mitm</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2014/06/20/recent-openssl-vulnerabilities/" title="Next Post: Recent OpenSSL Vulnerabilities">Recent OpenSSL Vulnerabilities &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/10/04/return-oriented-programming-for-the-arm-architecture/">Return Oriented Programming for the ARM Architecture</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/02/the-inside-story-behind-ms08-067/">The Inside Story Behind MS08-067</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/17/rop-and-arm/">ROP and ARM</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/13/sophail-applied-attacks-against-sophos-antivirus/">Sophail: Applied Attacks Against Sophos Antivirus</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/13/stagefright/">Stagefright</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - Your Name -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

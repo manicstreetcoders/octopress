@@ -1,0 +1,253 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Certificate Pinning on Android - My Octopress Blog</title>
+  <meta name="author" content="Your Name">
+
+  
+  <meta name="description" content="BlackHat 2012 에서 발표된 Certificate Pinning 에 관련된 발표. private InputStream makeRequest(Context context, URL url) { // Load custom Trust Store from a file &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://yoursite.com/blog/2014/05/21/certificate-pinning-on-android/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="My Octopress Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">My Octopress Blog</a></h1>
+  
+    <h2>A blogging framework for hackers.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="yoursite.com">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Certificate Pinning on Android</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-05-21T13:03:01+09:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>21</span><span class='date-suffix'>st</span>, <span class='date-year'>2014</span></span> <span class='time'>1:03 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p><a href="https://media.blackhat.com/bh-us-12/Turbo/Diquet/BH_US_12_Diqut_Osborne_Mobile_Certificate_Pinning_Slides.pdf">BlackHat 2012 에서 발표된 Certificate Pinning 에 관련된 발표</a>.</p>
+
+<pre><code>private InputStream makeRequest(Context context, URL url) {
+    // Load custom Trust Store from a file
+    AssetManager assetManager = context.getAssets();
+    InputStream keyStoreInputStream = assetManager.open("yourapp.store");
+    KeyStore trustStore = KeyStore.getInstance("BKS");
+    trustStore.load(keyStoreInputStream, "somepass".toCharArray());
+
+    TrustManagerFactory tmf = TrustManagerFactory.getInstance("X509");
+    tmf.init(trustStore);
+
+    // Init an sslContext with the custom Trust Store
+    SSLContext sslContext = SSLContext.getInstance("TLS");
+    sslContext.init(null, tmf.getTrustManagers(), null);
+
+    // Use this sslContext for subsequent HTTPS connections
+    HttpsURLConnection urlConnection = (HttpsURLConnection)url.openConnection();
+    urlConnection.setSSLSocketFactory(sslContext.getSocketFactory());
+
+    return urlConnection.getInputStream();
+}
+</code></pre>
+
+<p>서버의 certificate 을 확인.</p>
+
+<pre><code>openssl s_client -connect www.babo.com:443 -tlsextdebug
+</code></pre>
+
+<p>그럼 왜 Certificate Pinning 을 하는가. PKI 의 신뢰 체인이 한계에 다달았기 때문.</p>
+
+<p>간단하게</p>
+
+<ul>
+<li>Root CA 가 너무 많다.</li>
+<li>Root CA 를 믿을 수 없다.</li>
+</ul>
+
+
+<p>Browser 같이 불특정 다수의 웹 사이트를 상대해야 하는 경우라면 어쩔 수 없지만,
+모바일 전용 앱과 같은 경우 한두개의 서버만 상대하면 되기때문에, Certificate Pinning 을 사용하는 것이 더 안전하다.</p>
+
+<ul>
+<li><a href="http://nelenkov.blogspot.kr/2012/12/certificate-pinning-in-android-42.html">Certificate pinning in Android 4.2</a></li>
+<li><a href="https://www.imperialviolet.org/2011/05/04/pinning.html">Public key pinning (04 May 2011)</a></li>
+<li><a href="http://h30499.www3.hp.com/t5/Fortify-Application-Security/Certificate-Pinning-for-Mobile-Applications/ba-p/6223897#.U6OGK5S1bOM">Certificate Pinning for Mobile Applications</a></li>
+</ul>
+
+
+<p>Certificate Pinning 이 적용된 App 은 리버싱하기가 불편하기 때문에, disable 시키는 kill-switch patch 를 적용한다.</p>
+
+<ul>
+<li><a href="https://github.com/iSECPartners/ios-ssl-kill-switch">github.com/iSECPartners/ios-ssl-kill-switch</a></li>
+</ul>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Your Name</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2014-05-21T13:03:01+09:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>21</span><span class='date-suffix'>st</span>, <span class='date-year'>2014</span></span> <span class='time'>1:03 pm</span></time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://yoursite.com/blog/2014/05/21/certificate-pinning-on-android/" data-via="" data-counturl="http://yoursite.com/blog/2014/05/21/certificate-pinning-on-android/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2014/05/17/cve-2014-1776/" title="Previous Post: CVE-2014-1776">&laquo; CVE-2014-1776</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2014/05/21/cve-2012-1889-microsoft-xml-core-services-rce/" title="Next Post: CVE-2012-1889: Microsoft XML Core Services RCE">CVE-2012-1889: Microsoft XML Core Services RCE &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/10/04/return-oriented-programming-for-the-arm-architecture/">Return Oriented Programming for the ARM Architecture</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/02/the-inside-story-behind-ms08-067/">The Inside Story Behind MS08-067</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/17/rop-and-arm/">ROP and ARM</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/13/sophail-applied-attacks-against-sophos-antivirus/">Sophail: Applied Attacks Against Sophos Antivirus</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/13/stagefright/">Stagefright</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - Your Name -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,251 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Intercepting and Decrypting SSL Communications Between Android Phone and 3rd Party Server - My Octopress Blog</title>
+  <meta name="author" content="Your Name">
+
+  
+  <meta name="description" content="안드로이드 HTTPS 트래픽 디버깅 하는 방법은 Intercepting and decrypting SSL communications between Android phone and 3rd party server 을 참조한다. 안드로이드에 임의의 CA &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://yoursite.com/blog/2014/07/21/intercepting-and-decrypting-ssl-communications-between-android-phone-and-3rd-party-server/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="My Octopress Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">My Octopress Blog</a></h1>
+  
+    <h2>A blogging framework for hackers.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="yoursite.com">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Intercepting and Decrypting SSL Communications Between Android Phone and 3rd Party Server</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-07-21T12:39:58+09:00'><span class='date'><span class='date-month'>Jul</span> <span class='date-day'>21</span><span class='date-suffix'>st</span>, <span class='date-year'>2014</span></span> <span class='time'>12:39 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>안드로이드 HTTPS 트래픽 디버깅 하는 방법은 <a href="http://www.myhowto.org/java/81-intercepting-and-decrypting-ssl-communications-between-android-phone-and-3rd-party-server/">Intercepting and decrypting SSL communications between Android phone and 3rd party server</a> 을 참조한다.</p>
+
+<p>안드로이드에 임의의 CA certificate 을 system 으로 인스톨하는 방법은 <a href="http://wiki.pcprobleemloos.nl/android/cacert">Installing CAcert certificates on Android as &lsquo;system&rsquo; credentials without lockscreen - instructions</a> 을 참조한다.</p>
+
+<p>DigitalOcean 에서 <a href="https://www.digitalocean.com/community/tutorials/how-to-setup-your-own-vpn-with-pptp">How To Setup Your Own VPN With PPTP</a> 를 참조해 VPN 서버를 설치한다.</p>
+
+<p>전체적으로는 <a href="https://github.com/blukat29/blukat-config/issues/4">blukat29/PPTP VPN Server</a> 를 참조한다.</p>
+
+<pre><code>$ echo 1 &gt; /proc/sys/net/ipv4/ip_forward
+$ iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+$ iptables -t nat -A PREROUTING -i ppp0 -p tcp --dport 443 -j REDIRECT --to-port 4443
+
+# Generate CA key
+$ openssl genrsa -des3 -out ca.key 4096
+
+# Generate CA cert
+$ openssl req -new -x509 -days 365 -key ca.key -out ca.crt
+
+# Generate server key
+$ openssl genrsa -des3 -out server.key 4096
+
+# Generate server cert signing request
+$ openssl req -new -key server.key -out server.csr
+
+# Sign server's cert using CA's key
+$ openssl x509 -req -days 365 -in server.csr -CA ca.crt -CAkey ca.key -set_serial 01 -out server.crt
+
+# Get the hash of the ca.crt certificate:
+$ openssl x509 -inform PEM -subject_hash_old -in ca.crt | head -1  
+5ed36f99
+$ mount -o remount,rw /system
+$ cp /data/local/tmp/5ed36f99.0 /system/etc/security/cacerts/
+$ chmod 644 /system/etc/security/cacerts/*
+
+$ cat go.sh
+socat -v OPENSSL-LISTEN:4443,reuseaddr,verify=0,cert=./server.crt,key=./server.key,cafile=./ca.crt,debug,fork EXEC:./babo.sh
+$ cat babo.sh
+openssl s_client -CAfile /etc/ssl/certs/ca-certificates.crt -quiet -connect api.babo.com:443
+$ go.sh
+
+ext% /usr/libexec/java_home
+/Library/Java/JavaVirtualMachines/jdk1.7.0_25.jdk/Contents/Home
+</code></pre>
+
+<ul>
+<li>OpenSSL</li>
+<li>SoCat (<a href="http://www.dest-unreach.org/socat">http://www.dest-unreach.org/socat</a>)</li>
+<li>Bouncy Castle library (<a href="http://bouncycastle.org/download/bcprov-jdk16-141.jar">http://bouncycastle.org/download/bcprov-jdk16-141.jar</a>) - place this JAR file into your &hellip;/jre/lib/ext directory</li>
+<li>Charles Proxy</li>
+<li><a href="http://mitmproxy.org">MITMProxy</a></li>
+<li><code>emulator -avd [name of the avd] -http-proxy 127.0.0.1:8080</code></li>
+</ul>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Your Name</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2014-07-21T12:39:58+09:00'><span class='date'><span class='date-month'>Jul</span> <span class='date-day'>21</span><span class='date-suffix'>st</span>, <span class='date-year'>2014</span></span> <span class='time'>12:39 pm</span></time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://yoursite.com/blog/2014/07/21/intercepting-and-decrypting-ssl-communications-between-android-phone-and-3rd-party-server/" data-via="" data-counturl="http://yoursite.com/blog/2014/07/21/intercepting-and-decrypting-ssl-communications-between-android-phone-and-3rd-party-server/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2014/07/14/sms-pdu/" title="Previous Post: SMS PDU">&laquo; SMS PDU</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2014/07/22/ios-nsuserdefaults/" title="Next Post: iOS NSUserDefaults">iOS NSUserDefaults &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/10/04/return-oriented-programming-for-the-arm-architecture/">Return Oriented Programming for the ARM Architecture</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/02/the-inside-story-behind-ms08-067/">The Inside Story Behind MS08-067</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/17/rop-and-arm/">ROP and ARM</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/13/sophail-applied-attacks-against-sophos-antivirus/">Sophail: Applied Attacks Against Sophos Antivirus</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/13/stagefright/">Stagefright</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - Your Name -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

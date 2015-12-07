@@ -1,0 +1,306 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Extended Euclidean Algorithm - My Octopress Blog</title>
+  <meta name="author" content="Your Name">
+
+  
+  <meta name="description" content="gcd(x,y) 를 찾는 Euclid 알고리즘. exports.map = function (fn,a) { for (var i=0; i &lt; a.length; i++) a[i] = fn(a[i]);
+}; exports.reduce = function (fn, a &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://yoursite.com/blog/2014/03/22/extended-euclidean-algorithm/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="My Octopress Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">My Octopress Blog</a></h1>
+  
+    <h2>A blogging framework for hackers.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="yoursite.com">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Extended Euclidean Algorithm</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-03-22T09:37:42+09:00'><span class='date'><span class='date-month'>Mar</span> <span class='date-day'>22</span><span class='date-suffix'>nd</span>, <span class='date-year'>2014</span></span> <span class='time'>9:37 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>gcd(x,y) 를 찾는 Euclid 알고리즘.</p>
+
+<pre><code>exports.map = function (fn,a) { 
+    for (var i=0; i &lt; a.length; i++)
+        a[i] = fn(a[i]);
+};
+
+exports.reduce = function (fn, a) {
+    var prev = 0;
+    for (var i=0;i&lt;a.length;i++)
+        prev = fn(prev,a[i]);    
+    return prev;
+};
+
+exports.gcd = function (a,b) {
+    var t;
+    if (b &gt; a) {
+        t = a; a = b; b = t;
+    }
+    if (b == 0)
+        return a;
+    return exports.gcd(b, a % b)
+};
+
+% node
+&gt; var x = require('./reduce.js')
+undefined
+&gt; x.reduce(x.gcd, [487, 28, 100])
+1
+&gt; x.reduce(x.gcd, [84, 28, 100])
+4
+&gt; x.reduce(x.gcd, [48, 24, 36])
+12
+&gt;
+</code></pre>
+
+<p>Least positive linear combination of a and b 를 찾아보자.</p>
+
+<pre><code>% cat least_positive.py
+from fractions import gcd
+
+min = 999999999999999
+
+def search(x,y):
+    global min
+    g = gcd(x,y)
+
+    for i in range(-100,101):
+        i = -1 * i
+        for j in range(-100,101):
+            j = -1 * j
+            d = i * x + j * y
+            if d &lt;= 0:
+                continue
+            if d &lt; min:
+                min = d
+                print "New minimum: %d, gcd: %d" % (min,g)
+
+    print "Minimum: %d, gcd: %d" % (min,g)
+    print "done"
+
+search(100,40)
+
+% python least_positive.py
+...
+New minimum: 500, gcd: 20
+New minimum: 480, gcd: 20
+New minimum: 440, gcd: 20
+New minimum: 400, gcd: 20
+New minimum: 380, gcd: 20
+New minimum: 340, gcd: 20
+New minimum: 300, gcd: 20
+New minimum: 280, gcd: 20
+New minimum: 240, gcd: 20
+New minimum: 200, gcd: 20
+New minimum: 180, gcd: 20
+New minimum: 140, gcd: 20
+New minimum: 100, gcd: 20
+New minimum: 80, gcd: 20
+New minimum: 40, gcd: 20
+New minimum: 20, gcd: 20
+Minimum: 20, gcd: 20
+done
+</code></pre>
+
+<p>Theorem: If a and b are nonzero integers, then their gcd is a linear combination
+of a and b, that is there exist integer numbers s and t such that</p>
+
+<p>sa + tb = (a,b).</p>
+
+<p>Proof: Let d be the least positive integer that is a linear combination of a and b. We write</p>
+
+<p>d = sa + tb,</p>
+
+<p>where s and t are integers.</p>
+
+<p>We first show that d | a. By the Division Algorithm we have</p>
+
+<p>a = dq + r, where 0 &lt;= r &lt; d.</p>
+
+<p>r = a - dq = a - q(sa + tb) = a - qsa - qtb = (1 - qs)a + (-qt)b</p>
+
+<p>This shows that r is a linear combination of a and b.
+Since 0&lt;= r &lt; d, and d is the least positive linear combination of a and b,
+we conclude that r = 0, and hence d | a.</p>
+
+<p>이제, a<em>x + b</em>y = gcd(x,y) 를 만족하는 a,b 를 찾는 Extended Euclid 알고리즘.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Your Name</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2014-03-22T09:37:42+09:00'><span class='date'><span class='date-month'>Mar</span> <span class='date-day'>22</span><span class='date-suffix'>nd</span>, <span class='date-year'>2014</span></span> <span class='time'>9:37 am</span></time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://yoursite.com/blog/2014/03/22/extended-euclidean-algorithm/" data-via="" data-counturl="http://yoursite.com/blog/2014/03/22/extended-euclidean-algorithm/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2014/03/22/os-x-goto-fail/" title="Previous Post: OS X goto fail">&laquo; OS X goto fail</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2014/03/22/modular-inversion/" title="Next Post: Modular Inversion">Modular Inversion &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/10/04/return-oriented-programming-for-the-arm-architecture/">Return Oriented Programming for the ARM Architecture</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/02/the-inside-story-behind-ms08-067/">The Inside Story Behind MS08-067</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/17/rop-and-arm/">ROP and ARM</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/13/sophail-applied-attacks-against-sophos-antivirus/">Sophail: Applied Attacks Against Sophos Antivirus</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/13/stagefright/">Stagefright</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - Your Name -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

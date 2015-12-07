@@ -1,0 +1,774 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>My Octopress Blog</title>
+  <meta name="author" content="Your Name">
+
+  
+  <meta name="description" content="23rd USENIX Security Symposium 에서 발표된 On the Feasibility of Large-Scale Infections of iOS Devices 을 따라가보자. 저자는 Tielei Wang, Yeongjin Jang, Yizheng &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://yoursite.com/posts/11/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="My Octopress Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">My Octopress Blog</a></h1>
+  
+    <h2>A blogging framework for hackers.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="yoursite.com">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div class="blog-index">
+  
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/09/22/on-the-feasibility-of-large-scale-infections-of-ios-devices/">On the Feasibility of Large-Scale Infections of iOS Devices</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-09-22T09:00:23+09:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>22</span><span class='date-suffix'>nd</span>, <span class='date-year'>2014</span></span> <span class='time'>9:00 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>23rd USENIX Security Symposium 에서 발표된 <a href="https://www.usenix.org/system/files/conference/usenixsecurity14/sec14-paper-wang-tielei.pdf">On the Feasibility of Large-Scale Infections of iOS Devices</a> 을 따라가보자.</p>
+
+<p>저자는 Tielei Wang, Yeongjin Jang, Yizheng Chen, Simon Chung, Billy Lau, Wenke Lee.</p>
+
+<h4>Introduction</h4>
+
+<p>Non-jailbroken iOS 디바이스를 대규모로 감염시키는 것이 어려운 이유.</p>
+
+<ol>
+<li><p>Apple has powerful revocation capabilities.</p></li>
+<li><p>The mandatory code signing mechanism in iOS ensures that only apps signed by Apple or certified by Apple can be installed and run on iOS devices.</p></li>
+<li><p>The DRM technology in iOS prevents users from sharing apps among arbitary iOS devices, which has a side effect of limiting the distribution of malicious apps published on the App Store.</p></li>
+</ol>
+
+
+<h4>Delivery of Apple-Signed Malicious Apps</h4>
+
+<p>두 개의 취약점을 사용했다고 한다.</p>
+
+<ol>
+<li><p>The first is a previously unknown design flaw in the iTunes syncing mechanism, which makes the iTunes syncing process vulnerable to MiTM attacks.</p></li>
+<li><p>The second security issue we discovered is that an iOS device can be stealthily provisioned for development through USB connections. This weakness allows a compromised computer to arbitrarily remove installed third-party appps from connected iOS devices and install any app signed by attackers in possession of enterprise or indivisual developer licenses issued by Apple.</p></li>
+</ol>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/09/21/structured-exception-handling/">Structured Exception Handling</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-09-21T05:39:25+09:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>21</span><span class='date-suffix'>st</span>, <span class='date-year'>2014</span></span> <span class='time'>5:39 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><a href="http://www.microsoft.com/msj/0197/exception/exception.aspx">A Crash Course on the Depths of Win32&trade; Structured Exception Handling</a> 를 따라가본다.</p>
+
+<h4>Exception Handler</h4>
+
+<pre><code>DWORD scratch;
+
+EXCEPTION_DISPOSITION
+__cdecl
+_except_handler(
+struct _EXCEPTION_RECORD *ExceptionRecord,
+void * EstablisherFrame,
+struct _CONTEXT *ContextRecord,
+void * DIspatcherContext)
+{
+    unsigned i;
+    printf("Hello from an except handler\n");
+    ContextRecord-&gt;Eax = (DWORD)&amp;scratch;
+    return ExceptionContinueException;
+}
+</code></pre>
+
+<h4>Set-up</h4>
+
+<p><code>_EXCEPTION_REGISTERATION</code> 을 셋업한다. 예전 VS 에는 어셈블리 INC 에 정의되어있었는데, 최신 VS 에는 C 로 정의되어있다.</p>
+
+<pre><code>_EXCEPTION_REGISTRATION struc
+    prev dd ?
+    handler dd ?
+_EXCEPTION_REGISTRATION ends
+</code></pre>
+
+<p>FS 가 <a href="http://en.wikipedia.org/wiki/Win32_Thread_Information_Block">TIB</a> 을 가리키고 있는데, 처음 DWORD 가 thread 의 EXCEPTION_REGISTRATION 구조체를 가리킨다.</p>
+
+<p><code>FS:[0]</code> 이 현재 EXCEPTION_REGISTRATION 을 가리키고 있으니, <code>push handler</code> <code>push FS:[0]</code> 을 연달아 하면 <code>prev</code> <code>handler</code> 가 메모리에 예쁘게 세팅되고, <code>mov FS:[0],ESP</code> 로 새로운 EXCEPTION_REGISTRATION 을 <code>FS:[0]</code> 에 세팅할 수 있다.</p>
+
+<p>그 다음에 <code>mov [eax],1</code> 로 액세스 바이올레이션을 일으킨다. 그러면, <code>printf("Hello from an except handler\n");</code> 가 <code>printf("After writing!\n");</code> 보다 먼저 handler 가 실행되게 된다.</p>
+
+<p>익셉션 핸들러에서 <code>ContextRecord-&gt;Eax = (DWORD)&amp;scratch;</code> 로, EAX 를 0 에서 올바른 주소로 설정하고 continue 시킨다. OS 에서, <code>ExceptionContinueException</code> 를 받으면, 문제가 해결된 것으로 보고, fault 를 만들었던 instruction 을 재실행한다.</p>
+
+<pre><code>DWORD handler = (DWORD) _except_handler;
+__asm {
+    push handler
+    push FS:[0]
+    mov FS:[0],ESP
+
+    mov eax,0
+    mov [eax],1
+}
+printf("After writing!\n");
+__asm {
+    mov eax,[ESP]
+    mov FS:[0],EAX
+    add esp,8
+}
+_gettch();
+</code></pre>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/09/19/sendrawpdu/">Sendrawpdu</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-09-19T17:51:04+09:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>19</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>5:51 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h4>Unlock &amp; Rooting</h4>
+
+<p>HTC One M7 을 준비했다.</p>
+
+<p><code>./fastboot-mac oem get_identifier_token</code> 로 token 을 얻어 htcdev.com 에 submit 하고 언락 코드를 얻는다. 그 코드로
+<code>fastboot-mac flash unlocktoken Unlock_code.bin</code> 를 하여서 부트로더 언락을 마친다.</p>
+
+<p>Power + Volume Down 으로 들어가보면 <code>*** UNLOCKED ***</code> 라고 바뀌게 된다. S-ON 은 유지된 상태.</p>
+
+<p>참고로, Unlock 하면 bootloader 등의 파티션을 접근할 수 있고, S-OFF 를 하면 HBOOT 와 RADIO 까지 write 할 수 있다.</p>
+
+<p>언락후에, <a href="http://htconeroot.com/cwmtwrp-recoveries/">ClockwordMod Recovery</a> 를 설치하였다.</p>
+
+<h4>Xposed framework</h4>
+
+<p>그 다음에, <a href="http://forum.xda-developers.com/xposed/xposed-installer-versions-changelog-t2714053">Xposed framework</a> 를 설치한다.</p>
+
+<h4>SMS-DELIVERY</h4>
+
+<p><a href="http://www.androidpub.com/724734">국내 (SKT/KTF) SMS 처리 - HTC RIL 코드를 분석하면서</a></p>
+
+<pre><code>PDU 0791280102198188 44 0A A1 5117180890 00040180229101826313 0A22080B811040309814F761623132B0A1B3AA
+
+07: SMSC Octet Size
+91: Type-of-address of the SMSC
+28 01 02 19 81 88: Service Center +821020911888
+44: TP-UDHI, TP-MMS
+0A: Length of Sender Number
+A1: 1010 0001 National Number/ISDN/Telephone Numbering Plan
+51 17 18 08 90: 
+
+Text message
+From: 1571818009
+Message: 0A22080B811040309814F761623132B0A1B3AA
+
+Additional information
+PDU type: SMS-DELIVER
+Time stamp: 22/08/2010 19:10:28
+SMSC: +821020911888
+Data header: 0A22080B811040309814F7
+Data coding: Binary
+
+Original Encoded PDU fields
+SMSC: 0791280102198188
+PDU header: 44
+TP-MTI: 00
+TP-MMS: 04
+TP-SRI: 00
+TP-RP: 00
+TP-UDHI: 40
+TP-OA: 0AA15117180890
+TP-PID: 00
+TP-DCS: 04
+TP-SCTS: 01802291018263
+TP-UDL: 13
+TP-UD: 0A22080B811040309814F761623132B0A1B3AA
+</code></pre>
+
+<h4>SMS-SUBMIT</h4>
+
+<h4>smspdu</h4>
+
+<p><a href="https://github.com/crmulliner/smspdu">crmulliner/smspdu</a> 를 참조.</p>
+
+<p>HTC Sense firmware 의 hidden API sendRawPdu() 를 사용하는 방법은 다음과 같다.</p>
+
+<pre><code>import android.telephony.SmsManager;
+import java.lang.reflect.Method;
+
+SmsManager sm = SmsManager.getDefault();
+byte[] bb = new byte[1];
+Method m2 = SmsManager.class.getDeclaredMethod(
+    "sendRawPdu",
+    bb.getClass(),
+    bb.getClass(),
+    PendingIntent.class,
+    PendingIntent.class,
+    boolean.class,
+    boolean.class);
+m2.setAccessible(true);
+byte[] pdu = convertHex2Bin(msg.getBytes());
+m2.invoke(sm, null, pdu, null, null, false, false);
+</code></pre>
+
+<p>그리고, <a href="http://pastebin.com/6uueFLCU">HushSMS 의 리버스된 소스</a>를 참조.</p>
+
+<h4>Payload 읽기</h4>
+
+<pre><code>public static byte[] payload() {
+    FileInputStream fis;
+    byte[] by = new byte[1024];
+    int count;
+
+    try {
+        fis = new FileInputStream("/sdcard/payload");
+        count = fis.read(by);
+        fis.close();
+        return by;
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return by;
+}
+</code></pre>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/08/20/cellular-exploitation/">Cellular Exploitation</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-08-20T11:04:36+09:00'><span class='date'><span class='date-month'>Aug</span> <span class='date-day'>20</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>11:04 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Ralph-Philipp Weinmann 의 <a href="https://www.usenix.org/system/files/conference/woot12/woot12-final24.pdf">Baseband Attacks: Remote Exploitation of Memory Corruptions in Celluar Protocol Stacks</a> 를 정리한다.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/08/20/talking-to-the-modem-with-at-commands/">Talking to the Modem With at Commands</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-08-20T10:58:54+09:00'><span class='date'><span class='date-month'>Aug</span> <span class='date-day'>20</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>10:58 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><a href="http://forum.xda-developers.com/galaxy-s2/help/how-to-talk-to-modem-commands-t1471241">Galaxy S II / How to talk to the Modem with AT commands</a></p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/08/18/arm-exploitation-with-qemu/">ARM Exploitation With QEMU</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-08-18T11:41:27+09:00'><span class='date'><span class='date-month'>Aug</span> <span class='date-day'>18</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>11:41 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Stephen A. Ridley 의 30th Chaos Communication Congress 에서의 발표 <a href="http://www.youtube.com/watch?v=frUvlhO8o8A">Hardware Attacks, Advanced ARM Exploitation, and Android Hacking</a></p>
+
+<h4>ARM Basic Stack Overflows</h4>
+
+<h4>ARM Stack Overflows with Return-To-LibC</h4>
+
+<h4>ARM Stack Overflows with &ldquo;No Execute Stack&rdquo;</h4>
+
+<h4>ARM Heap Overflows</h4>
+
+<h4>ARM Heap Overflows with &ldquo;No Execute&rdquo; protection</h4>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/08/18/code-reuse-techiniques/">Code-Reuse Techiniques</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-08-18T11:37:40+09:00'><span class='date'><span class='date-month'>Aug</span> <span class='date-day'>18</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>11:37 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Dino A. Dai Zovi 의 Memory Corruption, Exploitation, and You 를 읽다가 정리해본다.</p>
+
+<p><a href="http://trailofbits.files.wordpress.com/2010/11/owasp_201011.pdf">Memory Corruption, Exploitation, and You</a></p>
+
+<ul>
+<li>Return-To-Libc (Solar Designer, 1997) - Return into functions in Libc</li>
+<li>Borrowed Code Chunks (Krahmer, 2005) - Link returns to single-instructions</li>
+<li>Return-oriented Programming (Shacham, 2007) - Turing complete w/ compiler for C-like language</li>
+</ul>
+
+
+<h4>Return-To-Libc</h4>
+
+<h4>Borrowed Code Chunks</h4>
+
+<h4>Return-oriented Programming</h4>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/08/18/fuzzing-bluetooth-crash-testing-bluetooth-enabled-devices/">Fuzzing Bluetooth: Crash-Testing Bluetooth-Enabled Devices</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-08-18T06:48:11+09:00'><span class='date'><span class='date-month'>Aug</span> <span class='date-day'>18</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>6:48 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><ul>
+<li>Codenomicon 의 <a href="http://www.codenomicon.com/resources/whitepapers/codenomicon_wp_Fuzzing_Bluetooth_20110919.pdf">Fuzzing Bluetooth: Crash-Testing Bluetooth-Enabled Devices</a></li>
+<li><a href="https://www.isecpartners.com/media/108498/outsmarting_bluetooth_smart-mikeryan-cansecwest_2014.pdf">Outsmart Bluetooth Smart, Mike Ryan, CanSecWest 2014</a></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/08/13/blackphone-goes-to-def-con-and-gets-hacked-sort-of/">Blackphone Goes to Def Con and Gets Hacked</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-08-13T15:29:48+09:00'><span class='date'><span class='date-month'>Aug</span> <span class='date-day'>13</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>3:29 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Justin Case 의 작업 <a href="http://arstechnica.com/security/2014/08/blackphone-goes-to-def-con-and-gets-hacked-sort-of/">Blackphone goes to Def Con and gets hacked &ndash;sort of</a> 을 따라가보자.</p>
+
+<h4>Step 1: ADB 활성화</h4>
+
+<p>블랙폰은 ADB 접속이 disable 된 채로 판매되는데, apk 를 인스톨하고 실행해서 enable 시킨다. <code>com.android.settings.Settings$DevelopmentSettingsActivity</code> 을 인텐트로 보낸다.</p>
+
+<pre><code>public class MainActivity extends Activity
+{
+  protected void onCreate(Bundle paramBundle)
+  {
+    super.onCreate(paramBundle);
+    ComponentName localComponentName = new ComponentName("com.android.settings", "com.android.settings.Settings$DevelopmentSettingsActivity");
+    Intent localIntent = new Intent("android.intent.action.MAIN");
+    localIntent.setComponent(localComponentName);
+    startActivity(localIntent);
+    finish();
+  }
+}
+</code></pre>
+
+<h4>Step 2: system 권한 획득</h4>
+
+<p>이제 ADB 액세스를 얻었다. <code>remotewipe</code> app 이 system 으로 돌고 있고, debuggable 하다. jdb 를 붙여서 <code>system</code> 권한의 쉘을 떨어뜨렸다고 한다. How-to 는 saurik 의 글을 참조 (<a href="http://www.saurik.com/id/17">http://www.saurik.com/id/17</a>)</p>
+
+<pre><code>$ axml AndroidManifest.xml
+&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;manifest
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shareUserId="android.uid.system"
+    android:versionCode="6"
+    android:versionName="0.8.2"
+    package="com.karumi.blackphone.wipe"
+    &gt;
+
+&lt;application
+    ...
+    android:debuggable="true"
+    android:allowBackup="false"
+    &gt;
+</code></pre>
+
+<h4>Step 3: Privilege Escalation</h4>
+
+<p>(Justin Case 는) 아직 공개하지 않은 버그를 이용해 <code>system</code> -> <code>root</code> 으로 올렸다고 한다.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/08/06/intent-spoofing-on-android/">Intent Spoofing on Android</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-08-06T15:37:16+09:00'><span class='date'><span class='date-month'>Aug</span> <span class='date-day'>6</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>3:37 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><ul>
+<li><a href="http://pwntest.wordpress.com/2012/11/17/168935099/">FourGoats Vulnerabilities: Intent Spoofing</a></li>
+<li><a href="http://blog.palominolabs.com/2013/05/13/android-security/">Intent Spoofing on Android</a></li>
+<li><a href="http://www.slideshare.net/mrtompa/android-app-security-what-not-to-do/">Android App Security: What (not) to do!</a></li>
+</ul>
+
+
+<h4>Action</h4>
+
+<p>Intent spoofing 에 취약한 App 을 exploit 하는 것은 다음 코드와 같다. <code>startActivityForResult()</code> 로 인텐트를 날린다.</p>
+
+<pre><code>protected void onCreate(Bundle paramBundle)
+{
+    super.onCreate(paramBundle);
+    setContentView(2130903063);
+    Intent localIntent = new Intent();
+    localIntent.putExtra("galleryFlowID", 100);
+    localIntent.putExtra("carowner", "suzuki");
+    localIntent.putExtra("Intent_new_title", "Toyota");
+    localIntent.setComponent(new ComponentName("com.toyota.tconnect", "com.toyota.tconnect.RemoteStartPINActivity"));
+    startActivityForResult(localIntent, 0);
+}
+</code></pre>
+
+<h4>Intent spoofing</h4>
+
+<p>이런 취약점이 발생하는 이유는, 인텐트 receiver 를 정의할때, 퍼미션 세팅을 안했기때문.</p>
+
+<pre><code>&lt;receiver android:name="one.special.receiver"&gt;
+  &lt;intent-filter&gt;
+    &lt;action android:name="one.intent.action" /&gt;
+  &lt;/intent-filter&gt;
+&lt;/receiver&gt;
+</code></pre>
+
+<ul>
+<li>Public components and senders with weak permissions</li>
+<li>Malicious app sends Intent resulting in data injection or state change</li>
+</ul>
+
+
+<h4>Intent spoofing 방지</h4>
+
+<pre><code>&lt;receiver android:name="one.special.receiver" 
+            android:exported=false&gt;
+  &lt;intent-filter&gt;
+    &lt;action android:name="one.intent.action" /&gt;
+  &lt;/intent-filter&gt;
+&lt;/receiver&gt;
+
+&lt;receiver android:name="one.special.receiver" 
+            android:exported=false
+            android:permission="one.permission"&gt;
+  &lt;intent-filter&gt;
+    &lt;action android:name="one.intent.action" /&gt;
+  &lt;/intent-filter&gt;
+&lt;/receiver&gt;
+</code></pre>
+
+<h4>Unauthorized Intent Receipt</h4>
+
+<p>인텐트를 다음과 같이 보내면 안된다.</p>
+
+<pre><code>Intent intent = new Intent();
+intent.setAction("a.special.action");
+startActivity(intent);
+</code></pre>
+
+<ul>
+<li>Given a public Intent which doesn&rsquo;t require strong permission in the receiving component</li>
+<li>Intercepted by malicious app</li>
+<li>May leak sensitive data and/or change in control flow</li>
+</ul>
+
+
+<p>좋은 예</p>
+
+<pre><code>Intent fixedIntent = new Intent();
+fixedIntent.setClassName("pkg.name","pkg.name.DestinationName");
+
+Intent fixedIntent2 = new Intent();
+fixedIntent2.setAction("a.special.action");
+sendBroadcast(fixedIntent2, "a.special.permission");
+</code></pre>
+
+<p>위와 같이 보내는 것이 좋다.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  <div class="pagination">
+    
+      <a class="prev" href="/posts/12">&larr; Older</a>
+    
+    <a href="/blog/archives">Blog Archives</a>
+    
+    <a class="next" href="/posts/10">Newer &rarr;</a>
+    
+  </div>
+</div>
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/10/04/return-oriented-programming-for-the-arm-architecture/">Return Oriented Programming for the ARM Architecture</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/02/the-inside-story-behind-ms08-067/">The Inside Story Behind MS08-067</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/17/rop-and-arm/">ROP and ARM</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/13/sophail-applied-attacks-against-sophos-antivirus/">Sophail: Applied Attacks Against Sophos Antivirus</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/13/stagefright/">Stagefright</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - Your Name -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

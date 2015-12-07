@@ -1,0 +1,238 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Average Letter Frequencies for English-Language Text - My Octopress Blog</title>
+  <meta name="author" content="Your Name">
+
+  
+  <meta name="description" content="1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+table = { &#39;a&#39;: 8.2, &#39;b&#39;: 1.5, &#39;c&#39;: 2.8, &#39;d&#39;: 4.3, &#39;e&#39;: 12.7, &#39;f&#39;: 2.2, &# &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://yoursite.com/blog/2015/04/17/average-letter-frequencies-for-english-language-text/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="My Octopress Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">My Octopress Blog</a></h1>
+  
+    <h2>A blogging framework for hackers.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="yoursite.com">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Average Letter Frequencies for English-Language Text</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-04-17T09:43:11+09:00'><span class='date'><span class='date-month'>Apr</span> <span class='date-day'>17</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>9:43 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="n">table</span> <span class="o">=</span> <span class="p">{</span>   <span class="s">&#39;a&#39;</span><span class="p">:</span> <span class="mf">8.2</span><span class="p">,</span> <span class="s">&#39;b&#39;</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">,</span> <span class="s">&#39;c&#39;</span><span class="p">:</span> <span class="mf">2.8</span><span class="p">,</span> <span class="s">&#39;d&#39;</span><span class="p">:</span> <span class="mf">4.3</span><span class="p">,</span> <span class="s">&#39;e&#39;</span><span class="p">:</span> <span class="mf">12.7</span><span class="p">,</span> <span class="s">&#39;f&#39;</span><span class="p">:</span> <span class="mf">2.2</span><span class="p">,</span>
+</span><span class='line'>            <span class="s">&#39;g&#39;</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span> <span class="s">&#39;h&#39;</span><span class="p">:</span> <span class="mf">6.1</span><span class="p">,</span> <span class="s">&#39;i&#39;</span><span class="p">:</span> <span class="mf">7.0</span><span class="p">,</span> <span class="s">&#39;j&#39;</span><span class="p">:</span> <span class="mf">0.2</span><span class="p">,</span> <span class="s">&#39;k&#39;</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">,</span> <span class="s">&#39;l&#39;</span><span class="p">:</span> <span class="mf">4.0</span><span class="p">,</span>
+</span><span class='line'>            <span class="s">&#39;m&#39;</span><span class="p">:</span> <span class="mf">2.4</span><span class="p">,</span> <span class="s">&#39;n&#39;</span><span class="p">:</span> <span class="mf">6.7</span><span class="p">,</span> <span class="s">&#39;o&#39;</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">,</span> <span class="s">&#39;p&#39;</span><span class="p">:</span> <span class="mf">1.9</span><span class="p">,</span> <span class="s">&#39;q&#39;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span> <span class="s">&#39;r&#39;</span><span class="p">:</span> <span class="mf">6.0</span><span class="p">,</span>
+</span><span class='line'>            <span class="s">&#39;s&#39;</span><span class="p">:</span> <span class="mf">6.3</span><span class="p">,</span> <span class="s">&#39;t&#39;</span><span class="p">:</span> <span class="mf">9.1</span><span class="p">,</span> <span class="s">&#39;u&#39;</span><span class="p">:</span> <span class="mf">2.8</span><span class="p">,</span> <span class="s">&#39;v&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s">&#39;w&#39;</span><span class="p">:</span> <span class="mf">2.4</span><span class="p">,</span> <span class="s">&#39;x&#39;</span><span class="p">:</span> <span class="mf">0.2</span><span class="p">,</span>
+</span><span class='line'>            <span class="s">&#39;y&#39;</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span> <span class="s">&#39;z&#39;</span><span class="p">:</span> <span class="mf">0.1</span> <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&quot;__main__&quot;</span><span class="p">:</span>
+</span><span class='line'>    <span class="n">sq</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">table</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+</span><span class='line'>        <span class="n">f</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span><span class="o">/</span><span class="mi">100</span>
+</span><span class='line'>        <span class="n">sq</span> <span class="o">+=</span> <span class="n">f</span><span class="o">*</span><span class="n">f</span>
+</span><span class='line'>    <span class="k">print</span> <span class="n">sq</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>돌리면 <code>0.060251</code> 이 나온다.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Your Name</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2015-04-17T09:43:11+09:00'><span class='date'><span class='date-month'>Apr</span> <span class='date-day'>17</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>9:43 am</span></time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://yoursite.com/blog/2015/04/17/average-letter-frequencies-for-english-language-text/" data-via="" data-counturl="http://yoursite.com/blog/2015/04/17/average-letter-frequencies-for-english-language-text/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2015/04/16/ms15-034-http-dot-sys/" title="Previous Post: MS15-034 HTTP.sys">&laquo; MS15-034 HTTP.sys</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2015/04/22/vudo/" title="Next Post: Vudo">Vudo &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/10/04/return-oriented-programming-for-the-arm-architecture/">Return Oriented Programming for the ARM Architecture</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/02/the-inside-story-behind-ms08-067/">The Inside Story Behind MS08-067</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/17/rop-and-arm/">ROP and ARM</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/13/sophail-applied-attacks-against-sophos-antivirus/">Sophail: Applied Attacks Against Sophos Antivirus</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/13/stagefright/">Stagefright</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - Your Name -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

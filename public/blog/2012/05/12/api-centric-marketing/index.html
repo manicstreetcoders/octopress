@@ -1,0 +1,277 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>API-centric Marketing - My Octopress Blog</title>
+  <meta name="author" content="Your Name">
+
+  
+  <meta name="description" content="@andrewchen 은 Growth Hacker is the new VP Marketing 에서
+AirBnB 와 Craigslist 와의 연동에 대해서 이야기한다. 놀라운 점은 공개된 API 를 통해서 연동한 것이 아니라,
+웹을 스크레이핑하고 파싱하고, 폼을 대신 &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://yoursite.com/blog/2012/05/12/api-centric-marketing/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="My Octopress Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">My Octopress Blog</a></h1>
+  
+    <h2>A blogging framework for hackers.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="yoursite.com">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">API-centric Marketing</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2012-05-12T22:20:00+09:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>12</span><span class='date-suffix'>th</span>, <span class='date-year'>2012</span></span> <span class='time'>10:20 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>@andrewchen 은 <a href="http://andrewchenblog.com/2012/04/27/how-to-be-a-growth-hacker-an-airbnbcraigslist-case-study/">Growth Hacker is the new VP Marketing</a> 에서
+AirBnB 와 Craigslist 와의 연동에 대해서 이야기한다.</p>
+
+<p>놀라운 점은 공개된 API 를 통해서 연동한 것이 아니라,
+웹을 스크레이핑하고 파싱하고, 폼을 대신 채워넣고 하는 방식으로
+연동시킨것.</p>
+
+<p>연동한 기능은</p>
+
+<p><em>&ldquo;Airbnb 에 등록한 집을 Craigslist 에 쉽게 포스팅할 수 있게
+&lsquo;Post to Craigslist&rsquo; 메뉴를 제공하는 것&rdquo;</em></p>
+
+<p>인데,</p>
+
+<p>Craigslist 의 사용자 풀에서 사용자를 끌어올 수 있는
+좋은 수단이라고 이야기한다.</p>
+
+<p>기존의 마케터라면 이런 아이디어를 생각해내는 것은 차치하고,
+가능한지도 몰랐을 것. 마케팅 마인드의 엔지니어가 필요하다고 이야기한다.</p>
+
+<blockquote><p>Airbnb does just this, with a remarkable Craigslist integration.
+They&rsquo;ve picked a platform with 10s of millions of users where relatively
+few automated tools exist, and have created a great
+experience to share your Airbnb listing. It&rsquo;s integrated simple and deeply
+into the product, and is one of the most impressive ad-hoc integrations
+I&rsquo;ve seen in years. Certainly a traditional marketer would not have come up
+with this, or known it was even possible - instead it&rsquo;d take a
+marketing-minded engineer to dissect the product and build an integration
+this smooth.</p></blockquote>
+
+<p><br />
+뭔가 남이 해놓은 것을 리버스해서 구현하는 것은 쉽지만,
+이렇게 처음으로 만들어 내는 것은 정말 어려움.</p>
+
+<blockquote><p>The impressive part is that this is done with no public Craigslist API!
+It turns out, you have to look closely and carefully at Craigslist
+in order to accomplish an integration like this.
+Note that it&rsquo;s 100X easier for me to reverse engineer something that&rsquo;s
+already working versus coming up with the reference implementation -
+and for this reason, I&rsquo;m super impressed with this integration.</p></blockquote>
+
+<p><br />
+요즘에는 100M+ 이상의 유저를 가지고 있는 슈퍼 플랫폼들이 있기 때문에,
+API-centric 한 마케팅이 중요하다고 이야기한다.</p>
+
+<p>심지어 Airbnb 는 없는 API 도 만들어서 연동을 하는데.</p>
+
+<blockquote><p>The stakes are huge because of &ldquo;superplatforms&rdquo; giving access to 100M+
+consumers.</p>
+
+<p>&hellip;</p>
+
+<p>The fastest way to spread your product is by distributing it on a
+platform using APIs, not MBAs. Business development is now API-centric,
+not people-centric.</p></blockquote>
+
+<p><br />
+하지만 이 경우에는 공개된 API 가 아니었기 때문에 그 과정은 쉽지 않았을 것이라고 이야기한다.
+웹을 스크레이핑한다거나&hellip; 입력 폼을 미리 채워넣는다거나 하는 작업들이 필요했을 것.</p>
+
+<blockquote><p>The first thing you have to do is to look at how Craigslist allows users
+to post to the site.
+Without an API, you have to write a script that can scrape Craigslist and
+interact with its forms, to pre-fill all the information you want.</p></blockquote>
+
+<h2><br /></h2>
+
+<p><br /></p>
+
+<p>Quiz: YouTube 의 성공에 \&lt;EMBED> API 가 기여한 바는?</p>
+
+<ol>
+<li>크다.</li>
+<li>작다.</li>
+<li>없다.</li>
+</ol>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Your Name</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2012-05-12T22:20:00+09:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>12</span><span class='date-suffix'>th</span>, <span class='date-year'>2012</span></span> <span class='time'>10:20 pm</span></time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://yoursite.com/blog/2012/05/12/api-centric-marketing/" data-via="" data-counturl="http://yoursite.com/blog/2012/05/12/api-centric-marketing/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2012/05/12/hackers-who-sell-spies-the-tools-to-crack/" title="Previous Post: Hackers Who Sell Spies The Tools To Crack">&laquo; Hackers Who Sell Spies The Tools To Crack</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2012/05/13/confessions-of-a-tech-entrepreneur/" title="Next Post: Confessions of a Tech Entrepreneur">Confessions of a Tech Entrepreneur &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/10/04/return-oriented-programming-for-the-arm-architecture/">Return Oriented Programming for the ARM Architecture</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/02/the-inside-story-behind-ms08-067/">The Inside Story Behind MS08-067</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/17/rop-and-arm/">ROP and ARM</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/13/sophail-applied-attacks-against-sophos-antivirus/">Sophail: Applied Attacks Against Sophos Antivirus</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/13/stagefright/">Stagefright</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - Your Name -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

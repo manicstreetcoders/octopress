@@ -1,0 +1,267 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>RESTful JSON in Rails - My Octopress Blog</title>
+  <meta name="author" content="Your Name">
+
+  
+  <meta name="description" content="Building a platform API on rails
+If you&rsquo;re using to_json, you&rsquo;re doing it wrong way
+RailsCasts #322 RABL
+Rendering errors in json with &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://yoursite.com/blog/2012/10/18/restful-json-in-rails/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="My Octopress Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">My Octopress Blog</a></h1>
+  
+    <h2>A blogging framework for hackers.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="yoursite.com">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">RESTful JSON in Rails</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2012-10-18T10:10:00+09:00'><span class='date'><span class='date-month'>Oct</span> <span class='date-day'>18</span><span class='date-suffix'>th</span>, <span class='date-year'>2012</span></span> <span class='time'>10:10 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><ul>
+<li><a href="http://blog.gomiso.com/2011/06/27/building-a-platform-api-on-rails">Building a platform API on rails</a></li>
+<li><a href="http://engineering.gomiso.com/2011/05/16/if-youre-using-to_json-youre-doing-it-wrong">If you&rsquo;re using to_json, you&rsquo;re doing it wrong way</a></li>
+<li><a href="http://railscasts.com/episodes/322-rabl">RailsCasts #322 RABL</a></li>
+<li><a href="http://travisjeffery.com/b/2012/04/rendering-errors-in-json-with-rails">Rendering errors in json with rails</a></li>
+<li><a href="http://railscasts.com/episodes/350-rest-api/versioning">RailsCasts #350 REST API Versioning</a></li>
+</ul>
+
+
+<p>을 번역 정리 해본다.</p>
+
+<h3>Curl 로 JSON 서버를 Test 할 경우</h3>
+
+<p><code>curl -v -H "Accept: application/json" -H "Content-type: application/json" -X POST -d '[{"exam_id":1,"user":"GILDONG", "answer":1,"used_time":5.2 }]' http://localhost:3000/results</code></p>
+
+<ul>
+<li><code>-v</code> 로 verbose 세팅</li>
+<li><code>-X POST</code> 로 HTTP METHOD 를 <em>POST</em> 로 세팅</li>
+<li>그리고 <em>Accept:</em> 와 <em>Content-type:</em> 헤더를 <em>application/json</em> 으로 세팅</li>
+</ul>
+
+
+<h3>Handling Errors</h3>
+
+<p>RESTful JSON 을 Rails 로 구현할때 HTTP Status Code 를 깜빡하기 쉽다.</p>
+
+<pre><code>def create
+  @model = Model.create(params[:model])
+  if @model.save
+    render :json =&gt; @model
+  else
+    render :json =&gt; { :errors =&gt; @model.errors.full_messages }, :status =&gt; 422
+  end
+end
+</code></pre>
+
+<p>Error 시에 적절하게 HTTP Status Code 를 세팅하는 것. 예를 들어 <em>422 unprocessable entity</em> 로 세팅한다거나.</p>
+
+<p>full_messages 대신에 errors 오브젝트를 사용할수도 있어.</p>
+
+<pre><code>render :json =&gt; { :errors =&gt; @model.errors }
+</code></pre>
+
+<h3>Versioning REST API</h3>
+
+<h3>Securing API &amp; OAuth</h3>
+
+<h4>id:password 방식</h4>
+
+<p><a href="http://railscasts.com/episodes/352-securing-an-api?autoplay=true">Railscasts ep352: Securing an API</a> 를 보면</p>
+
+<p>기본적으로는 Rails controller 에</p>
+
+<pre><code>http_basic_authentication_with name: "dhh", password: "secret"
+</code></pre>
+
+<p>으로 하면 <code>curl http://localhost:3000/api/products</code> 로 하면 <code>401 Unauthorized</code>
+되고,
+<code>curl http://localhost:3000/api/products -u 'admin:secret'</code> 처럼 id:password 를 주면 된다.</p>
+
+<ul>
+<li><a href="http://www.thebuzzmedia.com/designing-a-secure-rest-api-without-oauth-authentication/">Designing a Secure REST API without OAuth</a></li>
+<li>Web API Design: Crafting Interfaces that Developers Love</li>
+<li><a href="https://github.com/ltbl/api.gae9.com">gae9 API</a></li>
+</ul>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Your Name</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2012-10-18T10:10:00+09:00'><span class='date'><span class='date-month'>Oct</span> <span class='date-day'>18</span><span class='date-suffix'>th</span>, <span class='date-year'>2012</span></span> <span class='time'>10:10 am</span></time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://yoursite.com/blog/2012/10/18/restful-json-in-rails/" data-via="" data-counturl="http://yoursite.com/blog/2012/10/18/restful-json-in-rails/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2012/10/14/what-is-the-new-keyword-in-javascript/" title="Previous Post: What is the 'new' keyword in JavaScript?">&laquo; What is the 'new' keyword in JavaScript?</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2012/10/18/pinboard-bookmarklets/" title="Next Post: Pinboard bookmarklets">Pinboard bookmarklets &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/10/04/return-oriented-programming-for-the-arm-architecture/">Return Oriented Programming for the ARM Architecture</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/02/the-inside-story-behind-ms08-067/">The Inside Story Behind MS08-067</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/17/rop-and-arm/">ROP and ARM</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/13/sophail-applied-attacks-against-sophos-antivirus/">Sophail: Applied Attacks Against Sophos Antivirus</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/13/stagefright/">Stagefright</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - Your Name -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

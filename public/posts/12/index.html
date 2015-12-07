@@ -1,0 +1,793 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>My Octopress Blog</title>
+  <meta name="author" content="Your Name">
+
+  
+  <meta name="description" content="Mac의 경우 brew install qemu 로 qumu 가상 머신을 설치. qemu-system-i386 사용.
+debian 기반 linux 이미지 https://people.debian.org/~aurel32/qemu/i386/ &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://yoursite.com/posts/12/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="My Octopress Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">My Octopress Blog</a></h1>
+  
+    <h2>A blogging framework for hackers.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="yoursite.com">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div class="blog-index">
+  
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/08/06/linux-vm-with-qemu/">Linux VM With QEMU</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-08-06T14:54:22+09:00'><span class='date'><span class='date-month'>Aug</span> <span class='date-day'>6</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>2:54 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><ol>
+<li><p>Mac의 경우 brew install qemu 로 qumu 가상 머신을 설치. qemu-system-i386 사용.</p></li>
+<li><p>debian 기반 linux 이미지 <a href="https://people.debian.org/~aurel32/qemu/i386/debian_wheezy_i386_standard.qcow2">https://people.debian.org/~aurel32/qemu/i386/debian_wheezy_i386_standard.qcow2</a> (root 패스워드가 &ldquo;root&rdquo;)</p></li>
+<li><p>가상머신을 start.</p>
+
+<p> $ qemu-system-i386 -hda debian_wheezy_i386_standard.qcow2</p></li>
+<li><p>하이버네이션을 위해서 debian 내에 power manager 패키지를 설치.</p>
+
+<p> # apt-get install pm-utils</p></li>
+<li><p>Hibernate.</p>
+
+<p> # pm-hibernate</p></li>
+</ol>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/07/22/how-to-build-cyanogenmod-android-for-htc-one-m8/">How to Build CyanogenMod Android for HTC One (M8)</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-07-22T15:55:59+09:00'><span class='date'><span class='date-month'>Jul</span> <span class='date-day'>22</span><span class='date-suffix'>nd</span>, <span class='date-year'>2014</span></span> <span class='time'>3:55 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><a href="http://wiki.cyanogenmod.org/w/Build_for_m8">How To Build CyanogenMod Android for HTC One (M8)</a></p>
+
+<p>HTC One M8 에 올릴 CyanogenMod 를 빌드하였다. 빌드 머신은 Ubuntu 14.04.1 LTS 64 bit.</p>
+
+<p>중간에 ./extract-files.sh 에서 에러가 난 것 빼고는 순조롭게 마쳤다.
+중간에 2 개의 shared object 가 없다고 중단이 되었는데, www.xda-developers.com 에서 답을 찾았다.</p>
+
+<ul>
+<li><a href="http://forum.xda-developers.com/htc-one-m8/help/missing-files-exctract-files-sh-cm-t2814905">Q: Missing files in ./exctract-files.sh (sic) from CM</a></li>
+<li><a href="https://github.com/TheMuppets/proprietary_vendor_htc/tree/cm-11.0/m8/proprietary">TheMuppets/proprietary_vendor_htc</a>
+에서 다운받았다.</li>
+</ul>
+
+
+<p>노트북에서 VM 으로 빌드해서 그런지 하룻밤 걸렸다.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/07/22/ios-nsuserdefaults/">iOS NSUserDefaults</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-07-22T15:52:34+09:00'><span class='date'><span class='date-month'>Jul</span> <span class='date-day'>22</span><span class='date-suffix'>nd</span>, <span class='date-year'>2014</span></span> <span class='time'>3:52 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><a href="http://resources.infosecinstitute.com/ios-application-security-part-20-local-data-storage-nsuserdefaults-coredata-sqlite-plist-files/">iOS Application Security Part 20 – Local Data Storage (NSUserDefaults, CoreData, Sqlite, Plist files)</a></p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/07/21/intercepting-and-decrypting-ssl-communications-between-android-phone-and-3rd-party-server/">Intercepting and Decrypting SSL Communications Between Android Phone and 3rd Party Server</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-07-21T12:39:58+09:00'><span class='date'><span class='date-month'>Jul</span> <span class='date-day'>21</span><span class='date-suffix'>st</span>, <span class='date-year'>2014</span></span> <span class='time'>12:39 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>안드로이드 HTTPS 트래픽 디버깅 하는 방법은 <a href="http://www.myhowto.org/java/81-intercepting-and-decrypting-ssl-communications-between-android-phone-and-3rd-party-server/">Intercepting and decrypting SSL communications between Android phone and 3rd party server</a> 을 참조한다.</p>
+
+<p>안드로이드에 임의의 CA certificate 을 system 으로 인스톨하는 방법은 <a href="http://wiki.pcprobleemloos.nl/android/cacert">Installing CAcert certificates on Android as &lsquo;system&rsquo; credentials without lockscreen - instructions</a> 을 참조한다.</p>
+
+<p>DigitalOcean 에서 <a href="https://www.digitalocean.com/community/tutorials/how-to-setup-your-own-vpn-with-pptp">How To Setup Your Own VPN With PPTP</a> 를 참조해 VPN 서버를 설치한다.</p>
+
+<p>전체적으로는 <a href="https://github.com/blukat29/blukat-config/issues/4">blukat29/PPTP VPN Server</a> 를 참조한다.</p>
+
+<pre><code>$ echo 1 &gt; /proc/sys/net/ipv4/ip_forward
+$ iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+$ iptables -t nat -A PREROUTING -i ppp0 -p tcp --dport 443 -j REDIRECT --to-port 4443
+
+# Generate CA key
+$ openssl genrsa -des3 -out ca.key 4096
+
+# Generate CA cert
+$ openssl req -new -x509 -days 365 -key ca.key -out ca.crt
+
+# Generate server key
+$ openssl genrsa -des3 -out server.key 4096
+
+# Generate server cert signing request
+$ openssl req -new -key server.key -out server.csr
+
+# Sign server's cert using CA's key
+$ openssl x509 -req -days 365 -in server.csr -CA ca.crt -CAkey ca.key -set_serial 01 -out server.crt
+
+# Get the hash of the ca.crt certificate:
+$ openssl x509 -inform PEM -subject_hash_old -in ca.crt | head -1  
+5ed36f99
+$ mount -o remount,rw /system
+$ cp /data/local/tmp/5ed36f99.0 /system/etc/security/cacerts/
+$ chmod 644 /system/etc/security/cacerts/*
+
+$ cat go.sh
+socat -v OPENSSL-LISTEN:4443,reuseaddr,verify=0,cert=./server.crt,key=./server.key,cafile=./ca.crt,debug,fork EXEC:./babo.sh
+$ cat babo.sh
+openssl s_client -CAfile /etc/ssl/certs/ca-certificates.crt -quiet -connect api.babo.com:443
+$ go.sh
+
+ext% /usr/libexec/java_home
+/Library/Java/JavaVirtualMachines/jdk1.7.0_25.jdk/Contents/Home
+</code></pre>
+
+<ul>
+<li>OpenSSL</li>
+<li>SoCat (<a href="http://www.dest-unreach.org/socat">http://www.dest-unreach.org/socat</a>)</li>
+<li>Bouncy Castle library (<a href="http://bouncycastle.org/download/bcprov-jdk16-141.jar">http://bouncycastle.org/download/bcprov-jdk16-141.jar</a>) - place this JAR file into your &hellip;/jre/lib/ext directory</li>
+<li>Charles Proxy</li>
+<li><a href="http://mitmproxy.org">MITMProxy</a></li>
+<li><code>emulator -avd [name of the avd] -http-proxy 127.0.0.1:8080</code></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/07/14/sms-pdu/">SMS PDU</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-07-14T12:09:41+09:00'><span class='date'><span class='date-month'>Jul</span> <span class='date-day'>14</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>12:09 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h3>Terminology</h3>
+
+<ul>
+<li>IMSI: Internation Mobile Subscriber Identity</li>
+<li>MIN: Mobile Identify Number</li>
+<li>MDN: Mobile Directory Number</li>
+</ul>
+
+
+<p>MIN 은 원래 북미의 이동전화 단말기를 식별하기 위한 것이었는데,
+10 자리 MIN 이 국제 로밍을 위한 정보를 포함할 수 없어서
+IMSI 가 만들어짐.
+GSM 에서는 IMSI 를 사용. MCC + MNC + MSIN = IMSI.</p>
+
+<ul>
+<li>MCC: Mobile Country Code. 3 자리. ITU(TSB) 에서 할당.</li>
+<li>MNC: Mobile Network Code. 2~3 자리.</li>
+<li>MSIN: Mobile Subscriber Identification Number.</li>
+</ul>
+
+
+<p>MCC + MNC 로 이동전화 가입자의 홈 네트웍을 전 세계 어느 망에서든지 유일하게 식별 가능하다.</p>
+
+<ul>
+<li>MSISDN: Mobile Station International ISDN Number. GSM 표준에서 IS-41 표준의 MDN 역할을 한다.</li>
+</ul>
+
+
+<h3>3gpp PDU Format</h3>
+
+<h3>Resources</h3>
+
+<ul>
+<li><a href="http://dragonheart.tistory.com/4">너른공간</a></li>
+<li><a href="http://knight76.tistory.com/entry/%ED%86%B5%EC%8B%A0-%EC%9A%A9%EC%96%B4-min-mdn">통신 용어 - min, mdn, imsi, imei, msisdn</a></li>
+<li><a href="http://www.qtc.jp/3GPP/Specs/23040-681.pdf">3gpp SMS spec</a></li>
+<li><a href="http://www.3gpp2.org/public_html/specs/N.S0005-0_v1.0.pdf">3gpp Cellular Radiotelecommunications Intersystem Operations</a></li>
+<li><a href="https://www.blackhat.com/presentations/bh-usa-09/MILLER/BHUSA09-Miller-FuzzingPhone-PAPER.pdf">Charlie Miller&rsquo;s Fuzzing the Phone in your Phone</a></li>
+<li><a href="https://www.usenix.org/legacy/event/woot09/tech/full_papers/mulliner.pdf">Injecting SMS Messages into Smart Phones for Security Analysis</a></li>
+<li><a href="http://m2msupport.net/m2msupport/verizon-wireless-m2m-modules-certification/">Verizon M2M</a></li>
+<li><a href="http://www.smartposition.nl/resources/sms_pdu.html#PDU">SMS PDU Format</a></li>
+<li><a href="http://stackoverflow.com/questions/11182650/cdma-pdu-parsing-on-android">CDMA PDU parsing on Android</a></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/06/23/beast-attack/">BEAST Attack</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-06-23T18:29:07+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>23</span><span class='date-suffix'>rd</span>, <span class='date-year'>2014</span></span> <span class='time'>6:29 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><a href="http://crypto.stackexchange.com/questions/1078/how-can-cipher-block-chaining-cbc-in-ssl-be-attacked">How can Cipher Block Chaining (CBC) in SSL be attacked?</a></p>
+
+<ul>
+<li><a href="https://www.isecpartners.com/media/106031/ssl_attacks_survey.pdf">Attacks on SSL: A Comprehensive Study of BEAST, CRIME, TIME, BREACH, LUCKY 13 &amp; RC4 Biases</a></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/06/23/openssl-changecipherspec-vulnerability-cve-2014-0224/">OpenSSL: ChangeCipherSpec Vulnerability (CVE-2014-0224)</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-06-23T09:23:27+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>23</span><span class='date-suffix'>rd</span>, <span class='date-year'>2014</span></span> <span class='time'>9:23 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h4>Original Post</h4>
+
+<p>Original post 는 다음과 같다. 발견자는 Masashi Kikuchi 씨.</p>
+
+<p><a href="http://ccsinjection.lepidum.co.jp/blog/2014-06-05/CCS-Injection-en/index.html">How I discovered CCS Injection Vulnerability (CVE-2014-0224)</a></p>
+
+<p>ChangeCipherSpec 이라는 메시지는 정해진 스텝에서만 주고받아야 하는데, 서버가 막 받아주는 것이 문제.</p>
+
+<p>ChangeCipherSepc 은 무얼까? 세션키에 기반한 symmetric encryption 모드로 전환하자는 신호. Pre-master secret 을 교환하고나서 이제 session key 를 계산해서 symmetric encryption 모드로 가자! 라는 신호. 기술적으로는 1 바이트 메시지. 페이로드는 0x01.</p>
+
+<pre><code>In a correct handshake, the client and the server exchange messages 
+in the order as depicted in this figure. 
+(See RFC5246 The Transport Layer Security (TLS) Protocol Version 1.2 §7.3)。
+
+ChangeCipherSpec MUST be sent at these positions in the handshake. 
+OpenSSL sends CCS in exact timing itself. 
+However, it accepts CCS at other timings when receiving. 
+Attackers can exploit this behavior so that they can decrypt and/or 
+modify data in the communication channel.
+</code></pre>
+
+<p>Full handshake 의 예를 들면, ClientHello, ServerHello, ClientKeyExchange 가 되고, ChangeCipherSpec 이 들어가야한다.</p>
+
+<p>발견자에 따르면, TLS IETF draft 에 있는 다음 문장이 취약점을 만든 이유라고.</p>
+
+<pre><code>Note:          To help avoid pipeline stalls, ChangeCipherSpec is
+               an independent SSL Protocol content type, and is not
+               actually an SSL handshake message.
+</code></pre>
+
+<p>handshake message 타입이 아니라 독립적인 프로토콜 타입으로 되어있는데, 그 이유는</p>
+
+<p><a href="http://security.stackexchange.com/questions/24755/why-is-change-cipher-spec-an-independent-protocol-content-type-and-not-part-of-h">Why is change cipher spec an independent protocol content type and not part of Handshake Messages?</a></p>
+
+<h4>PoC</h4>
+
+<p><a href="https://github.com/rapid7/metasploit-framework/blob/master/modules/auxiliary/scanner/ssl/openssl_ccs.rb">Metasploit openssl_ccs.rb module</a> 을 보면,</p>
+
+<p><code>Client_Hello</code> 를 보내고, <code>Server_Hello</code> 를 받아준 다음에 바로 CCS (0x01) 을 보낸다. 만약 Alert 이 뜨지 않으면 vulnerable 하다고 본다.</p>
+
+<pre><code>def ccs_injection
+  connect_result = establish_connect
+  return if connect_result.nil?
+
+  vprint_status("#{peer} - Sending CCS...")
+  sock.put(ccs)
+  alert = sock.get_once(-1, response_timeout)
+  if alert.blank?
+    print_good("#{peer} - No alert after invalid CSS message, probably vulnerable")
+    report
+  elsif alert.unpack("C").first == ALERT_RECORD_TYPE
+    vprint_error("#{peer} - Alert record as response to the invalid CCS Message, probably not vulnerable")
+  elsif alert
+    vprint_warning("#{peer} - Unexpected response.")
+  end
+end
+
+def establish_connect
+  connect
+
+  vprint_status("#{peer} - Sending Client Hello...")
+  sock.put(client_hello)
+  server_hello = sock.get(response_timeout)
+
+  unless server_hello
+    vprint_error("#{peer} - No Server Hello after #{response_timeout} seconds...")
+    disconnect
+    return nil
+  end
+
+  unless server_hello.unpack("C").first == HANDSHAKE_RECORD_TYPE
+    vprint_error("#{peer} - Server Hello Not Found")
+    return nil
+  end
+
+  true
+end
+</code></pre>
+
+<h4>Code</h4>
+
+<p>실제 코드를 분석한 블로그를 보면</p>
+
+<p><a href="https://www.imperialviolet.org/2014/06/05/earlyccs.html">Early ChangeCipherSpec Attack (05 Jun 2014)</a></p>
+
+<p>ServerHello 이후에 CCS 가 inject 되면, 취약한 키가 생성되는게 핵심.
+추후에 CCS 가 더 inject 되더라도 한번 생성된 키는 고정되버리는 것도 문제.</p>
+
+<pre><code>If a ChangeCipherSpec message is injected into the connection after the ServerHello, 
+but before the master secret has been generated, 
+then ssl3_do_change_cipher_spec will generate the keys (2) and 
+the expected Finished hash (3) for the handshake with an empty master secret. 
+This means that both are based only on public information. 
+Additionally, the keys will be latched because of the check at (1) - 
+further ChangeCipherSpec messages will regenerate the expected Finished hash, but not the keys.
+</code></pre>
+
+<p>코드를 보면,</p>
+
+<pre><code>int ssl3_do_change_cipher_spec(SSL *s)
+        {
+        int i;
+        const char *sender;
+        int slen;
+
+        if (s-&gt;state &amp; SSL_ST_ACCEPT)
+                i=SSL3_CHANGE_CIPHER_SERVER_READ;
+        else
+                i=SSL3_CHANGE_CIPHER_CLIENT_READ;
+
+        if (s-&gt;s3-&gt;tmp.key_block == NULL) &lt;---- 1
+                {
+                if (s-&gt;session == NULL)
+                        {
+                        /* might happen if dtls1_read_bytes() calls this */
+                        SSLerr(SSL_F_SSL3_DO_CHANGE_CIPHER_SPEC,SSL_R_CCS_RECEIVED_EARLY);
+                        return (0);
+                        }
+
+                s-&gt;session-&gt;cipher=s-&gt;s3-&gt;tmp.new_cipher;
+                if (!s-&gt;method-&gt;ssl3_enc-&gt;setup_key_block(s)) return(0); &lt;---- 2
+                }
+
+        if (!s-&gt;method-&gt;ssl3_enc-&gt;change_cipher_state(s,i))
+                return(0);
+
+        /* we have to record the message digest at
+         * this point so we can get it before we read
+         * the finished message */
+        if (s-&gt;state &amp; SSL_ST_CONNECT)
+                {
+                sender=s-&gt;method-&gt;ssl3_enc-&gt;server_finished_label;
+                slen=s-&gt;method-&gt;ssl3_enc-&gt;server_finished_label_len;
+                }
+        else
+                {
+                sender=s-&gt;method-&gt;ssl3_enc-&gt;client_finished_label;
+                slen=s-&gt;method-&gt;ssl3_enc-&gt;client_finished_label_len;
+                }
+
+        i = s-&gt;method-&gt;ssl3_enc-&gt;final_finish_mac(s,
+                sender,slen,s-&gt;s3-&gt;tmp.peer_finish_md); &lt;---- 3
+        if (i == 0)
+                {
+                SSLerr(SSL_F_SSL3_DO_CHANGE_CIPHER_SPEC, ERR_R_INTERNAL_ERROR);
+                return 0;
+                }
+        s-&gt;s3-&gt;tmp.peer_finish_md_len = i;
+
+        return(1);
+        }
+</code></pre>
+
+<h4>MitM</h4>
+
+<p>이 버그를 가지고 Man-in-the-Middle 을 하는 시나리오를 생각해보자.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/06/20/ssl-strip/">SSL Strip</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-06-20T11:57:47+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>20</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>11:57 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><ul>
+<li><a href="https://www.blackhat.com/presentations/bh-dc-09/Marlinspike/BlackHat-DC-09-Marlinspike-Defeating-SSL.pdf">New Tricks for Defeating SSL in Practice - Black Hat 2009</a></li>
+<li><a href="https://www.blackhat.com/presentations/bh-usa-09/MARLINSPIKE/BHUSA09-Marlinspike-DefeatSSL-SLIDES.pdf">More Tricks for Defeating SSL in Pracetice - Black Hat</a></li>
+<li><a href="http://www.youtube.com/watch?v=Z7Wl2FW2TcA">SSL and the Future of Authenticity</a></li>
+<li><a href="http://www.thoughtcrime.org/blog/">Moxie Marlinspike&rsquo;s Blog</a></li>
+</ul>
+
+
+<p>BlackHat USA 2011 에 발표되었던 <a href="http://www.youtube.com/watch?v=Z7Wl2FW2TcA">SSL And The Future of Authenticity</a> 를 보았다.</p>
+
+<p>Comodo 해킹 이슈를 예로 들면서 현재 인터넷에서 쓰이는 PKI 가 맛이 갔음을 이야기한다.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/06/20/recent-openssl-vulnerabilities/">Recent OpenSSL Vulnerabilities</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-06-20T10:36:24+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>20</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>10:36 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h4><a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-0224">CVE-2014-0224 a.k.a ChangeCipherSpec</a></h4>
+
+<p>OpenSSL before 0.9.8za, 1.0.0 before 1.0.0m, and 1.0.1 before 1.0.1h does not properly restrict processing of ChangeCipherSpec messages, which allows man-in-the-middle attackers to trigger use of a zero-length master key in certain OpenSSL-to-OpenSSL communications, and consequently hijack sessions or obtain sensitive information, via a crafted TLS handshake, aka the &ldquo;CCS Injection&rdquo; vulnerability.</p>
+
+<ul>
+<li><a href="http://ccsinjection.lepidum.co.jp/blog/2014-06-05/CCS-Injection-en/index.html">How I discovered CCS Injection Vulnerability (CVE-2014-0224)</a></li>
+<li><a href="https://gist.github.com/rcvalle/71f4b027d61a78c42607">ccsinjection.c</a></li>
+<li><a href="https://gist.github.com/rcvalle/585e12e4d5d3b658cd3d">ccsinjection_server.c</a></li>
+</ul>
+
+
+<h4><a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-0221">CVE-2014-0221</a></h4>
+
+<p>The dtls1_get_message_fragment function in d1_both.c in OpenSSL before 0.9.8za, 1.0.0 before 1.0.0m, and 1.0.1 before 1.0.1h allows remote attackers to cause a denial of service (recursion and client crash) via a DTLS hello message in an invalid DTLS handshake.</p>
+
+<h4><a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-0195">CVE-2014-0195</a></h4>
+
+<p>The dtls1_reassemble_fragment function in d1_both.c in OpenSSL before 0.9.8za, 1.0.0 before 1.0.0m, and 1.0.1 before 1.0.1h does not properly validate fragment lengths in DTLS ClientHello messages, which allows remote attackers to execute arbitrary code or cause a denial of service (buffer overflow and application crash) via a long non-initial fragment.</p>
+
+<ul>
+<li><a href="http://h30499.www3.hp.com/t5/HP-Security-Research-Blog/ZDI-14-173-CVE-2014-0195-OpenSSL-DTLS-Fragment-Out-of-Bounds/ba-p/6501002#.U5ER15SSyYl">ZDI-14-173/CVE-2014-0195 - OpenSSL DTLS Fragment Out-of-Bounds Write: Breaking up is hard to do</a></li>
+</ul>
+
+
+<h4><a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-0160">CVE-2014-0160 a.k.a HeartBleed</a></h4>
+
+<p>The (1) TLS and (2) DTLS implementations in OpenSSL 1.0.1 before 1.0.1g do not properly handle Heartbeat Extension packets, which allows remote attackers to obtain sensitive information from process memory via crafted packets that trigger a buffer over-read, as demonstrated by reading private keys, related to d1_both.c and t1_lib.c, aka the Heartbleed bug.</p>
+
+<ul>
+<li><a href="http://heartbleed.com/">HeartBleed.com</a></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/06/20/decrypting-ios-apps/">Decrypting iOS Apps</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-06-20T10:22:20+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>20</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>10:22 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><a href="http://www.infointox.net/?p=114">Decrypting iOS Apps</a></p>
+
+<p>evasi0n 으로 iPod 를 Jailbreak 했다.</p>
+
+<p>openssh 패키지를 설치하고, <code>ssh root@XXX.XXX.XXX.XXX</code> 로 접속했다.
+그리고, <code>root</code> 와 <code>mobile</code> 의 password 를 세팅하였다.</p>
+
+<h4>Extract the application</h4>
+
+<p><code>/private/var/mobile/Applications/</code> 에서 타겟을 담고 있는 디렉토리를 찾았다.</p>
+
+<p><code>/private/var/mobile/Application/D411A4CE-B33E-4EFE-9041-E356718123EE/OM1X.app/OM1X</code> 가 찾는 바이너리.</p>
+
+<p>scp 로 OM1X 를 가져온다.</p>
+
+<pre><code># otool -arch all -Vh OM1X
+OM1X:
+Mach header
+      magic cputype cpusubtype  caps    filetype ncmds sizeofcmds      flags
+   MH_MAGIC     ARM          9  0x00     EXECUTE    33       4056   NOUNDEFS DYLDLINK TWOLEVEL BINDS_TO_WEAK PIE
+</code></pre>
+
+<h4>Find encrypted area</h4>
+
+<p>이제 암호화된 부분을 찾아야 한다.</p>
+
+<pre><code># otool -arch all -Vl TM1G | grep -A5 LC_ENCRYP
+          cmd LC_ENCRYPTION_INFO
+      cmdsize 20
+ cryptoff  16384
+ cryptsize 819200
+ cryptid   1
+Load command 12
+</code></pre>
+</div>
+  
+  
+
+
+    </article>
+  
+  <div class="pagination">
+    
+      <a class="prev" href="/posts/13">&larr; Older</a>
+    
+    <a href="/blog/archives">Blog Archives</a>
+    
+    <a class="next" href="/posts/11">Newer &rarr;</a>
+    
+  </div>
+</div>
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/10/04/return-oriented-programming-for-the-arm-architecture/">Return Oriented Programming for the ARM Architecture</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/02/the-inside-story-behind-ms08-067/">The Inside Story Behind MS08-067</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/17/rop-and-arm/">ROP and ARM</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/13/sophail-applied-attacks-against-sophos-antivirus/">Sophail: Applied Attacks Against Sophos Antivirus</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/13/stagefright/">Stagefright</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - Your Name -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

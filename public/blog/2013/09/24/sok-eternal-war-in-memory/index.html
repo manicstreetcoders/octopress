@@ -1,0 +1,401 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>SoK: Eternal War in Memory - My Octopress Blog</title>
+  <meta name="author" content="Your Name">
+
+  
+  <meta name="description" content="Browser fingerprinting, JavaScript obfuscation, IE exploit PoC 들은 어느정도 파악되었으니,
+Windows system programming 쪽으로 이동한다. 최종 목표는 DbD 와 APT 를 수행할 수 있는
+툴셋 확보 &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://yoursite.com/blog/2013/09/24/sok-eternal-war-in-memory/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="My Octopress Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">My Octopress Blog</a></h1>
+  
+    <h2>A blogging framework for hackers.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="yoursite.com">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">SoK: Eternal War in Memory</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-09-24T17:54:00+09:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>24</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>5:54 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>Browser fingerprinting, JavaScript obfuscation, IE exploit PoC 들은 어느정도 파악되었으니,
+Windows system programming 쪽으로 이동한다. 최종 목표는 DbD 와 APT 를 수행할 수 있는
+툴셋 확보.</p>
+
+<p>다음 단계 일들은 API Hooking, DLL Injection 분야.</p>
+
+<p>그 전에 메모리 관련 exploit 의 역사를 정리해보기로 하였다.</p>
+
+<p>정리가 잘 되어 있는 SoK: Eternal War in Memory 라는 논문을 시작점 삼아 진행한다.</p>
+
+<ul>
+<li>James P. Anderson. Computer Security Technology Planning Study, 1972</li>
+<li>AlephOne, Phrack article &ldquo;Smashing the Stack for Fun and Profit&rdquo;</li>
+<li>return-into-libc</li>
+<li>advanced return-into-libc</li>
+<li>jump oriented programming</li>
+<li>return oriented programming</li>
+<li>integer overflow</li>
+<li>use-after-free</li>
+<li>heap overflow</li>
+<li>vtable</li>
+<li>heap spraying</li>
+<li>stack protection</li>
+<li>heap protection</li>
+<li>SafeSEH</li>
+<li>DEP</li>
+<li>ASLR</li>
+</ul>
+
+
+<p>등을 다뤄보겠다.</p>
+
+<p>메모리 공격에 관한 중요한 마일스톤을 적어놓은 <a href="http://zynamics.files.wordpress.com/2010/02/code_reuse_timeline1.png">타임라인</a>을 보면 창과 방패의 공방이 이해가 빠를 것.
+(1972 년에 미정부가 진행한 연구 &ldquo;Computer Security Technology Planning Study&rdquo; 에 buffer overflow 공격에 대해 기술되어 있다는 점이 흥미롭다.)</p>
+
+<h3>Smashing the Stack</h3>
+
+<p>TBD</p>
+
+<h3>W-xor-X a.k.a Data Execution Prevention</h3>
+
+<p>TBD</p>
+
+<h3>return-into-libc</h3>
+
+<p><code>W^X</code> 를 피해가기 위해, <a href="http://seclists.org/bugtraq/1997/Aug/63">return-into-libc</a> 가 개발되었다.</p>
+
+<p><code>W^X</code> 때문에, writable 한 buffer 에 i.e. system(&ldquo;/bin/sh&rdquo;) 과 같은 코드를 집어넣고 수행시키는 것이
+불가능해졌다. 메모리에 shellcode instruction 을 집어넣을 수 있다 하더라도,
+CPU 가 수행을 안해버리니 난감한 상황이 벌어진 것.</p>
+
+<p>이에 대항하여 return-into-libc 라는 기법이 Solar Designer 에 의해 제시되었다.</p>
+
+<p>return-into-libc 는 excutable 하다고 마킹된 기존의 코드를 재활용하는 컨셉이다.</p>
+
+<p>메모리에 로드되는 libc 코드에서 system() 의 위치와 &ldquo;/bin/sh&rdquo; 의 위치를 찾을 수 있고,
+stack frame 을 overwrite 할 수 있다면, 다음과 같이 stack frame 을 overwrite 해서,
+shellcode 를 제공하지 않고도 exploit 을 성공시킬 수 있다.</p>
+
+<pre><code>[ pointer to "/bin/sh" ]
+[ dummy_ret_address    ]
+[ pointer to system()  ] &lt;- this int32 should overwrite return address of a vulnerable function
+</code></pre>
+
+<h3>The advanced return-into-libc</h3>
+
+<p>여러개의 함수를 호출해야 하는 경우를 위해 <a href="http://www.phrack.com/issues.html?issue=58&amp;id=4">고도화된 버전</a>이 제시되었다.</p>
+
+<h4>&ldquo;esp lifting&rdquo; 기법</h4>
+
+<p><code>-fomit-frame-pointer</code> 로 컴파일된 바이너리를 공격하기 위해 개발된 기법이다.
+이 경우 함수의 return 부분이 다음과 같이 생성되는데,</p>
+
+<pre><code>eplg:
+        addl $LOCAL_VARS_SIZE,%esp
+        ret
+</code></pre>
+
+<p>이제 아래와 같이 stack frame 을 overwrite 할 수 있다면, 2 개의 함수를 호출하는 것이
+가능하다.</p>
+
+<pre><code>[ pointer to "/bin/sh" ]
+[ dummy_ret_address    ]
+[ pointer to system()  ]
+[ PAD                  ]
+[ 0                    ]
+[ pointer to eplg      ]
+[ pointer to setuid()  ] &lt;- this int32 should overwrite return address of a vulnerable function
+</code></pre>
+
+<p>취약점을 가지고 있는 함수가 ret 하면 setuid() 로 뛰게 되고 setuid(0) 가 수행되며,
+setuid() 는 eplg 로 return 하게 된다.</p>
+
+<p>eplg 는 addl $LOCAL_VARS_SIZE,%esp 로 [ 0 ] 과 [ PAD ] 를 날리고, system() 으로 ret 하게 된다.
+system() 은 &ldquo;/bin/sh&rdquo; 을 arg 로 받아 수행하게 된다.</p>
+
+<h4>pop+ret method</h4>
+
+<p>address space 에서 pop+ret 인스트럭션이 있는 주소를 찾아서,</p>
+
+<pre><code>pop-ret:
+        popl any_reg
+        ret
+</code></pre>
+
+<p>다음과 같이 stack frame 을 overwrite 한다.</p>
+
+<pre><code>[ pointer to "/bin/sh" ] &lt;- arg1 for system()
+[ dummy_ret_address    ] &lt;- ret address for system(). doesn't matter in this stage.
+[ pointer to system()  ] &lt;- supply ret address for pop+ret
+[ 0                    ] &lt;- arg1 for setuid(). will be pop'ed by pop+ret
+[ pointer to pop+ret   ] &lt;- supply ret address for setuid()
+[ pointer to setuid()  ] &lt;- this int32 should overwrite return address of a vulnerable function
+</code></pre>
+
+<p>취약점을 가지고 있는 함수가 ret 하면 setuid(0) 로 튀게 된다.
+그리고 setuid(0) 가 끝나면 pop-ret 인스트럭션이 있는 주소로 튀게 된다.
+pop-ret 은 [ 0 ] 을 날리고, system() 으로 튀게 된다.</p>
+
+<p>만약 setuid() 가 아니라 argument 를 2 개 먹는 함수를 호출해야 한다면,</p>
+
+<pre><code>pop-ret2:
+        popl any_reg
+        popl any_reg
+        ret
+</code></pre>
+
+<p>이런 인스트럭션의 조합을 어드레스 스페이스에서 찾아서 그 주소를 사용해야 한다.</p>
+
+<h3>Return Oriented Programming</h3>
+
+<p>Multiple functions 을 수행하는 지경까지 가니까, 굳이 function 단위로 수행할 필요가 있겠는가?
+인스트럭션을 여기저기서 모아서 짜깁기해서 돌려보자&hellip; 로 발전한 것은 어찌보면 당연하다 하겠다.</p>
+
+<p>ROP 란 ret 으로 끝나는 인스트럭션 셋 (gadget 이라 칭함) 들을 여기저기서 모아서 조립하는 식이다.</p>
+
+<pre><code>684a0f4e:
+    pop eax
+    ret
+
+684a2367:
+    pop ecx
+    ret
+
+684a123a:
+    mov [ecx],eax
+    ret
+</code></pre>
+
+<p>란 instruction set 들을 모아서 스택에서 조립한다.</p>
+
+<pre><code>[0x684a123a] &lt;- mov [ecx],eax
+[0x684a2367] &lt;- pop ecx
+[0x684a0f4e] &lt;- pop eax
+</code></pre>
+
+<p>로 스택을 조립하면, pop eax 를 하고 ret 해서 pop ecx 로 튀고, 다음에는 mov[ecx],eax 로 튀는 식이다.</p>
+
+<p>이런 다양한 gadget 들을 exploit 하려는 process 의 어드레스 스페이스에서 찾아낼 수 있다면,
+shellcode 를 공급하지 않고도, malicious computation 을 수행할 수 있게 되는 것이다.</p>
+
+<p>address space 에서 ret (opcode: 0xc3) 을 찾아서 그 앞쪽으로 써치해가면
+사용할 수 있는 gadget 들이 어떤 것인지를 파악할 수 있게 된다.</p>
+
+<p>(적절한 기존 코드가 있다면 ROP 를 사용해서) 기존 프로그래밍 랭귀지와 동등하게
+computational problem solving 이 가능한 code 를 제작할 수 있다는 의미에서
+ROP 가 Turing Complete 라고도 이야기한다.</p>
+
+<p>Turing Complete 라는 의미에서 기존의 EIP 기반의 instruction 수행이
+ESP 기반의 ROP 에서 어떻게 매핑되는지 보겠다.</p>
+
+<h4>NOP</h4>
+
+<p>TBD</p>
+
+<h4>Immediate Constants</h4>
+
+<p>TBD</p>
+
+<h4>Control Flow</h4>
+
+<p>TBD</p>
+
+<h3>Jump-Oriented Programming</h3>
+
+<p>TBD</p>
+
+<h3>ASLR</h3>
+
+<p>TBD</p>
+
+<h3>참고 문헌</h3>
+
+<ul>
+<li>Solar Designer. Getting around non-executable stack (and fix)</li>
+<li>Nergal. The Advanced Return-into-libc Exploits: PaX Case Study. Phrack Magazine, Vol. 11, Issue 0x58, 2001.</li>
+<li>Hovav Shacham, Return-Oriented Programming: Exploits Without Code Injection, Black Hat USA 2008</li>
+<li>Ryan Roemer, Return-Oriented Programming: Systems, Languages, and Applications. ACM</li>
+<li>SoK: Eternal War in Memory</li>
+</ul>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Your Name</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2013-09-24T17:54:00+09:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>24</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>5:54 pm</span></time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://yoursite.com/blog/2013/09/24/sok-eternal-war-in-memory/" data-via="" data-counturl="http://yoursite.com/blog/2013/09/24/sok-eternal-war-in-memory/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2013/09/16/topological-sort/" title="Previous Post: Topological Sort">&laquo; Topological Sort</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2013/09/26/the-knapsack-problem/" title="Next Post: The Knapsack Problem">The Knapsack Problem &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/10/04/return-oriented-programming-for-the-arm-architecture/">Return Oriented Programming for the ARM Architecture</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/02/the-inside-story-behind-ms08-067/">The Inside Story Behind MS08-067</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/17/rop-and-arm/">ROP and ARM</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/13/sophail-applied-attacks-against-sophos-antivirus/">Sophail: Applied Attacks Against Sophos Antivirus</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/13/stagefright/">Stagefright</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - Your Name -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

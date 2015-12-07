@@ -1,0 +1,317 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Naive Bayesian Classifier - My Octopress Blog</title>
+  <meta name="author" content="Your Name">
+
+  
+  <meta name="description" content="Conditional Probability 일반적인 조건부 확률 예제를 들어본다. 주머니에 두개의 동전이 들어있다.
+여기서 동전을 하나 꺼내 동전 던지기를 한다.
+단 한개는 평범한 동전. 한개는 조작되어서 던지면 무조건 Head 가 나오는 동전.
+주머니에서 동전을 &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://yoursite.com/blog/2013/09/27/naive-bayesian-classifier/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="My Octopress Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">My Octopress Blog</a></h1>
+  
+    <h2>A blogging framework for hackers.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="yoursite.com">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Naive Bayesian Classifier</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-09-27T16:29:00+09:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>27</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>4:29 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><h4>Conditional Probability</h4>
+
+<p>일반적인 조건부 확률 예제를 들어본다.</p>
+
+<ol>
+<li>주머니에 두개의 동전이 들어있다.</li>
+<li>여기서 동전을 하나 꺼내 동전 던지기를 한다.</li>
+<li>단 한개는 평범한 동전. 한개는 조작되어서 던지면 무조건 Head 가 나오는 동전.</li>
+<li>주머니에서 동전을 하나 꺼내어 던졌더니 Head 가 나왔을때,</li>
+<li>평범한 동전을 꺼냈을 확률은?</li>
+</ol>
+
+
+<p>결과 트리를 그려보면,</p>
+
+<ol>
+<li>일단계 outcome 은 평범동전 / 조작동전</li>
+<li>이단계 outcome 은 H / T / H / H</li>
+</ol>
+
+
+<p>P(평범|H) = one H / three H = 1/3 = P(평범 and H) / P(H) = (&frac14;) / (&frac34;)</p>
+
+<h4>검색 키워드에 따라 결과 페이지에 광고를 집어 넣기</h4>
+
+<p>검색 엔진에 들어오는 쿼리를</p>
+
+<ul>
+<li>informational query</li>
+<li>transactional query</li>
+</ul>
+
+
+<p>2 가지로 구분할 수 있다고 하자.</p>
+
+<p><code>transactional query</code> 라고 판단되면 광고를 옆에 표시해주기로 하자.</p>
+
+<p>쉬운 방법은 매 query 마다 과거 기록을 검색해보면 된다.</p>
+
+<p><code>cheap flowers</code> 라고 유저가 치면 <code>cheap flowers</code> 를 과거 DB 에서 검색해서,</p>
+
+<ol>
+<li>구매관련 링크로 튀었는지 (유저가 클릭)</li>
+<li>정보성 링크로 튀었는지</li>
+</ol>
+
+
+<p>검색한 후에, 구매관련 링크로 튄 경우가 많았다면 꽃가게 광고를 옆에 표시해준다.
+그런데 이 방법은 response 시간도 오래 걸리고 부하가 심해서 feasible 하지 않다.</p>
+
+<p><code>cheap flowers</code>, <code>red flowers</code>, <code>gift flowers</code> 만 놓고 봐도,</p>
+
+<p><code>cheap flowers</code> 는 transactional query 일 것이고 <code>red flowers</code> 는 informational query 일 듯.</p>
+
+<p>조건부 확률을 써서 문제를 정의해보면, P(구매링크를 클릭| <code>cheap flowers</code> 를 검색) 의 확률이다.</p>
+
+<ol>
+<li>우리 DB 에 10 여년간의 수많은 검색 -> 클릭 데이터가 있다.</li>
+<li>정보성 블로그 링크인지 스폰서 광고 링크인지 link property 에 담겨져 있다. (링크 등록시)</li>
+</ol>
+
+
+<h4>Naive Bayesian Classifier</h4>
+
+<p>keywords: flower, red, gift, cheap</p>
+
+<ul>
+<li>should ads be shown or not?</li>
+<li>are you a surfer or a shopper?</li>
+</ul>
+
+
+<p>machine learning is all about learning from past data.</p>
+
+<ul>
+<li>past behavior of many many searchers using these keywords</li>
+</ul>
+
+
+<p>전체 n 개의 query instance 가 있었다고 하자. sample set.</p>
+
+<p>red 라는 단어를 query 한 경우가 r 케이스.</p>
+
+<p>구매로 연결된 query 는 k 케이스.</p>
+
+<p>p(R and B) = i 케이스.</p>
+
+<p>라고 하면.</p>
+
+<p>red 라는 단어를 query 했을 경우 구매 이벤트가 일어날 조건부 확률 p(B|R) = i/r</p>
+
+<p>Red / Cheap 이라는 2 개의 단어의 경우로 넘어가자.</p>
+
+<p>&ldquo;naive&rdquo; Bayesian classifier:</p>
+
+<p>Assumption: All the futures that one uses to learn about historical data are
+independent for a particular choice of the behavior one is trying to learn.</p>
+
+<p>i.e. if one is trying to predict whether a given user is shopping or just
+surfing using the query words that they use to search. We assume that the
+words themselves are all independent and equally likely of occur independent of
+what what other words are used in the query.</p>
+
+<p>Assumption - R and C are independent given B.</p>
+
+<p>P(B|R,C) * P(R,C) = P(R,C|B) * P(B) (Bayes rule)
+= P(R|C,B) * P(C|B) * P(B) (Bayes rule)
+= P(R|B) * P(C|B) &amp; P(B) (independence)</p>
+
+<p>so, given values r and c for R and C</p>
+
+<p>compute:</p>
+
+<p>p(r|B=y)<em>p(c|B=y)</em>p(B=y) / p(r|B=n)<em>p(c|B=n)</em>p(B=n)</p>
+
+<p>choose B=y if this is > alpha (usually 1), and B=n otherwise</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Your Name</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2013-09-27T16:29:00+09:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>27</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>4:29 pm</span></time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://yoursite.com/blog/2013/09/27/naive-bayesian-classifier/" data-via="" data-counturl="http://yoursite.com/blog/2013/09/27/naive-bayesian-classifier/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2013/09/27/mov-edi/" title="Previous Post: MOV EDI, EDI">&laquo; MOV EDI, EDI</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2013/09/30/updating-forked-repo/" title="Next Post: Updating Forked Repo">Updating Forked Repo &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/10/04/return-oriented-programming-for-the-arm-architecture/">Return Oriented Programming for the ARM Architecture</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/02/the-inside-story-behind-ms08-067/">The Inside Story Behind MS08-067</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/17/rop-and-arm/">ROP and ARM</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/13/sophail-applied-attacks-against-sophos-antivirus/">Sophail: Applied Attacks Against Sophos Antivirus</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/13/stagefright/">Stagefright</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - Your Name -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

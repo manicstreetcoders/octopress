@@ -1,0 +1,283 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Hooking SSL_write - My Octopress Blog</title>
+  <meta name="author" content="Your Name">
+
+  
+  <meta name="description" content="LoadLibrary() + DLL path CreateRemoteThread() 와 minhook 를 사용해서 openssl 을 사용하는 .exe 에 code 를 inject 해서, SSL_write() 을 후킹하여 plaintext 를 덤프하였다. 1
+2
+3
+4 &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://yoursite.com/blog/2015/04/14/hooking-ssl-write/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="My Octopress Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">My Octopress Blog</a></h1>
+  
+    <h2>A blogging framework for hackers.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="yoursite.com">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Hooking SSL_write</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-04-14T17:55:07+09:00'><span class='date'><span class='date-month'>Apr</span> <span class='date-day'>14</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>5:55 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><h4>LoadLibrary() + DLL path</h4>
+
+<p>CreateRemoteThread() 와 minhook 를 사용해서 openssl 을 사용하는 .exe 에 code 를 inject 해서, SSL_write() 을 후킹하여 plaintext 를 덤프하였다.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>OpenProcess()
+</span><span class='line'>VirtualAllocEx()
+</span><span class='line'>GetModuleHandle(L"kernel32.dll")
+</span><span class='line'>GetProcAddress(... "LoadLibraryA")
+</span><span class='line'>CreateRemoteThread()</span></code></pre></td></tr></table></div></figure>
+
+
+<p>로 타겟 프로세스에 DLL 을 inject 한다.</p>
+
+<p><code>OpenProcess()</code> 로 target process 에 attach 한다. 그리고, target process 의 메모리에 메모리를 할당해서, DLL 의 path 를 카피해놓는다.
+그리고, <code>LoadLibraryA()</code> 의 어드레스를 구해서, 이 어드레스가 동일할거라는 가정하에, target process 에 저 어드레스를 시작점으로 remote thread 를 생성한다.
+다행히도 <code>LoadLibraryA()</code> 가 arg 를 1 개만 받으니, thread 를 생성하는 식으로 간편하게 <code>LoadLibraryA()</code> 를 API call 할 수 있다.
+DLL 의 <code>DLL_PROCESS_ATTACH</code> 때 돌아가게 코드를 만들어 놓으면, 간편하게 DLL injection 을 할 수 있다.</p>
+
+<p>Injection 후에,</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>GetModuleHandle(L"ssleay32.dll")
+</span><span class='line'>GetProcAddress(... "SSL_write")
+</span><span class='line'>MH_Initialize()
+</span><span class='line'>MH_CreateHook()
+</span><span class='line'>MH_EnableHook()</span></code></pre></td></tr></table></div></figure>
+
+
+<p>로 <code>ssleay32.dll</code> 의 <code>SSL_write()</code> 함수를 detour 시켰다. Detour function 에서 buffer 를 <code>OutputDebugString()</code> 으로 덤프하여 plaintext 를 떨어뜨렸다.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="n">OutputDebugString</span><span class="p">(</span><span class="s">L&quot;Begin dump...&quot;</span><span class="p">);</span>
+</span><span class='line'><span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;</span><span class="n">num</span><span class="p">;</span><span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">j</span> <span class="o">=</span> <span class="p">((</span><span class="kt">unsigned</span> <span class="kt">char</span><span class="o">*</span><span class="p">)</span><span class="n">buf</span><span class="p">)[</span><span class="n">i</span><span class="p">];</span>
+</span><span class='line'>    <span class="n">wsprintfW</span><span class="p">((</span><span class="n">LPWSTR</span><span class="p">)</span><span class="n">line</span><span class="p">,</span> <span class="s">L&quot;%02X&quot;</span><span class="p">,</span> <span class="n">j</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">OutputDebugString</span><span class="p">((</span><span class="n">LPCWSTR</span><span class="p">)</span><span class="n">line</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="n">OutputDebugString</span><span class="p">(</span><span class="s">L&quot;End dump...&quot;</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>귀찮아서 그냥 한바이트씩 출력하고,</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s">&quot;payload&quot;</span><span class="p">,</span><span class="s">&quot;r&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="n">data</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+</span><span class='line'><span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</span><span class='line'><span class="nb">hex</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">,</span><span class="s">&#39;&#39;</span><span class="p">)</span>
+</span><span class='line'><span class="k">print</span> <span class="nb">hex</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s">&#39;hex&#39;</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>로 HTTPS 내용을 출력했다.</p>
+
+<p>이 방식의 단점이라면, Process Explorer 등에 DLL 이 그대로 노출되는 것.</p>
+
+<h4>Full DLL</h4>
+
+<p>Target process 의 메모리에 DLL path 만 write 한다음에 CreateRemoteThread 로 LoadLibrary() 를 target 에 돌려서 DLL 을 끌어올리는 방식 말고, 아예 target process memory 에 DLL 사이즈만큼의 메모리를 확보해서, DLL 을 읽어서 집어넣어주고, 실행시키는 방법이 있다.</p>
+
+<h4>Reflective DLL Injection</h4>
+
+<p>Meterpreter 에서 사용하는 Reflective DLL Injection 도 좀 뒤져봐야겠다.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Your Name</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2015-04-14T17:55:07+09:00'><span class='date'><span class='date-month'>Apr</span> <span class='date-day'>14</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>5:55 pm</span></time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://yoursite.com/blog/2015/04/14/hooking-ssl-write/" data-via="" data-counturl="http://yoursite.com/blog/2015/04/14/hooking-ssl-write/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2015/04/14/the-vigenere-cipher/" title="Previous Post: The Vigenere Cipher">&laquo; The Vigenere Cipher</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2015/04/15/createremotethread-bypass-windows-7-session-separation/" title="Next Post: CreateRemoteThread. Bypass Windows 7 Session Separation">CreateRemoteThread. Bypass Windows 7 Session Separation &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/10/04/return-oriented-programming-for-the-arm-architecture/">Return Oriented Programming for the ARM Architecture</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/02/the-inside-story-behind-ms08-067/">The Inside Story Behind MS08-067</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/17/rop-and-arm/">ROP and ARM</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/13/sophail-applied-attacks-against-sophos-antivirus/">Sophail: Applied Attacks Against Sophos Antivirus</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/13/stagefright/">Stagefright</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - Your Name -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

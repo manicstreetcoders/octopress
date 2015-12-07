@@ -1,0 +1,289 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Elementary Cellular Automata - My Octopress Blog</title>
+  <meta name="author" content="Your Name">
+
+  
+  <meta name="description" content="Elementary Cellular Automaton 를 1 라인으로 구현한 코드. Best one liner: konno.c konno.c int _;main(O,l,o)char**l,**o;{_++&gt;&gt;9||main(1&amp;(o?(int)o:O)|O* &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://yoursite.com/blog/2013/08/22/elementary-cellular-automata/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="My Octopress Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">My Octopress Blog</a></h1>
+  
+    <h2>A blogging framework for hackers.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="yoursite.com">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Elementary Cellular Automata</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-08-22T00:34:00+09:00'><span class='date'><span class='date-month'>Aug</span> <span class='date-day'>22</span><span class='date-suffix'>nd</span>, <span class='date-year'>2013</span></span> <span class='time'>12:34 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p><a href="http://mathworld.wolfram.com/ElementaryCellularAutomaton.html">Elementary Cellular Automaton</a> 를 1 라인으로 구현한 코드.</p>
+
+<p><a href="http://www.ioccc.org/2012/konno/konno.c">Best one liner: konno.c</a></p>
+
+<p>konno.c</p>
+
+<pre><code>int _;main(O,l,o)char**l,**o;{_++&gt;&gt;9||main(1&amp;(o?(int)o:O)|O*2,l,
+putchar(_%32?atoi(1[l])&gt;&gt;(7&amp;O&lt;&lt;!o&gt;&gt;!o+29)&amp;32&lt;_|_==16?35:32:10)%10);}
+</code></pre>
+
+<p>이것을 해독해보았다.</p>
+
+<pre><code>int pos=0;
+
+void p_b(int x)
+{
+    int b[33];
+    char *p;
+    int i;
+    unsigned int j;
+
+    memset(b,0,33);
+    for(i=32, j=(1L&lt;&lt;31); i&gt;0; i--,j&gt;&gt;=1)
+        *p++=(x&amp;j) ==j ? '1':'0';
+    return b;
+}
+
+main(evolution_seq,argv,prev_cell)
+int evolution_seq;
+char **argv;
+int prev_cell;
+{
+    /* recurse from pos=1 to pos=512 */
+    if (pos++ &lt; 32*16) {
+        int cell_color;
+
+        /* Fill the 1st line with seed value */
+        if (pos == 16)
+            cell_color = '#';       /* The 1st line: the mid pos is '#' */
+        else if (pos &lt; 32)
+            cell_color = ' ';       /* The 1st line: fill with ' ' except the mid pos */
+        else if (pos % 32 == 0)
+            cell_color = '\n';      /* Print newline for every 32nd pos */
+        else {
+            int rule;
+
+            /* 
+            * Get the hight-order 3 bits of evolution sequence
+            * (clears MSB if the previous cell was new-line)
+            * and shift rule bits by it.
+            */
+            if (prev_cell == '\n')
+                rule = atoi(argv[1]) &gt;&gt; (evolution_seq &lt;&lt; 1 &gt;&gt; 30 &amp; 0x7);  
+            else
+                rule = atoi(argv[1]) &gt;&gt; (evolution_seq &gt;&gt; 29 &amp; 0x7);
+
+            if (rule &amp; 0x1)
+                cell_color = '#'; /* black */
+            else
+                cell_color = ' '; /* white */
+        }        
+        putchar(cell_color);
+
+        if (prev_cell == '#') { 
+            evolution_seq = evolution_seq * 2 + 1;
+        } else 
+            evolution_seq = evolution_seq * 2; 
+
+        main(evolution_seq, argv, cell_color);
+    }
+}
+
+~% gcc k.c -o k
+~% ./k 126
+               #               
+              ###              
+             ## ##             
+            #######            
+           ##     ##           
+          ####   ####          
+         ##  ## ##  ##         
+        ###############        
+       ##             ##       
+      ####           ####      
+     ##  ##         ##  ##     
+    ########       ########    
+   ##      ##     ##      ##   
+  ####    ####   ####    ####  
+ ##  ##  ##  ## ##  ##  ##  ## 
+###############################
+</code></pre>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Your Name</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2013-08-22T00:34:00+09:00'><span class='date'><span class='date-month'>Aug</span> <span class='date-day'>22</span><span class='date-suffix'>nd</span>, <span class='date-year'>2013</span></span> <span class='time'>12:34 am</span></time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://yoursite.com/blog/2013/08/22/elementary-cellular-automata/" data-via="" data-counturl="http://yoursite.com/blog/2013/08/22/elementary-cellular-automata/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2013/08/20/recursive-things/" title="Previous Post: Recursive Things">&laquo; Recursive Things</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2013/08/28/karatsuba-algorithm/" title="Next Post: Karatsuba Algorithm">Karatsuba Algorithm &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/10/04/return-oriented-programming-for-the-arm-architecture/">Return Oriented Programming for the ARM Architecture</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/02/the-inside-story-behind-ms08-067/">The Inside Story Behind MS08-067</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/17/rop-and-arm/">ROP and ARM</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/13/sophail-applied-attacks-against-sophos-antivirus/">Sophail: Applied Attacks Against Sophos Antivirus</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/13/stagefright/">Stagefright</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - Your Name -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

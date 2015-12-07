@@ -1,0 +1,370 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Recursive Things - My Octopress Blog</title>
+  <meta name="author" content="Your Name">
+
+  
+  <meta name="description" content="&ldquo;알고리즘 문제 해결 전략&rdquo; 이라는 책을 읽고 있다. algospot.com 의 운영자가 쓴 책이다. Combination 1 ~ 9 사이의 숫자를 4 개 뽑는 combination 구하기. def pick(selection, last): if &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://yoursite.com/blog/2013/08/20/recursive-things/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="My Octopress Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">My Octopress Blog</a></h1>
+  
+    <h2>A blogging framework for hackers.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="yoursite.com">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Recursive Things</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-08-20T12:15:00+09:00'><span class='date'><span class='date-month'>Aug</span> <span class='date-day'>20</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>12:15 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>&ldquo;알고리즘 문제 해결 전략&rdquo; 이라는 책을 읽고 있다. algospot.com 의 운영자가 쓴 책이다.</p>
+
+<h3>Combination</h3>
+
+<p>1 ~ 9 사이의 숫자를 4 개 뽑는 combination 구하기.</p>
+
+<pre><code>def pick(selection, last):
+    if len(selection) == 4:
+        print selection
+        return
+    for i in range(last+1,9):
+        selection.append(i)
+        pick(selection, i)
+        selection.remove(i)
+
+if __name__ == "__main__":
+    selection = []
+    pick(selection, 0)
+</code></pre>
+
+<h3>음식 대접</h3>
+
+<p>음식을 가리는 4 명의 사람들에게 6 가지의 메뉴 중, 최소한의 메뉴를 준비해서 대접하는 문제.</p>
+
+<pre><code>answer = []
+
+def OK(menu):
+    bit = 0
+    if 1 in menu:
+        bit = bit | 0b1100
+    if 2 in menu:
+        bit = bit | 0b1001
+    if 3 in menu:
+        bit = bit | 0b0101
+    if 4 in menu:
+        bit = bit | 0b0001
+    if 5 in menu:
+        bit = bit | 0b0110
+    if 6 in menu:
+        bit = bit | 0b1010
+
+    if bit == 0b1111:
+        return True
+    else:
+        return False
+
+def Explore(menu, depth):
+    if depth == 7:
+        if OK(menu):
+            answer.append( (len(menu), list(menu)) )
+            return len(menu)
+        else:
+            return 987654321
+    menu.append(depth)
+    size = Explore(menu, depth + 1)
+    menu.pop()
+    size2 = Explore(menu, depth + 1)
+    if size &lt; size2:
+        return size
+    else:
+        return size2
+
+if __name__ == "__main__":
+    menu = []
+    min = Explore(menu,1)
+    for (x,y) in answer:
+        if x == min:
+            print y
+</code></pre>
+
+<h3>구간 max</h3>
+
+<p>Recursive algorithm 은 아니지만.</p>
+
+<p>{ 5, -2, 4, -18, 8, 10, -7, 5, 8, 4, 3, -7, -2, 5, 8, -28, 9, 10, -12, 13, 5 } 라는 어레이에서 summation_from_i_to_j 가 가장 큰 index i, j 를 찾는 문제. 무식하지 않게 하는 것이 포인트.</p>
+
+<p>우선 O(N<sup>2</sup>) 으로 하는 방법은 간단하다.</p>
+
+<pre><code>#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+
+main()
+{
+    int a[] = { 5, -2, 4, -18, 8, 10, -7, 5, 8, 4, 3, -7, -2, 5, 8, 0, 9, 10, -28, 13, 5 };
+    int N = sizeof a / sizeof (int);
+
+    int i,j;
+    int max = 1 &lt;&lt; (sizeof(int) * 8 - 1);
+    int sum;
+    int _i,_j;
+
+    for (i = 0; i &lt; N; i++) {
+        sum = 0;
+        for (j = i; j &lt; N; j++) {
+            sum += a[j];
+            if (sum &gt; max) {
+                max = sum;
+                _i = i;
+                _j = j;
+            }
+        }
+    }
+    printf("sum(%d, %d) = %d\n", _i, _j, max);
+}
+</code></pre>
+
+<p>O(N) 알고리즘.</p>
+
+<ol>
+<li>과거를 잊고 새로 summation 을 시작해야 할지를 계속 결정해야 한다.</li>
+<li>과거가 minus 라면 싹 잊고 새로 시작하는 것이 낫다.</li>
+<li>과거가 그래도 plus 라면 구간합을 올리는데 도움은 된다.</li>
+<li>음수인 구간합은 의미가 없다. 0 이 낫다.</li>
+<li>i 까지의 최대구간합은 maxAt(i) = max( 0, maxAt(i-1) ) + a[i]</li>
+</ol>
+
+
+<p>등을 가지고 만들어본다.</p>
+
+<pre><code>#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+
+#define MAX(a,b) (a &gt; b ? a : b)
+sum2() 
+{
+    int a[] = { 5, -2, 4, -18, 8, 10, -7, 5, 8, 4, 3, -7, -2, 5, 8, 0, 9, 10, -28, 13, 5 };
+    int N = sizeof a / sizeof (int);
+    int partial_sum = 0;
+    int max = 1 &lt;&lt; (sizeof(int) * 8 - 1);
+    int i;
+
+    for (i = 0; i &lt; N; ++i) {
+        partial_sum = MAX(partial_sum, 0) + a[i];
+        max = MAX(partial_sum, max);
+    }
+    printf("max %d\n", max);
+    return max;
+}
+</code></pre>
+
+<p>여기서 구간을 알아내도록 고쳐보면,</p>
+
+<pre><code>#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+
+int _start = 0;
+int _end = 0;
+
+sum2() 
+{
+    int a[] = { 5, -2, 4, -18, 8, 10, -7, 5, 8, 4, 3, -7, -2, 5, 8, 0, 9, 10, -28, 13, 5 };
+    int N = sizeof a / sizeof (int);
+    int partial_sum = 0;
+    int max = 1 &lt;&lt; (sizeof(int) * 8 - 1);
+    int i;
+
+    for (i = 0; i &lt; N; ++i) {
+        if (partial_sum &lt; 0) {
+            partial_sum = a[i];
+            _start = i;
+        } else
+            partial_sum = partial_sum + a[i];
+
+        if (partial_sum &gt; max) {
+            max = partial_sum;
+            _end = i;
+        } 
+    }
+    return max;
+}
+main(){printf("sum(%d-%d) = %d\n",_start,_end,sum2());}
+</code></pre>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Your Name</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2013-08-20T12:15:00+09:00'><span class='date'><span class='date-month'>Aug</span> <span class='date-day'>20</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>12:15 pm</span></time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://yoursite.com/blog/2013/08/20/recursive-things/" data-via="" data-counturl="http://yoursite.com/blog/2013/08/20/recursive-things/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2013/08/20/windows-api-hooking/" title="Previous Post: Windows API Hooking">&laquo; Windows API Hooking</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2013/08/22/elementary-cellular-automata/" title="Next Post: Elementary Cellular Automata">Elementary Cellular Automata &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/10/04/return-oriented-programming-for-the-arm-architecture/">Return Oriented Programming for the ARM Architecture</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/02/the-inside-story-behind-ms08-067/">The Inside Story Behind MS08-067</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/17/rop-and-arm/">ROP and ARM</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/13/sophail-applied-attacks-against-sophos-antivirus/">Sophail: Applied Attacks Against Sophos Antivirus</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/13/stagefright/">Stagefright</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - Your Name -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

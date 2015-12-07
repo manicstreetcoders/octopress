@@ -1,0 +1,277 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Setting Up an Intercepting Proxy on Linux - My Octopress Blog</title>
+  <meta name="author" content="Your Name">
+
+  
+  <meta name="description" content="iPhone VPN 설정을 해서, 앱 트래픽을 VPN 서버로 돌리고, VPN 서버에서 트래픽을 까본다음에, 원래 목적지로 릴레이해주는 테크닉. Box 우선 DigitalOcean 에 Ubuntu box 를 하나 만든다. PPTP 이제 Ubuntu 박스에 VPN 서버를 &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://yoursite.com/blog/2015/06/02/setting-up-an-intercepting-proxy-on-linux/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="My Octopress Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">My Octopress Blog</a></h1>
+  
+    <h2>A blogging framework for hackers.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="yoursite.com">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Setting Up an Intercepting Proxy on Linux</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-06-02T00:25:15+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>2</span><span class='date-suffix'>nd</span>, <span class='date-year'>2015</span></span> <span class='time'>12:25 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>iPhone VPN 설정을 해서, 앱 트래픽을 VPN 서버로 돌리고, VPN 서버에서 트래픽을 까본다음에, 원래 목적지로 릴레이해주는 테크닉.</p>
+
+<h3>Box</h3>
+
+<p>우선 DigitalOcean 에 Ubuntu box 를 하나 만든다.</p>
+
+<h3>PPTP</h3>
+
+<p>이제 Ubuntu 박스에 VPN 서버를 설치해야 한다.</p>
+
+<p><a href="https://www.digitalocean.com/community/tutorials/how-to-setup-your-own-vpn-with-pptp">How To Setup Your Own VPN With PPTP</a></p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>sudo apt-get install pptpd
+</span><span class='line'>
+</span><span class='line'>/etc/pptpd.conf
+</span><span class='line'>localip 10.0.0.1
+</span><span class='line'>remoteip 10.0.0.100-200
+</span><span class='line'>
+</span><span class='line'>/etc/ppp/chap-secrets
+</span><span class='line'>box1 pptpd kkkkkkkk
+</span><span class='line'>
+</span><span class='line'>/etc/ppp/pptpd-options
+</span><span class='line'>ms-dns 8.8.8.8
+</span><span class='line'>ms-dns 8.8.4.4
+</span><span class='line'>
+</span><span class='line'>service pptpd restart
+</span><span class='line'>
+</span><span class='line'>netstat -alpn | grep :1723
+</span><span class='line'>
+</span><span class='line'>/etc/sysctl.conf
+</span><span class='line'>net.ipv4.ip_forward = 1
+</span><span class='line'>
+</span><span class='line'>sysctl -p</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>iptables</h3>
+
+<p>NAT 룰 셋업을 해주고, 특정 포트로 향하는 트래픽만 리다이렉트한다.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE && iptables-save
+</span><span class='line'>
+</span><span class='line'>iptables -t nat -A PREROUTING -i ppp+ -p tcp -d 1.2.3.4 --dport 25201 -j REDIRECT --to-port 9999</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>socat</h3>
+
+<p>인터셉트된 트래픽을 덤프하고, 원래 호스트로 릴레이해준다.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>socat -v TCP-LISTEN:9999,fork TCP:1.2.3.4:25201
+</span><span class='line'>
+</span><span class='line'>tshark -i ppp0</span></code></pre></td></tr></table></div></figure>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Your Name</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2015-06-02T00:25:15+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>2</span><span class='date-suffix'>nd</span>, <span class='date-year'>2015</span></span> <span class='time'>12:25 am</span></time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://yoursite.com/blog/2015/06/02/setting-up-an-intercepting-proxy-on-linux/" data-via="" data-counturl="http://yoursite.com/blog/2015/06/02/setting-up-an-intercepting-proxy-on-linux/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2015/06/01/ios-app-automating-the-decryption-process/" title="Previous Post: iOS App: Automating the Decryption Process">&laquo; iOS App: Automating the Decryption Process</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2015/06/04/ios-building-a-basic-toolkit/" title="Next Post: iOS: Building a Basic Toolkit">iOS: Building a Basic Toolkit &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/10/04/return-oriented-programming-for-the-arm-architecture/">Return Oriented Programming for the ARM Architecture</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/02/the-inside-story-behind-ms08-067/">The Inside Story Behind MS08-067</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/17/rop-and-arm/">ROP and ARM</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/13/sophail-applied-attacks-against-sophos-antivirus/">Sophail: Applied Attacks Against Sophos Antivirus</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/13/stagefright/">Stagefright</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - Your Name -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

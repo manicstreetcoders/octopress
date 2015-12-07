@@ -1,0 +1,301 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Tabs - My Octopress Blog</title>
+  <meta name="author" content="Your Name">
+
+  
+  <meta name="description" content="Ted Logan&rsquo;s Secrets of tabs in vim 에서 읽은 내용을 정리. Vim 에서. vim 에서 눈에 보이는 indentation 은 &lsquo;\t&rsquo; 와 space 의 조합으로 이루어져 있음. tabstop 은,
+&lsquo &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://yoursite.com/blog/2013/06/12/tabs/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="My Octopress Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">My Octopress Blog</a></h1>
+  
+    <h2>A blogging framework for hackers.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="yoursite.com">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Tabs</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-06-12T11:48:00+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>12</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>11:48 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>Ted Logan&rsquo;s <a href="http://tedlogan.com/techblog3.html">Secrets of tabs in vim</a> 에서 읽은 내용을 정리.</p>
+
+<p>Vim 에서.</p>
+
+<p>vim 에서 눈에 보이는 indentation 은 &lsquo;\t&rsquo; 와 space 의 조합으로 이루어져 있음.</p>
+
+<p>tabstop 은,
+&lsquo;\t&rsquo; 을 렌더링할 때 기준이 될 hard 한 column grid 의 간격을 결정함.</p>
+
+<p>일반적으로 tabstop 과 softtabstop 을 같게 설정하나,</p>
+
+<p>tabstop 과 softtabstop 의 개념을 설명하기 위해서</p>
+
+<p>굳이 다르게 설정해보겠음.</p>
+
+<p>noexpandtab 기준으로 설명하면,</p>
+
+<p>:set tabstop=4 softtabstop=4 noexpandtab 입력 후
+1[TAB]2[TAB]3[TAB]4 입력.</p>
+
+<p>화면에 이렇게 나타남.</p>
+
+<pre>
+1234567890123456789012345678901234567890
+1   2   3   4
+</pre>
+
+
+<p>[RETURN] 치고, :set tabstop=4 softtabstop=3 noexpandtab 입력 후
+동일하게 1[TAB]2[TAB]3[TAB]4 입력.</p>
+
+<pre>
+1234567890123456789012345678901234567890
+1   2   3   4
+1  2  3  4  5
+</pre>
+
+
+<p>이제 :set list 로 특수문자 표시.</p>
+
+<pre>
+1234567890123456789012345678901234567890$
+1^I2^I3^I4$
+1  2  3^I 4^I5$
+</pre>
+
+
+<p>그럼, 설명 시작.</p>
+
+<p>tabstop=4
+softtabstop=3
+일 경우.</p>
+
+<p>[TAB] 키를 누르면,
+soft 한 tab grid 는 3 column 간격으로 이루어져 있지만,
+hard 한 tab grid 는 4 column 간격으로 이루어져 있기 때문에,
+둘째줄 처음 2,3 는 space 만 가지고 전진했고, 4 는 &lsquo;\t&rsquo; + space 로 전진.</p>
+
+<p>즉 noexpandtab 일 경우, softtabstop 그리드와 (hard)tabstop 그리드가
+틀리니까, vim 이 &lsquo;\t&rsquo; 와 space 조합으로 인덴테이션을 만들어냄.</p>
+
+<p>정리하면 tabstop 는 &lsquo;\t&rsquo; 를 포지셔닝할 그리드를 만들때 사용.
+softtabstop 는 눈에 보이는 그리드.</p>
+
+<p>tabstop != softtabstop 일 경우, &lsquo;\t&rsquo; 만으로 softtabstop 그리드에 인덴트할 수
+없기때문에, space 로 메꿔줌.</p>
+
+<p>그런데, 인덴테이션이 &lsquo;\t&rsquo; + space 로 만들어지면,
+space 파트는 안변하지만 &lsquo;\t&rsquo; 파트는 tabstop 에 따라서 달라짐.</p>
+
+<p>문제는 어떤 인덴트는 space 만으로, 어떤 인덴트는 &lsquo;\t&rsquo; + two spaces 로,
+이런 식으로 중구난방이기 때문에, tabstop 이 달라지면 인덴트가 다 깨짐.</p>
+
+<p>그럼으로 인덴테이션은 &lsquo;\t&rsquo; 이나 space 어느 한가지만으로 만들어지는게 좋음.</p>
+
+<p>softtabstop == tabstop 은 같게 하면 좋음.</p>
+
+<p>당연한 이야기를 어렵게 설명했음.</p>
+
+<p>shiftwidth 는 [TAB] 이 아니라 vim 의 &lt; &lt; / > > 로 reindent 할 때 사용됨.</p>
+
+<p>:set tabstop=8 softtabstop=8 shiftwidth=8 noexpandtab</p>
+
+<p>으로 일치를 시켜주던가.</p>
+
+<p>아니면,</p>
+
+<p>:set softtabstop=4 shiftwidth=4 expandtab</p>
+
+<p>으로 &lsquo;\t&rsquo; 를 space 로 대체하면, tabstop 에 영향받지도 않고 굳이 설정할 필요도 없음.</p>
+
+<p>Ruby 사용자라면,</p>
+
+<p>:set ts=2 sts=2 sw=2 expandtab</p>
+
+<p>이 적절.</p>
+
+<p>Tab 을 눈에 보이게 하는 법.</p>
+
+<pre><code>syntax match Tab /\t/
+hi Tab gui=underline guifg=blue ctermbg=blue
+</code></pre>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Your Name</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2013-06-12T11:48:00+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>12</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>11:48 am</span></time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://yoursite.com/blog/2013/06/12/tabs/" data-via="" data-counturl="http://yoursite.com/blog/2013/06/12/tabs/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2013/06/01/javascript-obfuscation-patterns/" title="Previous Post: JavaScript Obfuscation Patterns">&laquo; JavaScript Obfuscation Patterns</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2013/06/12/tmux-pane-setting/" title="Next Post: Tmux pane setting">Tmux pane setting &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/10/04/return-oriented-programming-for-the-arm-architecture/">Return Oriented Programming for the ARM Architecture</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/02/the-inside-story-behind-ms08-067/">The Inside Story Behind MS08-067</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/17/rop-and-arm/">ROP and ARM</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/13/sophail-applied-attacks-against-sophos-antivirus/">Sophail: Applied Attacks Against Sophos Antivirus</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/13/stagefright/">Stagefright</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - Your Name -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

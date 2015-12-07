@@ -1,0 +1,1150 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>My Octopress Blog</title>
+  <meta name="author" content="Your Name">
+
+  
+  <meta name="description" content="prime p, q 를 정한다. n = p * q z = (p-1) * (q-1) z 보다 작은, z 와 co-prime 인 prime e 를 하나 찾는다. n,e 가 public key 가 된다. e * d = 1 (mod z) 인 d 를 정한다. 다시 말하면, e &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://yoursite.com/posts/16/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="My Octopress Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">My Octopress Blog</a></h1>
+  
+    <h2>A blogging framework for hackers.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="yoursite.com">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div class="blog-index">
+  
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/02/15/rsa-explained/">RSA Explained</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-02-15T19:40:00+09:00'><span class='date'><span class='date-month'>Feb</span> <span class='date-day'>15</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>7:40 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>prime p, q 를 정한다.</p>
+
+<p>n = p * q <br>
+z = (p-1) * (q-1) <br>
+z 보다 작은, z 와 co-prime 인 prime e 를 하나 찾는다. <br>
+n,e 가 public key 가 된다. <br>
+e * d = 1 (mod z) 인 d 를 정한다. 다시 말하면, e 의 modular inverse 가 private key 가 된다. <br>
+정리하면, modulo n 과, 서로 modular inversion 관계인 e,d 가 핵심이다. <br></p>
+
+<p>Encryption 은 다음과 같다.</p>
+
+<p>Plain-text 를 M 라고 하자. Cipher-text 를 C 라고 한다. <br>
+Public key 인 n,e 를 이용해서 암호화한다. M ^ e = C (mod n) <br></p>
+
+<p>Decryption 은 다음과 같다.</p>
+
+<p>C ^ d = M (mod n)</p>
+
+<p>Public key 인 n,e 를 알경우, private key d 를 recover 하기 위해서는 n 을 p,q 로 factor 해야한다.</p>
+
+<p>숫자를 넣어보면,</p>
+
+<p>p = 3, q = 11 <br>
+n = 3 * 11 = 33 <br>
+z = 2 * 10 = 20 <br>
+e 는 20 과 relative prime 인 11 을 선택. <br></p>
+
+<p>public key 는 RSA 시스템에서 exponent 라고 부르는 e = 11 과 modulo 라고 부르는 33 으로 구성된다.</p>
+
+<p>이제 private key 를 계산하자.</p>
+
+<p>exponent e 의 modular inversion 이 private key d 가 된다.</p>
+
+<p>e 는 z 의 원소이고, z 와 relatively prime 이기때문에 modular inversion 이 존재한다.</p>
+
+<p>e<em>d = 1 (mod z) 니까, 11</em>d = 1 (mod (3-1)*(11-1)) 니까 d 는 11 이 된다.</p>
+
+<p>정리하면, 모듈로 n = 33 exponent e = 11 private d = 11.</p>
+
+<p>Encryption algorithm 은 ( Plaintext ^ e ) mod n.</p>
+
+<p>Decryption algorithm 은 ( Cipher ^ d ) mod n.</p>
+
+<p>Plaintext M = 3 이라고 해보자.</p>
+
+<p>( 3 ^ 11 ) mod 33 = 8.</p>
+
+<p>11 의 modular inversion (z = 20) 은 11.</p>
+
+<p>( 8 ^ 11 ) mod 33 = 3 이 다시 나왔다.</p>
+
+<p>RSA 크립토를 깬다는 이야기는 n, e 를 알고 있고, z 를 모를때, e 의 modular inversion (z = ???) 을 구하는 문제이다.</p>
+
+<p>공개키 exponent  e 와 모듈로 n 을 알경우에 비밀키 d 를 어떻게 구해야하나?</p>
+
+<p>d 를 알려면 z 를 알아야 한다. 그래야 modular inversion 을 할테니. modular inversion 을 하는 건 extended Euclid 알고리즘으로 빠르게 가능한데.</p>
+
+<p>z 를 recover 하려면, n 을 prime 2 개로 factor 해야하는데&hellip; prime-factoring 을 하면 그 조합은 unique 할테니&hellip;</p>
+
+<p>정리하면,</p>
+
+<pre><code>1. n = p * q
+
+2. 오일러 함수 pi(n) = (p-1)(q-1)
+
+3. pi(n) 과 co-prime 인 e 를 고른다.
+
+4. e 의 modular inverse 인 d 를 구한다. 
+
+5. 즉 d*e = 1 (mod pi(n))
+
+6. 당연히 M &lt; n 이다. ( n 은 굉장히 큰 prime 의 곱이다 )
+
+7. C = M ^ e (mod n)
+
+8. C ^ d = (M ^ e) ^ d  (mod n)
+   = M ^ (k*pi(n)+1) (mod n)
+   = (M ^ pi(n)) ^ k * M (mod n)
+   = M (mod n)
+
+( M 이 p 나 q 가 아니기 때문에, M ^ pi(n) (mod n) = 1 이 된다. )
+</code></pre>
+
+<p>공부할겸, weak 한 RSA algorithm 을 구현하고, plaintext 의 일부를 알고 있을때 (i.e. From: , To: 헤더) brute-force 로 크랙하는 글을 한번 써봐야겠다.</p>
+
+<p><a href="http://sergematovic.tripod.com/rsa1.html">The RSA Algorithm Explained Using Simple Pencil and Paper Method</a></p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/02/10/building-pyv8-from-scratch/">Building PyV8 From Scratch</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-02-10T21:53:00+09:00'><span class='date'><span class='date-month'>Feb</span> <span class='date-day'>10</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>9:53 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Google V8 을 Ubuntu 12.04 LTS 에서 컴파일해보았다. x64 로 컴파일하는데 에러가 나고 삽질 연속. MBA 11 하즈웰에서 VMware Fusion 으로 버추얼 머신을 돌리고 거기서 컴파일하는데 컴파일이 하세월이다. 안드로이드 컴파일은 MBPr 에서 해야겠다.</p>
+
+<p>PyV8 빌드가 최종 목표고, boost 빌드 -> V8 빌드 -> PyV8 빌드의 순서로 가본다.</p>
+
+<p>V8 Build</p>
+
+<ul>
+<li><code>export V8_HOME=/blah/blah/v8</code> 로 환경변수를 잡아주고.</li>
+<li><code>werror=no</code> 로 워닝 폭탄을 제거한다.</li>
+<li>PyV8 과 붙일려고 하는 거라서, -fPIC (Position Independent Code) 로 만들어야한다. <code>export CCFLAGS=-fPIC</code></li>
+<li><code>scons arch=x64</code> 를 했는데 scons 에서 에러가 난다. 찾아보니 GYP 로 가면서 scons 는 deprecate 되었다고. <code>make x64</code> 로 땜빵해보자.</li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/01/13/reversing-android/">Reversing Android</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-01-13T18:20:00+09:00'><span class='date'><span class='date-month'>Jan</span> <span class='date-day'>13</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>6:20 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Android reversing tools:</p>
+
+<ul>
+<li><a href="http://jd.benow.ca/">jd-gui</a></li>
+<li><a href="https://bitbucket.org/mstrobel/procyon/wiki/Java%20Decompiler">Procyon</a></li>
+<li><a href="http://varaneckas.com/jad/">JAD</a></li>
+<li>jadx</li>
+<li>CFR</li>
+<li>JEB Decompiler (Native Dalvik decompiler)</li>
+<li>IDA 6.1</li>
+<li><a href="https://code.google.com/p/dex2jar/">dex2jar</a></li>
+<li><a href="https://code.google.com/p/smali/">smali/baksmali</a></li>
+<li><a href="https://code.google.com/p/android-apktool/">apktool</a></li>
+<li><a href="https://code.google.com/p/signapk/">signapk</a></li>
+<li><a href="http://siis.cse.psu.edu/ded/installation.html">ded</a></li>
+<li><a href="http://sourceforge.net/projects/androidicsjbext/">Android ICS JB EXT4 imagefile unpacker</a></li>
+<li><a href="http://sourceforge.net/projects/ext2read/">ext2read/ext2explorer</a></li>
+<li><a href="https://code.google.com/p/droidbox/">droidbox </a></li>
+<li><a href="http://code.google.com/p/androguard">androguard</a></li>
+<li><a href="http://developer.android.com/tools/help/emulator.html">Android Emulator</a></li>
+<li><a href="http://virtuous-ten-studio.com">VTS</a></li>
+<li><a href="http://forum.xda-developers.com/showthread.php?t=1248486">TLC UpdatezipCreator</a></li>
+<li><a href="http://apkmultitool.com/node/7">APK Multi-Tool</a></li>
+</ul>
+
+
+<p>안드로이드 framework 을 수정해서 폰에 올려서 커스텀 폰을 만드는 것도 재미있었고, apk 를 해제해서 smali 코드에 Log 를 code injection 하고 다시 패키징해서 폰에 인스톨해서 동적 분석하는 것도 꽤 스릴넘쳤다.</p>
+
+<p>몇 가지 Tip.</p>
+
+<h3><a href="http://stackoverflow.com/questions/647116/how-to-decompile-a-whole-jar-file">jar 를 .java 로 풀어내는 법</a>.</h3>
+
+<p>일단 smali/baksmali/dex2jar 를 가지고 optimized dex -> dex -> jar (*.class) 로 바꿔서 classes-dex2jar.jar 를 만든 다음에&hellip;</p>
+
+<pre><code>% cat jad.sh
+JAR=./classes-dex2jar.jar
+unzip -d $JAR.tmp $JAR
+pushd $JAR.tmp
+for f in `find . -name '*.class'`; do
+    jad -d $(dirname $f) -s java -lnc $f
+done
+popd
+</code></pre>
+
+<p>위와같은 shell script 로 java 로 바꾼다. java 로 바꿔서 IntelliJ 에서 import 해서 보면 JD-GUI 로 보는 것보다 편하다.</p>
+
+<h3>apk 를 서명한 private key 와 pair 인 cert 를 추출하는 법</h3>
+
+<pre><code>$ jarsigner -verify -certs -verbose testing.apk
+$ unzip testing.apk
+$ cd META-INF
+$ openssl pkcs7 -in CERT.RSA -print_certs -inform DER -out out.cer
+$ cat out.cer
+</code></pre>
+
+<h3>DroidBox</h3>
+
+<pre><code>wget http://droidbox.googlecode.com/files/DroidBox411RC.tar.gz
+android
+./startmenu.sh &lt;AVD name&gt;
+./droidbox.sh babo.apk
+</code></pre>
+
+<p>Resources:</p>
+
+<ul>
+<li><a href="http://stackoverflow.com/questions/1043322/why-do-i-get-access-denied-to-data-folder-when-using-adb">Why do I get access denied to data folder when using adb?</a></li>
+<li>Learning Pentesting for Android Devices</li>
+<li>Android Hacker&rsquo;s Handbook</li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/10/09/server-sent-events/">Server Sent Events</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-10-09T09:52:00+09:00'><span class='date'><span class='date-month'>Oct</span> <span class='date-day'>9</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>9:52 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Polling, Long Polling, Push, SSE, WebSocket 의 정확한 차이점을 알 필요가 생겼다.</p>
+
+<h3>Polling</h3>
+
+<p>AJAX 로 HTTP query 를 주기적으로 날리는 식이다. AJAX 와 다른 특별한 기술이라고 하기는 그렇다.
+새로운 Data 가 없을 경우 헛 쿼리를 하게되니, bandwidth 낭비가 된다.</p>
+
+<h3>Long Polling (Hanging GET/COMET)</h3>
+
+<p>보낼 데이타가 없으면, 서버가 HTTP request 를 잡고 있다가, data 가 available 할 때,
+HTTP response 를 보내준다. 서버가 잡고 있기 때문에 Hanging GET 이라고도 칭한다.</p>
+
+<p><a href="http://infrequently.org/2006/03/comet-low-latency-data-for-the-browser/">Alex Russel 의 블로그를 참조</a></p>
+
+<h3>Server Sent Events</h3>
+
+<p><a href="https://developer.mozilla.org/en-US/docs/Server-sent_events/Using_server-sent_events">Mozilla Developer Network</a> 를 보면 SSE 에 대한 좋은 예제가 있다.</p>
+
+<p>서버에서 MIME Type <code>text/event-stream</code> 으로, 내용은 JSON 으로 보내되, <code>event:</code>, <code>data:</code> 로 구분해서 보내고, 클라이언트에서는 <code>EventSource</code> 인터페이스를 사용한다. 보다 자세한 설명은 <a href="http://www.html5rocks.com/en/tutorials/eventsource/basics/">HTML5Rocks</a>로.</p>
+
+<p>sse.html</p>
+
+<pre><code>&lt;html&gt;
+&lt;head&gt;&lt;/head&gt;
+&lt;body&gt; 
+    &lt;ul id="evt"&gt;
+    &lt;/ul&gt;
+&lt;script&gt;
+    var source = new EventSource("sse.php");
+    source.addEventListener("ping", function(e) {
+        var elem = document.createElement("li");
+        var obj = JSON.parse(e.data);
+        elem.innerHTML = "ping at " + obj.time;
+        document.getElementById("evt").appendChild(elem);
+    }, false);
+&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+
+<p>sse.php</p>
+
+<pre><code>&lt;?php
+date_default_timezone_set("Asia/Seoul");
+header("Content-Type: text/event-stream\n\n");
+
+while (1) {
+    echo "event: ping\n";
+    $curDate = date(DATE_RFC2822);
+    echo 'data: {"time": "'. $curDate . '"}';
+    echo "\n\n";
+    ob_flush();
+    flush();
+    $r = rand(1,3)
+    sleep($r);
+}
+?&gt;
+</code></pre>
+
+<p>브라우저에서 접속해보면,</p>
+
+<p><img src="/images/ssedemo.png"></p>
+
+<p><a href="http://www.html5rocks.com/en/tutorials/eventsource/basics/">HTML5Rocks</a> 의 nodejs 예제.</p>
+
+<pre><code>var http = require('http');
+var sys = require('sys');
+var fs = require('fs');
+
+http.createServer(function(req,res) {
+    if (req.headers.accept &amp;&amp; req.headers.accept == 'text/event-stream') {
+        if (req.url == '/events') {
+            sendSSE(req,res);
+        } else {
+            res.writeHead(404);
+            res.end();
+        }
+    } else {
+        res.writeHead(200, { 'Content-Type': 'text/html' });
+        res.write(fs.readFileSync(__dirname+'/sse.html'));
+        res.end();
+    }
+}).listen(8000);
+
+function sendSSE(req,res) {
+    res.writeHead(200, {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive'
+    });
+    var id = (new Date()).toLocaleTimeString();
+    setInterval(function() { 
+        constructSSE(res, id, (new Date()).toLocaleTimeString() );
+    }, 5000);
+    constructSSE(res, id, (new Date()).toLocaleTimeString() );
+}
+
+function constructSSE(res, id, data) {
+    res.write('event: ping' + '\n');
+    //res.write('id: ' + id + '\n');
+    res.write('data: ' + '{ "time": "' + data + '"}' + '\n\n');
+}
+</code></pre>
+
+<p>sse.html</p>
+
+<pre><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;&lt;/head&gt;
+&lt;body&gt;
+    &lt;ul id="evt"&gt;
+    &lt;/ul&gt;
+    &lt;script&gt;
+        var source = new EventSource('/events');
+        source.addEventListener("ping", function(e) {
+            var elem = document.createElement("li");
+            var obj = JSON.parse(e.data);
+            elem.innerHTML = "ping at " + obj.time;
+            document.getElementById("evt").appendChild(elem);
+        }, false);
+    &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+
+<p>HTTP connection 을 유지하면서, 서버가 random 딜레이를 두고 event 를 쏴주는데,
+브라우저가 이벤트를 처리하게 된다.</p>
+
+<p><a href="http://stackoverflow.com/questions/5195452/websockets-vs-server-sent-events-eventsource">WebSocket 과 SSE 간에 큰 차이점</a>은 다음과 같다.</p>
+
+<ol>
+<li>WebSocket 은 Full-Duplex 채널 v.s. SSE 는 Server -> Browser</li>
+<li>SSE 는 HTTP 로 구현</li>
+<li>Internet Explorer 는 SSE 를 지원하지 않음</li>
+</ol>
+
+
+<p>WebSocket 이나 SSE 는 브라우저 호환성때문에, 현실에서는 (i.e. Facebook) long polling 을 주로 사용하는 모양이다.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/10/02/horners-method/">Horner's Method</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-10-02T15:19:00+09:00'><span class='date'><span class='date-month'>Oct</span> <span class='date-day'>2</span><span class='date-suffix'>nd</span>, <span class='date-year'>2013</span></span> <span class='time'>3:19 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><a href="http://en.wikipedia.org/wiki/Horner's_method">Horner&rsquo;s method</a></p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/09/30/updating-forked-repo/">Updating Forked Repo</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-09-30T13:16:00+09:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>30</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>1:16 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><a href="http://stackoverflow.com/questions/7244321/how-to-update-github-forked-repository">How to update github forked repository</a></p>
+
+<pre><code>git remote add upstream git://github.com/whoever/whatever.git
+
+# Fetch all the branches of that remote into remote-tracking branches,
+# such as upstream/master
+git fetch upstream
+
+# Make sure that you're on your master branch:
+git checkout master
+
+# Rewrite your master branch so that any commits of yours that
+# aren't already in upstream/master are replayed on top of that
+# other branch:
+git rebase upstream/master
+
+git push -f origin master
+</code></pre>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/09/27/naive-bayesian-classifier/">Naive Bayesian Classifier</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-09-27T16:29:00+09:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>27</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>4:29 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h4>Conditional Probability</h4>
+
+<p>일반적인 조건부 확률 예제를 들어본다.</p>
+
+<ol>
+<li>주머니에 두개의 동전이 들어있다.</li>
+<li>여기서 동전을 하나 꺼내 동전 던지기를 한다.</li>
+<li>단 한개는 평범한 동전. 한개는 조작되어서 던지면 무조건 Head 가 나오는 동전.</li>
+<li>주머니에서 동전을 하나 꺼내어 던졌더니 Head 가 나왔을때,</li>
+<li>평범한 동전을 꺼냈을 확률은?</li>
+</ol>
+
+
+<p>결과 트리를 그려보면,</p>
+
+<ol>
+<li>일단계 outcome 은 평범동전 / 조작동전</li>
+<li>이단계 outcome 은 H / T / H / H</li>
+</ol>
+
+
+<p>P(평범|H) = one H / three H = 1/3 = P(평범 and H) / P(H) = (&frac14;) / (&frac34;)</p>
+
+<h4>검색 키워드에 따라 결과 페이지에 광고를 집어 넣기</h4>
+
+<p>검색 엔진에 들어오는 쿼리를</p>
+
+<ul>
+<li>informational query</li>
+<li>transactional query</li>
+</ul>
+
+
+<p>2 가지로 구분할 수 있다고 하자.</p>
+
+<p><code>transactional query</code> 라고 판단되면 광고를 옆에 표시해주기로 하자.</p>
+
+<p>쉬운 방법은 매 query 마다 과거 기록을 검색해보면 된다.</p>
+
+<p><code>cheap flowers</code> 라고 유저가 치면 <code>cheap flowers</code> 를 과거 DB 에서 검색해서,</p>
+
+<ol>
+<li>구매관련 링크로 튀었는지 (유저가 클릭)</li>
+<li>정보성 링크로 튀었는지</li>
+</ol>
+
+
+<p>검색한 후에, 구매관련 링크로 튄 경우가 많았다면 꽃가게 광고를 옆에 표시해준다.
+그런데 이 방법은 response 시간도 오래 걸리고 부하가 심해서 feasible 하지 않다.</p>
+
+<p><code>cheap flowers</code>, <code>red flowers</code>, <code>gift flowers</code> 만 놓고 봐도,</p>
+
+<p><code>cheap flowers</code> 는 transactional query 일 것이고 <code>red flowers</code> 는 informational query 일 듯.</p>
+
+<p>조건부 확률을 써서 문제를 정의해보면, P(구매링크를 클릭| <code>cheap flowers</code> 를 검색) 의 확률이다.</p>
+
+<ol>
+<li>우리 DB 에 10 여년간의 수많은 검색 -> 클릭 데이터가 있다.</li>
+<li>정보성 블로그 링크인지 스폰서 광고 링크인지 link property 에 담겨져 있다. (링크 등록시)</li>
+</ol>
+
+
+<h4>Naive Bayesian Classifier</h4>
+
+<p>keywords: flower, red, gift, cheap</p>
+
+<ul>
+<li>should ads be shown or not?</li>
+<li>are you a surfer or a shopper?</li>
+</ul>
+
+
+<p>machine learning is all about learning from past data.</p>
+
+<ul>
+<li>past behavior of many many searchers using these keywords</li>
+</ul>
+
+
+<p>전체 n 개의 query instance 가 있었다고 하자. sample set.</p>
+
+<p>red 라는 단어를 query 한 경우가 r 케이스.</p>
+
+<p>구매로 연결된 query 는 k 케이스.</p>
+
+<p>p(R and B) = i 케이스.</p>
+
+<p>라고 하면.</p>
+
+<p>red 라는 단어를 query 했을 경우 구매 이벤트가 일어날 조건부 확률 p(B|R) = i/r</p>
+
+<p>Red / Cheap 이라는 2 개의 단어의 경우로 넘어가자.</p>
+
+<p>&ldquo;naive&rdquo; Bayesian classifier:</p>
+
+<p>Assumption: All the futures that one uses to learn about historical data are
+independent for a particular choice of the behavior one is trying to learn.</p>
+
+<p>i.e. if one is trying to predict whether a given user is shopping or just
+surfing using the query words that they use to search. We assume that the
+words themselves are all independent and equally likely of occur independent of
+what what other words are used in the query.</p>
+
+<p>Assumption - R and C are independent given B.</p>
+
+<p>P(B|R,C) * P(R,C) = P(R,C|B) * P(B) (Bayes rule)
+= P(R|C,B) * P(C|B) * P(B) (Bayes rule)
+= P(R|B) * P(C|B) &amp; P(B) (independence)</p>
+
+<p>so, given values r and c for R and C</p>
+
+<p>compute:</p>
+
+<p>p(r|B=y)<em>p(c|B=y)</em>p(B=y) / p(r|B=n)<em>p(c|B=n)</em>p(B=n)</p>
+
+<p>choose B=y if this is > alpha (usually 1), and B=n otherwise</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/09/27/mov-edi/">MOV EDI, EDI</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-09-27T10:57:00+09:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>27</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>10:57 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Raymond Chen 의 블로그 중에서 재미난 것을 찾았다.</p>
+
+<p>[Why do Windows functions all begin with a pointless MOV EDI, EDI instruction?]
+(<a href="http://blogs.msdn.com/b/oldnewthing/archive/2011/09/21/10214405.aspx">http://blogs.msdn.com/b/oldnewthing/archive/2011/09/21/10214405.aspx</a>)</p>
+
+<pre><code>MOV EDI, EDI
+PUSH EBP
+MOV EBP, ESP
+</code></pre>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/09/26/the-knapsack-problem/">The Knapsack Problem</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-09-26T11:04:00+09:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>26</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>11:04 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h4>Problem</h4>
+
+<p>도둑이 크기 W 의 자루를 들고 남의 집에 들어가, 자루에 물건을 담아 훔쳐가려고 한다.
+집에 물건은 n 개가 있고, 각각 다른 크기를 가지고 있다. 편의상 물건들의 크기를 더해서
+전체 크기를 계산할 수 있다고 가정할때, 어떻게 집어넣어야 값어치가 가장 크겠는가?</p>
+
+<h4>Problem Definition</h4>
+
+<p>Input: n items. Each has a value:</p>
+
+<ul>
+<li>value v_i (non-negative)</li>
+<li>size w_i (non-negative and integer)</li>
+<li>capacity W (a non-negative integer)</li>
+</ul>
+
+
+<p>Output: a subset S of {1,2,3,&hellip;,n} that maximize sum v_i subject to sum w_i &lt;= W</p>
+
+<h4>Developing a Dynamic Programming Algorithm</h4>
+
+<p>첫번째, 두번째, &hellip;, n 번째 아이템이 있을때,</p>
+
+<p>m[i,w] 를 다음과 같이 정의한다.</p>
+
+<ol>
+<li>0 번째부터 i 번째까지의 아이템을 집어 넣을 수 있다.</li>
+<li>집어넣은 아이템 전체 weight 는 w 보다 작거나 같아야 한다.</li>
+<li>이때 취할 수 있는 최대 value 가 m[i,w] 라고 하자.</li>
+</ol>
+
+
+<p>그러면 원래 문제는 m[n,W] 가 된다.</p>
+
+<p>sub-problem 으로는 m[1,W] 를 생각해보자. 첫번째 아이템만만 사용할 수 있는 경우인데,
+해답은 굉장히 간단하다. 첫번째 아이템의 크기가 W 보다 작다면 무조건 취하고, 크다면 넣지 못한다.
+각각의 경우, 자루의 값어치는 v_1 또는 0 이 된다.</p>
+
+<p>m[1,W] 에서 문제 크기를 조금 위로 올려서 sub-problem m[n-1,W] 를 생각해보자.
+m[n-1,W] -> m[n,W] 로 확장될 때, n 번째 아이템을 취해야 하는가? 라는 문제가 되는데.
+우선, n 번째 아이템이 너무 커서 고려할 가치가 없는 경우가 있을 수 있다.
+<code>weight of n &gt; W</code> 인 경우 => <code>m[n,W] = m[n-1,W]</code> 가 된다.
+아니면, n 번째 아이템을 넣었을 경우와 뺐을 경우를 비교해서 큰 쪽을 선택하면 된다.
+m[n-1,w] 가 뺐을 경우. m[n-1,w-w_n] + v_n 이 집어 넣었을 경우가 된다.</p>
+
+<ul>
+<li>m[i,w] = m[i-1,w] if w_i > w (the new item is more than the current weight limit)</li>
+<li>m[i,w] = max ( m[i-1,w] , m[i-1,w-w_i] + v_i) if w_i &lt;= w</li>
+</ul>
+
+
+<p>memoization 과 sub-problem 을 사용해서.</p>
+
+<pre><code>for w from 0 to W do
+    m[0,w] = 0
+end
+for i from 1 to n do // enlarge available items
+    for j from 0 to W do
+        if j &gt;= w[i] then
+            m[i,j] = max( m[i-1,j], m[i-1,j-w[i]] + v[i] )
+        else
+            m[i,j] = m[i-1,j]
+        end
+    end
+end
+</code></pre>
+
+<p>그런데 증명해야 할 부분이 있다.</p>
+
+<blockquote><p>아이템 n 이 최적해 S 에 들어있다고 가정하자. 그렇다면, S - {n} 은
+first (n-1) 아이템들과 capacity W - w_n 의 문제의 최적해라는 것을 증명해야 한다.</p></blockquote>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/09/24/sok-eternal-war-in-memory/">SoK: Eternal War in Memory</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-09-24T17:54:00+09:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>24</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>5:54 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Browser fingerprinting, JavaScript obfuscation, IE exploit PoC 들은 어느정도 파악되었으니,
+Windows system programming 쪽으로 이동한다. 최종 목표는 DbD 와 APT 를 수행할 수 있는
+툴셋 확보.</p>
+
+<p>다음 단계 일들은 API Hooking, DLL Injection 분야.</p>
+
+<p>그 전에 메모리 관련 exploit 의 역사를 정리해보기로 하였다.</p>
+
+<p>정리가 잘 되어 있는 SoK: Eternal War in Memory 라는 논문을 시작점 삼아 진행한다.</p>
+
+<ul>
+<li>James P. Anderson. Computer Security Technology Planning Study, 1972</li>
+<li>AlephOne, Phrack article &ldquo;Smashing the Stack for Fun and Profit&rdquo;</li>
+<li>return-into-libc</li>
+<li>advanced return-into-libc</li>
+<li>jump oriented programming</li>
+<li>return oriented programming</li>
+<li>integer overflow</li>
+<li>use-after-free</li>
+<li>heap overflow</li>
+<li>vtable</li>
+<li>heap spraying</li>
+<li>stack protection</li>
+<li>heap protection</li>
+<li>SafeSEH</li>
+<li>DEP</li>
+<li>ASLR</li>
+</ul>
+
+
+<p>등을 다뤄보겠다.</p>
+
+<p>메모리 공격에 관한 중요한 마일스톤을 적어놓은 <a href="http://zynamics.files.wordpress.com/2010/02/code_reuse_timeline1.png">타임라인</a>을 보면 창과 방패의 공방이 이해가 빠를 것.
+(1972 년에 미정부가 진행한 연구 &ldquo;Computer Security Technology Planning Study&rdquo; 에 buffer overflow 공격에 대해 기술되어 있다는 점이 흥미롭다.)</p>
+
+<h3>Smashing the Stack</h3>
+
+<p>TBD</p>
+
+<h3>W-xor-X a.k.a Data Execution Prevention</h3>
+
+<p>TBD</p>
+
+<h3>return-into-libc</h3>
+
+<p><code>W^X</code> 를 피해가기 위해, <a href="http://seclists.org/bugtraq/1997/Aug/63">return-into-libc</a> 가 개발되었다.</p>
+
+<p><code>W^X</code> 때문에, writable 한 buffer 에 i.e. system(&ldquo;/bin/sh&rdquo;) 과 같은 코드를 집어넣고 수행시키는 것이
+불가능해졌다. 메모리에 shellcode instruction 을 집어넣을 수 있다 하더라도,
+CPU 가 수행을 안해버리니 난감한 상황이 벌어진 것.</p>
+
+<p>이에 대항하여 return-into-libc 라는 기법이 Solar Designer 에 의해 제시되었다.</p>
+
+<p>return-into-libc 는 excutable 하다고 마킹된 기존의 코드를 재활용하는 컨셉이다.</p>
+
+<p>메모리에 로드되는 libc 코드에서 system() 의 위치와 &ldquo;/bin/sh&rdquo; 의 위치를 찾을 수 있고,
+stack frame 을 overwrite 할 수 있다면, 다음과 같이 stack frame 을 overwrite 해서,
+shellcode 를 제공하지 않고도 exploit 을 성공시킬 수 있다.</p>
+
+<pre><code>[ pointer to "/bin/sh" ]
+[ dummy_ret_address    ]
+[ pointer to system()  ] &lt;- this int32 should overwrite return address of a vulnerable function
+</code></pre>
+
+<h3>The advanced return-into-libc</h3>
+
+<p>여러개의 함수를 호출해야 하는 경우를 위해 <a href="http://www.phrack.com/issues.html?issue=58&amp;id=4">고도화된 버전</a>이 제시되었다.</p>
+
+<h4>&ldquo;esp lifting&rdquo; 기법</h4>
+
+<p><code>-fomit-frame-pointer</code> 로 컴파일된 바이너리를 공격하기 위해 개발된 기법이다.
+이 경우 함수의 return 부분이 다음과 같이 생성되는데,</p>
+
+<pre><code>eplg:
+        addl $LOCAL_VARS_SIZE,%esp
+        ret
+</code></pre>
+
+<p>이제 아래와 같이 stack frame 을 overwrite 할 수 있다면, 2 개의 함수를 호출하는 것이
+가능하다.</p>
+
+<pre><code>[ pointer to "/bin/sh" ]
+[ dummy_ret_address    ]
+[ pointer to system()  ]
+[ PAD                  ]
+[ 0                    ]
+[ pointer to eplg      ]
+[ pointer to setuid()  ] &lt;- this int32 should overwrite return address of a vulnerable function
+</code></pre>
+
+<p>취약점을 가지고 있는 함수가 ret 하면 setuid() 로 뛰게 되고 setuid(0) 가 수행되며,
+setuid() 는 eplg 로 return 하게 된다.</p>
+
+<p>eplg 는 addl $LOCAL_VARS_SIZE,%esp 로 [ 0 ] 과 [ PAD ] 를 날리고, system() 으로 ret 하게 된다.
+system() 은 &ldquo;/bin/sh&rdquo; 을 arg 로 받아 수행하게 된다.</p>
+
+<h4>pop+ret method</h4>
+
+<p>address space 에서 pop+ret 인스트럭션이 있는 주소를 찾아서,</p>
+
+<pre><code>pop-ret:
+        popl any_reg
+        ret
+</code></pre>
+
+<p>다음과 같이 stack frame 을 overwrite 한다.</p>
+
+<pre><code>[ pointer to "/bin/sh" ] &lt;- arg1 for system()
+[ dummy_ret_address    ] &lt;- ret address for system(). doesn't matter in this stage.
+[ pointer to system()  ] &lt;- supply ret address for pop+ret
+[ 0                    ] &lt;- arg1 for setuid(). will be pop'ed by pop+ret
+[ pointer to pop+ret   ] &lt;- supply ret address for setuid()
+[ pointer to setuid()  ] &lt;- this int32 should overwrite return address of a vulnerable function
+</code></pre>
+
+<p>취약점을 가지고 있는 함수가 ret 하면 setuid(0) 로 튀게 된다.
+그리고 setuid(0) 가 끝나면 pop-ret 인스트럭션이 있는 주소로 튀게 된다.
+pop-ret 은 [ 0 ] 을 날리고, system() 으로 튀게 된다.</p>
+
+<p>만약 setuid() 가 아니라 argument 를 2 개 먹는 함수를 호출해야 한다면,</p>
+
+<pre><code>pop-ret2:
+        popl any_reg
+        popl any_reg
+        ret
+</code></pre>
+
+<p>이런 인스트럭션의 조합을 어드레스 스페이스에서 찾아서 그 주소를 사용해야 한다.</p>
+
+<h3>Return Oriented Programming</h3>
+
+<p>Multiple functions 을 수행하는 지경까지 가니까, 굳이 function 단위로 수행할 필요가 있겠는가?
+인스트럭션을 여기저기서 모아서 짜깁기해서 돌려보자&hellip; 로 발전한 것은 어찌보면 당연하다 하겠다.</p>
+
+<p>ROP 란 ret 으로 끝나는 인스트럭션 셋 (gadget 이라 칭함) 들을 여기저기서 모아서 조립하는 식이다.</p>
+
+<pre><code>684a0f4e:
+    pop eax
+    ret
+
+684a2367:
+    pop ecx
+    ret
+
+684a123a:
+    mov [ecx],eax
+    ret
+</code></pre>
+
+<p>란 instruction set 들을 모아서 스택에서 조립한다.</p>
+
+<pre><code>[0x684a123a] &lt;- mov [ecx],eax
+[0x684a2367] &lt;- pop ecx
+[0x684a0f4e] &lt;- pop eax
+</code></pre>
+
+<p>로 스택을 조립하면, pop eax 를 하고 ret 해서 pop ecx 로 튀고, 다음에는 mov[ecx],eax 로 튀는 식이다.</p>
+
+<p>이런 다양한 gadget 들을 exploit 하려는 process 의 어드레스 스페이스에서 찾아낼 수 있다면,
+shellcode 를 공급하지 않고도, malicious computation 을 수행할 수 있게 되는 것이다.</p>
+
+<p>address space 에서 ret (opcode: 0xc3) 을 찾아서 그 앞쪽으로 써치해가면
+사용할 수 있는 gadget 들이 어떤 것인지를 파악할 수 있게 된다.</p>
+
+<p>(적절한 기존 코드가 있다면 ROP 를 사용해서) 기존 프로그래밍 랭귀지와 동등하게
+computational problem solving 이 가능한 code 를 제작할 수 있다는 의미에서
+ROP 가 Turing Complete 라고도 이야기한다.</p>
+
+<p>Turing Complete 라는 의미에서 기존의 EIP 기반의 instruction 수행이
+ESP 기반의 ROP 에서 어떻게 매핑되는지 보겠다.</p>
+
+<h4>NOP</h4>
+
+<p>TBD</p>
+
+<h4>Immediate Constants</h4>
+
+<p>TBD</p>
+
+<h4>Control Flow</h4>
+
+<p>TBD</p>
+
+<h3>Jump-Oriented Programming</h3>
+
+<p>TBD</p>
+
+<h3>ASLR</h3>
+
+<p>TBD</p>
+
+<h3>참고 문헌</h3>
+
+<ul>
+<li>Solar Designer. Getting around non-executable stack (and fix)</li>
+<li>Nergal. The Advanced Return-into-libc Exploits: PaX Case Study. Phrack Magazine, Vol. 11, Issue 0x58, 2001.</li>
+<li>Hovav Shacham, Return-Oriented Programming: Exploits Without Code Injection, Black Hat USA 2008</li>
+<li>Ryan Roemer, Return-Oriented Programming: Systems, Languages, and Applications. ACM</li>
+<li>SoK: Eternal War in Memory</li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  <div class="pagination">
+    
+      <a class="prev" href="/posts/17">&larr; Older</a>
+    
+    <a href="/blog/archives">Blog Archives</a>
+    
+    <a class="next" href="/posts/15">Newer &rarr;</a>
+    
+  </div>
+</div>
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/10/04/return-oriented-programming-for-the-arm-architecture/">Return Oriented Programming for the ARM Architecture</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/02/the-inside-story-behind-ms08-067/">The Inside Story Behind MS08-067</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/17/rop-and-arm/">ROP and ARM</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/13/sophail-applied-attacks-against-sophos-antivirus/">Sophail: Applied Attacks Against Sophos Antivirus</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/13/stagefright/">Stagefright</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - Your Name -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,800 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>My Octopress Blog</title>
+  <meta name="author" content="Your Name">
+
+  
+  <meta name="description" content="@andrewchen 은 Growth Hacker is the new VP Marketing 에서
+AirBnB 와 Craigslist 와의 연동에 대해서 이야기한다. 놀라운 점은 공개된 API 를 통해서 연동한 것이 아니라,
+웹을 스크레이핑하고 파싱하고, 폼을 대신 &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://yoursite.com/posts/21/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="My Octopress Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">My Octopress Blog</a></h1>
+  
+    <h2>A blogging framework for hackers.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="yoursite.com">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div class="blog-index">
+  
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/05/12/api-centric-marketing/">API-centric Marketing</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2012-05-12T22:20:00+09:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>12</span><span class='date-suffix'>th</span>, <span class='date-year'>2012</span></span> <span class='time'>10:20 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>@andrewchen 은 <a href="http://andrewchenblog.com/2012/04/27/how-to-be-a-growth-hacker-an-airbnbcraigslist-case-study/">Growth Hacker is the new VP Marketing</a> 에서
+AirBnB 와 Craigslist 와의 연동에 대해서 이야기한다.</p>
+
+<p>놀라운 점은 공개된 API 를 통해서 연동한 것이 아니라,
+웹을 스크레이핑하고 파싱하고, 폼을 대신 채워넣고 하는 방식으로
+연동시킨것.</p>
+
+<p>연동한 기능은</p>
+
+<p><em>&ldquo;Airbnb 에 등록한 집을 Craigslist 에 쉽게 포스팅할 수 있게
+&lsquo;Post to Craigslist&rsquo; 메뉴를 제공하는 것&rdquo;</em></p>
+
+<p>인데,</p>
+
+<p>Craigslist 의 사용자 풀에서 사용자를 끌어올 수 있는
+좋은 수단이라고 이야기한다.</p>
+
+<p>기존의 마케터라면 이런 아이디어를 생각해내는 것은 차치하고,
+가능한지도 몰랐을 것. 마케팅 마인드의 엔지니어가 필요하다고 이야기한다.</p>
+
+<blockquote><p>Airbnb does just this, with a remarkable Craigslist integration.
+They&rsquo;ve picked a platform with 10s of millions of users where relatively
+few automated tools exist, and have created a great
+experience to share your Airbnb listing. It&rsquo;s integrated simple and deeply
+into the product, and is one of the most impressive ad-hoc integrations
+I&rsquo;ve seen in years. Certainly a traditional marketer would not have come up
+with this, or known it was even possible - instead it&rsquo;d take a
+marketing-minded engineer to dissect the product and build an integration
+this smooth.</p></blockquote>
+
+<p><br />
+뭔가 남이 해놓은 것을 리버스해서 구현하는 것은 쉽지만,
+이렇게 처음으로 만들어 내는 것은 정말 어려움.</p>
+
+<blockquote><p>The impressive part is that this is done with no public Craigslist API!
+It turns out, you have to look closely and carefully at Craigslist
+in order to accomplish an integration like this.
+Note that it&rsquo;s 100X easier for me to reverse engineer something that&rsquo;s
+already working versus coming up with the reference implementation -
+and for this reason, I&rsquo;m super impressed with this integration.</p></blockquote>
+
+<p><br />
+요즘에는 100M+ 이상의 유저를 가지고 있는 슈퍼 플랫폼들이 있기 때문에,
+API-centric 한 마케팅이 중요하다고 이야기한다.</p>
+
+<p>심지어 Airbnb 는 없는 API 도 만들어서 연동을 하는데.</p>
+
+<blockquote><p>The stakes are huge because of &ldquo;superplatforms&rdquo; giving access to 100M+
+consumers.</p>
+
+<p>&hellip;</p>
+
+<p>The fastest way to spread your product is by distributing it on a
+platform using APIs, not MBAs. Business development is now API-centric,
+not people-centric.</p></blockquote>
+
+<p><br />
+하지만 이 경우에는 공개된 API 가 아니었기 때문에 그 과정은 쉽지 않았을 것이라고 이야기한다.
+웹을 스크레이핑한다거나&hellip; 입력 폼을 미리 채워넣는다거나 하는 작업들이 필요했을 것.</p>
+
+<blockquote><p>The first thing you have to do is to look at how Craigslist allows users
+to post to the site.
+Without an API, you have to write a script that can scrape Craigslist and
+interact with its forms, to pre-fill all the information you want.</p></blockquote>
+
+<h2><br /></h2>
+
+<p><br /></p>
+
+<p>Quiz: YouTube 의 성공에 \&lt;EMBED> API 가 기여한 바는?</p>
+
+<ol>
+<li>크다.</li>
+<li>작다.</li>
+<li>없다.</li>
+</ol>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/05/12/hackers-who-sell-spies-the-tools-to-crack/">Hackers Who Sell Spies the Tools to Crack</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2012-05-12T19:26:00+09:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>12</span><span class='date-suffix'>th</span>, <span class='date-year'>2012</span></span> <span class='time'>7:26 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Forbes 에 실린 기사 <a href="http://www.forbes.com/sites/andygreenberg/2012/03/21/meet-the-hackers-who-sell-spies-the-tools-to-crack-your-pc-and-get-paid-six-figure-fees/">Meet The Hackers Who Sell Spies The Tools To Crack Your PC (And Get Paid Six-Figure Fees)</a> 는 흥미롭다.</p>
+
+<p>Microsoft Word, Adobe Reader, Google&rsquo;s Android, Apple&rsquo;s iOS, Chrome, Safri,
+Internet Explorer 등을 해킹할 수 있는 해킹킷을 파는 회사에 관한 이야기이다.</p>
+
+<p>회사 이름은 Vupen.</p>
+
+<p>가격이 놀라운데, 연간 회원이 되기 위해서는 $100,000 을 내야하고,
+별도로 각각의 해킹킷마다 돈을 내야 한다. 개별 해킹킷 가격이 $100,000 이상인
+경우도 많은 모양이다.</p>
+
+<blockquote><p>In that shady but legal market for security vulnerabilities,
+a zero-day exploit that might earn a hacker $2,000 or $3,000 from
+a software firm could earn 10 or even 100 times that sum from the spies
+and cops who aim to use it in secret.
+Bekrar won&rsquo;t detail Vupen&rsquo;s exact pricing, but analysts at Frost &amp; Sullivan,
+which named Vupen the 2011 Entrepreneurial Company of the Year in
+vulnerability research, say that Vupen&rsquo;s clients pay around $100,000
+annually for a subscription plan,
+which gives them the privilege of shopping for Vupen&rsquo;s techniques.
+Those intrusion methods - include attacks on software such as
+Microsoft Word, Adobe Reader, Google&rsquo;s Android, Apple&rsquo;s iOS operating systems
+and many more.</p></blockquote>
+
+<p>&ldquo;현대의 죽음의 상인&rdquo; 이라던가 &ldquo;사이버 전쟁의 총알을 판다&rdquo; 라고
+비난하는 사람들도 있다.</p>
+
+<blockquote><p>Chris Soghoian, a privacy activist and fellow at the
+Open Society Foundations, calls Vupen a &ldquo;modern-day merchant of death,&rdquo;
+selling &ldquo;the bullets for cyberwar.&rdquo;</p></blockquote>
+
+<p>High-end 해킹 킷을 중개하는 거래상도 있는 모양이다.</p>
+
+<blockquote><p>One person who will share those sales numbers is a South African hacker
+who goes by the name &ldquo;the Grugq&rdquo; and lives in Bangkok.
+For just over a year the Grugq has been supplementing his salary as a
+security researcher by acting as a broker for high-end exploits,
+connecting his hacker friends with buyers among his government contacts.</p></blockquote>
+
+<h2><br /></h2>
+
+<p><br />
+Vupen 이 공개한 비디오이다. <a href="http://www.youtube.com/watch?v=c8cQ0yU89sk&amp;feature=player_embedded">VUPEN Pwned Google Chrome</a> 에서
+브라우저의 Sandbox 를 바이패스하는 것을 볼 수 있다.</p>
+
+<p>집권당이 해커를 고용해 정부기관을 테러하는 세상이다.</p>
+
+<p>Gmail 의 메일 내용만 해킹해도 큰 돈을 벌 수 있는 기회는 많을 것이다.</p>
+
+<p>이런 해킹 킷에 대한 수요가 얼마나 많을지 짐작이 간다.</p>
+
+<p>William Gibson 이 그린 세상이 지금 여기에 있다.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/05/12/kyle-bass-on-hardtalk/">Kyle Bass on Hardtalk</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2012-05-12T13:55:00+09:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>12</span><span class='date-suffix'>th</span>, <span class='date-year'>2012</span></span> <span class='time'>1:55 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Kyle Bass 는 <a href="http://paul.kedrosky.com/archives/2011/11/kyle-bass-on-hardtalk-full-interview.html">Hardtalk Interview</a> 에서 그를 투기꾼으로 몰려는 진행자와 흥미로운 말싸움을 벌인다.</p>
+
+<p>진행하는 앵커가
+Michael Lewis 가 책에서 만든 어거지 비유 - 남의 집에 화재 보험을 드는 것 - 을
+가지고 CDS 를 공격한다.</p>
+
+<p>Kyle Bass 는</p>
+
+<p>자신이 그리스 사태에서 돈을 벌기는 했지만,</p>
+
+<p>자신에게 돈을 맡긴 사람들에게 선량한관리자의주의의무를 다하기 위해서는,</p>
+
+<ol>
+<li>돈을 잃지 않는 것</li>
+<li>리스크를 감안해서 최대한의 이익을 얻는 것</li>
+</ol>
+
+
+<p>에 충실해야 한다고 말한다.</p>
+
+<p>그는 당시 전세계에 equity/debt portfolio 를 가지고 있었으며,</p>
+
+<p>헤지를 할 필요가 있었는데,</p>
+
+<p>유동화된 서브프라임 모기지 증권의 하위 3% 가 부실화될 것이라는 헤지는
+the best asymmetric hedge 였다고 이야기한다.</p>
+
+<p>자신은 투기를 한 것이 아니며, cost 대비 asymmetric 한 hedge 였기에 합리적인
+의사 결정을 한 것일뿐이라고 말한다.</p>
+
+<p>이제 그리스에는 asymmetry 가 없으며, 세상의 모든 asymmetries 는 일본에 있다고 이야기한다.</p>
+
+<h2><br /></h2>
+
+<p><br />
+투기냐 투자냐 헤지냐? 생각만큼 간단한 문제가 아님.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/05/11/the-pitch/">The Pitch</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2012-05-11T20:56:00+09:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>11</span><span class='date-suffix'>th</span>, <span class='date-year'>2012</span></span> <span class='time'>8:56 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Peter Thiel 은 <a href="http://blakemasters.tumblr.com/post/22271192791/peter-thiels-cs183-startup-class-8-notes-essay">CS183:Startup 클래스의 여덟번째 강의</a>에서, &ldquo;피칭"에 관해 강의한다.</p>
+
+<p>먼저 그는 많지도 작지도 않은 적절한 규모의 펀딩을 해야 한다고 말한다.</p>
+
+<p>또한 높은 밸류에이션이 무조건 좋은 것이 아니라고 이야기한다. 지나치게 높은 밸류에이션은 다른 VC 들의 참여를 막을 수도 있고, 그 다음 라운드 자체가 infeasible 하게 될 수도 있다.</p>
+
+<blockquote><p>First, you need to raise the right amount of capital.
+A small company shouldn&rsquo;t raise 100 million dollars,
+even if Great Late Stage Fund is very eager to cut you a check.
+Raising too much can haunt you. Map out your operating expenses for one
+year, multiply that figure by 1.5, and ask for that,
+as a first approximation.</p>
+
+<p>&hellip;</p>
+
+<p>Second, higher valuation aren&rsquo;t always in your interest.
+Valuation that are too high will deter other VC firms from investing.
+And they will expose you to all sort of problems regarding compensation
+and expected future returns for your employees and investors.
+Be prepared to expect an offer that&rsquo;s objectively good,
+even if it&rsquo;s emotionally unsatisfying. On the other hand, valuations
+that are really low are obviously bad as well, since they mean that
+you get either got screwed or that there is something wrong with your idea.</p></blockquote>
+
+<p><br />
+시니어 VC 는 이미 부자이며 훌륭한 트랙 레코드를 가지고 있기 때문에,
+굳이 열심히 투자할 동기가 없다는 사실을 이야기한다.</p>
+
+<blockquote><p>True, but an interesting dynamic is that no senior VC needs to do your
+investment. You should never forget that. Any senior VC that you&rsquo;re
+talking to is already wealthy and has many famous deals to show for it.
+Your company is probably not going to make a material difference to him
+and does present a significant chance of adding to his workload and failure
+rate;</p></blockquote>
+
+<p><br />
+전술적으로는 &ldquo;투자할 필요가 있는 VC"를 찾는 것. Junior 들에게 pitch 할 필요가
+없다는 이야기는 틀린 이야기. Junior 들은 Senior 가 되기 위해서는 좋은 Deal 이
+필요한 사람들.</p>
+
+<blockquote><p>Tactically, the first thing to do is find someone who does need to make
+investments. That can mean finding a senior associate or a principal for
+your first pitch, not a senior partner. This contravenes the conventional
+wisdom that holds that you should not to pitch junior people.
+(&ldquo;Don&rsquo;t pitch someone who can&rsquo;t write a check themselves.&rdquo;)
+That wisdom is wrong. Junior people will give your a fair shake, because
+they need good deals to their name. If they don&rsquo;t find those deals,
+they won&rsquo;t become senior, and they very much want to become senior.
+So seek these people out - they are motivated in a way more seasoned VCs
+are not.</p></blockquote>
+
+<p><br />
+VC 들이 두려워하는 것은 투자를 안했는데, 나중에 회사가 대박나서 옆동네 VC 가 부자가 되는 것.</p>
+
+<blockquote><p>But all you need to know is that VCs really don&rsquo;t want to lose a good deal
+to a competitor. So convince them that your company will be great and make
+them afraid of missing out.</p></blockquote>
+
+<p><br />
+돈이 있을 때 가장 협상력이 있을때니까 그 때 펀딩을 추진해야 한다.</p>
+
+<blockquote><p>You should always try to pitch when you don&rsquo;t need money. That is when
+you are strongest. Short runways are often perceived as a sign of massive
+weakness. If everybody knows you&rsquo;re desperate, the best that can happen is
+you get screwed on terms.</p></blockquote>
+
+<p><br />
+CEO 의 잡은 피칭하는 것. 워렌 버펫은 재산이 46조지만, 피칭을 50년째
+하고 있다. i.e. 버크셔해서웨이의 연례 주주총회나 버펫이 직접 쓰는 편지.</p>
+
+<p>오라클의 래리 엘리슨도 월 스트리트에 가서 자사 주식을 사라고
+(적어도 팔지는 말라고), 피칭을 하고 있다.</p>
+
+<blockquote><p>Larry Ellison will have to pitch Wall Street on why people should buy
+Oracle stock, or at least not sell it. Warren Buffet is worth something
+like $46bn and he still has to pitch and has been doing so for five decades
+(for example, his annual letters). If people with tens of billions of dollars
+have to do it, you can assume the same will be true of you.</p></blockquote>
+
+<h2><br /></h2>
+
+<p><br />
+<em>내가 좋은 비즈니스를 키워나가고 있으니, 언제든지 주주로 들어오세요.</em>
+정도의 마인드.
+CEO 의 잡은 일상적으로 (잠재적) 주주과 대화하는 것이라고 생각하면 편함.</p>
+
+<p><br />
+Peter Thiel 이 창업했던 PayPal 은 끊임없이 펀딩을 추진했고, 또 받았다고 한다. 끝없는 펀딩이 아니었다면, 유저들의 환호를 받기 전에 무너졌을 수도 있는 일. Peter Thiel 의 강의답다.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/05/11/dropbox-yc-application/">Dropbox YC Application</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2012-05-11T09:44:00+09:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>11</span><span class='date-suffix'>th</span>, <span class='date-year'>2012</span></span> <span class='time'>9:44 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>개발자들은 자신이 불편하면 툴을 만들어 해결할 수 있는 재주를 가지고 있다.
+그래서 그들은 소스 코드 관리 도구들을 발전시켜왔다.</p>
+
+<p>중앙에 저장소를 두고 집이던지 회사이던지 어느 컴퓨터에서나 최신 소스를 다운받아 코딩을 이어나갈 수 있었다. 또한 변경된 히스토리가 남아있어서, 잘못되었을 경우 언제든지 예전 버전으로 돌아갈 수 있었다.</p>
+
+<p>diff 라고 불리는 변경점만을 업데이트하도록 발전되어 왔기에, 속도도 빠르고 저장 장소도 아낄 수 있었다.</p>
+
+<p>개발자들은 cron 과 rsync 를 가지고 수십대의 컴퓨터 내용을 동일하게 유지시키는 스크립트를 짤 수 있는 사람들이다.</p>
+
+<p>하지만 개발자가 아닌 사람들은 여전히 USB 를 들고 다니고, email 에 화일을 첨부해서 자기 메일 주소로 보내고, CD 를 굽고, 여기 저기 흩어져 있는 동일한 제목의 문서들 중에 어떤 것이 가장 최신인지 혼란스러워했다.</p>
+
+<p>dhouston 은 <a href="http://dl.dropbox.com/u/27532820/app.html">Dropbox YC Application</a>에서 개발자 커뮤니티에서 검증된 기술을 가지고 일반 사람들의 문제를 해결했다고 이야기한다. i.e. subversion, trac, rsync</p>
+
+<blockquote><p>Dropbox solves all these needs, and doesn&rsquo;t need configuration or babysitting.
+Put another way, it takes concepts that are proven winners from the dev
+community (version control, changelogs/trac, rsync, etc.) and puts them
+in a package that my little sister can figure out (she uses Dropbox to
+keep track of her high school term papers, and doesn&rsquo;t need to burn CDs
+or carry USB sticks anymore.)</p></blockquote>
+
+<p><br />
+경쟁 제품은 잘못된 추상화를 사용한다고 이야기한다. &ldquo;온라인 디스크 드라이브&rdquo; 라는 추상화는 사용자에게 불편하다고 이야기한다.
+(Dropbox 는 개발자에게 친숙한 Repo 라는 개념을 Box 라는 metaphor 로 바꾸었다.
+Repo 는 온라인/오프라인 상관없이 작업할 수 있다.)</p>
+
+<p>또한 자동이 아니라 손으로 이메일을 보내거나 웹에 업로드해야 하는 것은 버전 관리를 사람이 해야 하기 때문에 말이 안된다고 말한다.</p>
+
+<blockquote><p>Competing products work at the wrong layer of abstraction and/or force
+the user to constantly think and do things. The &ldquo;online disk drive&rdquo;
+abstraction sucks, because you can&rsquo;t work offline and the OS support is
+extremely brittle. Anything that depends on manual email/uploading
+(i.e. anything web-based) is a non-starter, because it&rsquo;s basically
+doing version control in your head. But virtually all competing services
+involve one or the other.
+With Dropbox, you hit &ldquo;Save&rdquo;, as you normally would, and everything just
+works, even with large files (thanks to binary diffs)</p></blockquote>
+
+<h2><br /></h2>
+
+<p><br />
+Novell 은 NetWare 라는 제품으로 화일 카피라는 문제를 해결해버렸다. 당시에 화일을 카피하려면 1 Mb 도 안되는 용량의 5.25'&lsquo; 디스크로 여러번에 나누어 옮겨야 했다.</p>
+
+<p>더군다나 대용량 화일은 해결책이 없었다. 압축을 해서 화일을 쪼개는 수밖에 없었다.</p>
+
+<p>N: 드라이브로 매핑되는 네트워크 드라이브는 많은 사람들의 문제를 해결해주었고, 기업이라면 NetWare 는 필수적으로 사용하였다.</p>
+
+<p>그리고, NetWare 의 성공으로 Novell 은 엄청난 회사가 되었다. 하지만 Novell 은 망했고, 2010 년이 되어서도 사람들은 1980년대말과 동일한 불편에 다시 시달리고 있었다. 이를 Dropbox 가 해결해주었다.</p>
+
+<p>하지만 아마존의 S3 가 없었으면, Dropbox 도 없었을 것이다.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/05/10/the-most-powerful-force-in-universe/">The Most Powerful Force in Universe</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2012-05-10T20:41:00+09:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>10</span><span class='date-suffix'>th</span>, <span class='date-year'>2012</span></span> <span class='time'>8:41 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Peter Thiel 은 <a href="http://blakemasters.tumblr.com/post/21869934240/peter-thiels-cs183-startup-class-7-notes-essay/" title="Follow the Money">CS183:Startup 클래스의 일곱번째 강의</a>에서, &ldquo;우주에서 가장 강력한 힘"인 &lsquo;복리 효과'에 대해 이야기한다.</p>
+
+<p>성공적인 기업은 기하급수적으로 성장하는 기간이 몇 년 있다는 것. 이 기간동안 기업가치는 지수 곡선의 성장을 하게 된다.</p>
+
+<blockquote><p>The standard Einstein line on this is that the most powerful force in
+universe is compound interest.
+We see the power of compounding when companies grow virally.
+Successful businesses tend to have an exponential arc to them.
+Maybe they grow at 50% a year and it compounds for a number of years.
+It could be more or less dramatic than that.
+But that model-some substantial period of exponential growth-is the core
+of any successful tech company. And during that exponential period,
+valuations tend to go up exponentially.</p></blockquote>
+
+<p><br />
+또한 투자자가 관리하는 포트폴리오 역시 이런 지수분포를 따르기 때문에,
+개별 기업 한 두개는 큰 성공을 거두지만, 나머지는 그저 그렇거나 실패하게 된다.</p>
+
+<p>따라서 전체 포트폴리오 사이즈 이상의 수익을 내줄 수 있는 회사가
+하나는 있어야, 포트폴리오가 손해가 나지 않는다고 이야기한다.
+실례로 Founders Fund 2005 년 성적을 보면,
+나머지 모든 투자건들이 벌어준 것을 모두 합한 것과 일등이 벌어준 것과
+같았다.</p>
+
+<blockquote><p>An example will help clarify. If you look at Founders Fund&rsquo;s 2005 fund,
+the best investment ended up being worth about as much as
+all the rest combined.</p>
+
+<p>&hellip;</p>
+
+<p>To a first approximation, a VC portfolio will only make money if your best
+company investment ends up being worth more than your whole fund.
+It practice, it&rsquo;s quite hard to be profitable as a VC if you don&rsquo;t get to
+those numbers.</p></blockquote>
+
+<p><br />
+따라서 기업에 투자 결정을 할 때, 다음과 같은 질문을 던져야 한다고 이야기한다.</p>
+
+<p>&ldquo;이 회사에 투자한 지분 가치가 전체 펀드 사이즈보다 더 커질 가능성이나 시나리오가 있는가?&rdquo;</p>
+
+<p>2~5 배 게임을 해서는 결국 전체 펀드는 마이너스가 될 것이라고 이야기한다.</p>
+
+<blockquote><p>&ldquo;Is there a resonable scenario where our stake in this company will be
+worth more than the whole fund?&rdquo;</p></blockquote>
+
+<h2><br /></h2>
+
+<p><br />
+워렌 버펫 자서전의 제목이 &lsquo;The Snowball&rsquo; 이었다. 워렌 버펫이 인생에 대해 즐겨 이야기하는 비유는, &lsquo;눈덩이를 굴리듯이&hellip;&rsquo; 로 시작한다.</p>
+
+<p>그는 아마 역사상 복리 효과로 가장 재미를 많이 본 투자가일 것이다.</p>
+
+<p>어쨌거나 Peter Thiel 이 말하길, 세상의 경제 현상을 보면, 생각보다 biased 된 결과가 나오는데, 그 이유는 시간에 따른 복리 효과라고 그는 설명한다.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/05/10/javascript-the-good-parts/">JavaScript: The Good Parts</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2012-05-10T19:27:00+09:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>10</span><span class='date-suffix'>th</span>, <span class='date-year'>2012</span></span> <span class='time'>7:27 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><blockquote><p>JavaScript has some extraordinarily good parts.
+In JavaScript, there is a beautiful, elegant, highly expressive language
+that is buried under a steaming pile of good intentions and blunders.</p>
+
+<p>&hellip;</p>
+
+<p>JavaScript&rsquo;s C-like syntax, including curly braces and the clunky
+&lsquo;for&rsquo; statement, makes it appear it to be an ordinary procedural language.
+This is misleading because JavaScript has more in common with functional
+language like Lisp or Scheme than with C or Java.</p></blockquote>
+
+<p>Doug Crockford 는 그의 책
+<a href="http://googlecode.blogspot.com/2009/03/doug-crockford-javascript-good-parts.html">Doug Crockford: JavaScript: The Good Parts</a>
+에서 JavaScript 을 그것이 가진 나쁜 면들때문에 싸잡아서 그저 그런 언어로 치부해서는 안된다고 주장한다.</p>
+
+<p>또한 C 와 비슷한 문법과 &lsquo;자바'라는 이름때문에 오해를 받고 있으며, 오히려 Lisp 의 방언(dialect) 이라고 말할 수 있다고 말한다.</p>
+
+<p>브라우저에 탑재되는 언어의 자리를 놓고 많은 경쟁자들과 싸워서 이긴 언어이며, 그 이유는 JavaScript 에는 놀라울만큼 훌륭한 점들이 많기 때문이라고 이야기한다.</p>
+
+<h2><br /></h2>
+
+<p><br />
+얼마전에 twitter bootstrap 코드의 세미콜론을 두고 개발자와 Doug Crockford 간에 논쟁이 벌어졌었다.</p>
+
+<p>개발자는 JavaScript 의 &ldquo;생략가능한 세미콜론&rdquo; 기능을 이용해서 코드를 짰는데, 이 코드가 JSLint 에서 걸린 것이 사건의 발단이었다.</p>
+
+<p>감정적인 말이 오가고, 서로 상대방의 코드를 고치라고 뻐대는 형국이 되버렸다.</p>
+
+<p>결국 어떻게 마무리가 되었는지는 잘 모르겠지만, Crockford 가 깐깐함때문에 Cranky old-man 으로 불린다는 것.</p>
+
+<p>그럼에도 개발자들로부터 존경을 받고 있다는 것. 이 두가지는 확인할 수 있었다.</p>
+
+<p><br />
+아래 코드는 C 로 된 이진수 출력 루틴의 일부인데</p>
+
+<pre><code>b[32] = '\0';
+for (i = 32, j = (1L &lt;&lt; 31); i &gt; 0; i--, j &gt;&gt;= 1)
+  *p++ = (x &amp; j) == j ? '1' : '0';
+</code></pre>
+
+<p>요즘 세상에 C 는 어셈블리가 된 것 같아서, 이런 코드를 짜고 있으면,  JavaScript 의 &ldquo;헐거운 타이핑&rdquo; (loose typing) 이 그리워지기 마련이다.</p>
+
+<p>Crockford 는 JavaScript 의 좋은 점으로 lambda 와 &ldquo;헐거운 타이핑&rdquo; (loose typing), prototypal inheritance, dynamic object 를 들고 있다.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/05/10/customer-lifetime-value/">Customer Lifetime Value</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2012-05-10T17:00:00+09:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>10</span><span class='date-suffix'>th</span>, <span class='date-year'>2012</span></span> <span class='time'>5:00 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Peter Thiel은 <a href="http://blakemasters.tumblr.com/post/22405055017/peter-thiels-cs183-startup-class-9-notes-essay/" title="If You Build It, Will They Come?">CS183:Startup 클래스의 아홉번째 강의</a>에서, &lsquo;배포'에 관해 가르친다.</p>
+
+<p>이 강의 첫부분에서 그는 &lsquo;배포 공식&rsquo; 을 정의한다.</p>
+
+<blockquote><p>Customer lifetime value, or CLV</p>
+
+<p>Average revenue per user (per month), or ARPU</p>
+
+<p>Retention rate (monthly, decay function), or r</p>
+
+<p>Average customer lifetime, which is 1/(1-r)</p>
+
+<p>Cost per customer acquisition, or CPA</p></blockquote>
+
+<p>이 정의에 따르면, 사용자 1 명으로부터 거둘 수 있는 매출이익은 ARPU * 1/(1-r) * Gross margin 이 된다.</p>
+
+<p>여기서 잔존율이 r 일 경우, 평균 잔존 기간이 1/(1-r) 이 된다는 것은 모두 쉽게 이해할 수 있는 부분이다. :)</p>
+
+<p><br /></p>
+
+<blockquote><p>휴대폰 약정을 예로 들어보자. 매월 1 명당 $40 을 받는다.</p>
+
+<p>평균 약정 기간은 24 개월이라고 하자.</p>
+
+<p>그렇다면 1 명당 $40 * 24 = $960 불의 매출을 벌수 있다.</p>
+
+<p>Gross margin 이 40% 라고 하면 Customer lifetime value 는 $960 * 40% = $384 가 된다.</p>
+
+<p>고객 1 명의 유치 비용이 $384 미만이라면 이익을 낼 수 있다.</p></blockquote>
+
+<p><br />
+간단하지만, 인터넷 비즈니스의 기본적인 로직이다.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  <div class="pagination">
+    
+    <a href="/blog/archives">Blog Archives</a>
+    
+    <a class="next" href="/posts/20">Newer &rarr;</a>
+    
+  </div>
+</div>
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/10/04/return-oriented-programming-for-the-arm-architecture/">Return Oriented Programming for the ARM Architecture</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/02/the-inside-story-behind-ms08-067/">The Inside Story Behind MS08-067</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/17/rop-and-arm/">ROP and ARM</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/13/sophail-applied-attacks-against-sophos-antivirus/">Sophail: Applied Attacks Against Sophos Antivirus</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/13/stagefright/">Stagefright</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - Your Name -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

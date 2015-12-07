@@ -1,0 +1,314 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>LL and LR Parsing - My Octopress Blog</title>
+  <meta name="author" content="Your Name">
+
+  
+  <meta name="description" content="LL and LR parsing demystified 을 보고. 저자의 point 는 LL 과 LR 의 차이는 traversal 이라는 것. 파서는 traversal 이라는 인사이트를 제시한다. blog 에 나온 postfix calculator ops &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://yoursite.com/blog/2013/09/08/ll-and-lr-parsing/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="My Octopress Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">My Octopress Blog</a></h1>
+  
+    <h2>A blogging framework for hackers.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="yoursite.com">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">LL and LR Parsing</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-09-08T20:17:00+09:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>8</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>8:17 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p><a href="http://blog.reverberate.org/2013/07/ll-and-lr-parsing-demystified.html">LL and LR parsing demystified</a> 을 보고.</p>
+
+<p>저자의 point 는 LL 과 LR 의 차이는 traversal 이라는 것.</p>
+
+<p>파서는 traversal 이라는 인사이트를 제시한다.</p>
+
+<p>blog 에 나온 postfix calculator</p>
+
+<pre><code>ops = {
+    '+': (lambda a,b: a+b),
+    '-': (lambda a,b: a-b),
+    '*': (lambda a,b: a*b)
+}
+
+def eval(tokens):
+    stack = []
+
+    for tk in tokens:
+        if (tk in ops):
+            a2 = stack.pop()
+            a1 = stack.pop()
+            stack.append(ops[tk](a1,a2))
+        else:
+            stack.append(int(tk))
+    return stack.pop()
+
+if __name__ == "__main__":
+    print eval("7 2 3 * +".split())
+</code></pre>
+
+<p>blog 에서 말한 infix -> postfix 변환하기.</p>
+
+<p>tree building 없이 stack 만 가지고 Prefix 에서 Postfix 로 변환해본다.</p>
+
+<pre><code>ops = { 
+    "+": "plus", 
+    "-": "minus",
+    "*": "mutiply"
+    }
+
+class Visit:
+    tokens = []
+    index = 0
+    stack = []
+    rev_polish = []
+
+    def __init__(self, expr):
+        self.tokens = expr.split()
+        self.index = 0
+
+    def visit(self):
+        if (self.tokens[self.index] in ops):
+            self.stack.append(self.tokens[self.index])
+            self.index += 1
+            self.visit() 
+            self.visit()
+            self.rev_polish.append(self.stack.pop())
+        else:
+            self.rev_polish.append(self.tokens[self.index])
+            self.index += 1
+
+if __name__ == "__main__":
+    visit = Visit("* + 1 2 3")
+    visit.visit()
+    print visit.rev_polish
+
+code% python polish.py
+['1', '2', '+', '3', '*']
+</code></pre>
+
+<p>그 다음에 Infix parsing 트리를 만들어봐야겠다.</p>
+
+<p>일단 문법은 NUMBER + NUMBER 형태만 지원.</p>
+
+<pre><code>class Lexer:
+    token = []
+    index = 0
+
+    def __init__(self, exp):
+        self.token = exp.split()
+        self.lookahead = self.nextToken()
+
+    def nextToken(self):
+        if self.index &lt; len(self.token):
+            tk = self.token[self.index]
+            self.index += 1
+            return tk
+        else:
+            return ""
+    def consume(self):
+        self.lookahead = self.nextToken()
+
+class Parser:
+    def __init__(self, lexer):
+        self.lexer = lexer
+    def expr(self):
+        self.match_number()
+        self.match_op()
+        self.match_number()
+    def match_number(self):
+        print "NUMBER %d" % (int(lexer.lookahead))
+        self.lexer.consume()
+    def match_op(self):
+        print "OP %s" % (lexer.lookahead)
+        self.lexer.consume()
+
+if __name__ == "__main__":
+    lexer = Lexer("1 + 2")
+    parser = Parser(lexer)
+    parser.expr()
+
+blog% python expr.py
+NUMBER 1
+OP +
+NUMBER 2
+</code></pre>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Your Name</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2013-09-08T20:17:00+09:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>8</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>8:17 pm</span></time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://yoursite.com/blog/2013/09/08/ll-and-lr-parsing/" data-via="" data-counturl="http://yoursite.com/blog/2013/09/08/ll-and-lr-parsing/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2013/09/06/peak-finder/" title="Previous Post: Peak Finder">&laquo; Peak Finder</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2013/09/09/making-of-an-exploit-kit/" title="Next Post: Making of an Exploit Kit">Making of an Exploit Kit &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/10/04/return-oriented-programming-for-the-arm-architecture/">Return Oriented Programming for the ARM Architecture</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/02/the-inside-story-behind-ms08-067/">The Inside Story Behind MS08-067</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/17/rop-and-arm/">ROP and ARM</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/13/sophail-applied-attacks-against-sophos-antivirus/">Sophail: Applied Attacks Against Sophos Antivirus</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/13/stagefright/">Stagefright</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - Your Name -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

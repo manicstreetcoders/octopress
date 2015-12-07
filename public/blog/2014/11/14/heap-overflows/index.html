@@ -1,0 +1,482 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Heap Overflows - My Octopress Blog</title>
+  <meta name="author" content="Your Name">
+
+  
+  <meta name="description" content="Solar Designer 가 2000년 7월 발표한 &ldquo;JPEG COM Marker Processing Vulnerability&rdquo; 는 heap overflow 에 관해 seminal 한 문서이다. 우선, The Art of Software &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://yoursite.com/blog/2014/11/14/heap-overflows/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="My Octopress Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">My Octopress Blog</a></h1>
+  
+    <h2>A blogging framework for hackers.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="yoursite.com">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Heap Overflows</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-11-14T16:36:14+09:00'><span class='date'><span class='date-month'>Nov</span> <span class='date-day'>14</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>4:36 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p><a href="http://en.wikipedia.org/wiki/Solar_Designer">Solar Designer</a> 가 2000년 7월 발표한 &ldquo;JPEG COM Marker Processing Vulnerability&rdquo; 는 heap overflow 에 관해 seminal 한 문서이다.</p>
+
+<p>우선,</p>
+
+<p><a href="http://www.amazon.com/Art-Software-Security-Assessment-Vulnerabilities/dp/0321444426/ref=sr_1_1?ie=UTF8&amp;qid=1415936171&amp;sr=8-1&amp;keywords=the+art+of+software+security+assessment">The Art of Software Security Assessment: Identifying and Preventing Software Vulnerabilities</a> 에서 heap overflow 부분을 정리해본다.</p>
+
+<h3>unlink operation</h3>
+
+<p>Doubly-linked list 에서 특정 element 를 뜯어내는 함수가 다음과 같이 있다고 하자.</p>
+
+<pre><code>int unlink(ListElement *element)
+{
+    ListElement *next = element-&gt;next;
+    ListElement *prev = element-&gt;prev;
+
+    next-&gt;prev = prev;
+    prev-&gt;next = next;
+    return 0;
+}
+</code></pre>
+
+<p>편의상 ListElement 는 다음과 같다고 하자.</p>
+
+<pre><code>struct _ListElement {
+    ListElement *prev;
+    ListElement *next;
+};
+typedef struct _ListElement ListElement;
+</code></pre>
+
+<p>unlink() 에 골때린 input 을 줄 수 있다면?</p>
+
+<pre><code>void main()
+{
+    char buf[512];
+    ListElement a;
+    a-&gt;prev = (ListElement*)0x30303030;
+    a-&gt;next = buf;
+    unlink(&amp;a);
+}
+</code></pre>
+
+<p>를 하면, <code>buf[0]</code> ~ <code>buf[7]</code> 에 <code>0x0000000030303030</code> 이 세팅된다. (그리고 죽는다. 두번째 assign 에서 죽는데, 일단 무시)</p>
+
+<p>즉 linked list 의 unlink() 함수에는 memory write operation 이 들어있으니, linked list 의 element 내용을 corrupt 시키고, unlink() 를 trigger 시킬 수 있으면, memory write 를 할 수 있는 것이다.</p>
+
+<p>링크드 리스트 관련 함수를 memory_write() 함수로 쓸 수가 있다!</p>
+
+<pre><code>(gdb) break main
+Breakpoint 1 at 0x40058c: file list.c, line 17.
+(gdb) run
+Starting program: /home/z/shell/a.out
+warning: no loadable sections found in added symbol-file system-supplied DSO at 0x7ffff7ffa000
+
+Breakpoint 1, main () at list.c:17
+17      {
+(gdb) list
+12          next-&gt;prev = prev;
+13          prev-&gt;next = next;
+14          return 0;
+15      }
+16      main()
+17      {
+18          char buf[512];
+19          char buf2[512];
+20          ListElement a;
+21          a.prev = (ListElement *)0x30303030;
+(gdb) step
+21          a.prev = (ListElement *)0x30303030;
+(gdb) step
+22          a.next = buf;
+(gdb) step
+23          unlink(&amp;a);
+(gdb) print buf
+$1 = "\300\224\377\367\377\177\000\000&lt;\247\335\367\377\177\000\000\370\251\242\367\377\177\000\000\020\244\335\367\377\177\000\000\000\000\000\000\001\000\000\000\202\b\000\000\001\000\000\000@+\335\367\377\177\000\000 \346\377\367\377\177\000\000\340\335\377\377\377\177\000\000\207\360\226|\000\000\000\000\330\234\377\367\377\177\000\000\260\336\377\377\377\177\000\000\330\331\377\367\377\177\000\000#E\336\367\377\177\000\000\000\000\000\000\000\000\000\000\330\234\377\367\377\177\000\000\001\000\000\000\377\177\000\000\000\000\000\000\000\000\000\000\001\000\000\000\377\377\377\377\330\331\377\367\377\177\000\000\000\000\000\000\000\000\000\000H\003@", '\000' &lt;repeats 15 times&gt;"\340, \270\377\377\377\377\000\000\266\"\275\357\377\377", '\000' &lt;repeats 16 times&gt;, " \346\377\367\377\177\000\000@\250\335\367\001\000\000\000\000\000\000\000\001", '\000' &lt;repeats 11 times&gt;, "&lt;\247\335\367\377\177\000\000\211qy\005", '\000' &lt;repeats 29 times&gt;"\240, \241\367\377\177\000\000؎\243\367\377\177\000\000\300\216\243\367\377\177\000\000 0\335\367\377\177\000\000ب\242\367\377\177\000\000\300\224\377\367\377\177\000\000\000\000\000\000\377\177", '\000' &lt;repeats 14 times&gt;...
+(gdb) print &amp;buf
+$2 = (char (*)[512]) 0x7fffffffdc30
+(gdb) p a.prev
+$3 = (struct _ListElement *) 0x30303030
+(gdb) p a.next
+$4 = (struct _ListElement *) 0x7fffffffdc30
+(gdb) step
+unlink (a=0x7fffffffdc20) at list.c:10
+10          ListElement *next = a-&gt;next;
+(gdb) step
+11          ListElement *prev = a-&gt;prev;
+(gdb) step
+12          next-&gt;prev = prev;
+(gdb) print next
+$5 = (ListElement *) 0x7fffffffdc30
+(gdb) step
+13          prev-&gt;next = next;
+(gdb) x 0x7fffffffdc30 
+0x7fffffffdc30: 0x30303030 &lt;- buf 에 \x30\x30\x30\x30
+(gdb)
+</code></pre>
+
+<p>정말 간략하게 말하면, malloc() 된 데이터의 metadata 를 고쳐서, free() 로 <code>*(next) = prev;</code> 같은 memory write 를 하는 것이다.</p>
+
+<h3>Back to the 90&rsquo;s</h3>
+
+<p>예전 dlmalloc 에서 chunk 를 뜯어내던 unlink 매크로.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="cm">/* Take a chunk off a bin list */</span>
+</span><span class='line'><span class="cp">#define unlink(P,BK,FD) {\</span>
+</span><span class='line'><span class="cp">    FD = P-&gt;fd;         \</span>
+</span><span class='line'><span class="cp">    BK = P-&gt;bk;         \</span>
+</span><span class='line'><span class="cp">    FD-&gt;bk = BK;        \</span>
+</span><span class='line'><span class="cp">    BK-fd = FD;         \</span>
+</span><span class='line'><span class="cp">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>최신 glibc 2.20 에 들어있는 매크로</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="cp">#define unlink(P, BK, FD) {</span>
+</span><span class='line'>    <span class="n">FD</span> <span class="o">=</span> <span class="n">P</span><span class="o">-&gt;</span><span class="n">fd</span><span class="p">;</span> \
+</span><span class='line'>    <span class="n">BK</span> <span class="o">=</span> <span class="n">P</span><span class="o">-</span><span class="n">bk</span><span class="p">;</span> \
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">__builtin_expect</span> <span class="p">(</span><span class="n">FD</span><span class="o">-&gt;</span><span class="n">BK</span> <span class="o">!=</span> <span class="n">P</span> <span class="o">||</span> <span class="n">BK</span><span class="o">-&gt;</span><span class="n">fd</span> <span class="o">!=</span> <span class="n">P</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span> \
+</span><span class='line'>        <span class="n">malloc_printerr</span> <span class="p">(</span><span class="n">check_action</span><span class="p">,</span> <span class="s">&quot;corrupted double-linked list&quot;</span><span class="p">,</span> <span class="n">P</span><span class="p">);</span> \
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>2.20 에는 Sanity check 가 들어간다. 뜯어내기 전 상태의 link pointer 들이 올바르게 세팅되어 있는지.</p>
+
+<h3>dlmalloc</h3>
+
+<p>dlmalloc 에는 4 개의 chunk 가 있다. <code>designated victim</code>, <code>top</code>, <code>smallbins</code>, <code>treebins</code> 가 그것.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="n">strcut</span> <span class="n">malloc_state</span> <span class="p">{</span>
+</span><span class='line'>    <span class="kt">binmap_t</span>    <span class="n">smallmap</span><span class="p">;</span>
+</span><span class='line'>    <span class="kt">binmap_t</span>    <span class="n">treemap</span><span class="p">;</span>
+</span><span class='line'>    <span class="kt">size_t</span>      <span class="n">dvsize</span><span class="p">;</span>
+</span><span class='line'>    <span class="kt">size_t</span>      <span class="n">topsize</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">...</span>
+</span><span class='line'>    <span class="n">mchunkptr</span>   <span class="n">dv</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">mchunkptr</span>   <span class="n">top</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">...</span>
+</span><span class='line'>    <span class="n">mchunkptr</span>   <span class="n">smallbins</span><span class="p">[(</span><span class="n">NSMALLBINS</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="mi">2</span><span class="p">];</span>
+</span><span class='line'>    <span class="n">tbinptr</span>     <span class="n">treebins</span><span class="p">[</span><span class="n">NTREEBINS</span><span class="p">];</span>
+</span><span class='line'>    <span class="p">...</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>Binning</h4>
+
+<p>free chunk 들은 bin 으로 관리된다.
+512 bytes 미만의 alloc request 를 위한 bin 들은 8 byte 단위로 존재한다.</p>
+
+<p>16,24,32,&hellip; 이런 셈.</p>
+
+<h4>Algorithm for malloc in dlmalloc</h4>
+
+<p>For small requests &lt; 256 bytes
+(Using the dv chunk provides some locality as unserved requests get memory next to each other)</p>
+
+<ul>
+<li>Check if there is a free chunk in the corresponding exact-size bin</li>
+<li>If not, look into the next larger exact-size bin and check there</li>
+<li>If that bin had no chunk too, check the designated victim chunk</li>
+<li>If the dv chunk was not sufficiently large</li>
+<li>search the smallest available small-size chunk</li>
+<li>split off a chunk of needed size</li>
+<li>make the rest the designated victim chunk</li>
+<li>If no suitable small-size chunk was found</li>
+<li>split off a piece of a large-size chunk</li>
+<li>make the remainder the ew dv chunk</li>
+<li>Else, get memory from the system</li>
+</ul>
+
+
+<p>Large requests >= 256 bytes</p>
+
+<ul>
+<li>Non-exact bins organize the chunks as binary search trees</li>
+<li>Two equally spaced bins for each power of two</li>
+<li>Every tree node holds a list of chunks of the same size</li>
+<li>Tree is traversed by inspecting the bits in size (from more significant to less significant)</li>
+<li>Everything above 12M goes into the last bin (usually very rare)</li>
+</ul>
+
+
+<p><a href="http://wenbin.org/doc/writing/malloc.pdf">Analysis on Dynamic Memory Allocation, Wenbin Fang</a> 에서 가져온 dlmalloc algorithm.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="kt">void</span> <span class="o">*</span><span class="nf">malloc</span><span class="p">(</span><span class="kt">size_t</span> <span class="n">size</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">size</span> <span class="o">&lt;=</span> <span class="mi">252</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="c1">// 1. small bins</span>
+</span><span class='line'>        <span class="n">free_chunk</span> <span class="o">=</span> <span class="n">UnlinkFromSmallBins</span><span class="p">(</span><span class="n">size</span><span class="p">);</span>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="n">free_chunk</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">)</span> <span class="k">goto</span> <span class="n">EXIT</span><span class="p">;</span>
+</span><span class='line'>        <span class="c1">// 2. designated victim</span>
+</span><span class='line'>        <span class="n">free_chunk</span> <span class="o">=</span> <span class="n">GetFromDesignatedVictim</span><span class="p">(</span><span class="n">size</span><span class="p">);</span>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="n">free_chunk</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>            <span class="n">dv</span> <span class="o">=</span> <span class="n">Split</span><span class="p">(</span><span class="n">free_chunk</span><span class="p">);</span>
+</span><span class='line'>            <span class="k">goto</span> <span class="n">EXIT</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="c1">// 3. tree bins</span>
+</span><span class='line'>    <span class="n">free_chunk</span> <span class="o">=</span> <span class="n">UnlinkFromTreeBins</span><span class="p">(</span><span class="n">size</span><span class="p">);</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">free_chunk</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">remainder</span> <span class="o">=</span> <span class="n">Split</span><span class="p">(</span><span class="n">free_chunk</span><span class="p">);</span>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="n">dv</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">)</span> <span class="n">Insert</span><span class="p">(</span><span class="n">dv</span><span class="p">,</span> <span class="n">SmallBins</span> <span class="n">OR</span> <span class="n">TreeBins</span><span class="p">);</span>
+</span><span class='line'>        <span class="n">dv</span> <span class="o">=</span> <span class="n">remainder</span><span class="p">;</span>
+</span><span class='line'>        <span class="k">goto</span> <span class="n">EXIT</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="c1">// 4. top chunk</span>
+</span><span class='line'>    <span class="n">free_chunk</span> <span class="o">=</span> <span class="n">SplitFromTopChunk</span><span class="p">(</span><span class="n">size</span><span class="p">);</span>
+</span><span class='line'><span class="nl">EXIT</span><span class="p">:</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">free_chunk</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">)</span> <span class="n">SetPinuse</span><span class="p">(</span><span class="n">NextAdjacentChunk</span><span class="p">(</span><span class="n">free_chunk</span><span class="p">));</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">free_chunk</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>참고</h4>
+
+<ul>
+<li><a href="http://g.oswego.edu/dl/html/malloc.html">A Memory Allocator, Doug Lea</a></li>
+<li><a href="http://www.openwall.com/articles/JPEG-COM-Marker-Vulnerability">JPEG COM Marker Processing Vulnerability</a></li>
+<li><a href="http://www.phrack.org/issues.html?issue=57&amp;id=8#article">Vudo - An object superstitiously believed to embody magical powers</a></li>
+<li><a href="http://www.phrack.org/issues.html?issue=57&amp;id=9#article">Once upon a free()&hellip;</a></li>
+<li><a href="http://www.phrack.org/issues.html?issue=61&amp;id=6#article">Advanced Doug lea&rsquo;s malloc exploits</a></li>
+<li><a href="http://www.packetstormsecurity.org/papers/attack/MallocMaleficarum.txt">MallocMaleficarum.txt</a></li>
+<li><a href="https://prezi.com/wcnbbokuousb/linux-heap-exploiting-revisited-en/">Linux Heap Exploiting Revisted</a></li>
+<li><a href="http://www.cgsecurity.org/exploit/heaptut.txt">w00w00 on Heap Overflows</a></li>
+<li><a href="https://www.usenix.org/legacy/event/lisa03/tech/full_papers/robertson/robertson_html/">Run-time Detection of Heap-based Overflows, USENIX LISUSENIX LISUSENIX LISA</a></li>
+<li><a href="http://stackoverflow.com/questions/9646608/use-a-heap-overflow-to-write-arbitrary-data">Use a heap overflow to write arbitrary data</a></li>
+<li><a href="http://www.mathyvanhoef.com/2013/02/understanding-heap-exploiting-heap.html">Understanding the Heap &amp; Exploiting Heap Overflows, Mathy Vanhoef</a></li>
+<li><a href="http://wenbin.org/doc/writings/malloc.pdf">Analysis on Dynamic Memory Allocation, Wenbin Fang</a></li>
+</ul>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Your Name</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2014-11-14T16:36:14+09:00'><span class='date'><span class='date-month'>Nov</span> <span class='date-day'>14</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>4:36 pm</span></time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://yoursite.com/blog/2014/11/14/heap-overflows/" data-via="" data-counturl="http://yoursite.com/blog/2014/11/14/heap-overflows/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2014/11/12/how-to-import-burps-ca-certificate-into-android-devices/" title="Previous Post: How to import Burp's CA Certificate into Android devices">&laquo; How to import Burp's CA Certificate into Android devices</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2014/11/18/linux-memory-layout/" title="Next Post: Linux Memory Layout">Linux Memory Layout &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/10/04/return-oriented-programming-for-the-arm-architecture/">Return Oriented Programming for the ARM Architecture</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/02/the-inside-story-behind-ms08-067/">The Inside Story Behind MS08-067</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/17/rop-and-arm/">ROP and ARM</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/13/sophail-applied-attacks-against-sophos-antivirus/">Sophail: Applied Attacks Against Sophos Antivirus</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/13/stagefright/">Stagefright</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - Your Name -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

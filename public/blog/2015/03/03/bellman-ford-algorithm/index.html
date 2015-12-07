@@ -1,0 +1,349 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Bellman-Ford Algorithm - My Octopress Blog</title>
+  <meta name="author" content="Your Name">
+
+  
+  <meta name="description" content="Bellman-Ford 알고리즘에서 negative edge 체크가 빠진 버전. 파이썬으로 만들어봤다. 1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33 &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://yoursite.com/blog/2015/03/03/bellman-ford-algorithm/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="My Octopress Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">My Octopress Blog</a></h1>
+  
+    <h2>A blogging framework for hackers.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="yoursite.com">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Bellman-Ford Algorithm</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-03-03T21:26:51+09:00'><span class='date'><span class='date-month'>Mar</span> <span class='date-day'>3</span><span class='date-suffix'>rd</span>, <span class='date-year'>2015</span></span> <span class='time'>9:26 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>Bellman-Ford 알고리즘에서 negative edge 체크가 빠진 버전.</p>
+
+<p>파이썬으로 만들어봤다.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>class Vertex:
+</span><span class='line'>    def __init__(self,n):
+</span><span class='line'>        self.number = n
+</span><span class='line'>        self.adj = []
+</span><span class='line'>        self.d = float('inf')
+</span><span class='line'>
+</span><span class='line'>    def addNeighbor(self,v,weight):
+</span><span class='line'>        self.adj.append( (v,weight) )
+</span><span class='line'>
+</span><span class='line'>    def p(self):
+</span><span class='line'>        print("Vertex %d, depth %f -&gt;" % (self.number,self.d)),
+</span><span class='line'>        for (v,weight) in self.adj:
+</span><span class='line'>            print("%d:%d " % (v.number,weight)),
+</span><span class='line'>        print
+</span><span class='line'>
+</span><span class='line'>def relax(v):
+</span><span class='line'>    for i in v:
+</span><span class='line'>        for (nv,weight) in i.adj:
+</span><span class='line'>            if i.d == float('inf'):
+</span><span class='line'>                print "skip..."
+</span><span class='line'>                continue
+</span><span class='line'>            if (i.d + weight &lt; nv.d):
+</span><span class='line'>                print "relaxing vertex %d" % (nv.number)
+</span><span class='line'>                nv.d = i.d + weight
+</span><span class='line'>    return
+</span><span class='line'>
+</span><span class='line'>if __name__ == "__main__":
+</span><span class='line'>    v = []
+</span><span class='line'>    for i in range(0,10):
+</span><span class='line'>        v.append(Vertex(i))
+</span><span class='line'>
+</span><span class='line'>    v[9].addNeighbor(v[8],5)
+</span><span class='line'>    v[8].addNeighbor(v[7],5)
+</span><span class='line'>    v[7].addNeighbor(v[6],5)
+</span><span class='line'>    v[6].addNeighbor(v[5],5)
+</span><span class='line'>    v[5].addNeighbor(v[4],5)
+</span><span class='line'>    v[4].addNeighbor(v[3],5)
+</span><span class='line'>    v[3].addNeighbor(v[2],5)
+</span><span class='line'>    v[2].addNeighbor(v[1],5)
+</span><span class='line'>    v[1].addNeighbor(v[0],5)
+</span><span class='line'>
+</span><span class='line'>    v[7].addNeighbor(v[2],5)
+</span><span class='line'>
+</span><span class='line'>    v[9].d = 0
+</span><span class='line'>
+</span><span class='line'>    for i in v:
+</span><span class='line'>        i.p()
+</span><span class='line'>
+</span><span class='line'>    count = 0
+</span><span class='line'>    for i in range(0,10-1):
+</span><span class='line'>        count += 1
+</span><span class='line'>        relax(v)
+</span><span class='line'>
+</span><span class='line'>    print "performed relaxing operation %d times." % (count)
+</span><span class='line'>
+</span><span class='line'>    for i in v:
+</span><span class='line'>        i.p()</span></code></pre></td></tr></table></div></figure>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Your Name</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2015-03-03T21:26:51+09:00'><span class='date'><span class='date-month'>Mar</span> <span class='date-day'>3</span><span class='date-suffix'>rd</span>, <span class='date-year'>2015</span></span> <span class='time'>9:26 pm</span></time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://yoursite.com/blog/2015/03/03/bellman-ford-algorithm/" data-via="" data-counturl="http://yoursite.com/blog/2015/03/03/bellman-ford-algorithm/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2014/12/13/atomic-xchg/" title="Previous Post: Atomic XCHG">&laquo; Atomic XCHG</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2015/03/04/baseband-attacks-remote-exploitation-of-memory-corruptions-in-cellular-protocol-stacks/" title="Next Post: Baseband Attacks: Remote Exploitation of Memory Corruptions in Cellular Protocol Stacks">Baseband Attacks: Remote Exploitation of Memory Corruptions in Cellular Protocol Stacks &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/10/04/return-oriented-programming-for-the-arm-architecture/">Return Oriented Programming for the ARM Architecture</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/02/the-inside-story-behind-ms08-067/">The Inside Story Behind MS08-067</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/17/rop-and-arm/">ROP and ARM</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/13/sophail-applied-attacks-against-sophos-antivirus/">Sophail: Applied Attacks Against Sophos Antivirus</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/13/stagefright/">Stagefright</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - Your Name -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
