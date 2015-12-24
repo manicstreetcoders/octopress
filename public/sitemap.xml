@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>http://zomo.heroku.com/blog/2015/12/23/on-the-juniper-backdoor/</loc>
+    <lastmod>2015-12-23T16:09:25+09:00</lastmod>
+  </url>
+  <url>
     <loc>http://zomo.heroku.com/blog/2015/12/07/trustnone/</loc>
     <lastmod>2015-12-07T17:14:52+09:00</lastmod>
   </url>

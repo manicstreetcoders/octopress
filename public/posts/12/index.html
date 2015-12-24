@@ -9,9 +9,7 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="FourGoats Vulnerabilities: Intent Spoofing
-Intent Spoofing on Android
-Android App Security: What (not) to do! Action Intent spoofing 에 취약한 App 을 &hellip;">
+  <meta name="description" content="Justin Case 의 작업 Blackphone goes to Def Con and gets hacked &ndash;sort of 을 따라가보자. Step 1: ADB 활성화 블랙폰은 ADB 접속이 disable 된 채로 판매되는데, apk 를 인스톨하고 실행해서 &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -67,6 +65,78 @@ Android App Security: What (not) to do! Action Intent spoofing 에 취약한 App
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/08/13/blackphone-goes-to-def-con-and-gets-hacked-sort-of/">Blackphone Goes to Def Con and Gets Hacked</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-08-13T15:29:48+09:00'><span class='date'><span class='date-month'>Aug</span> <span class='date-day'>13</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>3:29 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Justin Case 의 작업 <a href="http://arstechnica.com/security/2014/08/blackphone-goes-to-def-con-and-gets-hacked-sort-of/">Blackphone goes to Def Con and gets hacked &ndash;sort of</a> 을 따라가보자.</p>
+
+<h4>Step 1: ADB 활성화</h4>
+
+<p>블랙폰은 ADB 접속이 disable 된 채로 판매되는데, apk 를 인스톨하고 실행해서 enable 시킨다. <code>com.android.settings.Settings$DevelopmentSettingsActivity</code> 을 인텐트로 보낸다.</p>
+
+<pre><code>public class MainActivity extends Activity
+{
+  protected void onCreate(Bundle paramBundle)
+  {
+    super.onCreate(paramBundle);
+    ComponentName localComponentName = new ComponentName("com.android.settings", "com.android.settings.Settings$DevelopmentSettingsActivity");
+    Intent localIntent = new Intent("android.intent.action.MAIN");
+    localIntent.setComponent(localComponentName);
+    startActivity(localIntent);
+    finish();
+  }
+}
+</code></pre>
+
+<h4>Step 2: system 권한 획득</h4>
+
+<p>이제 ADB 액세스를 얻었다. <code>remotewipe</code> app 이 system 으로 돌고 있고, debuggable 하다. jdb 를 붙여서 <code>system</code> 권한의 쉘을 떨어뜨렸다고 한다. How-to 는 saurik 의 글을 참조 (<a href="http://www.saurik.com/id/17">http://www.saurik.com/id/17</a>)</p>
+
+<pre><code>$ axml AndroidManifest.xml
+&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;manifest
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shareUserId="android.uid.system"
+    android:versionCode="6"
+    android:versionName="0.8.2"
+    package="com.karumi.blackphone.wipe"
+    &gt;
+
+&lt;application
+    ...
+    android:debuggable="true"
+    android:allowBackup="false"
+    &gt;
+</code></pre>
+
+<h4>Step 3: Privilege Escalation</h4>
+
+<p>(Justin Case 는) 아직 공개하지 않은 버그를 이용해 <code>system</code> -> <code>root</code> 으로 올렸다고 한다.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -706,66 +776,6 @@ further ChangeCipherSpec messages will regenerate the expected Finished hash, bu
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/06/20/recent-openssl-vulnerabilities/">Recent OpenSSL Vulnerabilities</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2014-06-20T10:36:24+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>20</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>10:36 am</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><h4><a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-0224">CVE-2014-0224 a.k.a ChangeCipherSpec</a></h4>
-
-<p>OpenSSL before 0.9.8za, 1.0.0 before 1.0.0m, and 1.0.1 before 1.0.1h does not properly restrict processing of ChangeCipherSpec messages, which allows man-in-the-middle attackers to trigger use of a zero-length master key in certain OpenSSL-to-OpenSSL communications, and consequently hijack sessions or obtain sensitive information, via a crafted TLS handshake, aka the &ldquo;CCS Injection&rdquo; vulnerability.</p>
-
-<ul>
-<li><a href="http://ccsinjection.lepidum.co.jp/blog/2014-06-05/CCS-Injection-en/index.html">How I discovered CCS Injection Vulnerability (CVE-2014-0224)</a></li>
-<li><a href="https://gist.github.com/rcvalle/71f4b027d61a78c42607">ccsinjection.c</a></li>
-<li><a href="https://gist.github.com/rcvalle/585e12e4d5d3b658cd3d">ccsinjection_server.c</a></li>
-</ul>
-
-
-<h4><a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-0221">CVE-2014-0221</a></h4>
-
-<p>The dtls1_get_message_fragment function in d1_both.c in OpenSSL before 0.9.8za, 1.0.0 before 1.0.0m, and 1.0.1 before 1.0.1h allows remote attackers to cause a denial of service (recursion and client crash) via a DTLS hello message in an invalid DTLS handshake.</p>
-
-<h4><a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-0195">CVE-2014-0195</a></h4>
-
-<p>The dtls1_reassemble_fragment function in d1_both.c in OpenSSL before 0.9.8za, 1.0.0 before 1.0.0m, and 1.0.1 before 1.0.1h does not properly validate fragment lengths in DTLS ClientHello messages, which allows remote attackers to execute arbitrary code or cause a denial of service (buffer overflow and application crash) via a long non-initial fragment.</p>
-
-<ul>
-<li><a href="http://h30499.www3.hp.com/t5/HP-Security-Research-Blog/ZDI-14-173-CVE-2014-0195-OpenSSL-DTLS-Fragment-Out-of-Bounds/ba-p/6501002#.U5ER15SSyYl">ZDI-14-173/CVE-2014-0195 - OpenSSL DTLS Fragment Out-of-Bounds Write: Breaking up is hard to do</a></li>
-</ul>
-
-
-<h4><a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-0160">CVE-2014-0160 a.k.a HeartBleed</a></h4>
-
-<p>The (1) TLS and (2) DTLS implementations in OpenSSL 1.0.1 before 1.0.1g do not properly handle Heartbeat Extension packets, which allows remote attackers to obtain sensitive information from process memory via crafted packets that trigger a buffer over-read, as demonstrated by reading private keys, related to d1_both.c and t1_lib.c, aka the Heartbleed bug.</p>
-
-<ul>
-<li><a href="http://heartbleed.com/">HeartBleed.com</a></li>
-</ul>
-
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/13">&larr; Older</a>
@@ -783,6 +793,10 @@ further ChangeCipherSpec messages will regenerate the expected Finished hash, bu
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2015/12/23/on-the-juniper-backdoor/">On the Juniper Backdoor</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2015/12/07/trustnone/">TRUSTNONE</a>
       </li>
     
@@ -796,10 +810,6 @@ further ChangeCipherSpec messages will regenerate the expected Finished hash, bu
     
       <li class="post">
         <a href="/blog/2015/09/17/rop-and-arm/">ROP and ARM</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/09/13/sophail-applied-attacks-against-sophos-antivirus/">Sophail: Applied Attacks Against Sophos Antivirus</a>
       </li>
     
   </ul>

@@ -9,8 +9,8 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="heap overflow 하는 김에 traceroute heap overflow 를 디벼본다. traceroot: A Local root Exploit for Red Hat Linux 6.1 and 6.2
-exploit-db ">
+  <meta name="description" content="
+">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -66,6 +66,35 @@ exploit-db ">
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/04/28/a-memory-allocator-2/">A Memory Allocator 2</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-04-28T20:49:00+09:00'><span class='date'><span class='date-month'>Apr</span> <span class='date-day'>28</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>8:49 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content">
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1215,43 +1244,6 @@ DLL 의 <code>DLL_PROCESS_ATTACH</code> 때 돌아가게 코드를 만들어 놓
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/04/07/chrome-certificate-pinning/">Chrome Certificate Pinning</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2015-04-07T15:44:42+09:00'><span class='date'><span class='date-month'>Apr</span> <span class='date-day'>7</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>3:44 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>구글 chrome 이 도입한 certificate pinning.</p>
-
-<ul>
-<li>Certificate chain 에 pinning 된 퍼블릭키가 존재해야 한다.</li>
-<li>Google 도메인의 경우, Verisign, Google Internet Authority, Equifax, GeoTrust 의 퍼블릭키가 whitelisting 되어 있다.</li>
-<li>동일한 퍼블릭키로 여러개의 certificate 이 발급될 수 있기때문에, certificate hash 를 pinning 에 사용하지 않는다.</li>
-<li>SubjectPublicKeyInfo 를 해슁한다. public key bit string 을 해쉬하는 것이 아니라. RSA key 인지 DSA key 인지등의 정보를 포함하는 구조체를 해슁하는 것.</li>
-</ul>
-
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/8">&larr; Older</a>
@@ -1269,6 +1261,10 @@ DLL 의 <code>DLL_PROCESS_ATTACH</code> 때 돌아가게 코드를 만들어 놓
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2015/12/23/on-the-juniper-backdoor/">On the Juniper Backdoor</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2015/12/07/trustnone/">TRUSTNONE</a>
       </li>
     
@@ -1282,10 +1278,6 @@ DLL 의 <code>DLL_PROCESS_ATTACH</code> 때 돌아가게 코드를 만들어 놓
     
       <li class="post">
         <a href="/blog/2015/09/17/rop-and-arm/">ROP and ARM</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/09/13/sophail-applied-attacks-against-sophos-antivirus/">Sophail: Applied Attacks Against Sophos Antivirus</a>
       </li>
     
   </ul>
