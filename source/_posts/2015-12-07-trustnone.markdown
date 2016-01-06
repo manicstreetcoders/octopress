@@ -53,4 +53,4 @@ Sean Beaupre 씨가 쓴 글, [TRUSTNONE](http://theroot.ninja/disclosures/TRUSTN
 	if (R0 < R1) return 0;
 ```
 
-validate_input 에서 돌아오면, 비슷한 계산을 또 하는데,,,
+validate_input 에서 돌아오면, 비슷한 계산을 또 하는데.
