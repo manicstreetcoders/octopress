@@ -4,7 +4,7 @@
   <title><![CDATA[KC's blog]]></title>
   <link href="http://zomo.heroku.com/atom.xml" rel="self"/>
   <link href="http://zomo.heroku.com/"/>
-  <updated>2016-01-07T14:29:38+09:00</updated>
+  <updated>2016-01-07T15:26:33+09:00</updated>
   <id>http://zomo.heroku.com/</id>
   <author>
     <name><![CDATA[KC]]></name>
@@ -1860,6 +1860,7 @@ BoxType 은 4 글자 코드로 구성된다. FourCC 라고 불리는데, <code>c
 <li><a href="https://bugzilla.redhat.com/show_bug.cgi?id=962792#c16">CVE-2013-2094 kernel: perf_swevent_enabled array out-of-bound access</a></li>
 <li><a href="http://timetobleed.com/a-closer-look-at-a-recent-privilege-escalation-bug-in-linux-cve-2013-2094/">A closer look at a recent privilege escalation bug in Linux (CVE-2013-2094)</a></li>
 <li><a href="https://github.com/realtalk/cve-2013-2094">github</a></li>
+<li><a href="https://dl.packetstormsecurity.net/1403-exploits/perf_swevent_init.c">Brad Spengler</a></li>
 <li><a href="http://phrack.org/issues/64/6.html#article">Phrack #64 file 6, Attacking the Core : Kernel Exploiting Notes</a></li>
 <li><a href="http://www.intel.com/content/www/us/en/architecture-and-technology/64-ia-32-architectures-software-developer-vol-3a-part-1-manual.html">Intel: Interrupt and Exception Overview</a></li>
 </ul>
