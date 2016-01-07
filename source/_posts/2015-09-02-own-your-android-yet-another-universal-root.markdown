@@ -8,6 +8,8 @@ categories:
 
 BlackHat 2015 에 발표된 Own your Android! Yet Another Universal Root, Wen Xu, Yubin Fu. 를 정리해본다.
 
+[BlackHat 발표 영상](https://www.youtube.com/watch?v=HVP1c7Ct1nM)
+
 #### Bug analysis
 
 * CVE-2015-3636: Wen Yu 와 wushi (of Keen Team) 이 [Trinity fuzzer](https://github.com/kernelslacker/trinity) 로 찾음.

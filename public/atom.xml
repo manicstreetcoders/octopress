@@ -4,7 +4,7 @@
   <title><![CDATA[KC's blog]]></title>
   <link href="http://zomo.heroku.com/atom.xml" rel="self"/>
   <link href="http://zomo.heroku.com/"/>
-  <updated>2016-01-06T15:22:04+09:00</updated>
+  <updated>2016-01-07T14:29:38+09:00</updated>
   <id>http://zomo.heroku.com/</id>
   <author>
     <name><![CDATA[KC]]></name>
@@ -1124,6 +1124,8 @@ BoxType 은 4 글자 코드로 구성된다. FourCC 라고 불리는데, <code>c
     <updated>2015-09-02T09:26:22+09:00</updated>
     <id>http://zomo.heroku.com/blog/2015/09/02/own-your-android-yet-another-universal-root</id>
     <content type="html"><![CDATA[<p>BlackHat 2015 에 발표된 Own your Android! Yet Another Universal Root, Wen Xu, Yubin Fu. 를 정리해본다.</p>
+
+<p><a href="https://www.youtube.com/watch?v=HVP1c7Ct1nM">BlackHat 발표 영상</a></p>
 
 <h4>Bug analysis</h4>
 
