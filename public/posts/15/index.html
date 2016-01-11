@@ -9,8 +9,12 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="
-">
+  <meta name="description" content="bootloader loads kernel
+-&gt; kernel
+-&gt; init process
+-&gt; init spawns daemons (i.e. adbd)
+-&gt; init launches zygote
+-&gt; zygote launches the &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -66,6 +70,49 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/04/25/android-paranoid-network/">ANDROID_PARANOID_NETWORK</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-04-25T12:35:34+09:00'><span class='date'><span class='date-month'>Apr</span> <span class='date-day'>25</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>12:35 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><pre><code>bootloader loads kernel
+-&gt; kernel
+-&gt; init process
+-&gt; init spawns daemons (i.e. adbd)
+-&gt; init launches zygote
+-&gt; zygote launches the first DVM and proloads all core classes
+-&gt; zygote forks itself and starts a process called system server
+-&gt; the system server then starts all core android services i.e. activity manager
+
+ANDROID_PARANOID_NETWORK
+/include/linux/android_aids.h
+AID_INET
+/system/core/include/private/android_filesystem_config.h
+/system/etc/permissions/platform.xml
+</code></pre>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -608,141 +655,6 @@ if __name__ == "__main__":
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/03/22/extended-euclidean-algorithm/">Extended Euclidean Algorithm</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2014-03-22T09:37:42+09:00'><span class='date'><span class='date-month'>Mar</span> <span class='date-day'>22</span><span class='date-suffix'>nd</span>, <span class='date-year'>2014</span></span> <span class='time'>9:37 am</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>gcd(x,y) 를 찾는 Euclid 알고리즘.</p>
-
-<pre><code>exports.map = function (fn,a) { 
-    for (var i=0; i &lt; a.length; i++)
-        a[i] = fn(a[i]);
-};
-
-exports.reduce = function (fn, a) {
-    var prev = 0;
-    for (var i=0;i&lt;a.length;i++)
-        prev = fn(prev,a[i]);    
-    return prev;
-};
-
-exports.gcd = function (a,b) {
-    var t;
-    if (b &gt; a) {
-        t = a; a = b; b = t;
-    }
-    if (b == 0)
-        return a;
-    return exports.gcd(b, a % b)
-};
-
-% node
-&gt; var x = require('./reduce.js')
-undefined
-&gt; x.reduce(x.gcd, [487, 28, 100])
-1
-&gt; x.reduce(x.gcd, [84, 28, 100])
-4
-&gt; x.reduce(x.gcd, [48, 24, 36])
-12
-&gt;
-</code></pre>
-
-<p>Least positive linear combination of a and b 를 찾아보자.</p>
-
-<pre><code>% cat least_positive.py
-from fractions import gcd
-
-min = 999999999999999
-
-def search(x,y):
-    global min
-    g = gcd(x,y)
-
-    for i in range(-100,101):
-        i = -1 * i
-        for j in range(-100,101):
-            j = -1 * j
-            d = i * x + j * y
-            if d &lt;= 0:
-                continue
-            if d &lt; min:
-                min = d
-                print "New minimum: %d, gcd: %d" % (min,g)
-
-    print "Minimum: %d, gcd: %d" % (min,g)
-    print "done"
-
-search(100,40)
-
-% python least_positive.py
-...
-New minimum: 500, gcd: 20
-New minimum: 480, gcd: 20
-New minimum: 440, gcd: 20
-New minimum: 400, gcd: 20
-New minimum: 380, gcd: 20
-New minimum: 340, gcd: 20
-New minimum: 300, gcd: 20
-New minimum: 280, gcd: 20
-New minimum: 240, gcd: 20
-New minimum: 200, gcd: 20
-New minimum: 180, gcd: 20
-New minimum: 140, gcd: 20
-New minimum: 100, gcd: 20
-New minimum: 80, gcd: 20
-New minimum: 40, gcd: 20
-New minimum: 20, gcd: 20
-Minimum: 20, gcd: 20
-done
-</code></pre>
-
-<p>Theorem: If a and b are nonzero integers, then their gcd is a linear combination
-of a and b, that is there exist integer numbers s and t such that</p>
-
-<p>sa + tb = (a,b).</p>
-
-<p>Proof: Let d be the least positive integer that is a linear combination of a and b. We write</p>
-
-<p>d = sa + tb,</p>
-
-<p>where s and t are integers.</p>
-
-<p>We first show that d | a. By the Division Algorithm we have</p>
-
-<p>a = dq + r, where 0 &lt;= r &lt; d.</p>
-
-<p>r = a - dq = a - q(sa + tb) = a - qsa - qtb = (1 - qs)a + (-qt)b</p>
-
-<p>This shows that r is a linear combination of a and b.
-Since 0&lt;= r &lt; d, and d is the least positive linear combination of a and b,
-we conclude that r = 0, and hence d | a.</p>
-
-<p>이제, a<em>x + b</em>y = gcd(x,y) 를 만족하는 a,b 를 찾는 Extended Euclid 알고리즘.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/16">&larr; Older</a>
@@ -760,6 +672,10 @@ we conclude that r = 0, and hence d | a.</p>
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/01/11/bsides-vienna-2015-writing-your-first-windows-exploit-in-less-than-one-hour/">BSides Vienna 2015: Writing Your First Windows Exploit in Less Than One Hour</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/01/11/sock-sendpage/">Sock_sendpage</a>
       </li>
     
@@ -773,10 +689,6 @@ we conclude that r = 0, and hence d | a.</p>
     
       <li class="post">
         <a href="/blog/2015/10/04/return-oriented-programming-for-the-arm-architecture/">Return Oriented Programming for the ARM Architecture</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/10/02/the-inside-story-behind-ms08-067/">The Inside Story Behind MS08-067</a>
       </li>
     
   </ul>

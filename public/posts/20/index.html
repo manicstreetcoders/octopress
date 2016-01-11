@@ -9,7 +9,8 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="hi. i&rsquo;m naveen. 에서 필요한 bookmarklets 를 발견했다. 위 blog 에는 del.icio.us 버전이 적혀있는데 javascript:(function(){l=location.href;t=document.title;if(!t) t = &hellip;">
+  <meta name="description" content="UIWebView 에서 onclick event 를 잡을때, 터치 후 event 발사까지 300ms 정도의 딜레이가 있다.
+래깅이 느껴지고, 손가락이 오그라든다. 그 딜레이를 없애고 최대한 반응 속도를 올리기 위한 방법이 있다. 아래의 아티클들에 소개되어 있는데, &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -65,6 +66,301 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/10/18/300ms-delay/">300ms Delay</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2012-10-18T23:05:00+09:00'><span class='date'><span class='date-month'>Oct</span> <span class='date-day'>18</span><span class='date-suffix'>th</span>, <span class='date-year'>2012</span></span> <span class='time'>11:05 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>UIWebView 에서 onclick event 를 잡을때, 터치 후 event 발사까지 300ms 정도의 딜레이가 있다.
+래깅이 느껴지고, 손가락이 오그라든다.</p>
+
+<p>그 딜레이를 없애고 최대한 반응 속도를 올리기 위한 방법이 있다.</p>
+
+<p>아래의 아티클들에 소개되어 있는데,</p>
+
+<ul>
+<li><a href="http://labs.ft.com/articles/ft-fastclick">FT Fastclick</a></li>
+<li><a href="http://labs.ft.com/2011/08/fastclick-native-like-tapping-for-touch-apps/">FastClick: native-like tapping for touch apps</a></li>
+<li><a href="http://labs.ft.com/2012/08/fastclick-redux/">FastClick redux</a></li>
+<li><a href="http://github.com/ftlabs/fastclick">ftlabs/fastclick</a></li>
+<li><a href="http://github.com/dave1010/jquery-fast-click">dave1010/jquery-fast-click</a></li>
+</ul>
+
+
+<p>번역 &amp; 정리해본다.</p>
+
+<p>모바일 브라우저에서 다음과 같은 페이지를 로드했을 경우</p>
+
+<pre><code>&lt;button onclick='signup()'&gt;Sign Up!&lt;/button&gt;
+</code></pre>
+
+<p>유저가 button 을 누르고, 브라우저가 click event 를 쏘기까지 약 300ms 의 딜레이가 있다.
+모바일 브라우저가 이런 딜레이를 두는 이유는 더블탭을 감지하기 위해서이다.
+이 딜레이를 없앨 수 없을까?</p>
+
+<p>FT Labs 에서 제작한 FT FastClick 에서 쓴 방식은 TouchEnd event 가 잡혔을때, click event 를 쏴주는 식이다.</p>
+
+<p>고려해야 할 상황은 (<a href="http://code.google.com/mobile/articles/fast_buttons.html">Creating Fast Button for Mobile Web Applications</a>)</p>
+
+<ol>
+<li>딴데를 터치한 다음에 버튼 위로 손을 끌고 와서 놔버려서 button 에 touchend 가 뜬 경우 -> click event 를 쏘면 안됨.</li>
+<li>버튼을 터치하고 화면을 드래그한다음에 손을 놔버려서 button 에 touchend 가 뜬 경우 -> 버튼을 누를 의도였다기보다는 화면을 스크롤하고 싶었던 것. 그래서 click event 를 쏘면 안됨.</li>
+</ol>
+
+
+<h3>FT Fastclick</h3>
+
+<p><a href="http://github.com/ftlabs/fastclick">ftlabs/fastclick</a> 의 사용법은.</p>
+
+<pre><code>&lt;script type='application/javascript' src='/path/to/fastclick.js'&gt;&lt;/script&gt;
+
+window.addEventListener('load'), function() {
+  new FastClick(document.body);
+}, false);
+</code></pre>
+
+<p>으로 간단하다. 사용해보니 잘 동작한다. UIWebView 에서 터치가 native app 처럼 빠르게 인식된다. 하지만 여기에 만족할 수 없었다. 소스를 디벼야 직성이 풀릴 듯 했다.</p>
+
+<p>그래서 <a href="http://labs.ft.com/wp-content/uploads/2011/08/fastclick.js">FastClick() 소스</a> 를 디비기 시작했다.</p>
+
+<pre><code>// Determine whether touch handling is supported
+var touchSupport = 'ontouchstart' in window;
+</code></pre>
+
+<p><em>ontouchstart</em> 가 있으면 touch 를 지원하는 디바이스로 판단.</p>
+
+<pre><code>// Set up event handlers as required
+if (touchSupport) {
+  layer.addEventListener('touchstart', onTouchStart, true);
+  layer.addEventListener('touchmove', onTouchMove, true);
+  layer.addEventListener('touchend', onTouchEnd, true);
+  layer.addEventListener('touchcancel', onTouchCancel, true);
+}
+layer.addEventListener('click', onClick, true);
+</code></pre>
+
+<p>addEventListener() 를 통해서 touchstart / touchmove / touchend / touchcancel 에 listener 를 등록한다.</p>
+
+<p>addEventListener() 의 문법은</p>
+
+<pre><code>target.addEventListener(type, listener[, useCapture]);
+</code></pre>
+
+<p>여기서 <em>useCapture</em> 는 무얼까?</p>
+
+<blockquote><p>If true, useCapture indicates that the user wishes to initiate capture. After initiating capture, all events of the specified type will be dispatched to the registered listener before being dispatched to any EventTarget beneath it in the DOM tree. Events which are bubbling upward through the tree will not trigger a listener designated to use capture.</p></blockquote>
+
+<p>capture phase 는 <em>DefaultView</em> -> <em>Document</em> -> <em><html></em> -> &hellip; 해서 <em>target</em> 까지 내려오는 구간. bubbling phase 는 <em>target</em> 에서 다시 위로 올라가는 구간인데,
+<em>useCapture</em> 를 쓰면, <em>the capture and target phases</em> 에만 event listener 를 붙이는 것이다. 그리고, 하나의 타겟에 여러개의 event listener 들이 붙을 수 있음.</p>
+
+<p>실험을 해보자.  useCapture 를 <em>true</em> 로 세팅하면, DOM tree 의 child node 한테 가는 이벤트를 먼저 잡는 것을 볼 수 있다.</p>
+
+<p>Parent node 에 listener 를 붙이고, <em>useCapture = true</em> 로 listener 를 붙이고,
+child node 에는 <em>useCapture = false</em> 로 listener 를 붙인다.
+그리고, parent 쪽 listener 에서는 stopPropagation() 으로 propagation 을 끊는다.
+<em>two</em> 를 클릭해도, parent node 에 붙은 listener 가 control 을 가져가며,
+event propagation 을 stop 해버리므로 <em>two</em> 에 붙은 listner 는 수행될 기회를 가지지 못한다. 그래서 <em>three</em> 가 아닌 <em>four</em> 로 변해버린다.</p>
+
+<p>jsfiddle 에서 실험해보자.</p>
+
+<iframe style="width: 100%; height: 300px" src="http://jsfiddle.net/zomojj/mtd8d/1/embedded/" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
+
+
+<p>아무리 클릭해도 <em>three</em> 는 나오지 않고 <em>four</em> 만 나온다. <em>useCapture</em> 의 effect 를 알 수 있다.</p>
+
+<p>FT FastClick 코드로 다시 돌아가면, touchstart, touchend, touchmove, touchcancel 에 listener 를 붙이고, click 에도 listener 를 붙인다.
+그리고 이미 onclick 핸들러가 있었다면, listener 로 전환시켜서 나중에 불리도록 조치한다. 기존의 onclick 핸들러는 리셋.</p>
+
+<pre><code>// If a handler is already declared in the element's onclick attribute, it will be fired before
+// FastClick's onClick handler. Fix this by pulling out the user-defined handler function and
+// adding it as listener.
+if (layer.onclick instanceof Function) {
+  layer.addEventListener('click', layer.onclick, false);
+  layer.onclick = '';
+}
+</code></pre>
+
+<h3>Event Canceling</h3>
+
+<p>DOM event 를 cancel 하는데, 3 가지 method 가 있는데,</p>
+
+<ul>
+<li>preventDefault()</li>
+<li>stopPropagation()</li>
+<li>stopImmediatePropagation()</li>
+</ul>
+
+
+<p>우선 preventDefault() 부터 보면,</p>
+
+<blockquote><p>preventDefault()</p>
+
+<p>If an event is cancelable, the preventDefault method is used to signify that the event is to be canceled, meaning any default action normally taken by the implementation as a result of the event will not occur. If, during any stage of event flow, the preventDefault method is called the event is canceled. Any default action associated with the event will not occur. Calling this method for a non-cancelable event has no effect. Once preventDefault has been called it will remain in effect throughout the remainder of the event&rsquo;s propagation. This method may be used during any stage of event flow.</p></blockquote>
+
+<p>예제를 해봤다. <em>checkbox 에 클릭을 해도 check 가 되지 않는다!</em></p>
+
+<pre><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+&lt;title&gt;DOM Event Example&lt;/title&gt; 
+&lt;script&gt;
+// Function to change the content of t2
+function stopDefAction(evt) {
+    evt.preventDefault();
+}  
+// Function to add event listener to t
+function load() { 
+  document.getElementById('my-checkbox').addEventListener(
+    'click', stopDefAction, false
+  );
+} 
+
+document.addEventListener("DOMContentLoaded", load, false);
+&lt;/script&gt;
+
+&lt;/head&gt;
+&lt;body&gt;
+
+&lt;p&gt;Please click on the checkbox control.&lt;/p&gt;
+
+&lt;form&gt;
+    &lt;input type="checkbox" id="my-checkbox" /&gt;
+    &lt;label for="my-checkbox"&gt;Checkbox&lt;/label&gt;
+&lt;/form&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+
+<p>HTML 섹션을 클릭해서 보도록.</p>
+
+<iframe style="width: 100%; height: 300px" src="http://jsfiddle.net/zomojj/b2BPD/3/embedded/" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
+
+
+<p>그럼 다음은 stopPropagation().</p>
+
+<blockquote><p>stopPropagation()</p>
+
+<p>Prevents all other event listeners from being triggered, excluding any remaining candiate event listeners. Once it has been called, further calls to this method have no additional effect.</p></blockquote>
+
+<p>그럼 preventDefault() 와 stopPropagation() 의 차이는 무엇일까 궁금해졌다.</p>
+
+<p>간단히 정리하면, preventDefault() 는 event 에 대한 default functionality 가 일어나는 것을 막는다. 하지만 event 는 propagate 된다.</p>
+
+<p>반대로 stopPropagation() 은 default functionality 는 일어나지만, parent 로 propagate 되지는 않는다.</p>
+
+<blockquote><p><a href="http://stackoverflow.com/questions/5963669/whats-the-difference-between-event-stoppropagation-and-event-preventdefault">What&rsquo;s the difference between event.stopPropagation and event.preventDefault?</a></p>
+
+<p>stopPropagation stops the event from bubbling up the event chain.</p>
+
+<p>preventDefault prevents the default action the browser makes on that event.</p></blockquote>
+
+<pre><code> &lt;!DOCTYPE html&gt;
+ &lt;html&gt;
+ &lt;head&gt;
+ &lt;script type="application/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.8.2/jquery.min.js"&gt;&lt;/script&gt;
+ &lt;title&gt;DOM Event Example&lt;/title&gt;  
+ &lt;/head&gt;
+ &lt;body&gt;
+ &lt;div id="foo"&gt;
+   &lt;button id="but" /&gt;
+ &lt;/div&gt;   
+ &lt;script&gt;
+ $("#foo").click( function () { 
+   console.log("#foo click")
+ });
+
+ $("#but").click( function (ev) {
+   console.log("#but click");
+   ev.stopPropagation(); 
+ })
+ &lt;/script&gt;
+ &lt;/body&gt;
+ &lt;/html&gt;
+</code></pre>
+
+<p>위의 예제에서 보면, <code>ev.stopPropagation()</code> 을 하면 console 에</p>
+
+<pre><code> #but click 
+</code></pre>
+
+<p>만 나온다.</p>
+
+<p>하지만 <code>//ev.stopPropagation()</code> 로 comment-out 하면 console 에</p>
+
+<pre><code> #but click
+ #foo click
+</code></pre>
+
+<p>이라고 나온다. parent node 로 event 가 propagate 된 것이다.</p>
+
+<p>그럼 stopPropagation() 과 stopImmediatePropagation() 의 차이는 무엇일까?</p>
+
+<p><a href="http://stackoverflow.com/questions/5299740/jquery-stoppropagation-vs-stopimmediatepropagation">jquery: stopPropagation vs stopImmediatePropagation</a> 에 설명이 되어 있다.</p>
+
+<p>우선 <a href="http://jsfiddle.net/syT6K/">jsfiddle 예제</a> 를 보자.</p>
+
+<h3>Exceptions thrown inside event listener</h3>
+
+<blockquote><p>Exceptions thrown inside event listeners must not stop the propagation of the event or affect the propagation path. The exception itself must not propogate outside the scope of the event handler.</p></blockquote>
+
+<pre><code>var e = document.createEvent("Event");
+e.initEvent("myevent", false, false);
+var target = document.createElement("div");
+target.addEventListener("myevent", function () {
+   throw "Error";
+});
+target.dispatchEvent(e); // Causes the event listener to throw an exception...
+// The previously thrown exception doesn't affect the code that follows:
+console.log("Exceptions? No problem");
+</code></pre>
+
+<p>실행해보면 &ldquo;Exceptions? No problem&rdquo; 이 출력된다. event listener 에서 던진 &ldquo;Error&rdquo; 가 parent scope 로 올라오지 않는다는 이야기.</p>
+
+<h3>Further works:</h3>
+
+<ol>
+<li>DOM Level 2 Events Spec 과 DOM Level 3 Events Spec 를 정독해봐야겠다.</li>
+<li>DOM Event Flow 와 addEventListener(), preventDefault(), stopPropagation(), stopImmediatePropagation() 부분을 정독해야겠다.</li>
+<li>Touch event 를 tracking 해서 drawing 을 하는 예제를 만들어 iPad 로 테스트해봐야겠다.</li>
+<li>FastClick.js 의 line-by-line 분석.</li>
+</ol>
+
+
+<h3>Further readings:</h3>
+
+<ul>
+<li><a href="https://developer.mozilla.org/en-US/docs/DOM/element.addEventListener">MDN: element.addEventListener</a></li>
+<li><a href="http://www.w3.org/TR/DOM-Level-3-Events/#event-flow">Event dispatch and DOM event flow</a></li>
+<li><a href="https://developer.mozilla.org/en-US/docs/DOM/Touch_events#Example">Touch event example</a></li>
+<li><a href="http://davidwalsh.name/javascript-events">David Walsh&rsquo;s blog</a></li>
+<li><a href="http://blog.bittersweetryan.com/2012/07/playing-around-with-javascripts.html">Playing Around With JavaScript&rsquo;s stopPropagation and preventDefault Methods </a></li>
+<li><a href="http://dev-tricks.com/event-preventdefault-and-event-stoppropagation-and-event-stopimmediatepropagation/">Quick Tips:event.preventDefault() and event.stopPropagation and event.stopImmediatePropagation</a></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1442,125 +1738,6 @@ S/W 가 없으니, 기계외에 추가되는 Value 가 없음. Commodity 가 되
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2012/05/19/consumer-startups-without-revenue-are-products/">Consumer Startups Without Revenue Are Products, Not Businesses</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2012-05-19T18:06:00+09:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>19</span><span class='date-suffix'>th</span>, <span class='date-year'>2012</span></span> <span class='time'>6:06 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>@gregorysean 은 <a href="http://expletiveinserted.com/2012/05/17/consumer-startups-without-revenue-are-products-not-businesses/">Consumer Startups without Revenue are Products, not Businesses</a> 에서</p>
-
-<p>수익 모델이 없는 프로덕트를 개발하는 개발사의 여러가지 딜레마에 대해서 이야기한다.</p>
-
-<h3>In the Beginning</h3>
-
-<blockquote><p>Early in the life of a social product like Twitter or Tumblr, there are no ads. The product is conceived without advertising in mind, but rather with a very well intentioned focus on user experience.</p></blockquote>
-
-<p>개발 초창기에 UX 에 치중하는 이유는,</p>
-
-<ul>
-<li><p>사용자 가치에만 집중하는 비전 (i.e. 자신의 문제 해결를 해결하려 프로덕트 개발 시작했기 때문에, AD 에 신경쓸 여유도 없고 필요성이 느껴지지도 않고)</p></li>
-<li><p>초창기에는 AD 에 신경을 쓰면서 리소스를 분산시킬 이유가 없고 (백만단위의 AD impression 이나 백만단위의 UV 는 되어야 광고주들도 신경을 쓰니까 어차피 초기에는 AD 를 돌릴 수도 없고)</p></li>
-<li><p>SNS 같은 경우 UX 에만 신경쓰는 경쟁자가 많기 때문에, UX 에만 신경쓰기도 벅차</p></li>
-</ul>
-
-
-<p><br /></p>
-
-<h3>We Can Introduce Ads Later. Right?</h3>
-
-<blockquote><p>Maybe not. In the delicate cocktail that makes a great user experience, advertising is a powerful, overbearing ingredient. Adding it to the mix after the fact is almost impossible to do without changing the flavor to something completely different. And probably not very palatable.</p></blockquote>
-
-<p>UX 라는 섬세한 칵테일에, AD 는 너무나 강한 재료라서, 이것을 섞는 순간 전혀 다른 맛으로 바뀌게 된다. 맛이 없어질 가능성이 크다.</p>
-
-<p><br /></p>
-
-<blockquote><p>Even if the new ad supported product isn’t awful, it is not the same product that users grew to love. To them the addition of ads feels exactly like the bait and switch that it actually is. At best, the ads are an annoyance that devalues the product. At worst, they are a sign of that the makers of their beloved product are “selling out” and have lost their way.</p></blockquote>
-
-<p>AD 탑재 후 유저들이 &ldquo;돈에 팔렸다!&rdquo; 라고 할지도 몰라.</p>
-
-<p><br /></p>
-
-<blockquote><p>This seems obvious, so why are good product people, who are in other respects thoughtful about the minutia of user experience, so naive about this aspect of their product’s design? The answer is that they never considered it. And this wasn’t an oversight. It was intentional. Advisors and investors encouraged company leaders to delay thinking about monetization. The high order bit, in fact, the only bit that matters, is to grow the number of users and their level of engagement as quickly as possible.</p></blockquote>
-
-<p>투자자들도 수익모델 탑재는 나중에 하고 유저 베이스를 키울 것을 주문하고,
-그런 이유로 개발자들도 UX 에만 신경쓰다보니, 결국 성공한다고 해도,</p>
-
-<p><br /></p>
-
-<blockquote><p>The result if the company is successful? A product that wasn’t designed to generate advertising revenue, and a company that doesn’t have any advertising DNA.</p></blockquote>
-
-<p>이렇게 계속 달리다보면, AD 탑재 불가인 제품과 AD DNA 가 없는 회사가 만들어진다. 짜잔!</p>
-
-<p><br /></p>
-
-<h3>The Ads are a Lie</h3>
-
-<blockquote><p>The startup got to this point because the focus was never on building a real business with profitable products. After all, the product that matters to early stage investors is not the one the startup is selling, it is the startup itself. History tells them that with enough traction from users, one can sell a business without a single cent of revenue for $1 billion dollars.</p></blockquote>
-
-<p>회사가 이런 길을 따라서 쭉 가다가 성공(?)해버리면,
-&ldquo;수익이 나는 프로덕트를 가진 진짜 비즈니스"와는 거리가 먼 곳에 와있게 된다.</p>
-
-<p>투자자에게도 스타트업이 파는 것이 중요한 것이 아니라, 이 정도까지 온 회사 자체가
-중요. i.e. 1 달라의 매출도 없이 1 조에 팔리는 예가 있다보니.</p>
-
-<p><br /></p>
-
-<blockquote><p>When the investors say “the business model can come later”, they are adding “after the exit” in mental parentheses. These days that exit most often comes in the form of an acquisition. The acquirer might want the technology, the users or just to eliminate an upstart competitor. Post acquisition, they will set about integrating the new products into their own business model, whatever that may be. All is well.</p></blockquote>
-
-<p>투자자들이 &ldquo;비즈니스 모델은 나중에 붙여도 되고&rdquo; 라고 말할 때, &ldquo;나중에&rdquo; 는
-exit 이후를 말함. 사간 회사가 알아서 붙여서 moneitize 하던가. 이 정도의 마인드.</p>
-
-<p><br /></p>
-
-<h3>The Incumbents Win</h3>
-
-<blockquote><p>These whacky incentives create an environment where many startups really aren’t working towards profitability, but rather towards an acquisition exit. They are building experiences, not businesses. And since they don’t have the shackles of P&amp;L reality, they can do things that make it hard for businesses with real goals of profitability to compete.</p></blockquote>
-
-<p>Acquisition exit 을 보고 달리기 때문에, P&amp;L reality 를 볼 필요가 없이,
-P&amp;L 을 염두에 두고, 이익을 목적으로 비즈니스를 하는 진짜 회사들 입장에서
-경쟁하기 힘든 일들을 할 수가 있어.</p>
-
-<p>비즈니스를 만들 필요가 없고, (유저) 경험만 만들면 되는.</p>
-
-<p><br /></p>
-
-<blockquote><p>In fact, large companies are also where many unsuccessful consumer startups go to die, via the acqui-hire. Typically these are startups that built innovative products, got some impressive user traction, but didn’t get to the nice fat acquisition before they peaked and started the decline. In this case, the acquirer gets a waning user base and some proven product talent at a bargain basement price. The founders save face. The investors get something rather than nothing. Everybody makes out ok, except… the customers.</p></blockquote>
-
-<p>그저그런 시나리오</p>
-
-<p>혁신적인 프로덕트를 만들고, 인상적인 UV 를 만들고, 하지만 peak 를 칠 때까지
-빵빵한 인수 제안을 받지 못하고, 그리고 기울기 시작한다.</p>
-
-<p>대기업이 유저 베이스와 인력을 헐값에 인수하고, 창업자는 간신히 면을 세우고,
-투자자는 아예 없는 것보다는 나은 정도를 건지고.</p>
-
-<h2><br /></h2>
-
-<p><br />
-매출이 없는 제품을 주구장창 개발하는 것. 회사라고 보기도 뭐하고, 사업이라고 보기도 뭐하고. 프로덕트 개발 조직 정도로 보는 것이 좋을 듯.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/21">&larr; Older</a>
@@ -1578,6 +1755,10 @@ P&amp;L 을 염두에 두고, 이익을 목적으로 비즈니스를 하는 진�
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/01/11/bsides-vienna-2015-writing-your-first-windows-exploit-in-less-than-one-hour/">BSides Vienna 2015: Writing Your First Windows Exploit in Less Than One Hour</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/01/11/sock-sendpage/">Sock_sendpage</a>
       </li>
     
@@ -1591,10 +1772,6 @@ P&amp;L 을 염두에 두고, 이익을 목적으로 비즈니스를 하는 진�
     
       <li class="post">
         <a href="/blog/2015/10/04/return-oriented-programming-for-the-arm-architecture/">Return Oriented Programming for the ARM Architecture</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/10/02/the-inside-story-behind-ms08-067/">The Inside Story Behind MS08-067</a>
       </li>
     
   </ul>

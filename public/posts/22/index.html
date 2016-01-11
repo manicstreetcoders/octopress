@@ -9,7 +9,9 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="Peter Thiel은 CS183:Startup 클래스의 아홉번째 강의에서, &lsquo;배포'에 관해 가르친다. 이 강의 첫부분에서 그는 &lsquo;배포 공식&rsquo; 을 정의한다. Customer lifetime value, or CLV Average &hellip;">
+  <meta name="description" content="JavaScript has some extraordinarily good parts.
+In JavaScript, there is a beautiful, elegant, highly expressive language
+that is buried under a &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -65,6 +67,77 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/05/10/javascript-the-good-parts/">JavaScript: The Good Parts</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2012-05-10T19:27:00+09:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>10</span><span class='date-suffix'>th</span>, <span class='date-year'>2012</span></span> <span class='time'>7:27 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><blockquote><p>JavaScript has some extraordinarily good parts.
+In JavaScript, there is a beautiful, elegant, highly expressive language
+that is buried under a steaming pile of good intentions and blunders.</p>
+
+<p>&hellip;</p>
+
+<p>JavaScript&rsquo;s C-like syntax, including curly braces and the clunky
+&lsquo;for&rsquo; statement, makes it appear it to be an ordinary procedural language.
+This is misleading because JavaScript has more in common with functional
+language like Lisp or Scheme than with C or Java.</p></blockquote>
+
+<p>Doug Crockford 는 그의 책
+<a href="http://googlecode.blogspot.com/2009/03/doug-crockford-javascript-good-parts.html">Doug Crockford: JavaScript: The Good Parts</a>
+에서 JavaScript 을 그것이 가진 나쁜 면들때문에 싸잡아서 그저 그런 언어로 치부해서는 안된다고 주장한다.</p>
+
+<p>또한 C 와 비슷한 문법과 &lsquo;자바'라는 이름때문에 오해를 받고 있으며, 오히려 Lisp 의 방언(dialect) 이라고 말할 수 있다고 말한다.</p>
+
+<p>브라우저에 탑재되는 언어의 자리를 놓고 많은 경쟁자들과 싸워서 이긴 언어이며, 그 이유는 JavaScript 에는 놀라울만큼 훌륭한 점들이 많기 때문이라고 이야기한다.</p>
+
+<h2><br /></h2>
+
+<p><br />
+얼마전에 twitter bootstrap 코드의 세미콜론을 두고 개발자와 Doug Crockford 간에 논쟁이 벌어졌었다.</p>
+
+<p>개발자는 JavaScript 의 &ldquo;생략가능한 세미콜론&rdquo; 기능을 이용해서 코드를 짰는데, 이 코드가 JSLint 에서 걸린 것이 사건의 발단이었다.</p>
+
+<p>감정적인 말이 오가고, 서로 상대방의 코드를 고치라고 뻐대는 형국이 되버렸다.</p>
+
+<p>결국 어떻게 마무리가 되었는지는 잘 모르겠지만, Crockford 가 깐깐함때문에 Cranky old-man 으로 불린다는 것.</p>
+
+<p>그럼에도 개발자들로부터 존경을 받고 있다는 것. 이 두가지는 확인할 수 있었다.</p>
+
+<p><br />
+아래 코드는 C 로 된 이진수 출력 루틴의 일부인데</p>
+
+<pre><code>b[32] = '\0';
+for (i = 32, j = (1L &lt;&lt; 31); i &gt; 0; i--, j &gt;&gt;= 1)
+  *p++ = (x &amp; j) == j ? '1' : '0';
+</code></pre>
+
+<p>요즘 세상에 C 는 어셈블리가 된 것 같아서, 이런 코드를 짜고 있으면,  JavaScript 의 &ldquo;헐거운 타이핑&rdquo; (loose typing) 이 그리워지기 마련이다.</p>
+
+<p>Crockford 는 JavaScript 의 좋은 점으로 lambda 와 &ldquo;헐거운 타이핑&rdquo; (loose typing), prototypal inheritance, dynamic object 를 들고 있다.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -141,6 +214,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/01/11/bsides-vienna-2015-writing-your-first-windows-exploit-in-less-than-one-hour/">BSides Vienna 2015: Writing Your First Windows Exploit in Less Than One Hour</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/01/11/sock-sendpage/">Sock_sendpage</a>
       </li>
     
@@ -154,10 +231,6 @@
     
       <li class="post">
         <a href="/blog/2015/10/04/return-oriented-programming-for-the-arm-architecture/">Return Oriented Programming for the ARM Architecture</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/10/02/the-inside-story-behind-ms08-067/">The Inside Story Behind MS08-067</a>
       </li>
     
   </ul>

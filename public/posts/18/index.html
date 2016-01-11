@@ -9,8 +9,7 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="Peak Finding 을 recursive 하게 만들어 보기. peak 의 정의 Consider an array a[1&hellip;n]:
-An element a[i] is a peak if it is not smaller than its neighbor(s). I &hellip;">
+  <meta name="description" content="LL and LR parsing demystified 을 보고. 저자의 point 는 LL 과 LR 의 차이는 traversal 이라는 것. 파서는 traversal 이라는 인사이트를 제시한다. blog 에 나온 postfix calculator ops &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -66,6 +65,150 @@ An element a[i] is a peak if it is not smaller than its neighbor(s). I &hellip;"
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/09/08/ll-and-lr-parsing/">LL and LR Parsing</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-09-08T20:17:00+09:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>8</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>8:17 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><a href="http://blog.reverberate.org/2013/07/ll-and-lr-parsing-demystified.html">LL and LR parsing demystified</a> 을 보고.</p>
+
+<p>저자의 point 는 LL 과 LR 의 차이는 traversal 이라는 것.</p>
+
+<p>파서는 traversal 이라는 인사이트를 제시한다.</p>
+
+<p>blog 에 나온 postfix calculator</p>
+
+<pre><code>ops = {
+    '+': (lambda a,b: a+b),
+    '-': (lambda a,b: a-b),
+    '*': (lambda a,b: a*b)
+}
+
+def eval(tokens):
+    stack = []
+
+    for tk in tokens:
+        if (tk in ops):
+            a2 = stack.pop()
+            a1 = stack.pop()
+            stack.append(ops[tk](a1,a2))
+        else:
+            stack.append(int(tk))
+    return stack.pop()
+
+if __name__ == "__main__":
+    print eval("7 2 3 * +".split())
+</code></pre>
+
+<p>blog 에서 말한 infix -> postfix 변환하기.</p>
+
+<p>tree building 없이 stack 만 가지고 Prefix 에서 Postfix 로 변환해본다.</p>
+
+<pre><code>ops = { 
+    "+": "plus", 
+    "-": "minus",
+    "*": "mutiply"
+    }
+
+class Visit:
+    tokens = []
+    index = 0
+    stack = []
+    rev_polish = []
+
+    def __init__(self, expr):
+        self.tokens = expr.split()
+        self.index = 0
+
+    def visit(self):
+        if (self.tokens[self.index] in ops):
+            self.stack.append(self.tokens[self.index])
+            self.index += 1
+            self.visit() 
+            self.visit()
+            self.rev_polish.append(self.stack.pop())
+        else:
+            self.rev_polish.append(self.tokens[self.index])
+            self.index += 1
+
+if __name__ == "__main__":
+    visit = Visit("* + 1 2 3")
+    visit.visit()
+    print visit.rev_polish
+
+code% python polish.py
+['1', '2', '+', '3', '*']
+</code></pre>
+
+<p>그 다음에 Infix parsing 트리를 만들어봐야겠다.</p>
+
+<p>일단 문법은 NUMBER + NUMBER 형태만 지원.</p>
+
+<pre><code>class Lexer:
+    token = []
+    index = 0
+
+    def __init__(self, exp):
+        self.token = exp.split()
+        self.lookahead = self.nextToken()
+
+    def nextToken(self):
+        if self.index &lt; len(self.token):
+            tk = self.token[self.index]
+            self.index += 1
+            return tk
+        else:
+            return ""
+    def consume(self):
+        self.lookahead = self.nextToken()
+
+class Parser:
+    def __init__(self, lexer):
+        self.lexer = lexer
+    def expr(self):
+        self.match_number()
+        self.match_op()
+        self.match_number()
+    def match_number(self):
+        print "NUMBER %d" % (int(lexer.lookahead))
+        self.lexer.consume()
+    def match_op(self):
+        print "OP %s" % (lexer.lookahead)
+        self.lexer.consume()
+
+if __name__ == "__main__":
+    lexer = Lexer("1 + 2")
+    parser = Parser(lexer)
+    parser.expr()
+
+blog% python expr.py
+NUMBER 1
+OP +
+NUMBER 2
+</code></pre>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -778,206 +921,6 @@ int prev_cell;
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2013/08/20/recursive-things/">Recursive Things</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2013-08-20T12:15:00+09:00'><span class='date'><span class='date-month'>Aug</span> <span class='date-day'>20</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>12:15 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>&ldquo;알고리즘 문제 해결 전략&rdquo; 이라는 책을 읽고 있다. algospot.com 의 운영자가 쓴 책이다.</p>
-
-<h3>Combination</h3>
-
-<p>1 ~ 9 사이의 숫자를 4 개 뽑는 combination 구하기.</p>
-
-<pre><code>def pick(selection, last):
-    if len(selection) == 4:
-        print selection
-        return
-    for i in range(last+1,9):
-        selection.append(i)
-        pick(selection, i)
-        selection.remove(i)
-
-if __name__ == "__main__":
-    selection = []
-    pick(selection, 0)
-</code></pre>
-
-<h3>음식 대접</h3>
-
-<p>음식을 가리는 4 명의 사람들에게 6 가지의 메뉴 중, 최소한의 메뉴를 준비해서 대접하는 문제.</p>
-
-<pre><code>answer = []
-
-def OK(menu):
-    bit = 0
-    if 1 in menu:
-        bit = bit | 0b1100
-    if 2 in menu:
-        bit = bit | 0b1001
-    if 3 in menu:
-        bit = bit | 0b0101
-    if 4 in menu:
-        bit = bit | 0b0001
-    if 5 in menu:
-        bit = bit | 0b0110
-    if 6 in menu:
-        bit = bit | 0b1010
-
-    if bit == 0b1111:
-        return True
-    else:
-        return False
-
-def Explore(menu, depth):
-    if depth == 7:
-        if OK(menu):
-            answer.append( (len(menu), list(menu)) )
-            return len(menu)
-        else:
-            return 987654321
-    menu.append(depth)
-    size = Explore(menu, depth + 1)
-    menu.pop()
-    size2 = Explore(menu, depth + 1)
-    if size &lt; size2:
-        return size
-    else:
-        return size2
-
-if __name__ == "__main__":
-    menu = []
-    min = Explore(menu,1)
-    for (x,y) in answer:
-        if x == min:
-            print y
-</code></pre>
-
-<h3>구간 max</h3>
-
-<p>Recursive algorithm 은 아니지만.</p>
-
-<p>{ 5, -2, 4, -18, 8, 10, -7, 5, 8, 4, 3, -7, -2, 5, 8, -28, 9, 10, -12, 13, 5 } 라는 어레이에서 summation_from_i_to_j 가 가장 큰 index i, j 를 찾는 문제. 무식하지 않게 하는 것이 포인트.</p>
-
-<p>우선 O(N<sup>2</sup>) 으로 하는 방법은 간단하다.</p>
-
-<pre><code>#include &lt;stdio.h&gt;
-#include &lt;stdlib.h&gt;
-
-main()
-{
-    int a[] = { 5, -2, 4, -18, 8, 10, -7, 5, 8, 4, 3, -7, -2, 5, 8, 0, 9, 10, -28, 13, 5 };
-    int N = sizeof a / sizeof (int);
-
-    int i,j;
-    int max = 1 &lt;&lt; (sizeof(int) * 8 - 1);
-    int sum;
-    int _i,_j;
-
-    for (i = 0; i &lt; N; i++) {
-        sum = 0;
-        for (j = i; j &lt; N; j++) {
-            sum += a[j];
-            if (sum &gt; max) {
-                max = sum;
-                _i = i;
-                _j = j;
-            }
-        }
-    }
-    printf("sum(%d, %d) = %d\n", _i, _j, max);
-}
-</code></pre>
-
-<p>O(N) 알고리즘.</p>
-
-<ol>
-<li>과거를 잊고 새로 summation 을 시작해야 할지를 계속 결정해야 한다.</li>
-<li>과거가 minus 라면 싹 잊고 새로 시작하는 것이 낫다.</li>
-<li>과거가 그래도 plus 라면 구간합을 올리는데 도움은 된다.</li>
-<li>음수인 구간합은 의미가 없다. 0 이 낫다.</li>
-<li>i 까지의 최대구간합은 maxAt(i) = max( 0, maxAt(i-1) ) + a[i]</li>
-</ol>
-
-
-<p>등을 가지고 만들어본다.</p>
-
-<pre><code>#include &lt;stdio.h&gt;
-#include &lt;stdlib.h&gt;
-
-#define MAX(a,b) (a &gt; b ? a : b)
-sum2() 
-{
-    int a[] = { 5, -2, 4, -18, 8, 10, -7, 5, 8, 4, 3, -7, -2, 5, 8, 0, 9, 10, -28, 13, 5 };
-    int N = sizeof a / sizeof (int);
-    int partial_sum = 0;
-    int max = 1 &lt;&lt; (sizeof(int) * 8 - 1);
-    int i;
-
-    for (i = 0; i &lt; N; ++i) {
-        partial_sum = MAX(partial_sum, 0) + a[i];
-        max = MAX(partial_sum, max);
-    }
-    printf("max %d\n", max);
-    return max;
-}
-</code></pre>
-
-<p>여기서 구간을 알아내도록 고쳐보면,</p>
-
-<pre><code>#include &lt;stdio.h&gt;
-#include &lt;stdlib.h&gt;
-
-int _start = 0;
-int _end = 0;
-
-sum2() 
-{
-    int a[] = { 5, -2, 4, -18, 8, 10, -7, 5, 8, 4, 3, -7, -2, 5, 8, 0, 9, 10, -28, 13, 5 };
-    int N = sizeof a / sizeof (int);
-    int partial_sum = 0;
-    int max = 1 &lt;&lt; (sizeof(int) * 8 - 1);
-    int i;
-
-    for (i = 0; i &lt; N; ++i) {
-        if (partial_sum &lt; 0) {
-            partial_sum = a[i];
-            _start = i;
-        } else
-            partial_sum = partial_sum + a[i];
-
-        if (partial_sum &gt; max) {
-            max = partial_sum;
-            _end = i;
-        } 
-    }
-    return max;
-}
-main(){printf("sum(%d-%d) = %d\n",_start,_end,sum2());}
-</code></pre>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/19">&larr; Older</a>
@@ -995,6 +938,10 @@ main(){printf("sum(%d-%d) = %d\n",_start,_end,sum2());}
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/01/11/bsides-vienna-2015-writing-your-first-windows-exploit-in-less-than-one-hour/">BSides Vienna 2015: Writing Your First Windows Exploit in Less Than One Hour</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/01/11/sock-sendpage/">Sock_sendpage</a>
       </li>
     
@@ -1008,10 +955,6 @@ main(){printf("sum(%d-%d) = %d\n",_start,_end,sum2());}
     
       <li class="post">
         <a href="/blog/2015/10/04/return-oriented-programming-for-the-arm-architecture/">Return Oriented Programming for the ARM Architecture</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/10/02/the-inside-story-behind-ms08-067/">The Inside Story Behind MS08-067</a>
       </li>
     
   </ul>

