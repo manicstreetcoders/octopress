@@ -4,7 +4,7 @@
   <title><![CDATA[KC's blog]]></title>
   <link href="http://zomo.heroku.com/atom.xml" rel="self"/>
   <link href="http://zomo.heroku.com/"/>
-  <updated>2016-01-07T15:26:33+09:00</updated>
+  <updated>2016-01-11T14:49:31+09:00</updated>
   <id>http://zomo.heroku.com/</id>
   <author>
     <name><![CDATA[KC]]></name>
@@ -12,6 +12,19 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Sock_sendpage]]></title>
+    <link href="http://zomo.heroku.com/blog/2016/01/11/sock-sendpage/"/>
+    <updated>2016-01-11T14:42:27+09:00</updated>
+    <id>http://zomo.heroku.com/blog/2016/01/11/sock-sendpage</id>
+    <content type="html"><![CDATA[<p>CVE-2009-2692, sock_sendpage 에서 벌어지는 NULL pointer deref 버그를 정리한다. 발견자가 Tarvis Ormandy 인지 Brad Spengler 인지는 이런저런 문서를 읽어봐도 잘 모르겠다.</p>
+
+<p>Exploit 자체는 꽤 클래식해서 정리해놓을 가치가 있다고 생각한다.</p>
+
+<p><a href="http://http://downloads.securityfocus.com/vulnerabilities/exploits/36038-5.c">exploit.c</a></p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[On the Juniper Backdoor]]></title>
@@ -3123,48 +3136,6 @@ BoxType 은 4 글자 코드로 구성된다. FourCC 라고 불리는데, <code>c
 
 
 <p>세션 2 개를 만들어서 대여섯번 시도하니, 돈이 복사가 되었다고 한다. 게임에 많이 나오는 돈복사 버그.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Hacking Team's Android Browser Exploit]]></title>
-    <link href="http://zomo.heroku.com/blog/2015/07/17/hacking-teams-android-browser-exploit/"/>
-    <updated>2015-07-17T17:20:22+09:00</updated>
-    <id>http://zomo.heroku.com/blog/2015/07/17/hacking-teams-android-browser-exploit</id>
-    <content type="html"><![CDATA[<p>Tencent 보안팀의 <a href="https://translate.google.com/translate?sl=zh-CN&amp;tl=en&amp;js=y&amp;prev=_t&amp;hl=en&amp;ie=UTF-8&amp;u=http%3A%2F%2Fsecurity.tencent.com%2Findex.php%2Fblog%2Fmsg%2F87&amp;edit-text=">Hacking Team Android Browser Exploit</a> 을 요약해본다.</p>
-
-<p><code>vector-exploit-master\src\ht-webkit-Android4-src</code> 디렉토리에 Android Browser exploit 코드가 있다.</p>
-
-<ul>
-<li>Information leak (CVE-2011-1202)</li>
-<li>Arbitrary Memory Read (CVE-2012-2825)</li>
-<li>Heap-Buffer-Overflow (CVE-2012-2871)</li>
-</ul>
-
-
-<p>을 사용한다.</p>
-
-<h4>map_pages(Layout, num)</h4>
-
-<h4>createsheetblob(addr)</h4>
-
-<h4>start_bisect() / find_spray_addr()</h4>
-
-<h4>CVE-2011-1202</h4>
-
-<h4>XSLTObject.prototype.free</h4>
-
-<h4>Overwrite ArrayBuffer</h4>
-
-<h4>BufferMemoryObject.write32()</h4>
-
-<h4>module.so</h4>
-
-<h4>libwebcore.so / libc.so</h4>
-
-<h4>fakevtable</h4>
-
-<h4>ROP</h4>
 ]]></content>
   </entry>
   

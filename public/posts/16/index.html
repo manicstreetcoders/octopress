@@ -9,9 +9,7 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="GCC -fstack-protector 를 지정했을때 에 들어가는 stack guard 코드. %fs 는 x86-64 에서 TLS selector. %fs:0x28 에서 canary 값을 가져온다. push %rbp
-mov %rsp,%rbp
-sub $0x30,%rsp &hellip;">
+  <meta name="description" content="iPhone and OS X Users Beware, All Your Data is Public (eg. When at your fav Starbucks) 무조건 SSLVerifySignedServerKeyExchange() 의 도입부에 goto fail 이 &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -67,6 +65,59 @@ sub $0x30,%rsp &hellip;">
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/03/22/os-x-goto-fail/">OS X Goto Fail</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-03-22T08:22:47+09:00'><span class='date'><span class='date-month'>Mar</span> <span class='date-day'>22</span><span class='date-suffix'>nd</span>, <span class='date-year'>2014</span></span> <span class='time'>8:22 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><a href="http://www.msuiche.net/2014/02/22/sslverifysignedserverkeyexchange-a-k-a-the-goto-epicfail-bug/">iPhone and OS X Users Beware, All Your Data is Public (eg. When at your fav Starbucks)</a></p>
+
+<p>무조건 SSLVerifySignedServerKeyExchange() 의 도입부에 <code>goto fail</code> 이 삽입되어있었다는 이야기. 전체 코드를 보지 않아서 확실히는 모르겠는데, 저 단계에서 SHA1.update 가 실패할 일은 없기때문에 대부분의 경우 err = 0 으로 return 되는 현상이 벌어질 것같다. 즉 sign verify 가 항상 성공한다는 이야기.</p>
+
+<pre><code>static OSStatus
+SSLVerifySignedServerKeyExchange(SSLContext *ctx, bool isRsa, SSLBuffer signedParams,
+    uint8_t *signature, UInt16 signatureLen)
+{
+    OSStatus    err;
+    ...
+    if ((err = ReadyHash(&amp;SSLHashSHA1, &amp;hashCtx)) != 0)
+        goto fail;
+    if ((err = SSLHashSHA1.update(&amp;hashCtx, &amp;clientRandom)) != 0)
+        goto fail;
+    if ((err = SSLHashSHA1.update(&amp;hashCtx, &amp;serverRandom)) != 0)
+        goto fail;
+    if ((err = SSLHashSHA1.update(&amp;hashCtx, &amp;signedParams)) != 0)
+        goto fail;
+        goto fail;
+    if ((err = SSLHashSHA1.final(&amp;hashCtx, &amp;hashOut)) != 0)
+        goto fail;
+    ...
+
+}
+</code></pre>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -797,43 +848,6 @@ what what other words are used in the query.</p>
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2013/09/27/mov-edi/">MOV EDI, EDI</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2013-09-27T10:57:00+09:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>27</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>10:57 am</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Raymond Chen 의 블로그 중에서 재미난 것을 찾았다.</p>
-
-<p>[Why do Windows functions all begin with a pointless MOV EDI, EDI instruction?]
-(<a href="http://blogs.msdn.com/b/oldnewthing/archive/2011/09/21/10214405.aspx">http://blogs.msdn.com/b/oldnewthing/archive/2011/09/21/10214405.aspx</a>)</p>
-
-<pre><code>MOV EDI, EDI
-PUSH EBP
-MOV EBP, ESP
-</code></pre>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/17">&larr; Older</a>
@@ -851,6 +865,10 @@ MOV EBP, ESP
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/01/11/sock-sendpage/">Sock_sendpage</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2015/12/23/on-the-juniper-backdoor/">On the Juniper Backdoor</a>
       </li>
     
@@ -864,10 +882,6 @@ MOV EBP, ESP
     
       <li class="post">
         <a href="/blog/2015/10/02/the-inside-story-behind-ms08-067/">The Inside Story Behind MS08-067</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/09/17/rop-and-arm/">ROP and ARM</a>
       </li>
     
   </ul>

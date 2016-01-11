@@ -9,9 +9,8 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="Problem 도둑이 크기 W 의 자루를 들고 남의 집에 들어가, 자루에 물건을 담아 훔쳐가려고 한다.
-집에 물건은 n 개가 있고, 각각 다른 크기를 가지고 있다. 편의상 물건들의 크기를 더해서
-전체 크기를 계산할 수 있다고 가정할때, 어떻게 집어넣어야 값어치가 가장 &hellip;">
+  <meta name="description" content="Raymond Chen 의 블로그 중에서 재미난 것을 찾았다. [Why do Windows functions all begin with a pointless MOV EDI, EDI instruction?]
+(http://blogs.msdn.com/b/ &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -67,6 +66,43 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/09/27/mov-edi/">MOV EDI, EDI</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-09-27T10:57:00+09:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>27</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>10:57 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Raymond Chen 의 블로그 중에서 재미난 것을 찾았다.</p>
+
+<p>[Why do Windows functions all begin with a pointless MOV EDI, EDI instruction?]
+(<a href="http://blogs.msdn.com/b/oldnewthing/archive/2011/09/21/10214405.aspx">http://blogs.msdn.com/b/oldnewthing/archive/2011/09/21/10214405.aspx</a>)</p>
+
+<pre><code>MOV EDI, EDI
+PUSH EBP
+MOV EBP, ESP
+</code></pre>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1334,111 +1370,6 @@ NUMBER 2
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2013/09/06/peak-finder/">Peak Finder</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2013-09-06T11:50:00+09:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>6</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>11:50 am</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Peak Finding 을 recursive 하게 만들어 보기.</p>
-
-<p>peak 의 정의</p>
-
-<ol>
-<li>Consider an array a[1&hellip;n]:</li>
-<li>An element a[i] is a peak if it is not smaller than its neighbor(s). I.e.,</li>
-<li>if i != 1, n: a[i] >= a[i-1] and a[i] >= a[i+1]</li>
-<li>if i == 1, a[1] >= a[2]</li>
-<li>if i == n, a[n] >= a[n-1]</li>
-</ol>
-
-
-<p>처음에는 straight forward 하게 만들기</p>
-
-<pre><code>def peak(a):
-    n = len(a)
-    for i in range(0,n):
-        if i == 0:
-            if a[0] &gt;= a[1]:
-                return 0
-        elif i == n:
-            if a[n] &gt;= a[n-1]:
-                return n
-        else
-            if a[i] &gt;= a[i-1] and a[i] &gt;= a[i+1]:
-                return i
-    return -1
-
-if __name__ == "__main__":
-    a = [ 10, 13, 5, 8, 3, 2, 1 ]
-    print a[peak(a)]
-</code></pre>
-
-<p>divide &amp; conquer 로 찾아보기.</p>
-
-<pre><code>def peak(a,abs):
-    n = len(a)
-
-    if n == 1:
-        return abs
-    if n == 2:
-        if a[0] &gt; a[1]:
-            return abs
-        elif a[1] &gt; a[0]:
-            return abs+1
-        else
-            return abs
-
-    right = n/2+1
-    left = n/2-1
-    mid = n/2
-
-    if a[mid] &lt; a[left]:
-        half = a[:mid]
-        return peak(half,abs)
-    elif a[mid] &lt; a[right]:
-        half = a[mid+1:]
-        return peak(half,abs+mid+1)
-    else:
-        return abs+mid
-
-if __name__ == "__main__":
-    a = [ 2, 2 ]
-    print a[peak(a,0)]
-</code></pre>
-
-<p>이번에는 2D 어레이에서 Peak 를 찾아본다. straight forward 하게 작성하면 O(n<sup>2</sup>) 이 된다.</p>
-
-<p><a href="http://www.ncbi.nlm.nih.gov/pmc/articles/PMC2631518/">Comparison of public peak detection algorithms for MALDI mass spectrometry data analysis</a></p>
-
-<ul>
-<li>Smoothing</li>
-<li>baseline correction</li>
-<li>peak finding</li>
-</ul>
-
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/18">&larr; Older</a>
@@ -1456,6 +1387,10 @@ if __name__ == "__main__":
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/01/11/sock-sendpage/">Sock_sendpage</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2015/12/23/on-the-juniper-backdoor/">On the Juniper Backdoor</a>
       </li>
     
@@ -1469,10 +1404,6 @@ if __name__ == "__main__":
     
       <li class="post">
         <a href="/blog/2015/10/02/the-inside-story-behind-ms08-067/">The Inside Story Behind MS08-067</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/09/17/rop-and-arm/">ROP and ARM</a>
       </li>
     
   </ul>

