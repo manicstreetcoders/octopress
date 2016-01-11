@@ -9,7 +9,7 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="LL and LR parsing demystified 을 보고. 저자의 point 는 LL 과 LR 의 차이는 traversal 이라는 것. 파서는 traversal 이라는 인사이트를 제시한다. blog 에 나온 postfix calculator ops &hellip;">
+  <meta name="description" content="Drive-by-download 공격을 수행하는 Exploit Kit 을 만들고 있다. 중국산 EK 들이 쓰는 CVE 들과 한국에 유독 많은 ActiveX 컨트롤들의 취약점을 활용할 예정. Browser Fingerprinting 을 통해 적절한 Exploit 으로 &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -65,6 +65,53 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/09/09/making-of-an-exploit-kit/">Making of an Exploit Kit</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-09-09T15:26:00+09:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>9</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>3:26 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Drive-by-download 공격을 수행하는 Exploit Kit 을 만들고 있다.</p>
+
+<p>중국산 EK 들이 쓰는 CVE 들과 한국에 유독 많은 ActiveX 컨트롤들의 취약점을 활용할 예정.</p>
+
+<p>Browser Fingerprinting 을 통해 적절한 Exploit 으로 대응한다.</p>
+
+<p>몇가지 아이디어와 루틴들을 실험하기 위해 실험용 웹사이트를 셋업했다.</p>
+
+<p>Browser 의 종류나 설치된 플러그인들의 버전은 deployJava.js, swfobject.js, PluginDetect.js 등을 활용하면,</p>
+
+<p>거의 정확하게 판정이 가능하다. 즉 취약한 버전의 Java Runtime 이 있는지, 취약한 버전의 Flash Player 가 있는지를 거의 정확하게 판별할 수 있다는 것.</p>
+
+<p>Applet 을 활용하면, virtual machine 인지를 확인도 가능한 듯 하다.</p>
+
+<p>난독화는 나중에 하기로 했다.</p>
+
+<p><a href="http://zomo.herokuapp.com/blog/2013/06/01/javascript-obfuscation-patterns/">JavaScript Obfuscation Patterns</a> 에 있는 패턴 뿐만 아니라, parsing tree 를 만들어서 obfuscate 하는 툴도 만들기로 했다.</p>
+
+<p>들어오는 Traffic 의 10% 정도를 감염시킬 수 있으면, 꽤 준수하지 않을까 생각하고 있다.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -802,125 +849,6 @@ recursive 하게 적용하면, n-digit by n-digit 을 곱하는 일반적인 곱
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2013/08/22/elementary-cellular-automata/">Elementary Cellular Automata</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2013-08-22T00:34:00+09:00'><span class='date'><span class='date-month'>Aug</span> <span class='date-day'>22</span><span class='date-suffix'>nd</span>, <span class='date-year'>2013</span></span> <span class='time'>12:34 am</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p><a href="http://mathworld.wolfram.com/ElementaryCellularAutomaton.html">Elementary Cellular Automaton</a> 를 1 라인으로 구현한 코드.</p>
-
-<p><a href="http://www.ioccc.org/2012/konno/konno.c">Best one liner: konno.c</a></p>
-
-<p>konno.c</p>
-
-<pre><code>int _;main(O,l,o)char**l,**o;{_++&gt;&gt;9||main(1&amp;(o?(int)o:O)|O*2,l,
-putchar(_%32?atoi(1[l])&gt;&gt;(7&amp;O&lt;&lt;!o&gt;&gt;!o+29)&amp;32&lt;_|_==16?35:32:10)%10);}
-</code></pre>
-
-<p>이것을 해독해보았다.</p>
-
-<pre><code>int pos=0;
-
-void p_b(int x)
-{
-    int b[33];
-    char *p;
-    int i;
-    unsigned int j;
-
-    memset(b,0,33);
-    for(i=32, j=(1L&lt;&lt;31); i&gt;0; i--,j&gt;&gt;=1)
-        *p++=(x&amp;j) ==j ? '1':'0';
-    return b;
-}
-
-main(evolution_seq,argv,prev_cell)
-int evolution_seq;
-char **argv;
-int prev_cell;
-{
-    /* recurse from pos=1 to pos=512 */
-    if (pos++ &lt; 32*16) {
-        int cell_color;
-
-        /* Fill the 1st line with seed value */
-        if (pos == 16)
-            cell_color = '#';       /* The 1st line: the mid pos is '#' */
-        else if (pos &lt; 32)
-            cell_color = ' ';       /* The 1st line: fill with ' ' except the mid pos */
-        else if (pos % 32 == 0)
-            cell_color = '\n';      /* Print newline for every 32nd pos */
-        else {
-            int rule;
-
-            /* 
-            * Get the hight-order 3 bits of evolution sequence
-            * (clears MSB if the previous cell was new-line)
-            * and shift rule bits by it.
-            */
-            if (prev_cell == '\n')
-                rule = atoi(argv[1]) &gt;&gt; (evolution_seq &lt;&lt; 1 &gt;&gt; 30 &amp; 0x7);  
-            else
-                rule = atoi(argv[1]) &gt;&gt; (evolution_seq &gt;&gt; 29 &amp; 0x7);
-
-            if (rule &amp; 0x1)
-                cell_color = '#'; /* black */
-            else
-                cell_color = ' '; /* white */
-        }        
-        putchar(cell_color);
-
-        if (prev_cell == '#') { 
-            evolution_seq = evolution_seq * 2 + 1;
-        } else 
-            evolution_seq = evolution_seq * 2; 
-
-        main(evolution_seq, argv, cell_color);
-    }
-}
-
-~% gcc k.c -o k
-~% ./k 126
-               #               
-              ###              
-             ## ##             
-            #######            
-           ##     ##           
-          ####   ####          
-         ##  ## ##  ##         
-        ###############        
-       ##             ##       
-      ####           ####      
-     ##  ##         ##  ##     
-    ########       ########    
-   ##      ##     ##      ##   
-  ####    ####   ####    ####  
- ##  ##  ##  ## ##  ##  ##  ## 
-###############################
-</code></pre>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/19">&larr; Older</a>
@@ -938,6 +866,10 @@ int prev_cell;
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/01/11/cve-2013-2094-perf-swevent-enabled-revisited/">CVE-2013-2094: Perf_swevent_enabled Revisited</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/01/11/bsides-vienna-2015-writing-your-first-windows-exploit-in-less-than-one-hour/">BSides Vienna 2015: Writing Your First Windows Exploit in Less Than One Hour</a>
       </li>
     
@@ -951,10 +883,6 @@ int prev_cell;
     
       <li class="post">
         <a href="/blog/2015/12/07/trustnone/">TRUSTNONE</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/10/04/return-oriented-programming-for-the-arm-architecture/">Return Oriented Programming for the ARM Architecture</a>
       </li>
     
   </ul>

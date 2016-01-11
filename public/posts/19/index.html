@@ -9,7 +9,7 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="&ldquo;알고리즘 문제 해결 전략&rdquo; 이라는 책을 읽고 있다. algospot.com 의 운영자가 쓴 책이다. Combination 1 ~ 9 사이의 숫자를 4 개 뽑는 combination 구하기. def pick(selection, last): if &hellip;">
+  <meta name="description" content="Elementary Cellular Automaton 를 1 라인으로 구현한 코드. Best one liner: konno.c konno.c int _;main(O,l,o)char**l,**o;{_++&gt;&gt;9||main(1&amp;(o?(int)o:O)|O* &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -65,6 +65,125 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/08/22/elementary-cellular-automata/">Elementary Cellular Automata</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-08-22T00:34:00+09:00'><span class='date'><span class='date-month'>Aug</span> <span class='date-day'>22</span><span class='date-suffix'>nd</span>, <span class='date-year'>2013</span></span> <span class='time'>12:34 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><a href="http://mathworld.wolfram.com/ElementaryCellularAutomaton.html">Elementary Cellular Automaton</a> 를 1 라인으로 구현한 코드.</p>
+
+<p><a href="http://www.ioccc.org/2012/konno/konno.c">Best one liner: konno.c</a></p>
+
+<p>konno.c</p>
+
+<pre><code>int _;main(O,l,o)char**l,**o;{_++&gt;&gt;9||main(1&amp;(o?(int)o:O)|O*2,l,
+putchar(_%32?atoi(1[l])&gt;&gt;(7&amp;O&lt;&lt;!o&gt;&gt;!o+29)&amp;32&lt;_|_==16?35:32:10)%10);}
+</code></pre>
+
+<p>이것을 해독해보았다.</p>
+
+<pre><code>int pos=0;
+
+void p_b(int x)
+{
+    int b[33];
+    char *p;
+    int i;
+    unsigned int j;
+
+    memset(b,0,33);
+    for(i=32, j=(1L&lt;&lt;31); i&gt;0; i--,j&gt;&gt;=1)
+        *p++=(x&amp;j) ==j ? '1':'0';
+    return b;
+}
+
+main(evolution_seq,argv,prev_cell)
+int evolution_seq;
+char **argv;
+int prev_cell;
+{
+    /* recurse from pos=1 to pos=512 */
+    if (pos++ &lt; 32*16) {
+        int cell_color;
+
+        /* Fill the 1st line with seed value */
+        if (pos == 16)
+            cell_color = '#';       /* The 1st line: the mid pos is '#' */
+        else if (pos &lt; 32)
+            cell_color = ' ';       /* The 1st line: fill with ' ' except the mid pos */
+        else if (pos % 32 == 0)
+            cell_color = '\n';      /* Print newline for every 32nd pos */
+        else {
+            int rule;
+
+            /* 
+            * Get the hight-order 3 bits of evolution sequence
+            * (clears MSB if the previous cell was new-line)
+            * and shift rule bits by it.
+            */
+            if (prev_cell == '\n')
+                rule = atoi(argv[1]) &gt;&gt; (evolution_seq &lt;&lt; 1 &gt;&gt; 30 &amp; 0x7);  
+            else
+                rule = atoi(argv[1]) &gt;&gt; (evolution_seq &gt;&gt; 29 &amp; 0x7);
+
+            if (rule &amp; 0x1)
+                cell_color = '#'; /* black */
+            else
+                cell_color = ' '; /* white */
+        }        
+        putchar(cell_color);
+
+        if (prev_cell == '#') { 
+            evolution_seq = evolution_seq * 2 + 1;
+        } else 
+            evolution_seq = evolution_seq * 2; 
+
+        main(evolution_seq, argv, cell_color);
+    }
+}
+
+~% gcc k.c -o k
+~% ./k 126
+               #               
+              ###              
+             ## ##             
+            #######            
+           ##     ##           
+          ####   ####          
+         ##  ## ##  ##         
+        ###############        
+       ##             ##       
+      ####           ####      
+     ##  ##         ##  ##     
+    ########       ########    
+   ##      ##     ##      ##   
+  ####    ####   ####    ####  
+ ##  ##  ##  ## ##  ##  ##  ## 
+###############################
+</code></pre>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -2169,212 +2288,6 @@ access_token=supersecret
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2012/12/01/partition-function-in-quicksort/">Partition Function in Quicksort</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2012-12-01T21:18:00+09:00'><span class='date'><span class='date-month'>Dec</span> <span class='date-day'>1</span><span class='date-suffix'>st</span>, <span class='date-year'>2012</span></span> <span class='time'>9:18 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><h3>Quicksort</h3>
-
-<p>Pseudo-code 로 Quicksort 를 기술해보자.</p>
-
-<pre><code>def qsort(a):
-    if len(a) &lt;= 1:
-        return a
-    pivot = a[0]
-    less = []
-    greater = []
-
-    for i in range(1,len(a)):
-        if a[i] &lt; pivot:
-            less.append(a[i])
-        else
-            greater.append(a[i])
-
-    return qsort(less) + [ pivot ] + qsort(greater)
-</code></pre>
-
-<p>Python 으로 구현하니까 너무 간단한데, C 나 Java 로 구현할때는 메모리에 신경을 써야 한다.
-별도의 메모리를 쓰지 않으면서, less / greater 로 파티셔닝하는 함수를 구현하는 것이 좀 까다로운데&hellip;</p>
-
-<p>Sedgewick 의 알고리즘 책에 나온 파티셔닝 함수가 있다. 근데 이 함수에 골때린 점이 있다.
-__Pivot 과 같은 값들이 여러개 있을 경우, left list / right list 양쪽으로 다 갈 수 있다는 점.
-다만 recursion 을 거듭하면서, 양쪽에 흩어져 있는 (Pivot 과) 동일 값들이 pivot 쪽으로 모이게 되는 것이다.</p>
-
-<pre><code>int _partition(int a[],int lo,int hi) {
-    int pivot;
-    int i,j;
-    pivot = a[lo];
-    i = lo; j = hi+1;
-    while(1) {
-        while (a[++i] &lt; pivot) if (i &gt;= hi) break;
-        while (a[--j] &gt; pivot) if (j &lt;= lo) break;
-        if (i&gt;=j) break;
-        swap(&amp;a[i],&amp;a[j]);
-    }
-    swap(&amp;a[lo],&amp;a[j]);
-    return j;
-}
-</code></pre>
-
-<p>좀 더 직관적인 파티션 함수</p>
-
-<pre><code>int __partition(int a[],int lo,int hi) {
-    int pivot;
-    int i,j;
-    pivot = a[lo];
-    i=j=lo;
-    for (++j;j&lt;=hi;j++) {
-        if (a[j] &lt; pivot) {
-            i++;
-            swap(a,i,j);
-        }
-    }
-    swap(a,lo,i);
-    return i;
-}
-void __q(int a[],int lo,int hi) {
-    int j;
-    if (hi-lo&lt;=0) return;
-    j = __partition(a,lo,hi);
-    __q(a,lo,j-1);
-    __q(a,j+1,hi);
-}
-</code></pre>
-
-<h3>Counting inversions by piggybacking mergesort</h3>
-
-<p>곁다리로, Mergesort 의 응용으로 재미난 것이 있는데.
-Sort 가 되지 않은 pair 의 갯수를 찾아내는 알고리즘.
-즉 inversion pair 를 찾는 알고리즘.
-Mergesort 를 piggybacking 해서 카운팅함.</p>
-
-<p>사람들이 1 부터 n 까지 랭킹을 매긴다고 했을때,
-Person A 와 Person B 가 각각 매긴 랭킹이 얼마나 유사한가를 측정하는 알고리즘도 응용해서 만들 수 있음.</p>
-
-<p>Recommendation 에서 쓰이는 collaborative filtering.</p>
-
-<h3>Binary Heap</h3>
-
-<p>Binary Heap 으로 Minimum priority queue 를 구현해보았다.</p>
-
-<pre><code>#include &lt;stdio.h&gt;
-#include &lt;stdlib.h&gt;
-#include &lt;string.h&gt;
-
-typedef struct _heap {
-    int heap[1024];
-    int N;
-} heap;
-
-/* heap index starts from 1 */
-int parent(int idx) { return idx/2; }
-int left(heap * p_heap, int idx) { return idx*2 &lt;= p_heap-&gt;N ? idx*2 : 0; }
-int right(heap * p_heap, int idx) { return idx*2+1 &lt;= p_heap-&gt;N ? idx*2+1 : 0; }
-swap(int a[],int i,int j) { int t = a[i]; a[i] = a[j]; a[j] = t; }
-bubble_up(heap * p_heap) {
-    int i = p_heap-&gt;N;
-
-    while (i &gt; 0 &amp;&amp; parent(i) &gt; 0) {
-        if (p_heap-&gt;heap[i] &lt; p_heap-&gt;heap[ parent(i) ] ) {
-            swap(p_heap-&gt;heap, i, parent(i));
-            i = parent(i);
-        } else
-            break;
-    }
-}
-sink(heap * p_heap) {
-    int i = 1;
-    int l,r;
-    int * a = p_heap-&gt;heap;
-
-    while (i &lt; p_heap-&gt;N) {
-        l = left(p_heap, i);
-        r = right(p_heap, i);
-        if (a[i] &gt; a[l]) {
-            if (a[l] &gt; a[r]) {
-                swap(a, i, r);
-                i = r;
-            } else {
-                swap(a, i, l);
-                i = l;
-            }
-        } else if (a[i] &gt; a[r]) {
-            if (a[r] &gt; a[l]) {
-                swap(a, i, l);
-                i = l;
-            } else {
-                swap(a, i, r);
-                i = r;
-            }
-        } else
-            break;
-    }
-}
-heap_init(heap * p_heap) {
-    p_heap-&gt;N = 0;
-    p_heap-&gt;heap[0] = (0xFFFFFFFF &lt;&lt; 1 &gt;&gt; 1);
-}
-heap_add(heap * p_heap, int x) {
-    p_heap-&gt;heap[ ++p_heap-&gt;N ] = x;
-    bubble_up(p_heap);
-}
-int heap_remove(heap * p_heap) {
-    int min = p_heap-&gt;heap[1];
-    int end = p_heap-&gt;heap[ p_heap-&gt;N ];
-    p_heap-&gt;heap[1] = end;
-    p_heap-&gt;N--;
-    sink(p_heap);
-
-    return min;
-}
-heap_isempty(heap * p_heap) { return p_heap-&gt;N == 0; }
-heap_heapify(heap * p_heap, int a[], int N) {
-    int i;
-    heap_init(p_heap);
-    for (i = 0;i &lt; N;i++)
-        heap_add(p_heap, a[i]);
-}
-void _d(int a[],int N) {
-    int i;
-    for (i=0;i&lt;N;i++) printf("%d ", a[i]);
-    printf("\n");
-}
-main()
-{
-    int a[]={ 123, 1, 0, -4, 45, 38, 24, 99, 88, 43, 23, 12, 9, 8, 7, 46, 77 };
-    int N = sizeof a / sizeof(int);
-    heap h;
-
-    _d(a,N);
-    heap_heapify(&amp;h, a, N);
-    while (!heap_isempty(&amp;h)) printf("%d ", heap_remove(&amp;h));
-    printf("\n");
-}
-</code></pre>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/20">&larr; Older</a>
@@ -2392,6 +2305,10 @@ main()
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/01/11/cve-2013-2094-perf-swevent-enabled-revisited/">CVE-2013-2094: Perf_swevent_enabled Revisited</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/01/11/bsides-vienna-2015-writing-your-first-windows-exploit-in-less-than-one-hour/">BSides Vienna 2015: Writing Your First Windows Exploit in Less Than One Hour</a>
       </li>
     
@@ -2405,10 +2322,6 @@ main()
     
       <li class="post">
         <a href="/blog/2015/12/07/trustnone/">TRUSTNONE</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/10/04/return-oriented-programming-for-the-arm-architecture/">Return Oriented Programming for the ARM Architecture</a>
       </li>
     
   </ul>

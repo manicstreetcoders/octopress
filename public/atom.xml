@@ -4,7 +4,7 @@
   <title><![CDATA[KC's blog]]></title>
   <link href="http://zomo.heroku.com/atom.xml" rel="self"/>
   <link href="http://zomo.heroku.com/"/>
-  <updated>2016-01-11T15:40:25+09:00</updated>
+  <updated>2016-01-11T15:56:24+09:00</updated>
   <id>http://zomo.heroku.com/</id>
   <author>
     <name><![CDATA[KC]]></name>
@@ -12,6 +12,15 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[CVE-2013-2094: Perf_swevent_enabled Revisited]]></title>
+    <link href="http://zomo.heroku.com/blog/2016/01/11/cve-2013-2094-perf-swevent-enabled-revisited/"/>
+    <updated>2016-01-11T15:55:36+09:00</updated>
+    <id>http://zomo.heroku.com/blog/2016/01/11/cve-2013-2094-perf-swevent-enabled-revisited</id>
+    <content type="html"><![CDATA[<p>Brad Spengler 의 exploit 을 분석해본다.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[BSides Vienna 2015: Writing Your First Windows Exploit in Less Than One Hour]]></title>
@@ -3155,15 +3164,6 @@ BoxType 은 4 글자 코드로 구성된다. FourCC 라고 불리는데, <code>c
 </span><span class='line'><span class="p">}</span>
 </span></code></pre></td></tr></table></div></figure>
 
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[All Your Biases Belong to Us]]></title>
-    <link href="http://zomo.heroku.com/blog/2015/07/17/all-your-biases-belong-to-us/"/>
-    <updated>2015-07-17T20:34:21+09:00</updated>
-    <id>http://zomo.heroku.com/blog/2015/07/17/all-your-biases-belong-to-us</id>
-    <content type="html"><![CDATA[<p><a href="http://www.rc4nomore.com/vanhoef-usenix2015.pdf">All Your Biases Belong To Us</a></p>
 ]]></content>
   </entry>
   

