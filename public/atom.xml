@@ -4,7 +4,7 @@
   <title><![CDATA[KC's blog]]></title>
   <link href="http://zomo.heroku.com/atom.xml" rel="self"/>
   <link href="http://zomo.heroku.com/"/>
-  <updated>2016-01-11T15:29:41+09:00</updated>
+  <updated>2016-01-11T15:31:55+09:00</updated>
   <id>http://zomo.heroku.com/</id>
   <author>
     <name><![CDATA[KC]]></name>
@@ -74,7 +74,7 @@
 </span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
 
 
-<p>그렇다면 왜 NULL porinter 를 deref 하게 되는지는 너무 오래된 버그라서 큰 의미는 없을 것 같다.</p>
+<p>그런데 왜 NULL porinter 를 deref 하게 되는지는 너무 오래된 버그라서 큰 의미는 없을 것 같다.</p>
 ]]></content>
   </entry>
   

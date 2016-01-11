@@ -48,4 +48,4 @@ Kernel priv. 로 돌아가는 페이로드는 다음과 같다. cred structure �
 	}
 ```
 
-그렇다면 왜 NULL porinter 를 deref 하게 되는지는 너무 오래된 버그라서 큰 의미는 없을 것 같다.
+그런데 왜 NULL porinter 를 deref 하게 되는지는 너무 오래된 버그라서 큰 의미는 없을 것 같다.
