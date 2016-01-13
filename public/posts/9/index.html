@@ -9,7 +9,7 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="lock xchg 인스트럭션을 이용해서, 유저스페이스에서 mutex 를 만들어보았다. Atomic XCHG 1
+  <meta name="description" content="Bellman-Ford 알고리즘에서 negative edge 체크가 빠진 버전. 파이썬으로 만들어봤다. 1
 2
 3
 4
@@ -97,6 +97,153 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/03/03/bellman-ford-algorithm/">Bellman-Ford Algorithm</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-03-03T21:26:51+09:00'><span class='date'><span class='date-month'>Mar</span> <span class='date-day'>3</span><span class='date-suffix'>rd</span>, <span class='date-year'>2015</span></span> <span class='time'>9:26 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Bellman-Ford 알고리즘에서 negative edge 체크가 빠진 버전.</p>
+
+<p>파이썬으로 만들어봤다.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>class Vertex:
+</span><span class='line'>    def __init__(self,n):
+</span><span class='line'>        self.number = n
+</span><span class='line'>        self.adj = []
+</span><span class='line'>        self.d = float('inf')
+</span><span class='line'>
+</span><span class='line'>    def addNeighbor(self,v,weight):
+</span><span class='line'>        self.adj.append( (v,weight) )
+</span><span class='line'>
+</span><span class='line'>    def p(self):
+</span><span class='line'>        print("Vertex %d, depth %f -&gt;" % (self.number,self.d)),
+</span><span class='line'>        for (v,weight) in self.adj:
+</span><span class='line'>            print("%d:%d " % (v.number,weight)),
+</span><span class='line'>        print
+</span><span class='line'>
+</span><span class='line'>def relax(v):
+</span><span class='line'>    for i in v:
+</span><span class='line'>        for (nv,weight) in i.adj:
+</span><span class='line'>            if i.d == float('inf'):
+</span><span class='line'>                print "skip..."
+</span><span class='line'>                continue
+</span><span class='line'>            if (i.d + weight &lt; nv.d):
+</span><span class='line'>                print "relaxing vertex %d" % (nv.number)
+</span><span class='line'>                nv.d = i.d + weight
+</span><span class='line'>    return
+</span><span class='line'>
+</span><span class='line'>if __name__ == "__main__":
+</span><span class='line'>    v = []
+</span><span class='line'>    for i in range(0,10):
+</span><span class='line'>        v.append(Vertex(i))
+</span><span class='line'>
+</span><span class='line'>    v[9].addNeighbor(v[8],5)
+</span><span class='line'>    v[8].addNeighbor(v[7],5)
+</span><span class='line'>    v[7].addNeighbor(v[6],5)
+</span><span class='line'>    v[6].addNeighbor(v[5],5)
+</span><span class='line'>    v[5].addNeighbor(v[4],5)
+</span><span class='line'>    v[4].addNeighbor(v[3],5)
+</span><span class='line'>    v[3].addNeighbor(v[2],5)
+</span><span class='line'>    v[2].addNeighbor(v[1],5)
+</span><span class='line'>    v[1].addNeighbor(v[0],5)
+</span><span class='line'>
+</span><span class='line'>    v[7].addNeighbor(v[2],5)
+</span><span class='line'>
+</span><span class='line'>    v[9].d = 0
+</span><span class='line'>
+</span><span class='line'>    for i in v:
+</span><span class='line'>        i.p()
+</span><span class='line'>
+</span><span class='line'>    count = 0
+</span><span class='line'>    for i in range(0,10-1):
+</span><span class='line'>        count += 1
+</span><span class='line'>        relax(v)
+</span><span class='line'>
+</span><span class='line'>    print "performed relaxing operation %d times." % (count)
+</span><span class='line'>
+</span><span class='line'>    for i in v:
+</span><span class='line'>        i.p()</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -2455,35 +2602,6 @@ $ adb shell
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/11/11/pic-bindshell/">PIC_Bindshell</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2014-11-11T11:58:52+09:00'><span class='date'><span class='date-month'>Nov</span> <span class='date-day'>11</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>11:58 am</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>@mattifestation 의 <a href="https://github.com/mattifestation/PIC_Bindshell">PIC_Bindshell</a> 을 분석한다.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/10">&larr; Older</a>
@@ -2501,6 +2619,10 @@ $ adb shell
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/01/13/android-hackers-handbook/">Android Hacker's Handbook</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/01/11/cve-2013-2094-perf-swevent-enabled-revisited/">CVE-2013-2094: Perf_swevent_enabled Revisited</a>
       </li>
     
@@ -2514,10 +2636,6 @@ $ adb shell
     
       <li class="post">
         <a href="/blog/2015/12/23/on-the-juniper-backdoor/">On the Juniper Backdoor</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/12/07/trustnone/">TRUSTNONE</a>
       </li>
     
   </ul>

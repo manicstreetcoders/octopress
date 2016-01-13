@@ -1,0 +1,466 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>300ms Delay - KC's blog</title>
+  <meta name="author" content="KC">
+
+  
+  <meta name="description" content="UIWebView 에서 onclick event 를 잡을때, 터치 후 event 발사까지 300ms 정도의 딜레이가 있다.
+래깅이 느껴지고, 손가락이 오그라든다. 그 딜레이를 없애고 최대한 반응 속도를 올리기 위한 방법이 있다. 아래의 아티클들에 소개되어 있는데, &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://zomo.heroku.com/blog/2012/10/18/300ms-delay/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="KC's blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">KC's blog</a></h1>
+  
+    <h2>A blogging framework for hackers.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="zomo.heroku.com">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">300ms Delay</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2012-10-18T23:05:00+09:00'><span class='date'><span class='date-month'>Oct</span> <span class='date-day'>18</span><span class='date-suffix'>th</span>, <span class='date-year'>2012</span></span> <span class='time'>11:05 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>UIWebView 에서 onclick event 를 잡을때, 터치 후 event 발사까지 300ms 정도의 딜레이가 있다.
+래깅이 느껴지고, 손가락이 오그라든다.</p>
+
+<p>그 딜레이를 없애고 최대한 반응 속도를 올리기 위한 방법이 있다.</p>
+
+<p>아래의 아티클들에 소개되어 있는데,</p>
+
+<ul>
+<li><a href="http://labs.ft.com/articles/ft-fastclick">FT Fastclick</a></li>
+<li><a href="http://labs.ft.com/2011/08/fastclick-native-like-tapping-for-touch-apps/">FastClick: native-like tapping for touch apps</a></li>
+<li><a href="http://labs.ft.com/2012/08/fastclick-redux/">FastClick redux</a></li>
+<li><a href="http://github.com/ftlabs/fastclick">ftlabs/fastclick</a></li>
+<li><a href="http://github.com/dave1010/jquery-fast-click">dave1010/jquery-fast-click</a></li>
+</ul>
+
+
+<p>번역 &amp; 정리해본다.</p>
+
+<p>모바일 브라우저에서 다음과 같은 페이지를 로드했을 경우</p>
+
+<pre><code>&lt;button onclick='signup()'&gt;Sign Up!&lt;/button&gt;
+</code></pre>
+
+<p>유저가 button 을 누르고, 브라우저가 click event 를 쏘기까지 약 300ms 의 딜레이가 있다.
+모바일 브라우저가 이런 딜레이를 두는 이유는 더블탭을 감지하기 위해서이다.
+이 딜레이를 없앨 수 없을까?</p>
+
+<p>FT Labs 에서 제작한 FT FastClick 에서 쓴 방식은 TouchEnd event 가 잡혔을때, click event 를 쏴주는 식이다.</p>
+
+<p>고려해야 할 상황은 (<a href="http://code.google.com/mobile/articles/fast_buttons.html">Creating Fast Button for Mobile Web Applications</a>)</p>
+
+<ol>
+<li>딴데를 터치한 다음에 버튼 위로 손을 끌고 와서 놔버려서 button 에 touchend 가 뜬 경우 -> click event 를 쏘면 안됨.</li>
+<li>버튼을 터치하고 화면을 드래그한다음에 손을 놔버려서 button 에 touchend 가 뜬 경우 -> 버튼을 누를 의도였다기보다는 화면을 스크롤하고 싶었던 것. 그래서 click event 를 쏘면 안됨.</li>
+</ol>
+
+
+<h3>FT Fastclick</h3>
+
+<p><a href="http://github.com/ftlabs/fastclick">ftlabs/fastclick</a> 의 사용법은.</p>
+
+<pre><code>&lt;script type='application/javascript' src='/path/to/fastclick.js'&gt;&lt;/script&gt;
+
+window.addEventListener('load'), function() {
+  new FastClick(document.body);
+}, false);
+</code></pre>
+
+<p>으로 간단하다. 사용해보니 잘 동작한다. UIWebView 에서 터치가 native app 처럼 빠르게 인식된다. 하지만 여기에 만족할 수 없었다. 소스를 디벼야 직성이 풀릴 듯 했다.</p>
+
+<p>그래서 <a href="http://labs.ft.com/wp-content/uploads/2011/08/fastclick.js">FastClick() 소스</a> 를 디비기 시작했다.</p>
+
+<pre><code>// Determine whether touch handling is supported
+var touchSupport = 'ontouchstart' in window;
+</code></pre>
+
+<p><em>ontouchstart</em> 가 있으면 touch 를 지원하는 디바이스로 판단.</p>
+
+<pre><code>// Set up event handlers as required
+if (touchSupport) {
+  layer.addEventListener('touchstart', onTouchStart, true);
+  layer.addEventListener('touchmove', onTouchMove, true);
+  layer.addEventListener('touchend', onTouchEnd, true);
+  layer.addEventListener('touchcancel', onTouchCancel, true);
+}
+layer.addEventListener('click', onClick, true);
+</code></pre>
+
+<p>addEventListener() 를 통해서 touchstart / touchmove / touchend / touchcancel 에 listener 를 등록한다.</p>
+
+<p>addEventListener() 의 문법은</p>
+
+<pre><code>target.addEventListener(type, listener[, useCapture]);
+</code></pre>
+
+<p>여기서 <em>useCapture</em> 는 무얼까?</p>
+
+<blockquote><p>If true, useCapture indicates that the user wishes to initiate capture. After initiating capture, all events of the specified type will be dispatched to the registered listener before being dispatched to any EventTarget beneath it in the DOM tree. Events which are bubbling upward through the tree will not trigger a listener designated to use capture.</p></blockquote>
+
+<p>capture phase 는 <em>DefaultView</em> -> <em>Document</em> -> <em><html></em> -> &hellip; 해서 <em>target</em> 까지 내려오는 구간. bubbling phase 는 <em>target</em> 에서 다시 위로 올라가는 구간인데,
+<em>useCapture</em> 를 쓰면, <em>the capture and target phases</em> 에만 event listener 를 붙이는 것이다. 그리고, 하나의 타겟에 여러개의 event listener 들이 붙을 수 있음.</p>
+
+<p>실험을 해보자.  useCapture 를 <em>true</em> 로 세팅하면, DOM tree 의 child node 한테 가는 이벤트를 먼저 잡는 것을 볼 수 있다.</p>
+
+<p>Parent node 에 listener 를 붙이고, <em>useCapture = true</em> 로 listener 를 붙이고,
+child node 에는 <em>useCapture = false</em> 로 listener 를 붙인다.
+그리고, parent 쪽 listener 에서는 stopPropagation() 으로 propagation 을 끊는다.
+<em>two</em> 를 클릭해도, parent node 에 붙은 listener 가 control 을 가져가며,
+event propagation 을 stop 해버리므로 <em>two</em> 에 붙은 listner 는 수행될 기회를 가지지 못한다. 그래서 <em>three</em> 가 아닌 <em>four</em> 로 변해버린다.</p>
+
+<p>jsfiddle 에서 실험해보자.</p>
+
+<iframe style="width: 100%; height: 300px" src="http://jsfiddle.net/zomojj/mtd8d/1/embedded/" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
+
+
+<p>아무리 클릭해도 <em>three</em> 는 나오지 않고 <em>four</em> 만 나온다. <em>useCapture</em> 의 effect 를 알 수 있다.</p>
+
+<p>FT FastClick 코드로 다시 돌아가면, touchstart, touchend, touchmove, touchcancel 에 listener 를 붙이고, click 에도 listener 를 붙인다.
+그리고 이미 onclick 핸들러가 있었다면, listener 로 전환시켜서 나중에 불리도록 조치한다. 기존의 onclick 핸들러는 리셋.</p>
+
+<pre><code>// If a handler is already declared in the element's onclick attribute, it will be fired before
+// FastClick's onClick handler. Fix this by pulling out the user-defined handler function and
+// adding it as listener.
+if (layer.onclick instanceof Function) {
+  layer.addEventListener('click', layer.onclick, false);
+  layer.onclick = '';
+}
+</code></pre>
+
+<h3>Event Canceling</h3>
+
+<p>DOM event 를 cancel 하는데, 3 가지 method 가 있는데,</p>
+
+<ul>
+<li>preventDefault()</li>
+<li>stopPropagation()</li>
+<li>stopImmediatePropagation()</li>
+</ul>
+
+
+<p>우선 preventDefault() 부터 보면,</p>
+
+<blockquote><p>preventDefault()</p>
+
+<p>If an event is cancelable, the preventDefault method is used to signify that the event is to be canceled, meaning any default action normally taken by the implementation as a result of the event will not occur. If, during any stage of event flow, the preventDefault method is called the event is canceled. Any default action associated with the event will not occur. Calling this method for a non-cancelable event has no effect. Once preventDefault has been called it will remain in effect throughout the remainder of the event&rsquo;s propagation. This method may be used during any stage of event flow.</p></blockquote>
+
+<p>예제를 해봤다. <em>checkbox 에 클릭을 해도 check 가 되지 않는다!</em></p>
+
+<pre><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+&lt;title&gt;DOM Event Example&lt;/title&gt; 
+&lt;script&gt;
+// Function to change the content of t2
+function stopDefAction(evt) {
+    evt.preventDefault();
+}  
+// Function to add event listener to t
+function load() { 
+  document.getElementById('my-checkbox').addEventListener(
+    'click', stopDefAction, false
+  );
+} 
+
+document.addEventListener("DOMContentLoaded", load, false);
+&lt;/script&gt;
+
+&lt;/head&gt;
+&lt;body&gt;
+
+&lt;p&gt;Please click on the checkbox control.&lt;/p&gt;
+
+&lt;form&gt;
+    &lt;input type="checkbox" id="my-checkbox" /&gt;
+    &lt;label for="my-checkbox"&gt;Checkbox&lt;/label&gt;
+&lt;/form&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+
+<p>HTML 섹션을 클릭해서 보도록.</p>
+
+<iframe style="width: 100%; height: 300px" src="http://jsfiddle.net/zomojj/b2BPD/3/embedded/" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
+
+
+<p>그럼 다음은 stopPropagation().</p>
+
+<blockquote><p>stopPropagation()</p>
+
+<p>Prevents all other event listeners from being triggered, excluding any remaining candiate event listeners. Once it has been called, further calls to this method have no additional effect.</p></blockquote>
+
+<p>그럼 preventDefault() 와 stopPropagation() 의 차이는 무엇일까 궁금해졌다.</p>
+
+<p>간단히 정리하면, preventDefault() 는 event 에 대한 default functionality 가 일어나는 것을 막는다. 하지만 event 는 propagate 된다.</p>
+
+<p>반대로 stopPropagation() 은 default functionality 는 일어나지만, parent 로 propagate 되지는 않는다.</p>
+
+<blockquote><p><a href="http://stackoverflow.com/questions/5963669/whats-the-difference-between-event-stoppropagation-and-event-preventdefault">What&rsquo;s the difference between event.stopPropagation and event.preventDefault?</a></p>
+
+<p>stopPropagation stops the event from bubbling up the event chain.</p>
+
+<p>preventDefault prevents the default action the browser makes on that event.</p></blockquote>
+
+<pre><code> &lt;!DOCTYPE html&gt;
+ &lt;html&gt;
+ &lt;head&gt;
+ &lt;script type="application/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.8.2/jquery.min.js"&gt;&lt;/script&gt;
+ &lt;title&gt;DOM Event Example&lt;/title&gt;  
+ &lt;/head&gt;
+ &lt;body&gt;
+ &lt;div id="foo"&gt;
+   &lt;button id="but" /&gt;
+ &lt;/div&gt;   
+ &lt;script&gt;
+ $("#foo").click( function () { 
+   console.log("#foo click")
+ });
+
+ $("#but").click( function (ev) {
+   console.log("#but click");
+   ev.stopPropagation(); 
+ })
+ &lt;/script&gt;
+ &lt;/body&gt;
+ &lt;/html&gt;
+</code></pre>
+
+<p>위의 예제에서 보면, <code>ev.stopPropagation()</code> 을 하면 console 에</p>
+
+<pre><code> #but click 
+</code></pre>
+
+<p>만 나온다.</p>
+
+<p>하지만 <code>//ev.stopPropagation()</code> 로 comment-out 하면 console 에</p>
+
+<pre><code> #but click
+ #foo click
+</code></pre>
+
+<p>이라고 나온다. parent node 로 event 가 propagate 된 것이다.</p>
+
+<p>그럼 stopPropagation() 과 stopImmediatePropagation() 의 차이는 무엇일까?</p>
+
+<p><a href="http://stackoverflow.com/questions/5299740/jquery-stoppropagation-vs-stopimmediatepropagation">jquery: stopPropagation vs stopImmediatePropagation</a> 에 설명이 되어 있다.</p>
+
+<p>우선 <a href="http://jsfiddle.net/syT6K/">jsfiddle 예제</a> 를 보자.</p>
+
+<h3>Exceptions thrown inside event listener</h3>
+
+<blockquote><p>Exceptions thrown inside event listeners must not stop the propagation of the event or affect the propagation path. The exception itself must not propogate outside the scope of the event handler.</p></blockquote>
+
+<pre><code>var e = document.createEvent("Event");
+e.initEvent("myevent", false, false);
+var target = document.createElement("div");
+target.addEventListener("myevent", function () {
+   throw "Error";
+});
+target.dispatchEvent(e); // Causes the event listener to throw an exception...
+// The previously thrown exception doesn't affect the code that follows:
+console.log("Exceptions? No problem");
+</code></pre>
+
+<p>실행해보면 &ldquo;Exceptions? No problem&rdquo; 이 출력된다. event listener 에서 던진 &ldquo;Error&rdquo; 가 parent scope 로 올라오지 않는다는 이야기.</p>
+
+<h3>Further works:</h3>
+
+<ol>
+<li>DOM Level 2 Events Spec 과 DOM Level 3 Events Spec 를 정독해봐야겠다.</li>
+<li>DOM Event Flow 와 addEventListener(), preventDefault(), stopPropagation(), stopImmediatePropagation() 부분을 정독해야겠다.</li>
+<li>Touch event 를 tracking 해서 drawing 을 하는 예제를 만들어 iPad 로 테스트해봐야겠다.</li>
+<li>FastClick.js 의 line-by-line 분석.</li>
+</ol>
+
+
+<h3>Further readings:</h3>
+
+<ul>
+<li><a href="https://developer.mozilla.org/en-US/docs/DOM/element.addEventListener">MDN: element.addEventListener</a></li>
+<li><a href="http://www.w3.org/TR/DOM-Level-3-Events/#event-flow">Event dispatch and DOM event flow</a></li>
+<li><a href="https://developer.mozilla.org/en-US/docs/DOM/Touch_events#Example">Touch event example</a></li>
+<li><a href="http://davidwalsh.name/javascript-events">David Walsh&rsquo;s blog</a></li>
+<li><a href="http://blog.bittersweetryan.com/2012/07/playing-around-with-javascripts.html">Playing Around With JavaScript&rsquo;s stopPropagation and preventDefault Methods </a></li>
+<li><a href="http://dev-tricks.com/event-preventdefault-and-event-stoppropagation-and-event-stopimmediatepropagation/">Quick Tips:event.preventDefault() and event.stopPropagation and event.stopImmediatePropagation</a></li>
+</ul>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">KC</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2012-10-18T23:05:00+09:00'><span class='date'><span class='date-month'>Oct</span> <span class='date-day'>18</span><span class='date-suffix'>th</span>, <span class='date-year'>2012</span></span> <span class='time'>11:05 pm</span></time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://zomo.heroku.com/blog/2012/10/18/300ms-delay/" data-via="" data-counturl="http://zomo.heroku.com/blog/2012/10/18/300ms-delay/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2012/10/18/pinboard-bookmarklets/" title="Previous Post: Pinboard bookmarklets">&laquo; Pinboard bookmarklets</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2012/12/01/partition-function-in-quicksort/" title="Next Post: Partition function in Quicksort">Partition function in Quicksort &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2016/01/13/android-hackers-handbook/">Android Hacker's Handbook</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/01/11/cve-2013-2094-perf-swevent-enabled-revisited/">CVE-2013-2094: Perf_swevent_enabled Revisited</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/01/11/bsides-vienna-2015-writing-your-first-windows-exploit-in-less-than-one-hour/">BSides Vienna 2015: Writing Your First Windows Exploit in Less Than One Hour</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/01/11/sock-sendpage/">Sock_sendpage</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/12/23/on-the-juniper-backdoor/">On the Juniper Backdoor</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2016 - KC -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

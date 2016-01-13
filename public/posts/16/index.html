@@ -9,8 +9,7 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="모든 x 가 modular inversion 를 가지고 있는 것은 아니다.
-그렇다면 어떤 x 만 modular inversion 을 가지게 되나? Lemma: x in Z(N) has an inverse if and only if gcd(x,N) = 1 Proof: &hellip;">
+  <meta name="description" content="소수인 p 가 있을때, { 1,2,3,&hellip;,p-1 } 의 숫자들 중에서 하나 골라서 x 라고 하면. xp-1 = 1 in Z(p) 을 만족한다. i.e. p = 5 라고 하면, p 의 residue class 는 { 0, 1, 2, 3, 4 } 가 된다. &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -66,6 +65,72 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/03/22/fermats-theorem/">Fermat's Theorem</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-03-22T20:54:02+09:00'><span class='date'><span class='date-month'>Mar</span> <span class='date-day'>22</span><span class='date-suffix'>nd</span>, <span class='date-year'>2014</span></span> <span class='time'>8:54 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>소수인 p 가 있을때,</p>
+
+<p>{ 1,2,3,&hellip;,p-1 } 의 숫자들 중에서 하나 골라서 x 라고 하면.</p>
+
+<p>x<sup>p-1</sup> = 1 in Z(p)</p>
+
+<p>을 만족한다.</p>
+
+<p>i.e.</p>
+
+<p>p = 5 라고 하면, p 의 residue class 는 { 0, 1, 2, 3, 4 } 가 된다.</p>
+
+<p>그 중에서 modular inverse 가 있는 수는 { 1, 2, 3, 4 } 가 된다.</p>
+
+<pre><code>1*1 = 1 in Z(5)
+
+2*3 = 1 in Z(5)
+
+3*2 = 1 in Z(5)
+
+4*4 = 1 in Z(5)
+</code></pre>
+
+<p>이기 때문.</p>
+
+<p>페르마의 Theorem 대로, 이 modular inverse 가 있는 수들의 (p-1) 제곱을 한 수들은, 나머지가 1 이 된다.</p>
+
+<pre><code>1^(5-1) = 1 in Z(5)
+
+2^(5-1) = 1 in Z(5)
+
+3^(5-1) = 1 in Z(5)
+
+4^(5-1) = 1 in Z(5)
+</code></pre>
+
+<p>정리하면, Z(p) 에서 p 가 소수이면, { 1,2,&hellip;,p-1 } 까지가 모두 모듈러 인버스를 가지게 되고,
+그 집합의 사이즈는 p-1, x<sup>p-1</sup> 의 residue class 는 1.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -833,35 +898,6 @@ function constructSSE(res, id, data) {
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2013/10/02/horners-method/">Horner's Method</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2013-10-02T15:19:00+09:00'><span class='date'><span class='date-month'>Oct</span> <span class='date-day'>2</span><span class='date-suffix'>nd</span>, <span class='date-year'>2013</span></span> <span class='time'>3:19 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p><a href="http://en.wikipedia.org/wiki/Horner's_method">Horner&rsquo;s method</a></p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/17">&larr; Older</a>
@@ -879,6 +915,10 @@ function constructSSE(res, id, data) {
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/01/13/android-hackers-handbook/">Android Hacker's Handbook</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/01/11/cve-2013-2094-perf-swevent-enabled-revisited/">CVE-2013-2094: Perf_swevent_enabled Revisited</a>
       </li>
     
@@ -892,10 +932,6 @@ function constructSSE(res, id, data) {
     
       <li class="post">
         <a href="/blog/2015/12/23/on-the-juniper-backdoor/">On the Juniper Backdoor</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/12/07/trustnone/">TRUSTNONE</a>
       </li>
     
   </ul>

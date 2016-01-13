@@ -9,7 +9,9 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="How can Cipher Block Chaining (CBC) in SSL be attacked? Attacks on SSL: A Comprehensive Study of BEAST, CRIME, TIME, BREACH, LUCKY 13 &amp; RC4 &hellip;">
+  <meta name="description" content="Terminology IMSI: Internation Mobile Subscriber Identity
+MIN: Mobile Identify Number
+MDN: Mobile Directory Number MIN 은 원래 북미의 이동전화 단말기를 식별하기 위한 &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -65,6 +67,78 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/07/14/sms-pdu/">SMS PDU</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-07-14T12:09:41+09:00'><span class='date'><span class='date-month'>Jul</span> <span class='date-day'>14</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>12:09 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h3>Terminology</h3>
+
+<ul>
+<li>IMSI: Internation Mobile Subscriber Identity</li>
+<li>MIN: Mobile Identify Number</li>
+<li>MDN: Mobile Directory Number</li>
+</ul>
+
+
+<p>MIN 은 원래 북미의 이동전화 단말기를 식별하기 위한 것이었는데,
+10 자리 MIN 이 국제 로밍을 위한 정보를 포함할 수 없어서
+IMSI 가 만들어짐.
+GSM 에서는 IMSI 를 사용. MCC + MNC + MSIN = IMSI.</p>
+
+<ul>
+<li>MCC: Mobile Country Code. 3 자리. ITU(TSB) 에서 할당.</li>
+<li>MNC: Mobile Network Code. 2~3 자리.</li>
+<li>MSIN: Mobile Subscriber Identification Number.</li>
+</ul>
+
+
+<p>MCC + MNC 로 이동전화 가입자의 홈 네트웍을 전 세계 어느 망에서든지 유일하게 식별 가능하다.</p>
+
+<ul>
+<li>MSISDN: Mobile Station International ISDN Number. GSM 표준에서 IS-41 표준의 MDN 역할을 한다.</li>
+</ul>
+
+
+<h3>3gpp PDU Format</h3>
+
+<h3>Resources</h3>
+
+<ul>
+<li><a href="http://dragonheart.tistory.com/4">너른공간</a></li>
+<li><a href="http://knight76.tistory.com/entry/%ED%86%B5%EC%8B%A0-%EC%9A%A9%EC%96%B4-min-mdn">통신 용어 - min, mdn, imsi, imei, msisdn</a></li>
+<li><a href="http://www.qtc.jp/3GPP/Specs/23040-681.pdf">3gpp SMS spec</a></li>
+<li><a href="http://www.3gpp2.org/public_html/specs/N.S0005-0_v1.0.pdf">3gpp Cellular Radiotelecommunications Intersystem Operations</a></li>
+<li><a href="https://www.blackhat.com/presentations/bh-usa-09/MILLER/BHUSA09-Miller-FuzzingPhone-PAPER.pdf">Charlie Miller&rsquo;s Fuzzing the Phone in your Phone</a></li>
+<li><a href="https://www.usenix.org/legacy/event/woot09/tech/full_papers/mulliner.pdf">Injecting SMS Messages into Smart Phones for Security Analysis</a></li>
+<li><a href="http://m2msupport.net/m2msupport/verizon-wireless-m2m-modules-certification/">Verizon M2M</a></li>
+<li><a href="http://www.smartposition.nl/resources/sms_pdu.html#PDU">SMS PDU Format</a></li>
+<li><a href="http://stackoverflow.com/questions/11182650/cdma-pdu-parsing-on-android">CDMA PDU parsing on Android</a></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -687,49 +761,6 @@ Query 결과가 화면에 덤프되지는 않지만, 이런 미세한 차이를 
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/06/02/dissecting-the-android-bouncer/">Dissecting the Android Bouncer</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2014-06-02T10:00:56+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>2</span><span class='date-suffix'>nd</span>, <span class='date-year'>2014</span></span> <span class='time'>10:00 am</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>찰리 밀러의 발표 <a href="https://jon.oberheide.org/files/summercon12-bouncer.pdf">Dissecting The Android Bouncer</a> 를 읽어보았다.</p>
-
-<h3>Android Bouncer</h3>
-
-<p>마켓에 제출된 App 에 대한 자동화된 스캐닝을 수행하는 서비스. Malware 나 스파이웨어, Trojan 을 찾기 위함.</p>
-
-<h3>Fingerprinting the bouncer</h3>
-
-<p>C&amp;C 로 connect back 하는 간단한 앱을 안드로이드 마켓에 제출했다.</p>
-
-<p>QEMU 베이스의 에뮬레이터에서 돌린다.</p>
-
-<p><a href="http://static.usenix.org/event/woot09/tech/full_papers/paleari.pdf">A fistfull of red-pills: How to automatically generate procedures to detect CPU emulators</a></p>
-
-<p>이 사람들&hellip; <a href="http://www.youtube.com/watch?v=ZEIED2ZLEbQ">Remote connect-back shell</a> 까지 돌려봤다.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/14">&larr; Older</a>
@@ -747,6 +778,10 @@ Query 결과가 화면에 덤프되지는 않지만, 이런 미세한 차이를 
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/01/13/android-hackers-handbook/">Android Hacker's Handbook</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/01/11/cve-2013-2094-perf-swevent-enabled-revisited/">CVE-2013-2094: Perf_swevent_enabled Revisited</a>
       </li>
     
@@ -760,10 +795,6 @@ Query 결과가 화면에 덤프되지는 않지만, 이런 미세한 차이를 
     
       <li class="post">
         <a href="/blog/2015/12/23/on-the-juniper-backdoor/">On the Juniper Backdoor</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/12/07/trustnone/">TRUSTNONE</a>
       </li>
     
   </ul>
