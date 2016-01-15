@@ -5,11 +5,12 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Paul Irish: 10 Things I Learned From the jQuery Source - KC's blog</title>
+  <title>TF-IDF - KC's blog</title>
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="Paul Irish 의 10 Things I Learned from the jQuery Source 에서. Self-invoking anonymous function (function( window, undefined ) { })(window); (function &hellip;">
+  <meta name="description" content="&ldquo;Multiplying TF and IDF therefore favours generally rare words that nevertheless occur often in our pages.&rdquo;
+">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -18,7 +19,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://zomo.heroku.com/blog/2012/09/18/paul-irish-10-things-i-learned-from-the-jquery-source/">
+  <link rel="canonical" href="http://zomo.heroku.com/blog/2016/01/15/tf-idf/">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="/atom.xml" rel="alternate" title="KC's blog" type="application/atom+xml">
@@ -68,7 +69,7 @@
   
   <header>
     
-      <h1 class="entry-title">Paul Irish: 10 Things I Learned From the jQuery Source</h1>
+      <h1 class="entry-title">TF-IDF</h1>
     
     
       <p class="meta">
@@ -77,79 +78,14 @@
 
 
 
-<time class='entry-date' datetime='2012-09-18T11:01:00+09:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>18</span><span class='date-suffix'>th</span>, <span class='date-year'>2012</span></span> <span class='time'>11:01 am</span></time>
+<time class='entry-date' datetime='2016-01-15T15:10:14+09:00'><span class='date'><span class='date-month'>Jan</span> <span class='date-day'>15</span><span class='date-suffix'>th</span>, <span class='date-year'>2016</span></span> <span class='time'>3:10 pm</span></time>
         
       </p>
     
   </header>
 
 
-<div class="entry-content"><p>Paul Irish 의 <a href="http://vimeo.com/12529436#at=0">10 Things I Learned from the jQuery Source</a> 에서.</p>
-
-<h3>Self-invoking anonymous function</h3>
-
-
-<pre><code> (function( window, undefined ) {
- })(window);
-
- (function () {
- })()
-
- !function () {
- }()
-
- +function () {
- }()
-</code></pre>
-
-<p>Everyone&rsquo;s favorite pattern:</p>
-
-<pre><code> (function(window,document,undefined){
-   // scope traversal benefit. document 를 refer 하면, 
-   // local scope 만 찾아보면 되니까 약간의 성능 향상이 있을 수도.
-   document.getElementById('') 
- })(this,this.document);
-</code></pre>
-
-<p>아규먼트의 끝에 undefined 를 붙이는 이유는, undefined 변수를 reset 하기 위함.
-&ldquo;undefined = true&rdquo; 와 같은 코드를 누군가 짰다면 문제가 생길수도 있음.</p>
-
-<p>미니파이를 해서</p>
-
-<pre><code> (function(A,B,C){
-   // document.getElementById('whatever_id')
-   B.getElementById('whatever_id')
- })(this,document)
-</code></pre>
-
-<h3>Asynchronous Recursion</h3>
-
-
-<pre><code> setInterval(function(){
- },100);
-
- (function(){
-   doStuff();
-   setTimeout(arguments.callee,100)
- })()
-
- (function loopsiloopsiloo(){
-   doStuff();
-   setTimeout(loopsiloopsiloo,100)
- })()
-
- (function loopsiloopsiloo(){
-   doStuff();
-   $('#update').load('awesomething.php'',function(){
-     loopsiloopsiloo();
-   })
- })();
-</code></pre>
-
-<p>위의 예제에서처럼, setInterval 을 사용하면,
-function(){} 수행에 100 milliseconds 이상이 걸릴 경우에,
-문제가 될 수 있다.
-이 경우에는 setTimeout(arguments.callee,100) 을 사용해야 한다.</p>
+<div class="entry-content"><p>&ldquo;Multiplying TF and IDF therefore favours generally rare words that nevertheless occur often in our pages.&rdquo;</p>
 </div>
 
 
@@ -165,7 +101,7 @@ function(){} 수행에 100 milliseconds 이상이 걸릴 경우에,
 
 
 
-<time class='entry-date' datetime='2012-09-18T11:01:00+09:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>18</span><span class='date-suffix'>th</span>, <span class='date-year'>2012</span></span> <span class='time'>11:01 am</span></time>
+<time class='entry-date' datetime='2016-01-15T15:10:14+09:00'><span class='date'><span class='date-month'>Jan</span> <span class='date-day'>15</span><span class='date-suffix'>th</span>, <span class='date-year'>2016</span></span> <span class='time'>3:10 pm</span></time>
       
 
 
@@ -173,7 +109,7 @@ function(){} 수행에 100 milliseconds 이상이 걸릴 경우에,
     
       <div class="sharing">
   
-  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://zomo.heroku.com/blog/2012/09/18/paul-irish-10-things-i-learned-from-the-jquery-source/" data-via="" data-counturl="http://zomo.heroku.com/blog/2012/09/18/paul-irish-10-things-i-learned-from-the-jquery-source/" >Tweet</a>
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://zomo.heroku.com/blog/2016/01/15/tf-idf/" data-via="" data-counturl="http://zomo.heroku.com/blog/2016/01/15/tf-idf/" >Tweet</a>
   
   
   
@@ -182,10 +118,8 @@ function(){} 수행에 100 milliseconds 이상이 걸릴 경우에,
     
     <p class="meta">
       
-        <a class="basic-alignment left" href="/blog/2012/09/05/rails-is-hard/" title="Previous Post: Rails Is Hard">&laquo; Rails Is Hard</a>
+        <a class="basic-alignment left" href="/blog/2016/01/13/android-hackers-handbook/" title="Previous Post: Android Hacker's Handbook">&laquo; Android Hacker's Handbook</a>
       
-      
-        <a class="basic-alignment right" href="/blog/2012/10/14/what-is-the-new-keyword-in-javascript/" title="Next Post: What is the 'new' keyword in JavaScript?">What is the 'new' keyword in JavaScript? &raquo;</a>
       
     </p>
   </footer>
@@ -198,6 +132,10 @@ function(){} 수행에 100 milliseconds 이상이 걸릴 경우에,
     <section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2016/01/15/tf-idf/">TF-IDF</a>
+      </li>
     
       <li class="post">
         <a href="/blog/2016/01/13/android-hackers-handbook/">Android Hacker's Handbook</a>
@@ -213,10 +151,6 @@ function(){} 수행에 100 milliseconds 이상이 걸릴 경우에,
     
       <li class="post">
         <a href="/blog/2016/01/11/sock-sendpage/">Sock_sendpage</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/12/23/on-the-juniper-backdoor/">On the Juniper Backdoor</a>
       </li>
     
   </ul>

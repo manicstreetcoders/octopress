@@ -1,0 +1,9 @@
+---
+layout: post
+title: "TF-IDF"
+date: 2016-01-15 15:10:14 +0900
+comments: true
+categories: 
+---
+
+"Multiplying TF and IDF therefore favours generally rare words that nevertheless occur often in our pages."

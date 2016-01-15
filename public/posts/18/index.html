@@ -9,7 +9,9 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="Jeff Dean and Sanjay Ghemawat 의 논문 &ldquo;MapReduce: Simplified Data Processing on Large Clusters&rdquo; 를 읽고 있다. LISP-like 언어들의 Map(), Reduce() 함수가 &hellip;">
+  <meta name="description" content="search 는 주어진 키워드와 가장 relevant 한 document 를 찾아 사용자에게 제시한다.
+AdSense 는 역으로 주어진 document 에 대해, 가장 relevant 한 키워드를 찾아내, 그 키워드에
+비딩한 광고를 실어주어야 한다. TF-IDF &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -65,6 +67,62 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/09/10/adsense-inverse-search/">AdSense: Inverse Search</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-09-10T18:08:00+09:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>10</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>6:08 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>search 는 주어진 키워드와 가장 relevant 한 document 를 찾아 사용자에게 제시한다.
+AdSense 는 역으로 주어진 document 에 대해, 가장 relevant 한 키워드를 찾아내, 그 키워드에
+비딩한 광고를 실어주어야 한다.</p>
+
+<h3>TF-IDF</h3>
+
+<ul>
+<li>rarer words make better keywords</li>
+</ul>
+
+
+<p>IDF = inverse document frequency of word w = log_2 (N/N_w)</p>
+
+<p>(N total documents, with N_w containing w)</p>
+
+<ul>
+<li>more frequent words make better keywords</li>
+</ul>
+
+
+<p>TF (Term Frequency) = frequency of w in document d</p>
+
+<p>TF-IDF (w) = Term Frequency (w) * Inverse Document Frequency (w)</p>
+
+<p>&lsquo;the&rsquo; 처럼 의미없는 말이 문서에 자주 반복되어봐야 별 가치 없으니,
+어느정도 rarer 한 단어가 어느 정도 자주나오는가? 라는 의미로 보면 될 것.</p>
+
+<p><a href="http://comminfo.rutgers.edu/~muresan/IR/Docs/Articles/ipmAizawa2003.pdf">&ldquo;An information-theoretic perspective of TF-IDF measures&rdquo;, Kiko Aizawa, Journal of Information Processing and Management, Vol. 39 (1), 2003</a></p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -961,35 +1019,6 @@ msfvenom -p windows/shell_reverse_tcp -x psexec.exe -k ... The aloocate and crea
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2013/08/29/kargers-algorithm/">Karger's Algorithm</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2013-08-29T12:39:00+09:00'><span class='date'><span class='date-month'>Aug</span> <span class='date-day'>29</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>12:39 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><h3>Karger&rsquo;s Algorithm</h3>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/19">&larr; Older</a>
@@ -1007,6 +1036,10 @@ msfvenom -p windows/shell_reverse_tcp -x psexec.exe -k ... The aloocate and crea
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/01/15/tf-idf/">TF-IDF</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/01/13/android-hackers-handbook/">Android Hacker's Handbook</a>
       </li>
     
@@ -1020,10 +1053,6 @@ msfvenom -p windows/shell_reverse_tcp -x psexec.exe -k ... The aloocate and crea
     
       <li class="post">
         <a href="/blog/2016/01/11/sock-sendpage/">Sock_sendpage</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/12/23/on-the-juniper-backdoor/">On the Juniper Backdoor</a>
       </li>
     
   </ul>

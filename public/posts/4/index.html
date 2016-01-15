@@ -9,48 +9,7 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-11
-12
-13
-14
-15
-16
-17
-18
-19
-20
-21
-22
-23
-24
-25
-26
-27
-28
-29
-30
-31
-32
-33
-34
-35
-36
-37
-38
-39
-40
-static var _ba:ByteArray;
-static var &hellip;">
+  <meta name="description" content="From shakacon.org Name: Sean Metcalf Synopsis: While Kerberos &ldquo;Golden Tickets&rdquo; and &ldquo;Silver Tickets&rdquo; received a lot of press &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -106,6 +65,56 @@ static var &hellip;">
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/07/10/red-vs-blue-modern-active-directory-attacks/">Red vs. Blue: Modern Active Directory Attacks</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-07-10T09:08:51+09:00'><span class='date'><span class='date-month'>Jul</span> <span class='date-day'>10</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>9:08 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>From shakacon.org</p>
+
+<p>Name: Sean Metcalf</p>
+
+<p>Synopsis: While Kerberos &ldquo;Golden Tickets&rdquo; and &ldquo;Silver Tickets&rdquo; received a lot of press in the second half of 2014, there hasn&rsquo;t been much detail provided on how exactly they work, why they are successful, and how to mitigate them (other than: &ldquo;don&rsquo;t get pwned&rdquo;). Golden Tickets are the ultimate method for persistent, forever AD admin rights to a network since they are valid Kerberos tickets and can&rsquo;t be detected, right?</p>
+
+<p>This talk covers the latest AD attack vectors and describes how to detect Golden Ticket usage. Provided are key indicators that can detect Kerberos attacks on your network, including Golden tickets, Silver tickets &amp; MS14-068 exploitation, as well as methods to identify, mitigate, and prevent common Active Directory attack vectors. When forged Kerberos tickets are used in AD, there are some interesting artifacts that can be identified. Yes, despite what you may have read on the internet, there are ways to detect Golden &amp; Silver Ticket usage!</p>
+
+<p>Some of the topics covered:</p>
+
+<ul>
+<li>How attackers go fro mzero to (Domain) Admin</li>
+<li>MS14-068: the vulnerability, the exploit, and the danger</li>
+<li>&ldquo;SPN Scanning&rdquo; with PowerShell to identify potential targets without network scans (SQL, Exchange, FIM, webservers, etc)</li>
+<li>Exploiting weak service account passwords as a regular AD user</li>
+<li>Mimikatz, the attacker&rsquo;s multi-tool</li>
+<li>Using Silver Tickets for stealthy persistence that won&rsquo;t be detected (until now)</li>
+<li>Identifying forged Kerberos tickets (Golden &amp; Silver Tickets) on your network</li>
+<li>Detecting offensive PowerShell tools like Invoke-Mimikatz</li>
+<li>Active Directory attack mitigation</li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -619,38 +628,6 @@ _ba[3] 은 여전히 0 이여야하고, 0x40 은 vector 에 씌여진다.</p>
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/06/14/exploiting-cve-2015-0311-a-use-after-free-in-adobe-flash-player/">Exploiting CVE-2015-0311: A Use-After-Free in Adobe Flash Player</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2015-06-14T23:39:33+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>14</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>11:39 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><ul>
-<li><a href="https://blog.coresecurity.com/2015/03/04/exploiting-cve-2015-0311-a-use-after-free-in-adobe-flash-player/">Exploiting CVE-2015-0311: A Use-After-Free in Adobe Flash Player</a></li>
-</ul>
-
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/5">&larr; Older</a>
@@ -668,6 +645,10 @@ _ba[3] 은 여전히 0 이여야하고, 0x40 은 vector 에 씌여진다.</p>
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/01/15/tf-idf/">TF-IDF</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/01/13/android-hackers-handbook/">Android Hacker's Handbook</a>
       </li>
     
@@ -681,10 +662,6 @@ _ba[3] 은 여전히 0 이여야하고, 0x40 은 vector 에 씌여진다.</p>
     
       <li class="post">
         <a href="/blog/2016/01/11/sock-sendpage/">Sock_sendpage</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/12/23/on-the-juniper-backdoor/">On the Juniper Backdoor</a>
       </li>
     
   </ul>
