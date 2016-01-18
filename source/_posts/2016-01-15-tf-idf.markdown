@@ -7,3 +7,16 @@ categories:
 ---
 
 "Multiplying TF and IDF therefore favours generally rare words that nevertheless occur often in our pages."
+
+TF-IDF 의 아이디어는 사실 단순하다.
+
+1. 웹페이지 하나를 분석한다고 치자. 분석 목적은 키워드 추출.
+2. 가장 많이 등장하는 단어로 키워드를 추출한다면, "the" 나 "a" 같은 관사, 혹은 "and" 같은 전치사가 가장 많이 등장하지 않을까?
+3. 절대적인 빈도가 아니라 상대적인 빈도가 더 맞을 것 같은데.
+4. "the" 의 경우 거의 모든 웹페이지에 등장할테니 상대적인 중요도는 떨어지지않을까?
+5. 얼마나 많은 웹페이지에 등장하느냐를 측정하는 것이 IDF (Inverse Document Frequency)
+6. (특정 단어가 포함된 도큐먼트의 수/전체 도큐먼트 수)^(-1)
+7. Inverse 를 해주었기때문에 rare 한 단어의 경우 IDF 값이 커진다. (실상황에서는 log 값이 유의미하다고)
+8. 하나의 문서에 등장하는 단어 빈도를 그대로 사용하지 말고 IDF 로 보정해주면, heuristic 하게 키워드를 추출할 수 있다.
+
+그렇다면,

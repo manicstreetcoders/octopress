@@ -4,7 +4,7 @@
   <title><![CDATA[KC's blog]]></title>
   <link href="http://zomo.heroku.com/atom.xml" rel="self"/>
   <link href="http://zomo.heroku.com/"/>
-  <updated>2016-01-15T15:11:13+09:00</updated>
+  <updated>2016-01-18T12:33:01+09:00</updated>
   <id>http://zomo.heroku.com/</id>
   <author>
     <name><![CDATA[KC]]></name>
@@ -19,6 +19,22 @@
     <updated>2016-01-15T15:10:14+09:00</updated>
     <id>http://zomo.heroku.com/blog/2016/01/15/tf-idf</id>
     <content type="html"><![CDATA[<p>&ldquo;Multiplying TF and IDF therefore favours generally rare words that nevertheless occur often in our pages.&rdquo;</p>
+
+<p>TF-IDF 의 아이디어는 사실 단순하다.</p>
+
+<ol>
+<li>웹페이지 하나를 분석한다고 치자. 분석 목적은 키워드 추출.</li>
+<li>가장 많이 등장하는 단어로 키워드를 추출한다면, &ldquo;the&rdquo; 나 &ldquo;a&rdquo; 같은 관사, 혹은 &ldquo;and&rdquo; 같은 전치사가 가장 많이 등장하지 않을까?</li>
+<li>절대적인 빈도가 아니라 상대적인 빈도가 더 맞을 것 같은데.</li>
+<li>&ldquo;the&rdquo; 의 경우 거의 모든 웹페이지에 등장할테니 상대적인 중요도는 떨어지지않을까?</li>
+<li>얼마나 많은 웹페이지에 등장하느냐를 측정하는 것이 IDF (Inverse Document Frequency)</li>
+<li>(특정 단어가 포함된 도큐먼트의 수/전체 도큐먼트 수)<sup>-1</sup></li>
+<li>Inverse 를 해주었기때문에 rare 한 단어의 경우 IDF 값이 커진다. (실상황에서는 log 값이 유의미하다고)</li>
+<li>하나의 문서에 등장하는 단어 빈도를 그대로 사용하지 말고 IDF 로 보정해주면, heuristic 하게 키워드를 추출할 수 있다.</li>
+</ol>
+
+
+<p>그렇다면,</p>
 ]]></content>
   </entry>
   
