@@ -4,7 +4,7 @@
   <title><![CDATA[KC's blog]]></title>
   <link href="http://zomo.heroku.com/atom.xml" rel="self"/>
   <link href="http://zomo.heroku.com/"/>
-  <updated>2016-01-18T14:57:03+09:00</updated>
+  <updated>2016-01-18T15:19:42+09:00</updated>
   <id>http://zomo.heroku.com/</id>
   <author>
     <name><![CDATA[KC]]></name>
@@ -35,9 +35,9 @@
 </ol>
 
 
-<p>그렇다면, AdWords 같은 광고 스킴을 디자인한다고 가정하고. 광고주는 Nike 를 가정하자. 그리고 marathon, race 가 키워드인 웹페이지가 두 개있다고 가정하는데, 하나는 운동에 관한 페이지고 하나는 선거(election)에 관한 페이지다. 물론 Nike 는 운동에 관한 페이지에 자사 광고를 노출시키고 싶어한다. 맥락을 구별할 필요가 있는 것인데, 이런 경우 TF-IDF 를 이용할 수 있을까?</p>
+<p>그렇다면, AdWords 같은 광고 스킴을 디자인한다고 가정하고. 광고주는 Nike 를 가정하자. 그리고 marathon, race, trophy 가 키워드인 웹페이지가 두 개있다고 가정하는데, 하나는 운동에 관한 페이지고 하나는 선거(election)에 관한 페이지다. 물론 Nike 는 운동에 관한 페이지에 자사 광고를 노출시키고 싶어한다. 맥락을 구별할 필요가 있는 것인데, 이런 경우 TF-IDF 를 이용할 수 있을까?</p>
 
-<p>방법은 다음과 같다.</p>
+<p>이용할 수 있다. 두 개의 단어가 같이 출현하는 빈도를 생각해본다. 예를 들어, <code>marathon</code> 과 <code>42 kilometres</code> 또는 <code>26 miles</code> 는 실제 러닝을 다루는 웹페이지들에서 같이 출현했을 것이다.</p>
 ]]></content>
   </entry>
   
