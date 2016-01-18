@@ -104,6 +104,20 @@
 <p>그렇다면, AdWords 같은 광고 스킴을 디자인한다고 가정하고. 광고주는 Nike 를 가정하자. 그리고 marathon, race, trophy 가 키워드인 웹페이지가 두 개있다고 가정하는데, 하나는 운동에 관한 페이지고 하나는 선거(election)에 관한 페이지다. 물론 Nike 는 운동에 관한 페이지에 자사 광고를 노출시키고 싶어한다. 맥락을 구별할 필요가 있는 것인데, 이런 경우 TF-IDF 를 이용할 수 있을까?</p>
 
 <p>이용할 수 있다. 두 개의 단어가 같이 출현하는 빈도를 생각해본다. 예를 들어, <code>marathon</code> 과 <code>42 kilometres</code> 또는 <code>26 miles</code> 는 실제 러닝을 다루는 웹페이지들에서 같이 출현했을 것이다. 또한 <code>election</code>, <code>voter</code>, <code>ballot</code> 은 선거를 다루는 글에서 같이 출현했을 것이다.</p>
+
+<p>다음의 계산을 거치면, 모든 pairs of words 에 대한 correlation 이 계산된다.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>for every page in all web pages on the internet:
+</span><span class='line'>    for every pair of words in the page:
+</span><span class='line'>        correlation[word_A,word_B] += tf-idf(word_A) * tf-idf(word_B)</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>즉 <code>marathon</code> 과 <code>42 kilometres</code> 의 The Internet 에서의 correlation 값이 나오는 것이다. 이런 무지막지한 계산을 하려니 Hadoop 과 MapReduce 부터 만들고 본 것이리라.</p>
 </div>
 
 
