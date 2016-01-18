@@ -4,7 +4,7 @@
   <title><![CDATA[KC's blog]]></title>
   <link href="http://zomo.heroku.com/atom.xml" rel="self"/>
   <link href="http://zomo.heroku.com/"/>
-  <updated>2016-01-18T15:38:25+09:00</updated>
+  <updated>2016-01-18T16:13:50+09:00</updated>
   <id>http://zomo.heroku.com/</id>
   <author>
     <name><![CDATA[KC]]></name>
@@ -52,6 +52,8 @@
 <p></p>
 
 <p>즉 <code>marathon</code> 과 <code>42 kilometres</code> 의 The Internet 에서의 correlation 값이 나오는 것이다. 이런 무지막지한 계산을 하려니 Hadoop 과 MapReduce 부터 만들고 본 것이리라.</p>
+
+<p>위처럼 word-word correlation 을 이용한 semantic 을 분석하는 기법이 Latent Semantic Analysis 의 기본 아이디어라고 한다. LSA-based algorithm 을 이용하여 Topic Analysis 를 할 수가 있는데, 그 예를 들어본다.</p>
 ]]></content>
   </entry>
   
