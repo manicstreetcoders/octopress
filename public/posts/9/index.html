@@ -9,7 +9,21 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="Ralf-Philipp Weinmann 의 Baseband Attacks: Remote Exploitation of Memory Corruptions in Cellular Protocol Stacks 을 읽고 정리한다. 참고가 될 만한 다른 글들 Random &hellip;">
+  <meta name="description" content="코드로 돌려보기 (a,b) 가 서로소일 확률은 어떻게 될까? 일단 프로그램으로 돌려보니 대략 60% ~ 61% 가 나온다. 1 은 계산에서 제외하였다. 1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+def gcd(a,b): while b: a,b = b, &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -65,6 +79,77 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/03/08/relatively-prime-probability/">Relatively Prime Probability</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-03-08T14:38:05+09:00'><span class='date'><span class='date-month'>Mar</span> <span class='date-day'>8</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>2:38 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h3>코드로 돌려보기</h3>
+
+<p>(a,b) 가 서로소일 확률은 어떻게 될까? 일단 프로그램으로 돌려보니 대략 60% ~ 61% 가 나온다. 1 은 계산에서 제외하였다.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>def gcd(a,b):
+</span><span class='line'>    while b:
+</span><span class='line'>        a,b = b,a % b
+</span><span class='line'>    return a
+</span><span class='line'>
+</span><span class='line'>if __name__ == "__main__":
+</span><span class='line'>    size = 0
+</span><span class='line'>    coprimes = 0
+</span><span class='line'>    for i in range(2,1000):
+</span><span class='line'>        for j in range(i+1,1000+1):
+</span><span class='line'>            size += 1
+</span><span class='line'>            if gcd(i,j) == 1:
+</span><span class='line'>                coprimes += 1
+</span><span class='line'>    print "%d/%d = %f" % (coprimes,size, float(coprimes)/float(size))            </span></code></pre></td></tr></table></div></figure>
+
+
+<h3>확률로 따져보기</h3>
+
+<p>a,b 가 2 를 factor 로 가지고 있을 확률은 얼마나 될까? a 가 2 의 배수일 확률은 &frac12; 이다. b 역시 2 의 배수일 확률은 &frac12; 이다. a,b 가 동시에 2 의 배수일 확률은 &frac12; * &frac12; 이다.</p>
+
+<p>그럼 a 가 3 을 factor 로 가지고 있을 확률은 얼마나 될까? 이건 1/3 이다. b 역시 3 을 factor 로 가지고 있을 확률은 1/3. a,b 가 동시에 3 을 팩터로 가지고 있을 확률은 1/3 * 1/3 이다.</p>
+
+<p>이런 식으로 생각하면 (a,b) 가 prime p 를 coprime 으로 가지고 있을 확률은 1/(p<sup>2</sup>) 이다.</p>
+
+<p>위의 코드에서는 1000 이하에서 (a,b) 를 골랐을때 서로소일 확률을 구했었다. 그렇다면, 1000 을 무한으로 보냈을때, 서로소일 확률을 구하려면, 모든 prime 에 대해서 확률을 구해줘야한다.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -2601,43 +2686,6 @@ $ adb shell
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/11/11/the-info-leak-era-on-software-exploitation/">The Info Leak Era on Software Exploitation</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2014-11-11T12:34:16+09:00'><span class='date'><span class='date-month'>Nov</span> <span class='date-day'>11</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>12:34 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Fermin J. Serna 의 <a href="http://media.blackhat.com/bh-us-12/Briefings/Serna/BH_US_12_Serna_Leak_Era_Slides.pdf">The info leak era on software exploitation</a> 를 읽고 정리해본다.</p>
-
-<p>참고:</p>
-
-<ul>
-<li>Modeling the exploitation and mitigation of memory safety vulnerabilities, Breakpoint 2012, Matt Miller</li>
-<li><a href="http://zhodiac.hispahack.com/my-stuff/security/SummerCon_2012_CVE-2012-0769.pdf">The case of the perfect info leak</a></li>
-</ul>
-
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/10">&larr; Older</a>
@@ -2655,6 +2703,10 @@ $ adb shell
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/02/03/qseecom/">Qseecom</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/01/15/tf-idf/">TF-IDF</a>
       </li>
     
@@ -2668,10 +2720,6 @@ $ adb shell
     
       <li class="post">
         <a href="/blog/2016/01/11/bsides-vienna-2015-writing-your-first-windows-exploit-in-less-than-one-hour/">BSides Vienna 2015: Writing Your First Windows Exploit in Less Than One Hour</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/01/11/sock-sendpage/">Sock_sendpage</a>
       </li>
     
   </ul>
