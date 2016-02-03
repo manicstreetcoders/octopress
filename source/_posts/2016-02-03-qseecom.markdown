@@ -1,0 +1,11 @@
+---
+layout: post
+title: "qseecom"
+date: 2016-02-03 16:10:29 +0900
+comments: true
+categories: 
+---
+
+bits-please blog 에 있는 글을 정리해본다.
+
+[Android Linux Kernel Privilege](http://bits-please.blogspot.co.il/2015/08/android-linux-kernel-privilege.html)
