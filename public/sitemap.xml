@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>http://zomo.heroku.com/blog/2016/02/07/the-dependency-of-android-sdk/</loc>
+    <lastmod>2016-02-07T14:44:35+09:00</lastmod>
+  </url>
+  <url>
     <loc>http://zomo.heroku.com/blog/2016/02/03/qseecom/</loc>
     <lastmod>2016-02-03T16:10:29+09:00</lastmod>
   </url>

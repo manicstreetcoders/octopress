@@ -9,8 +9,8 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="언젠가 블랙햇 2014 에 발표된 자료. azimuth security 의 Dan Rosenberg. Reflections on Trusting TrustZone
-">
+  <meta name="description" content="
+The Art of File Format Fuzzing ">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -66,6 +66,38 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/06/16/fuzzing-drm-protected-pdf-files/">Fuzzing DRM-protected PDF Files</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-06-16T14:58:01+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>16</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>2:58 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><ul>
+<li><a href="https://www.blackhat.com/presentations/bh-jp-05/bh-jp-05-sutton-greene.pdf">The Art of File Format Fuzzing</a></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -809,70 +841,6 @@ Client 로부터 <code>CONNECT</code> 를 받으면, 진짜 서버에 접속해�
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/06/05/logjam-diffie-hellman-falls-down/">Logjam: Diffie-Hellman Falls Down</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2015-06-05T18:30:24+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>5</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>6:30 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><ul>
-<li><a href="https://weakdh.org/imperfect-forward-secrecy.pdf">Imperfect Forward Secrecy: How Diffie-Hellman Fails in Practice</a></li>
-<li><a href="http://blog.cryptographyengineering.com/2015/05/attack-of-week-logjam.html">Attack of the week: Logjam</a></li>
-</ul>
-
-
-<h3>Matthew Green Blog 요약</h3>
-
-<ul>
-<li>알려진 가장 좋은 방법은 g<sup>a</sup> 를 캡쳐해서, log(g<sup>a</sup>) = a 인 이산로그 문제를 푸는 것.</li>
-<li>p 가 2048 bits 정도이면 수학적으로 풀기 어렵다.</li>
-<li><p>p 가 512 bits 라면?</p></li>
-<li><p>서버가 DHE-EXPORT 를 지원한다면, 공격자가 negotiation message 를 edit 해서, client 가 지원하는 cipher list 를 DHE-EXPORT 만 지원한다고 바꿔놓는다.</p></li>
-<li>이제 서버는 client 가 DHE-EXPORT 만 지원한다고 믿게 된다.</li>
-<li>이제 서버는 512-bit export-grade Diffie-Hellman tuple 을 보낸다.</li>
-<li>클라이언트는 512-bit DH tuple 을 믿어버린다. (클라이언트는 DHE-EXPORT 컨텍스트에서 negotiation 되고 있다는 것을 모른다)</li>
-<li>허잡한 파라메터가 오는데도 클라이언트는 모른다.</li>
-<li>Negotiation 마지막에 Finished 메시지에 지금까지 교환되었던 negotiation message 의 MAC 이 교환되는데, 이것때문에 뽀록난다.</li>
-<li>DH key 를 깨야한다. Finished 메시지가 교환되기전에.</li>
-<li>깰 수 있다면, forged Finished 메시지를 만들 수 있다.</li>
-</ul>
-
-
-<h3>Can you really solve a discrete logarithm before a TLS handshake times out?</h3>
-
-<p>Number Field Sieve 를 사용해야하는데, 이걸 optimize 할 수 있다.</p>
-
-<ul>
-<li>Pre-computation (for a given prime p): Polynomial selection, sieving, linear algebra 로 구성된 작업. p 에만 dependant.</li>
-<li>Solving to find a (for a given g<sup>a</sup> mod p): precomputation 에서 만들어진 table 을 사용한다. g, g<sup>a</sup> 를 가지고 table 을 사용하여 a 를 찾는 알고리즘.</li>
-</ul>
-
-
-<p>Pre-computation 은 p 에 dependant 한데. 그렇다면 실제 TLS 에서 p 는 어떻게 generate 되는 걸까?</p>
-
-<p>Large-scale 로 진행된 internet scan 에서 Apache/mod_ssl 의 92% 는 DH-EXPORT 의 경우, 2 개의 소수만 사용했다고 한다. 이 경우 2 개의 p 에 대해서만 테이블을 만들면 된다.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/6">&larr; Older</a>
@@ -890,6 +858,10 @@ Client 로부터 <code>CONNECT</code> 를 받으면, 진짜 서버에 접속해�
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/02/07/the-dependency-of-android-sdk/">The Dependency of Android SDK</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/02/03/qseecom/">Qseecom</a>
       </li>
     
@@ -903,10 +875,6 @@ Client 로부터 <code>CONNECT</code> 를 받으면, 진짜 서버에 접속해�
     
       <li class="post">
         <a href="/blog/2016/01/11/cve-2013-2094-perf-swevent-enabled-revisited/">CVE-2013-2094: Perf_swevent_enabled Revisited</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/01/11/bsides-vienna-2015-writing-your-first-windows-exploit-in-less-than-one-hour/">BSides Vienna 2015: Writing Your First Windows Exploit in Less Than One Hour</a>
       </li>
     
   </ul>

