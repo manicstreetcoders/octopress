@@ -9,7 +9,8 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="How To Build CyanogenMod Android for HTC One (M8) HTC One M8 에 올릴 CyanogenMod 를 빌드하였다. 빌드 머신은 Ubuntu 14.04.1 LTS 64 bit. 중간에 ./extract-files.sh 에서 &hellip;">
+  <meta name="description" content="Mac의 경우 brew install qemu 로 qumu 가상 머신을 설치. qemu-system-i386 사용.
+debian 기반 linux 이미지 https://people.debian.org/~aurel32/qemu/i386/ &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -65,6 +66,48 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/08/06/linux-vm-with-qemu/">Linux VM With QEMU</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-08-06T14:54:22+09:00'><span class='date'><span class='date-month'>Aug</span> <span class='date-day'>6</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>2:54 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><ol>
+<li><p>Mac의 경우 brew install qemu 로 qumu 가상 머신을 설치. qemu-system-i386 사용.</p></li>
+<li><p>debian 기반 linux 이미지 <a href="https://people.debian.org/~aurel32/qemu/i386/debian_wheezy_i386_standard.qcow2">https://people.debian.org/~aurel32/qemu/i386/debian_wheezy_i386_standard.qcow2</a> (root 패스워드가 &ldquo;root&rdquo;)</p></li>
+<li><p>가상머신을 start.</p>
+
+<p> $ qemu-system-i386 -hda debian_wheezy_i386_standard.qcow2</p></li>
+<li><p>하이버네이션을 위해서 debian 내에 power manager 패키지를 설치.</p>
+
+<p> # apt-get install pm-utils</p></li>
+<li><p>Hibernate.</p>
+
+<p> # pm-hibernate</p></li>
+</ol>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -670,60 +713,6 @@ Load command 12
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/06/20/add-js-interface-mitm/">Add_js_interface_mitm</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2014-06-20T09:13:56+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>20</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>9:13 am</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Metasploit 에 들어간 add_js_interface_mitm.rb 를 훑어보았다.</p>
-
-<p>일단 vulnerable 한 WebView 의 예제는 다음과 같다.</p>
-
-<pre><code>public class MainActivity extends Activity {
-
-    @SupressLint({ "SetJavaScriptEnabled", "JavascriptInterface" })
-    @Override
-        protected void onCreate(Bundle savedInstanceState) {
-            ...
-            WebView myWebView = (WebView) findViewById(R.id.webView1);
-
-            // not a good idea!
-            WebSettings webSettings = myWebView.getSettings();
-            webSettings.setJavaScriptEnabled(true);
-
-            // terrible idea!
-            myWebView.addJavascriptInterface(new WebAppInterface(this), "Android");
-
-            myWebView.loadUrl("http://droidsec.org/addjsif.html");
-            ...
-</code></pre>
-
-<h4>PoC</h4>
-
-<p><a href="https://github.com/jduck/addjsif/blob/master/add_js_interface_mitm.rb">Metasploit add_js_interface_mitm.rb 모듈</a></p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/14">&larr; Older</a>
@@ -741,6 +730,10 @@ Load command 12
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/02/11/unlocking-the-motorola-bootloader/">Unlocking the Motorola Bootloader</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/02/07/the-dependency-of-android-sdk/">The Dependency of Android SDK</a>
       </li>
     
@@ -754,10 +747,6 @@ Load command 12
     
       <li class="post">
         <a href="/blog/2016/01/13/android-hackers-handbook/">Android Hacker's Handbook</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/01/11/cve-2013-2094-perf-swevent-enabled-revisited/">CVE-2013-2094: Perf_swevent_enabled Revisited</a>
       </li>
     
   </ul>

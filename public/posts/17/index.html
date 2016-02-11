@@ -9,7 +9,7 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="Google V8 을 Ubuntu 12.04 LTS 에서 컴파일해보았다. x64 로 컴파일하는데 에러가 나고 삽질 연속. MBA 11 하즈웰에서 VMware Fusion 으로 버추얼 머신을 돌리고 거기서 컴파일하는데 컴파일이 하세월이다. 안드로이드 컴파일은 MBPr &hellip;">
+  <meta name="description" content="prime p, q 를 정한다. n = p * q z = (p-1) * (q-1) z 보다 작은, z 와 co-prime 인 prime e 를 하나 찾는다. n,e 가 public key 가 된다. e * d = 1 (mod z) 인 d 를 정한다. 다시 말하면, e &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -65,6 +65,120 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/02/15/rsa-explained/">RSA Explained</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-02-15T19:40:00+09:00'><span class='date'><span class='date-month'>Feb</span> <span class='date-day'>15</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>7:40 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>prime p, q 를 정한다.</p>
+
+<p>n = p * q <br>
+z = (p-1) * (q-1) <br>
+z 보다 작은, z 와 co-prime 인 prime e 를 하나 찾는다. <br>
+n,e 가 public key 가 된다. <br>
+e * d = 1 (mod z) 인 d 를 정한다. 다시 말하면, e 의 modular inverse 가 private key 가 된다. <br>
+정리하면, modulo n 과, 서로 modular inversion 관계인 e,d 가 핵심이다. <br></p>
+
+<p>Encryption 은 다음과 같다.</p>
+
+<p>Plain-text 를 M 라고 하자. Cipher-text 를 C 라고 한다. <br>
+Public key 인 n,e 를 이용해서 암호화한다. M ^ e = C (mod n) <br></p>
+
+<p>Decryption 은 다음과 같다.</p>
+
+<p>C ^ d = M (mod n)</p>
+
+<p>Public key 인 n,e 를 알경우, private key d 를 recover 하기 위해서는 n 을 p,q 로 factor 해야한다.</p>
+
+<p>숫자를 넣어보면,</p>
+
+<p>p = 3, q = 11 <br>
+n = 3 * 11 = 33 <br>
+z = 2 * 10 = 20 <br>
+e 는 20 과 relative prime 인 11 을 선택. <br></p>
+
+<p>public key 는 RSA 시스템에서 exponent 라고 부르는 e = 11 과 modulo 라고 부르는 33 으로 구성된다.</p>
+
+<p>이제 private key 를 계산하자.</p>
+
+<p>exponent e 의 modular inversion 이 private key d 가 된다.</p>
+
+<p>e 는 z 의 원소이고, z 와 relatively prime 이기때문에 modular inversion 이 존재한다.</p>
+
+<p>e<em>d = 1 (mod z) 니까, 11</em>d = 1 (mod (3-1)*(11-1)) 니까 d 는 11 이 된다.</p>
+
+<p>정리하면, 모듈로 n = 33 exponent e = 11 private d = 11.</p>
+
+<p>Encryption algorithm 은 ( Plaintext ^ e ) mod n.</p>
+
+<p>Decryption algorithm 은 ( Cipher ^ d ) mod n.</p>
+
+<p>Plaintext M = 3 이라고 해보자.</p>
+
+<p>( 3 ^ 11 ) mod 33 = 8.</p>
+
+<p>11 의 modular inversion (z = 20) 은 11.</p>
+
+<p>( 8 ^ 11 ) mod 33 = 3 이 다시 나왔다.</p>
+
+<p>RSA 크립토를 깬다는 이야기는 n, e 를 알고 있고, z 를 모를때, e 의 modular inversion (z = ???) 을 구하는 문제이다.</p>
+
+<p>공개키 exponent  e 와 모듈로 n 을 알경우에 비밀키 d 를 어떻게 구해야하나?</p>
+
+<p>d 를 알려면 z 를 알아야 한다. 그래야 modular inversion 을 할테니. modular inversion 을 하는 건 extended Euclid 알고리즘으로 빠르게 가능한데.</p>
+
+<p>z 를 recover 하려면, n 을 prime 2 개로 factor 해야하는데&hellip; prime-factoring 을 하면 그 조합은 unique 할테니&hellip;</p>
+
+<p>정리하면,</p>
+
+<pre><code>1. n = p * q
+
+2. 오일러 함수 pi(n) = (p-1)(q-1)
+
+3. pi(n) 과 co-prime 인 e 를 고른다.
+
+4. e 의 modular inverse 인 d 를 구한다. 
+
+5. 즉 d*e = 1 (mod pi(n))
+
+6. 당연히 M &lt; n 이다. ( n 은 굉장히 큰 prime 의 곱이다 )
+
+7. C = M ^ e (mod n)
+
+8. C ^ d = (M ^ e) ^ d  (mod n)
+   = M ^ (k*pi(n)+1) (mod n)
+   = (M ^ pi(n)) ^ k * M (mod n)
+   = M (mod n)
+
+( M 이 p 나 q 가 아니기 때문에, M ^ pi(n) (mod n) = 1 이 된다. )
+</code></pre>
+
+<p>공부할겸, weak 한 RSA algorithm 을 구현하고, plaintext 의 일부를 알고 있을때 (i.e. From: , To: 헤더) brute-force 로 크랙하는 글을 한번 써봐야겠다.</p>
+
+<p><a href="http://sergematovic.tripod.com/rsa1.html">The RSA Algorithm Explained Using Simple Pencil and Paper Method</a></p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -956,191 +1070,6 @@ ESP 기반의 ROP 에서 어떻게 매핑되는지 보겠다.</p>
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2013/09/16/topological-sort/">Topological Sort</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2013-09-16T13:05:00+09:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>16</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>1:05 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><h3>Breadth first search.</h3>
-
-<p>우선 BFS.</p>
-
-<pre><code>class Vertex:
-    def __init__(self, i):
-        self.index = i
-        self.adjacency = []
-        self.visited = False
-        self.distance = 0
-    def addEdge(self, e):
-        self.adjacency.append(e)
-    def listEdge(self):
-        for e in self.adjacency:
-            print "(%d,%d)" % (self.index, e.index)
-
-if __name__ == "__main__":
-    va = []
-    for i in range(0,10):
-        va.append( Vertex(i) )
-
-    def e(v, e):
-        va[v].addEdge( va[e] )
-        pass
-
-    e(0,1)
-    e(0,2)
-
-    e(1,3)
-    e(2,4)
-
-    e(3,5)
-    e(4,5)
-
-    for v in va:
-        v.listEdge()
-
-    import Queue
-    q = Queue.Queue()
-
-    va[0].visited = True
-    q.put(item = va[0], block=False)
-
-    while ( q.empty() == False):
-        v = q.get(block=False)
-        for adj in v.adjacency:
-            if ( adj.visited == False):
-                adj.visited = True
-                adj.distance = v.distance + 1
-                q.put(item = adj, block=False)
-
-    for v in va:
-        print "%d -&gt; %d: (%d)" % (0, v.index, v.distance)
-</code></pre>
-
-<h3>DFS</h3>
-
-<p>그 다음 DFS</p>
-
-<pre><code>class Vertex:
-    def __init__(self, i):
-        self.index = i
-        self.adjacency = []
-        self.visited = False
-        self.distance = 0
-    def addEdge(self, e):
-        self.adjacency.append(e)
-    def listEdge(self):
-        for e in self.adjacency:
-            print "(%d,%d)" % (self.index, e.index)
-
-def dfs(v):
-    for n in v.adjacency:
-        if n.visited == False:
-            n.visited = True
-            n.distance = v.distance + 1
-            dfs(n)
-        else:
-            pass
-
-if __name__ == "__main__":
-    va = []
-    for i in range(0,10):
-        va.append( Vertex(i) )
-
-    def e(v, e):
-        va[v].addEdge( va[e] )
-        pass
-
-    e(0,1)
-    e(0,2)
-
-    e(1,3)
-    e(2,4)
-
-    e(3,5)
-    e(4,5)
-
-    for v in va:
-        v.listEdge()
-
-    dfs(va[0])
-
-    for v in va:
-        print "%d -&gt; %d: (%d)" % (0, v.index, v.distance)
-</code></pre>
-
-<h3>Dijkstra&rsquo;s Shortest-Path</h3>
-
-<p>다익스트라 알고리즘의 요체는 다음과 같다.</p>
-
-<pre><code>1. 그래프를 두개의 컷으로 나눈다.
-2. 한개는 explored, 다른 한개는 unexplored.
-3. 목표는 모든 vertex 를 explore 하는 것.
-4. unexplored set 을 explore 한다는 것은 무슨 의미일까?
-5. unexplored set 의 vertex 하나를 explored set 과 연결해야 한다.
-6. 그 연결하는 edge 는 어떤 edge 를 선택해야 하는 것일까?
-7. explored 된 vertex 마다 unexplored 로 가는 edge 가 있는지, 있다면 그 weight 는 얼마인지?
-7. A[v] + l_vw 를 minimize 하는 v-w (v from explored set, w from unexplored set) 를 선택한다. l_vw 는 weight.
-8. 이 부분이 greedy 한 부분이다. 단계별로 행하는 myoptic decision 이 뒤집히지 않을 것이라는 가정하에 선택하는.
-</code></pre>
-
-<p>다익스트라 알고리즘의 가정은 edge 의 weight 가 non-negative 해야 한다는 것. greedy 한 nature 때문에 어쩔 수 없다.</p>
-
-<h3>Minimum Spanning Tree</h3>
-
-<p>Prim&rsquo;s Algoritm: &ldquo;The plan is to grow a tree one edge at a time&rdquo;</p>
-
-<p>주어진 input graph 가 connected graph 라는 가정하에.</p>
-
-<p>Tree 를 한 개의 edge 씩 더해가며 키워가는 것이다.</p>
-
-<pre><code>1. Vertex 중에서 하나를 임의로 고른다.
-2. 새로운 Vertex 를 acquire 해야 한다.
-3. 그러기위해서, 어떤 edge 를 acquire 해야 할까?
-4. greedy 하게 결정한다. 가장 weight 가 적은 edge 를 선택하여 새로운 vertex 를 acquire 한다.
-5. 모든 vertex 를 acquire 하면 종료.
-</code></pre>
-
-<h3>Topological Sort</h3>
-
-<p>Kahn algorithm.</p>
-
-<pre><code>L &lt;- Empty list that will contain the sorted elements
-S &lt;- Set of all nodes with no incoming edges
-while S is non-empty do
-    remove a node n from S
-    insert n into L
-    for each node m with an edge e from n to m do
-        remove edge e from the graph
-        if m has no other incoming edges then
-            insert m into S
-if graph has edges then
-    return error (graph has at least one cycle)
-else
-    return L (a topological sorted order)
-</code></pre>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/18">&larr; Older</a>
@@ -1158,6 +1087,10 @@ else
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/02/11/unlocking-the-motorola-bootloader/">Unlocking the Motorola Bootloader</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/02/07/the-dependency-of-android-sdk/">The Dependency of Android SDK</a>
       </li>
     
@@ -1171,10 +1104,6 @@ else
     
       <li class="post">
         <a href="/blog/2016/01/13/android-hackers-handbook/">Android Hacker's Handbook</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/01/11/cve-2013-2094-perf-swevent-enabled-revisited/">CVE-2013-2094: Perf_swevent_enabled Revisited</a>
       </li>
     
   </ul>

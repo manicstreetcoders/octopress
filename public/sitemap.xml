@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>http://zomo.heroku.com/blog/2016/02/11/unlocking-the-motorola-bootloader/</loc>
+    <lastmod>2016-02-11T15:34:54+09:00</lastmod>
+  </url>
+  <url>
     <loc>http://zomo.heroku.com/blog/2016/02/07/the-dependency-of-android-sdk/</loc>
     <lastmod>2016-02-07T14:44:35+09:00</lastmod>
   </url>
@@ -873,5 +877,68 @@
   </url>
   <url>
     <loc>http://zomo.heroku.com/</loc>
+  </url>
+  <url>
+    <loc>http://zomo.heroku.com/posts/2/</loc>
+  </url>
+  <url>
+    <loc>http://zomo.heroku.com/posts/3/</loc>
+  </url>
+  <url>
+    <loc>http://zomo.heroku.com/posts/4/</loc>
+  </url>
+  <url>
+    <loc>http://zomo.heroku.com/posts/5/</loc>
+  </url>
+  <url>
+    <loc>http://zomo.heroku.com/posts/6/</loc>
+  </url>
+  <url>
+    <loc>http://zomo.heroku.com/posts/7/</loc>
+  </url>
+  <url>
+    <loc>http://zomo.heroku.com/posts/8/</loc>
+  </url>
+  <url>
+    <loc>http://zomo.heroku.com/posts/9/</loc>
+  </url>
+  <url>
+    <loc>http://zomo.heroku.com/posts/10/</loc>
+  </url>
+  <url>
+    <loc>http://zomo.heroku.com/posts/11/</loc>
+  </url>
+  <url>
+    <loc>http://zomo.heroku.com/posts/12/</loc>
+  </url>
+  <url>
+    <loc>http://zomo.heroku.com/posts/13/</loc>
+  </url>
+  <url>
+    <loc>http://zomo.heroku.com/posts/14/</loc>
+  </url>
+  <url>
+    <loc>http://zomo.heroku.com/posts/15/</loc>
+  </url>
+  <url>
+    <loc>http://zomo.heroku.com/posts/16/</loc>
+  </url>
+  <url>
+    <loc>http://zomo.heroku.com/posts/17/</loc>
+  </url>
+  <url>
+    <loc>http://zomo.heroku.com/posts/18/</loc>
+  </url>
+  <url>
+    <loc>http://zomo.heroku.com/posts/19/</loc>
+  </url>
+  <url>
+    <loc>http://zomo.heroku.com/posts/20/</loc>
+  </url>
+  <url>
+    <loc>http://zomo.heroku.com/posts/21/</loc>
+  </url>
+  <url>
+    <loc>http://zomo.heroku.com/posts/22/</loc>
   </url>
 </urlset>

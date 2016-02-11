@@ -9,8 +9,8 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="정리하는 목적은 Malicious JavaScript 을 자동으로 판정하기 위함. 그러기 위해서, 악성 자바스크립트에서 쓰는 syntax pattern 을 정리하고, 자동으로 패턴을 찾아내는 것을
-만들려고 함. 지금 생각하는 수순은 단순한 regexp 스트링 매칭 &hellip;">
+  <meta name="description" content="Ted Logan&rsquo;s Secrets of tabs in vim 에서 읽은 내용을 정리. Vim 에서. vim 에서 눈에 보이는 indentation 은 &lsquo;\t&rsquo; 와 space 의 조합으로 이루어져 있음. tabstop 은,
+&lsquo &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -66,6 +66,136 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/06/12/tabs/">Tabs</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-06-12T11:48:00+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>12</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>11:48 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Ted Logan&rsquo;s <a href="http://tedlogan.com/techblog3.html">Secrets of tabs in vim</a> 에서 읽은 내용을 정리.</p>
+
+<p>Vim 에서.</p>
+
+<p>vim 에서 눈에 보이는 indentation 은 &lsquo;\t&rsquo; 와 space 의 조합으로 이루어져 있음.</p>
+
+<p>tabstop 은,
+&lsquo;\t&rsquo; 을 렌더링할 때 기준이 될 hard 한 column grid 의 간격을 결정함.</p>
+
+<p>일반적으로 tabstop 과 softtabstop 을 같게 설정하나,</p>
+
+<p>tabstop 과 softtabstop 의 개념을 설명하기 위해서</p>
+
+<p>굳이 다르게 설정해보겠음.</p>
+
+<p>noexpandtab 기준으로 설명하면,</p>
+
+<p>:set tabstop=4 softtabstop=4 noexpandtab 입력 후
+1[TAB]2[TAB]3[TAB]4 입력.</p>
+
+<p>화면에 이렇게 나타남.</p>
+
+<pre>
+1234567890123456789012345678901234567890
+1   2   3   4
+</pre>
+
+
+<p>[RETURN] 치고, :set tabstop=4 softtabstop=3 noexpandtab 입력 후
+동일하게 1[TAB]2[TAB]3[TAB]4 입력.</p>
+
+<pre>
+1234567890123456789012345678901234567890
+1   2   3   4
+1  2  3  4  5
+</pre>
+
+
+<p>이제 :set list 로 특수문자 표시.</p>
+
+<pre>
+1234567890123456789012345678901234567890$
+1^I2^I3^I4$
+1  2  3^I 4^I5$
+</pre>
+
+
+<p>그럼, 설명 시작.</p>
+
+<p>tabstop=4
+softtabstop=3
+일 경우.</p>
+
+<p>[TAB] 키를 누르면,
+soft 한 tab grid 는 3 column 간격으로 이루어져 있지만,
+hard 한 tab grid 는 4 column 간격으로 이루어져 있기 때문에,
+둘째줄 처음 2,3 는 space 만 가지고 전진했고, 4 는 &lsquo;\t&rsquo; + space 로 전진.</p>
+
+<p>즉 noexpandtab 일 경우, softtabstop 그리드와 (hard)tabstop 그리드가
+틀리니까, vim 이 &lsquo;\t&rsquo; 와 space 조합으로 인덴테이션을 만들어냄.</p>
+
+<p>정리하면 tabstop 는 &lsquo;\t&rsquo; 를 포지셔닝할 그리드를 만들때 사용.
+softtabstop 는 눈에 보이는 그리드.</p>
+
+<p>tabstop != softtabstop 일 경우, &lsquo;\t&rsquo; 만으로 softtabstop 그리드에 인덴트할 수
+없기때문에, space 로 메꿔줌.</p>
+
+<p>그런데, 인덴테이션이 &lsquo;\t&rsquo; + space 로 만들어지면,
+space 파트는 안변하지만 &lsquo;\t&rsquo; 파트는 tabstop 에 따라서 달라짐.</p>
+
+<p>문제는 어떤 인덴트는 space 만으로, 어떤 인덴트는 &lsquo;\t&rsquo; + two spaces 로,
+이런 식으로 중구난방이기 때문에, tabstop 이 달라지면 인덴트가 다 깨짐.</p>
+
+<p>그럼으로 인덴테이션은 &lsquo;\t&rsquo; 이나 space 어느 한가지만으로 만들어지는게 좋음.</p>
+
+<p>softtabstop == tabstop 은 같게 하면 좋음.</p>
+
+<p>당연한 이야기를 어렵게 설명했음.</p>
+
+<p>shiftwidth 는 [TAB] 이 아니라 vim 의 &lt; &lt; / > > 로 reindent 할 때 사용됨.</p>
+
+<p>:set tabstop=8 softtabstop=8 shiftwidth=8 noexpandtab</p>
+
+<p>으로 일치를 시켜주던가.</p>
+
+<p>아니면,</p>
+
+<p>:set softtabstop=4 shiftwidth=4 expandtab</p>
+
+<p>으로 &lsquo;\t&rsquo; 를 space 로 대체하면, tabstop 에 영향받지도 않고 굳이 설정할 필요도 없음.</p>
+
+<p>Ruby 사용자라면,</p>
+
+<p>:set ts=2 sts=2 sw=2 expandtab</p>
+
+<p>이 적절.</p>
+
+<p>Tab 을 눈에 보이게 하는 법.</p>
+
+<pre><code>syntax match Tab /\t/
+hi Tab gui=underline guifg=blue ctermbg=blue
+</code></pre>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1692,100 +1822,6 @@ constructor 가 수행되면서 <code>obj.a</code> 가 <code>"babo"</code> 로 �
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2012/09/18/paul-irish-10-things-i-learned-from-the-jquery-source/">Paul Irish: 10 Things I Learned From the jQuery Source</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2012-09-18T11:01:00+09:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>18</span><span class='date-suffix'>th</span>, <span class='date-year'>2012</span></span> <span class='time'>11:01 am</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Paul Irish 의 <a href="http://vimeo.com/12529436#at=0">10 Things I Learned from the jQuery Source</a> 에서.</p>
-
-<h3>Self-invoking anonymous function</h3>
-
-
-<pre><code> (function( window, undefined ) {
- })(window);
-
- (function () {
- })()
-
- !function () {
- }()
-
- +function () {
- }()
-</code></pre>
-
-<p>Everyone&rsquo;s favorite pattern:</p>
-
-<pre><code> (function(window,document,undefined){
-   // scope traversal benefit. document 를 refer 하면, 
-   // local scope 만 찾아보면 되니까 약간의 성능 향상이 있을 수도.
-   document.getElementById('') 
- })(this,this.document);
-</code></pre>
-
-<p>아규먼트의 끝에 undefined 를 붙이는 이유는, undefined 변수를 reset 하기 위함.
-&ldquo;undefined = true&rdquo; 와 같은 코드를 누군가 짰다면 문제가 생길수도 있음.</p>
-
-<p>미니파이를 해서</p>
-
-<pre><code> (function(A,B,C){
-   // document.getElementById('whatever_id')
-   B.getElementById('whatever_id')
- })(this,document)
-</code></pre>
-
-<h3>Asynchronous Recursion</h3>
-
-
-<pre><code> setInterval(function(){
- },100);
-
- (function(){
-   doStuff();
-   setTimeout(arguments.callee,100)
- })()
-
- (function loopsiloopsiloo(){
-   doStuff();
-   setTimeout(loopsiloopsiloo,100)
- })()
-
- (function loopsiloopsiloo(){
-   doStuff();
-   $('#update').load('awesomething.php'',function(){
-     loopsiloopsiloo();
-   })
- })();
-</code></pre>
-
-<p>위의 예제에서처럼, setInterval 을 사용하면,
-function(){} 수행에 100 milliseconds 이상이 걸릴 경우에,
-문제가 될 수 있다.
-이 경우에는 setTimeout(arguments.callee,100) 을 사용해야 한다.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/21">&larr; Older</a>
@@ -1803,6 +1839,10 @@ function(){} 수행에 100 milliseconds 이상이 걸릴 경우에,
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/02/11/unlocking-the-motorola-bootloader/">Unlocking the Motorola Bootloader</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/02/07/the-dependency-of-android-sdk/">The Dependency of Android SDK</a>
       </li>
     
@@ -1816,10 +1856,6 @@ function(){} 수행에 100 milliseconds 이상이 걸릴 경우에,
     
       <li class="post">
         <a href="/blog/2016/01/13/android-hackers-handbook/">Android Hacker's Handbook</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/01/11/cve-2013-2094-perf-swevent-enabled-revisited/">CVE-2013-2094: Perf_swevent_enabled Revisited</a>
       </li>
     
   </ul>

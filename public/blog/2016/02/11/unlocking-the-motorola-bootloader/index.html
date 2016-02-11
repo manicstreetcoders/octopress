@@ -1,0 +1,275 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Unlocking the Motorola Bootloader - KC's blog</title>
+  <meta name="author" content="KC">
+
+  
+  <meta name="description" content="Bits, Please! 블로그에 올라온 Unlocking the Motorola Bootloader 를 읽어보았다. 모토로라 휴대폰의 부트체인은, PBL (Primary Boot Loader) -> SBL1 (Secondary Boot Loader) -> SBL2 &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://zomo.heroku.com/blog/2016/02/11/unlocking-the-motorola-bootloader/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="KC's blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">KC's blog</a></h1>
+  
+    <h2>A blogging framework for hackers.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="zomo.heroku.com">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Unlocking the Motorola Bootloader</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2016-02-11T15:34:54+09:00'><span class='date'><span class='date-month'>Feb</span> <span class='date-day'>11</span><span class='date-suffix'>th</span>, <span class='date-year'>2016</span></span> <span class='time'>3:34 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>Bits, Please! 블로그에 올라온 <a href="http://bits-please.blogspot.in/2016/02/unlocking-motorola-bootloader.html">Unlocking the Motorola Bootloader</a> 를 읽어보았다.</p>
+
+<p>모토로라 휴대폰의 부트체인은, PBL (Primary Boot Loader) -> SBL1 (Secondary Boot Loader) -> SBL2 -> SBL3 -> aboot -> Linux Kernel 의 순서로 올라온다고.</p>
+
+<p>저자는 제조사가 제공하는 img 화일을 분석해서, aboot 이미지를 뜯어내었다.</p>
+
+<p>unlock 스트링을 검색해서, 언락을 수행하는 코드를 찾았다고 한다.</p>
+
+<p>unlock 을 수행하기 위해서 sub_FF4BA80() -> sub_FF4BA60() -> sub_FF4BA40() 을 차례로 호출하는데, 그 중에 하나가 성공하면 바로 리부팅으로 들어간다.</p>
+
+<p>sub_FF4BA80() 을 봤더니,</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>int sub_FF4BA80()
+</span><span class='line'>{
+</span><span class='line'>  if (!sub_FF027F8(0x6D))
+</span><span class='line'>      sub_FF02BEC(0x6D, 1);
+</span><span class='line'>  return 0;
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>sub_FF027f8()</code>, <code>sub_FF02BEC()</code> 를 봤더니, 결국은 어떤 함수를 호출하는데, 그 함수에는 <code>SMC #0</code> 명령이 담겨있었다. 저자는 unlocking 코드가 결국은 TrustZone 에 위치하고 있다고 의심한다. LR 에 담긴 TZ 어드레스는 0x3F801.</p>
+
+<p>TZ 커널 시스템 콜을 분석한 결과, 다음과 같은 엔트리를 발견했다고.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>DCD 0x3F801
+</span><span class='line'>DCD aMotorola_tzbsp   ; "motorola_tzbsp_ns_service"
+</span><span class='line'>DCD 0xD
+</span><span class='line'>DCD motorola_tzbsp_ns_service+1
+</span><span class='line'>DCD 4
+</span><span class='line'>DCD 4
+</span><span class='line'>DCD 4
+</span><span class='line'>DCD 4
+</span><span class='line'>DCD 4</span></code></pre></td></tr></table></div></figure>
+
+
+<p>이 콜은 QFuses 에서 읽고 쓰는 함수.</p>
+
+<p>정리하면,</p>
+
+<ul>
+<li>aboot 가 SMC 0x3F801 를 호출 (command-code #1) -> TZ kernel 이 QFuse @ 0xFC4B86E8 을 읽어 반환</li>
+<li>첫번째 비트가 0 이라면, SMC 0x3F801 을 다시 호출 (command-code #2) -> TZ kernel 이 QFuse 의 LSB 를 1 로 세팅</li>
+</ul>
+
+
+<p>이걸로 unlock 이 끝난다고.</p>
+
+<p>그렇다면, QFuses 를 write 하려면?</p>
+
+<p>다행히도, TZ kernel 이 두개의 함수를 제공한다고. <code>tzbsp_qfprom_read_row()</code> &amp; <code>tzbsp_qfprom_write_row()</code></p>
+
+<p>그런데, QFuses 에 쓰는 함수가 몇가지 체크를 하는데, 이 체크를 bypass 해야한다.</p>
+
+<ul>
+<li>메모리 DWORD 0xFE823D5C 가 0 이 아니어야하고.</li>
+<li>is_allowed_fuse_row() 에서 허가된 QFuse 어드레스인지 체크함.</li>
+</ul>
+
+
+<p>TZ code execution exploit 에서 저 두가지를 미리 셋업해줘야한다고 함. 미리 셋업하고, <code>tzbsp_qfprom_write_row()</code> 를 불러서 unlock 수행.</p>
+
+<p>관련된 코드를 저자가 <a href="https://github.com/laginimaineb/Alohamora">github</a> 에 공개하였다.</p>
+
+<p><code>build_shellcode.sh</code> 를 보았다. <code>shellcode.S</code> 를 arm-eabi-gcc 를 이용해서 어셈블, 링킹하고 arm-eabi-objcopy 를 통해서 elf -> raw binary 로 변환한다.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">KC</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2016-02-11T15:34:54+09:00'><span class='date'><span class='date-month'>Feb</span> <span class='date-day'>11</span><span class='date-suffix'>th</span>, <span class='date-year'>2016</span></span> <span class='time'>3:34 pm</span></time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://zomo.heroku.com/blog/2016/02/11/unlocking-the-motorola-bootloader/" data-via="" data-counturl="http://zomo.heroku.com/blog/2016/02/11/unlocking-the-motorola-bootloader/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2016/02/07/the-dependency-of-android-sdk/" title="Previous Post: The dependency of Android SDK">&laquo; The dependency of Android SDK</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2016/02/11/unlocking-the-motorola-bootloader/">Unlocking the Motorola Bootloader</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/02/07/the-dependency-of-android-sdk/">The Dependency of Android SDK</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/02/03/qseecom/">Qseecom</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/01/15/tf-idf/">TF-IDF</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/01/13/android-hackers-handbook/">Android Hacker's Handbook</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2016 - KC -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

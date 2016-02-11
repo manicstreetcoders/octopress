@@ -9,8 +9,7 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="Imperfect Forward Secrecy: How Diffie-Hellman Fails in Practice
-Attack of the week: Logjam Matthew Green Blog 요약 알려진 가장 좋은 방법은 ga 를 캡쳐해서, log(ga) = &hellip;">
+  <meta name="description" content="FREAK INRIA, Microsoft Research, IMDEA 의 암호학자들이 OpenSSL 을 사용한 프로그램에서 취약점을 발견했다. MitM 포지션을 잡고 있는 해커가, 커넥션의 암호화 강도를 떨어뜨릴 수 있는 취약점이다. &lsquo;export- &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -66,6 +65,60 @@ Attack of the week: Logjam Matthew Green Blog 요약 알려진 가장 좋은 방
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/06/05/freak/">FREAK</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-06-05T23:05:26+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>5</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>11:05 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h3>FREAK</h3>
+
+<p>INRIA, Microsoft Research, IMDEA 의 암호학자들이 OpenSSL 을 사용한 프로그램에서 취약점을 발견했다. MitM 포지션을 잡고 있는 해커가, 커넥션의 암호화 강도를 떨어뜨릴 수 있는 취약점이다. &lsquo;export-grade&rsquo; 로 떨어뜨리는데, export RSA moduli 는 512 bits 이하이고, Amazon EC2 에서 12 시간 &amp; 100 불 정도에 팩터링할 수 있다고 한다. 이 정도 시간이면 실시간으로 https 세션을 감청한다던가, packet 을 inject 한다던가가 불가능한데, 문제는 apache mod_ssl 의 경우, RSA key 를 만드는 계산을 돌리는 것이 비싸기때문에, 리스타트될때까지 같은 RSA key 를 사용한다는 것. 이 경우 12 시간이 긴 시간이 아니게 되버린다.</p>
+
+<ul>
+<li><a href="https://www.smacktls.com">SMACK: State Machine Attacks</a></li>
+<li><a href="http://blog.cryptographyengineering.com/2015/03/attack-of-week-freak-or-factoring-nsa.html">Matthew Green 의 블로그</a></li>
+<li><a href="http://www.smacktls.com/smack.pdf">A Messy State of the Union: Taming the Composite State Machines of TLS</a></li>
+</ul>
+
+
+<h3>동작하는 방식</h3>
+
+<p>Matthew Green 의 블로그를 요약해본다.</p>
+
+<ol>
+<li>Client Hello 에서 client 는 표준 &lsquo;RSA&rsquo; ciphersuite 를 요청한다.</li>
+<li>MitM 해커는 메시지를 &lsquo;export RSA&rsquo; 요청으로 바꿔친다.</li>
+<li>서버는 512-bit export RSA key 로 응답한다. private key 로 서명해서.</li>
+<li>Client 는 취약한 키를 받아들인다. OpenSSL/SecureTransport 버그로 인해.</li>
+</ol>
+
+
+<h3>예상되는 피해</h3>
+
+<h3>Factoring &lsquo;export-grade&rsquo; RSA</h3>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1241,49 +1294,6 @@ UID 는 코프로세서 밖으로 추출이 불가능하기때문에, 해당 아
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/05/24/implementing-a-pbkdf2-based-password-storage-scheme-for-firefox-os/">Implementing a PBKDF2-Based Password Storage Scheme for FireFox OS</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2015-05-24T13:39:40+09:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>24</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>1:39 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p><a href="https://timtaubert.de/blog/2015/05/implementing-a-pbkdf2-based-password-storage-scheme-for-firefox-os/">Implementing A PBKDF2-Based Password Storage Scheme for FireFox OS</a></p>
-
-<h4>The Passcode Module</h4>
-
-<h4>Make The Passcode Look &ldquo;Random&rdquo;</h4>
-
-<h4>Choosing PBKDF2 Parameters</h4>
-
-<h4>Do Not Hard-code Parameters</h4>
-
-<h4>Storing a New Passcode</h4>
-
-<h4>Verifying a Given Passcode</h4>
-
-<h4>What About bcrypt or scrypt?</h4>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/7">&larr; Older</a>
@@ -1301,6 +1311,10 @@ UID 는 코프로세서 밖으로 추출이 불가능하기때문에, 해당 아
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/02/11/unlocking-the-motorola-bootloader/">Unlocking the Motorola Bootloader</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/02/07/the-dependency-of-android-sdk/">The Dependency of Android SDK</a>
       </li>
     
@@ -1314,10 +1328,6 @@ UID 는 코프로세서 밖으로 추출이 불가능하기때문에, 해당 아
     
       <li class="post">
         <a href="/blog/2016/01/13/android-hackers-handbook/">Android Hacker's Handbook</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/01/11/cve-2013-2094-perf-swevent-enabled-revisited/">CVE-2013-2094: Perf_swevent_enabled Revisited</a>
       </li>
     
   </ul>
