@@ -9,7 +9,8 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="Paul Irish 의 10 Things I Learned from the jQuery Source 에서. Self-invoking anonymous function (function( window, undefined ) { })(window); (function &hellip;">
+  <meta name="description" content="스택오버플로우에서 좋은 질문을 찾았다. What is the &lsquo;new&rsquo; keyword in JavaScript?
+Relation between [[Prototype]] and prototype in JavaScript 간단히 번역 &amp; &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -65,6 +66,140 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/10/14/what-is-the-new-keyword-in-javascript/">What Is the 'New' Keyword in JavaScript?</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2012-10-14T20:45:00+09:00'><span class='date'><span class='date-month'>Oct</span> <span class='date-day'>14</span><span class='date-suffix'>th</span>, <span class='date-year'>2012</span></span> <span class='time'>8:45 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>스택오버플로우에서 좋은 질문을 찾았다.</p>
+
+<ul>
+<li><a href="http://stackoverflow.com/questions/1646698/what-is-the-new-keyword-in-javascript">What is the &lsquo;new&rsquo; keyword in JavaScript?</a></li>
+<li><a href="http://stackoverflow.com/questions/383201/relation-between-prototype-and-prototype-in-javascript">Relation between [[Prototype]] and prototype in JavaScript
+</a></li>
+</ul>
+
+
+<p>간단히 번역 &amp; 정리해본다.</p>
+
+<h3>JavaScript 의 상속</h3>
+
+<p>&ldquo;constructor 함수 가지고 만들어진 Object 는, constructor 함수의 <em>prototype</em> 프라퍼티가 가리키는 Object 로부터 상속받는다.&rdquo;</p>
+
+<h3>JavaScript 의 new 가 하는 일</h3>
+
+<p>JavaScript 의 new 가 하는 일은 3 가지이다.</p>
+
+<ol>
+<li>새로운 object 를 생성한다. 생성된 object 의 type 은 심플하게 그냥 <em>object</em> 이다.</li>
+<li>생성된 object 의 접근불가한 <em>[[Prototype]]</em> 프라퍼티를 constructor 함수의 접근가능한 외부용 <em>prototype</em> 이 가리키는 오브젝트로 세팅한다.</li>
+<li>constructor 함수를 실행한다. (함수에서 <code>this</code> 가 나오면 새로 생성된 오브젝트를 사용)</li>
+</ol>
+
+
+<p>예제를 가지고 알아보자.</p>
+
+<pre><code> js&gt; function C() { this.a = "babo" }
+ js&gt; C.prototype = { b: "babo2" }
+ ({b:"babo2"})
+ js&gt; obj = new C()
+ ({a:"babo"})
+ js&gt; obj.a
+ "babo"
+ js&gt; obj.b
+ "babo2"
+ js&gt; obj.c
+ js&gt; C.prototype.c = "babo3"
+ "babo3"
+ js&gt; obj.c
+ "babo3"
+ js&gt;
+</code></pre>
+
+<p>간단한 constructor 함수를 정의한다.
+그리고 이 constructor 함수의 <em>prototype</em> 을 간단히 <code>{ b: "babo2" }</code> object 로 세팅한다.</p>
+
+<p><code>new C()</code> 하는 순간</p>
+
+<ol>
+<li>새로운 object 가 생성되고. <em>obj</em> 라고 칭하면.</li>
+<li><code>obj.[[Prototype]] = C.prototype</code> 이 실행되고.</li>
+<li><code>{ obj.a = 'babo' }</code> 가 실행된다.</li>
+</ol>
+
+
+<p>풀어서 따라가보면</p>
+
+<ol>
+<li><code>obj.[[Prototype]]</code> 은 <code>{ b: "babo2" }</code> object 를 가리키고,
+constructor 가 수행되면서 <code>obj.a</code> 가 <code>"babo"</code> 로 세팅되었다.</li>
+<li>그래서 <code>obj.a</code> 와 <code>obj.b</code> 가 각각 <code>"babo"</code>, <code>"babo2"</code> 로 evaluated 된다.</li>
+<li>그 다음에 <code>C.prototype.c = "babo3"</code> 로 <code>{ b: "babo2" }</code> 에 <code>c</code>를 추가한다.</li>
+<li>그러면 <code>obj.[[Prototype]]</code> 은 이제 <code>{ b: "babo2", c: "babo3" }</code> object 를 가리키게 된다.</li>
+<li>그래서 <code>obj.c</code> 가 &ldquo;babo3&rdquo; 로 evaluated 된다.</li>
+</ol>
+
+
+<p>정리하면</p>
+
+<ul>
+<li>function 만이 <em>prototype</em> 프라퍼티를 갖는다.</li>
+<li>모든 object 는 숨겨진 <em>[[Prototype]]</em> 프라퍼티를 갖는다.</li>
+<li>Browser implementation 에 따라 <em>[[Prototype]]</em> 이 <em><strong>proto</strong></em> 인 경우도 있다.</li>
+<li>function 도 <em>[[Prototype]]</em> 프라퍼티를 갖는다. (&ldquo;Functions are first-class objects in JavaScript.&rdquo;)</li>
+<li>따라서 function 만 <em>[[Prototype]]</em> 과 <em>prototype</em> 을 모두 가진다.</li>
+<li>그외의 object 는 <em>[[Prototype]]</em> 만 가진다.</li>
+<li>object 의 <em>[[Prototype]]</em> 은 new 키워드를 통해서만 세팅 가능하다. (브라우저 임플리멘테이션에 따라서 다를 수 있지만)</li>
+</ul>
+
+
+<h3>Crockford 책에 나오는 beget()</h3>
+
+<p>이제, Douglas Crockford 책에 나오는 beget() 를 보도록 하자.</p>
+
+<pre><code> if (typeof Object.beget !== 'function') {
+   Object.beget = function (o) {
+     var F = function () {};
+     F.prototype = o;
+     return new F();
+   };
+ }
+ var another_stooge = Object.beget(stooge);
+</code></pre>
+
+<p>상속을 위한 Constructor 함수를 대신 만들어서 오브젝트를 생성해준다.</p>
+
+<h3>Eloquent JavaScript 에 나오는 예제</h3>
+
+<h3>Further reading:</h3>
+
+<ul>
+<li><a href="http://prototypejs.org/learn/class-inheritance">Prototype.js 의 class 와 상속에 관한 아티클</a></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1451,112 +1586,6 @@ They learn from the results of each test, refine the hypothesis, and test again�
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2012/05/13/confessions-of-a-tech-entrepreneur/">Confessions of a Tech Entrepreneur</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2012-05-13T20:04:00+09:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>13</span><span class='date-suffix'>th</span>, <span class='date-year'>2012</span></span> <span class='time'>8:04 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>@shalabi 는
-<a href="http://www.samishalabi.com/2011/11/confessions-of-a-tech-entrepreneur">Confessions of a Tech Entrepreneur</a>
-에서 열가지 조언을 해준다.</p>
-
-<p>훌륭한 프로덕트는 만든 사람의 니즈를 잘 충족시켜준다.
-자신의 문제를 풀려고 할 때, 열정적이 된다.
-자신의 프로덕트를 매일 쓰고, 계속 발전시켜나가는 것.
-당신이 겪고 있는 문제는 잠재적인 비즈니스 기회라고 이야기한다.</p>
-
-<blockquote><p><strong>Be your #1 customer</strong></p>
-
-<p>I have always found that the greatest products service the needs of those that create them. Solving a real personal pain point makes you passionate about the space, and solution. Being your #1 customer makes you use your own product everyday and forces you to keep improving it before the rest of the world asks you to. Your problems are potentially business opportunities.</p></blockquote>
-
-<p><br />
-비즈니스 계획을 세우는데 시간을 쏟지 말고, 프로토타입을 만드는데 시간을 써라.</p>
-
-<blockquote><p><strong>Beauty through real things, not business plans</strong></p>
-
-<p>I always tell entrepreneurs when starting out not to focus too much on the
-business plan. That is poor use of time. Spend your time building a
-prototype and make it look beautiful. Many early stage detailed business
-plans I have seen are not worth the paper they are written on.
-A beautiful user experience that solves a real problem get most
-users and investors excited. It also proves that the team behind the idea can
-actually deliver, which is usually the biggest wild card with early stage
-entrepreneurs. So ask yourself, would you invest in a business plan or a real
-working service that looks great?</p></blockquote>
-
-<p><br />
-초기에는 규모를 키우지 마라. 프로덕트/마켓 궁합이 맞는지를
-잘 모를때 사람을 뽑으며 규모를 키우는 것은 잘못된 일.
-돈을 아껴쓰면, 제대로된 비즈니스를 만들었는지 확인할때까지 버틸 수 있다.
-비즈니스 자체에 추진력이 생기고 나서, 규모를 키워도 된다.</p>
-
-<blockquote><p><strong>Build a lean mean machine</strong></p>
-
-<p>One common mistake I have seen in many startups is scaling and hiring a lot of people quickly. I think that it is a bad idea when you do not know that you have a product market fit. The less money you spend at the beginning, the longer your runway to figure out if you have a business. Start to scale only once you see traction, otherwise it is a poor use of money. Find the cheapest path, time and money, to test the solution.</p></blockquote>
-
-<p><br />
-시작할때부터 equity vesting 에 대해서 정해놓고 가야한다.
-equity 40% 소유에 4년 vesting schedule 이면 1년에 10% 씩 vest 하게.
-그 전에 떠나면 지금까지 vest 된 것만 가지고 떠난다.</p>
-
-<blockquote><p><strong>Put everyone, including yourself on a vesting schedule</strong></p>
-
-<p>One of the most challenging problems with most startups is figuring out
-who owns what. I have a simple rule, all employees and founders must be
-on a vesting schedule from the start. Vesting is when people get their
-equity in increments over an allocated period of time. For example, if
-you own 40% and are on a 4 year vesting schedule, you get 10% every year
-for 4 years. If you leave early, then you get what is vested. There are
-many schools of thought, but I generally like to pick a vesting schedule
-of 4 to 5 years.</p></blockquote>
-
-<h2><br /></h2>
-
-<p><br />
-<strong>Bottom-up 으로 솔루션 개발</strong></p>
-
-<p>스타트업에서 시장 조사같은 Top-down 방식으로 할 일을 정하는 것은 권하고 싶지 않다.</p>
-
-<p>그 이유는,</p>
-
-<ul>
-<li>그 문제를 우리 팀이 해결할 수 있으리라는 보장이 없다.</li>
-<li>만드는 프로덕트의 유저가 내가 아닐 가능성이 많다. 그럴 경우
-좋은 제품을 만드는 것은 불가능하다.</li>
-<li>Top-down 으로 선택한 주제에 열정이 생길것이가?</li>
-</ul>
-
-
-<p>내가 겪는 문제를 해결하다는 심정으로 bottom-up 어프로치를 취하는 것이 좋다.</p>
-
-<p><strong>프로덕트/마켓 궁합이 확인될때까지 헝그리</strong></p>
-
-<p><strong>창업 멤버들이 나갈 때 equity 처리</strong></p>
-
-<p>한번 해보지 않으면 감잡기가 쉽지 않은 것.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/22">&larr; Older</a>
@@ -1574,6 +1603,10 @@ of 4 to 5 years.</p></blockquote>
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/02/11/racing-midi-messages-in-chrome/">Racing MIDI Messages in Chrome</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/02/11/unlocking-the-motorola-bootloader/">Unlocking the Motorola Bootloader</a>
       </li>
     
@@ -1587,10 +1620,6 @@ of 4 to 5 years.</p></blockquote>
     
       <li class="post">
         <a href="/blog/2016/01/15/tf-idf/">TF-IDF</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/01/13/android-hackers-handbook/">Android Hacker's Handbook</a>
       </li>
     
   </ul>

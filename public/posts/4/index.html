@@ -9,16 +9,7 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="FreeBSD 8.0 &lsquo;Assigning values to uninitialized pointer&rsquo; 1
-2
-3
-4
-5
-6
-7
-struct ucred ucred, *ucp;
-...
-refcount_init(&ucred.cr_ref, 1); &hellip;">
+  <meta name="description" content="HTTP Strict Transport Security HSTS 를 안쓰면, HTTP -> 301 Moved Permanently -> HTTPS 로 바꿔야한다. HSTS 를 쓰면, HTTP -> 307 Internal Redirect -> HTTPS 로 간다. &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -74,6 +65,51 @@ refcount_init(&ucred.cr_ref, 1); &hellip;">
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/07/17/http-strict-transport-security/">HTTP Strict Transport Security</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-07-17T15:04:07+09:00'><span class='date'><span class='date-month'>Jul</span> <span class='date-day'>17</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>3:04 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h4>HTTP Strict Transport Security</h4>
+
+<p>HSTS 를 안쓰면, HTTP -> 301 Moved Permanently -> HTTPS 로 바꿔야한다.</p>
+
+<p>HSTS 를 쓰면, HTTP -> 307 Internal Redirect -> HTTPS 로 간다.</p>
+
+<p>HSTS 의 경우 Chrome 이 request 조차 보내지 않는다.</p>
+
+<p><code>Strict-Transport-Security: max-age=31536000; includeSubdomains; preload</code> 와 같은 헤더때문인데.</p>
+
+<p>웹사이트가 HSTS 인지 아닌지 처음엔 모르기때문에, 첫 커넥션까지 HTTPS 로 가게 하려면,</p>
+
+<p><a href="https://hstspreload.appspot.com">https://hstspreload.appspot.com</a> 에 등록해야한다.</p>
+
+<h4>HTTP Public Key Pinning</h4>
+
+<p>HTTP Public Key Pinning 의 경우도 중요한 기술.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1327,35 +1363,6 @@ _ba[3] 은 여전히 0 이여야하고, 0x40 은 vector 에 씌여진다.</p>
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/06/18/the-birth-of-a-complete-ie11-exploit-under-the-new-exploit-mitigations/">The Birth of a Complete IE11 Exploit Under the New Exploit Mitigations</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2015-06-18T21:44:20+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>18</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>9:44 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Yuki Chen 이 발표한 The Birth of a Complete IE11 Exploit Under the New Exploit Mitigations 를 읽고 요약해본다.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/5">&larr; Older</a>
@@ -1373,6 +1380,10 @@ _ba[3] 은 여전히 0 이여야하고, 0x40 은 vector 에 씌여진다.</p>
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/02/11/racing-midi-messages-in-chrome/">Racing MIDI Messages in Chrome</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/02/11/unlocking-the-motorola-bootloader/">Unlocking the Motorola Bootloader</a>
       </li>
     
@@ -1386,10 +1397,6 @@ _ba[3] 은 여전히 0 이여야하고, 0x40 은 vector 에 씌여진다.</p>
     
       <li class="post">
         <a href="/blog/2016/01/15/tf-idf/">TF-IDF</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/01/13/android-hackers-handbook/">Android Hacker's Handbook</a>
       </li>
     
   </ul>

@@ -9,7 +9,7 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="Tim Kornau 의 논문, Return Oriented Programming for the ARM Architecture 를 읽고 정리해본다. Contents ">
+  <meta name="description" content="Sean Beaupre 씨가 쓴 글, TRUSTNONE 을 읽고 정리해본다. 스냅드래곤 805 트러스트존 커널의 메모리/레지스터를 읽고 쓸 수 있다. 백그라운드 tzbsp_smmu_fault_regs_dump 라는 시스템콜에 버그가 있어서. 4 개의 인자를 기대하는데 &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -65,6 +65,99 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/12/07/trustnone/">TRUSTNONE</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-12-07T17:14:52+09:00'><span class='date'><span class='date-month'>Dec</span> <span class='date-day'>7</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>5:14 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Sean Beaupre 씨가 쓴 글, <a href="http://theroot.ninja/disclosures/TRUSTNONE_1.0-11282015.pdf">TRUSTNONE</a> 을 읽고 정리해본다.</p>
+
+<p>스냅드래곤 805 트러스트존 커널의 메모리/레지스터를 읽고 쓸 수 있다.</p>
+
+<h4>백그라운드</h4>
+
+<p><code>tzbsp_smmu_fault_regs_dump</code> 라는 시스템콜에 버그가 있어서.</p>
+
+<ol>
+<li>4 개의 인자를 기대하는데.</li>
+<li><code>R4-R8</code> 과 링크 레지스터를 스택에 저장하고</li>
+<li><code>R0</code>,<code>R1</code>,<code>R2</code>,<code>R3</code> 에 담긴 arg0, arg1, arg2, arg3 를 <code>R5-R8</code> 에 옮기고. 이때 <code>adds</code> 로 <code>R2</code> 가 0 인지 아닌지를 체크하고</li>
+<li><code>BEQ</code> 로 <code>R2 != 0</code> 이면 <code>is_debugging_disabled</code> 체크하는 루틴으로 뛰고</li>
+<li><code>CBZ</code> 로, <code>is_debugging_disabled</code> 가 1 이면 <code>loc_FE85881E</code> 로 뛰고</li>
+<li><code>do_regs_dump</code> 를 호출하는데.</li>
+<li><code>do_regs_dump</code> 에서 <code>validate_input</code> 을 부른다</li>
+<li><code>validate_input</code> 에서 <code>do_sloppy_signed_comparison</code> 을 부르는데</li>
+<li><code>do_sloppy_signed_comparison</code> 은 <code>CMP R0, #7</code> <code>BGE loc_FE863164</code> 로 흘러간다</li>
+<li>BGE 일 경우, #0 을 돌려주고, 아니면 1 을 돌려준다</li>
+<li>그런데 THUMB BGE 명령어는 signed comparison 이다</li>
+<li>R0 가 0~6 이면 당연히 #1 을 돌려주지만, minus 일경우에도 #1 을 돌려준다</li>
+<li>minus 값으로 체크를 통과하는 듯</li>
+<li>validate_something_else 가 불리는데</li>
+</ol>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>R0 = arg0;
+</span><span class='line'>R1 = arg1;
+</span><span class='line'>R0 = R0 * 0x11;
+</span><span class='line'>uint *R2 = (uint *)0xFE8282CC; /* this is in a data segment in TrustZone kernel */
+</span><span class='line'>R2 = *R2; /* in the TrustZone image I'm testing with, this value = 0xFE827B58 */
+</span><span class='line'>R0 = 4 + (R0 * 0x10);
+</span><span class='line'>R0 = *(R0 + R2);
+</span><span class='line'>if (R0 &lt; R1) return 0; /* fail - we need to return 1, thus R0 needs to be &gt; R1 */</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>do_sloppy_signed_comparison</code> 에서 <code>R0</code> 가 0~6 사이의 값일 것을 검사했지만, 사실 0x80000000 ~ 0xFFFFFFFF 사이의 음수라도 검사를 통과할 수 있었다. R0 가 음수일 경우를 가정해보자. 예를 들어, 0x88888888 이라면?</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>R0 = arg0 = 0x88888888;
+</span><span class='line'>R1 = arg1;
+</span><span class='line'>R0 = R0 * 0x11; /* 0x11111108 */
+</span><span class='line'>R2 = 0xFE8282CC;
+</span><span class='line'>R2 = *(uint *)R2; /* 0xFE827B58 */
+</span><span class='line'>R0 = 4 + (R0 * 0x10); /* 0x11111084 */
+</span><span class='line'>R0 = *(R0 + R2); /* R0 now is loaded with the data contained at physical address 0x11111084 + 0xFE827B58 = 0x0F938BDC /* &lt;&lt; This memory location is NOT secure, we can control it! */ 
+</span><span class='line'>if (R0 &lt; R1) return 0;</span></code></pre></td></tr></table></div></figure>
+
+
+<p>validate_input 에서 돌아오면, 비슷한 계산을 또 하는데.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1704,122 +1797,6 @@ BoxType 은 4 글자 코드로 구성된다. FourCC 라고 불리는데, <code>c
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/08/05/setting-up-l2tp-vpn/">Setting Up L2TP VPN</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2015-08-05T16:25:16+09:00'><span class='date'><span class='date-month'>Aug</span> <span class='date-day'>5</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>4:25 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><ul>
-<li><p><a href="https://gist.github.com/hwdsl2/9030462">IPsec L2TP VPN Auto Install Script for Ubuntu 14.04 &amp; 12.04 and Debian 8 &amp; 7</a></p></li>
-<li><p><a href="https://wordpress.update.sh/archives/16">PPTP VPN 서버</a></p></li>
-<li><a href="http://thuannvn.blogspot.kr/2009/03/how-to-setup-poptop-pptpd-vpn-server-on.html">How to setup Poptop (pptpd) VPN server on Linux</a></li>
-<li><a href="https://kldp.org/node/73417">pptpd vpn 서버접속후 특정 web 사이트가 안여리는 증상 도움 부탁 드립니다.</a></li>
-<li><a href="http://guni.tistory.com/326">CentOS에서 PPTP 및 L2TP/IPSec 프로토콜을 이용한 VPN 서버 구축하기</a></li>
-<li><a href="http://www.myhowto.org/java/81-intercepting-and-decrypting-ssl-communications-between-android-phone-and-3rd-party-server/">Intercepting and decrypting SSL communications between Android phone and 3rd party server</a></li>
-<li><a href="http://security.stackexchange.com/questions/33374/whats-an-easy-way-to-perform-a-man-in-the-middle-attack-on-ssl">What&rsquo;s an easy way to perform a man-in-the-middle attack on SSL?</a></li>
-</ul>
-
-
-<h4>Forging Certificates (by blukat29)</h4>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>$ openssl genrsa -des3 -out ca.key 4096
-</span><span class='line'>$ openssl req -new -x509 -days 365 -key ca.key -out ca.crt
-</span><span class='line'>$ openssl genrsa -des3 -out server.key 4096
-</span><span class='line'>$ openssl req -new -key server.key -out server.csr
-</span><span class='line'>$ openssl x509 -req -days 365 -in server.csr -CA ca.crt -CAkey ca.key -set_serial 01 -out server.crt</span></code></pre></td></tr></table></div></figure>
-
-
-<h4>socat</h4>
-
-<p>socat 옵션.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>root@zomo:~# socat -v OPENSSL-LISTEN:4443,reuseaddr,verify=0,cert=./server.crt,key=./server.kecafile=./ca.crt,debug,fork OPENSSL:api.xxx.com:443,verify=0</span></code></pre></td></tr></table></div></figure>
-
-
-<p>nat 쪽 iptable</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>root@zomo:~# ip -t nat -L
-</span><span class='line'>Chain PREROUTING (policy ACCEPT)
-</span><span class='line'>target     prot opt source               destination
-</span><span class='line'>REDIRECT   tcp  --  anywhere             anywhere             tcp dpt:https redir ports 4443
-</span><span class='line'>
-</span><span class='line'>Chain INPUT (policy ACCEPT)
-</span><span class='line'>target     prot opt source               destination
-</span><span class='line'>
-</span><span class='line'>Chain OUTPUT (policy ACCEPT)
-</span><span class='line'>target     prot opt source               destination
-</span><span class='line'>
-</span><span class='line'>Chain POSTROUTING (policy ACCEPT)
-</span><span class='line'>target     prot opt source               destination
-</span><span class='line'>MASQUERADE  all  --  anywhere             anywhere</span></code></pre></td></tr></table></div></figure>
-
-
-<p>iptable</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>root@zomo:~# ip -L
-</span><span class='line'>Chain INPUT (policy ACCEPT)
-</span><span class='line'>target     prot opt source               destination
-</span><span class='line'>DROP       all  --  43.0.0.0/8           anywhere
-</span><span class='line'>
-</span><span class='line'>Chain FORWARD (policy ACCEPT)
-</span><span class='line'>target     prot opt source               destination
-</span><span class='line'>
-</span><span class='line'>Chain OUTPUT (policy ACCEPT)
-</span><span class='line'>target     prot opt source               destination</span></code></pre></td></tr></table></div></figure>
-
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/3">&larr; Older</a>
@@ -1837,6 +1814,10 @@ BoxType 은 4 글자 코드로 구성된다. FourCC 라고 불리는데, <code>c
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/02/11/racing-midi-messages-in-chrome/">Racing MIDI Messages in Chrome</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/02/11/unlocking-the-motorola-bootloader/">Unlocking the Motorola Bootloader</a>
       </li>
     
@@ -1850,10 +1831,6 @@ BoxType 은 4 글자 코드로 구성된다. FourCC 라고 불리는데, <code>c
     
       <li class="post">
         <a href="/blog/2016/01/15/tf-idf/">TF-IDF</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/01/13/android-hackers-handbook/">Android Hacker's Handbook</a>
       </li>
     
   </ul>

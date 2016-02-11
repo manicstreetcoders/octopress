@@ -4,7 +4,7 @@
   <title><![CDATA[KC's blog]]></title>
   <link href="http://zomo.heroku.com/atom.xml" rel="self"/>
   <link href="http://zomo.heroku.com/"/>
-  <updated>2016-02-11T16:28:12+09:00</updated>
+  <updated>2016-02-11T17:38:27+09:00</updated>
   <id>http://zomo.heroku.com/</id>
   <author>
     <name><![CDATA[KC]]></name>
@@ -12,6 +12,15 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Racing MIDI Messages in Chrome]]></title>
+    <link href="http://zomo.heroku.com/blog/2016/02/11/racing-midi-messages-in-chrome/"/>
+    <updated>2016-02-11T17:36:37+09:00</updated>
+    <id>http://zomo.heroku.com/blog/2016/02/11/racing-midi-messages-in-chrome</id>
+    <content type="html"><![CDATA[<p>PZ 블로그에 새로 올라온 글, <a href="http://googleprojectzero.blogspot.kr/2016/02/racing-midi-messages-in-chrome.html">Racing MIDI messages in Chrome</a>를 읽었다. 정리해본다.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Unlocking the Motorola Bootloader]]></title>
@@ -1798,102 +1807,6 @@ BoxType 은 4 글자 코드로 구성된다. FourCC 라고 불리는데, <code>c
 <li>이걸 활용해서, 가까이 있는 오브젝의 vtable 포인터를 오염시켜서 control-flow 하이재킹을 수행.</li>
 <li>HTMLUnknownElement 는 sibling 이 56 개 이상. Element class 는 parent 가 10 개 이상.</li>
 </ul>
-
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Setting Up L2TP VPN]]></title>
-    <link href="http://zomo.heroku.com/blog/2015/08/05/setting-up-l2tp-vpn/"/>
-    <updated>2015-08-05T16:25:16+09:00</updated>
-    <id>http://zomo.heroku.com/blog/2015/08/05/setting-up-l2tp-vpn</id>
-    <content type="html"><![CDATA[<ul>
-<li><p><a href="https://gist.github.com/hwdsl2/9030462">IPsec L2TP VPN Auto Install Script for Ubuntu 14.04 &amp; 12.04 and Debian 8 &amp; 7</a></p></li>
-<li><p><a href="https://wordpress.update.sh/archives/16">PPTP VPN 서버</a></p></li>
-<li><a href="http://thuannvn.blogspot.kr/2009/03/how-to-setup-poptop-pptpd-vpn-server-on.html">How to setup Poptop (pptpd) VPN server on Linux</a></li>
-<li><a href="https://kldp.org/node/73417">pptpd vpn 서버접속후 특정 web 사이트가 안여리는 증상 도움 부탁 드립니다.</a></li>
-<li><a href="http://guni.tistory.com/326">CentOS에서 PPTP 및 L2TP/IPSec 프로토콜을 이용한 VPN 서버 구축하기</a></li>
-<li><a href="http://www.myhowto.org/java/81-intercepting-and-decrypting-ssl-communications-between-android-phone-and-3rd-party-server/">Intercepting and decrypting SSL communications between Android phone and 3rd party server</a></li>
-<li><a href="http://security.stackexchange.com/questions/33374/whats-an-easy-way-to-perform-a-man-in-the-middle-attack-on-ssl">What&rsquo;s an easy way to perform a man-in-the-middle attack on SSL?</a></li>
-</ul>
-
-
-<h4>Forging Certificates (by blukat29)</h4>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>$ openssl genrsa -des3 -out ca.key 4096
-</span><span class='line'>$ openssl req -new -x509 -days 365 -key ca.key -out ca.crt
-</span><span class='line'>$ openssl genrsa -des3 -out server.key 4096
-</span><span class='line'>$ openssl req -new -key server.key -out server.csr
-</span><span class='line'>$ openssl x509 -req -days 365 -in server.csr -CA ca.crt -CAkey ca.key -set_serial 01 -out server.crt</span></code></pre></td></tr></table></div></figure>
-
-
-<h4>socat</h4>
-
-<p>socat 옵션.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>root@zomo:~# socat -v OPENSSL-LISTEN:4443,reuseaddr,verify=0,cert=./server.crt,key=./server.kecafile=./ca.crt,debug,fork OPENSSL:api.xxx.com:443,verify=0</span></code></pre></td></tr></table></div></figure>
-
-
-<p>nat 쪽 iptable</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>root@zomo:~# ip -t nat -L
-</span><span class='line'>Chain PREROUTING (policy ACCEPT)
-</span><span class='line'>target     prot opt source               destination
-</span><span class='line'>REDIRECT   tcp  --  anywhere             anywhere             tcp dpt:https redir ports 4443
-</span><span class='line'>
-</span><span class='line'>Chain INPUT (policy ACCEPT)
-</span><span class='line'>target     prot opt source               destination
-</span><span class='line'>
-</span><span class='line'>Chain OUTPUT (policy ACCEPT)
-</span><span class='line'>target     prot opt source               destination
-</span><span class='line'>
-</span><span class='line'>Chain POSTROUTING (policy ACCEPT)
-</span><span class='line'>target     prot opt source               destination
-</span><span class='line'>MASQUERADE  all  --  anywhere             anywhere</span></code></pre></td></tr></table></div></figure>
-
-
-<p>iptable</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>root@zomo:~# ip -L
-</span><span class='line'>Chain INPUT (policy ACCEPT)
-</span><span class='line'>target     prot opt source               destination
-</span><span class='line'>DROP       all  --  43.0.0.0/8           anywhere
-</span><span class='line'>
-</span><span class='line'>Chain FORWARD (policy ACCEPT)
-</span><span class='line'>target     prot opt source               destination
-</span><span class='line'>
-</span><span class='line'>Chain OUTPUT (policy ACCEPT)
-</span><span class='line'>target     prot opt source               destination</span></code></pre></td></tr></table></div></figure>
 
 ]]></content>
   </entry>

@@ -9,8 +9,13 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="Ted Logan&rsquo;s Secrets of tabs in vim 에서 읽은 내용을 정리. Vim 에서. vim 에서 눈에 보이는 indentation 은 &lsquo;\t&rsquo; 와 space 의 조합으로 이루어져 있음. tabstop 은,
-&lsquo &hellip;">
+  <meta name="description" content="tmux 와 vimrc 에 몇가지를 추가했는데. tmux pane 을 vi key 로 옮겨다니기 위해서 unbind j
+unbind k
+unbind h
+unbind l
+bind j select-pane -D
+bind k select-pane -U
+bind h &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -66,6 +71,449 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/06/12/tmux-pane-setting/">Tmux Pane Setting</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-06-12T20:02:00+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>12</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>8:02 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>tmux 와 vimrc 에 몇가지를 추가했는데.</p>
+
+<h3>tmux</h3>
+
+<p>pane 을 vi key 로 옮겨다니기 위해서</p>
+
+<pre>
+unbind j
+unbind k
+unbind h
+unbind l
+bind j select-pane -D
+bind k select-pane -U
+bind h select-pane -L
+bind l select-pane -R
+</pre>
+
+
+<p>를 해서 자판에서 손을 안떼고 움직일 수 있게 하였다.</p>
+
+<p>그리고,</p>
+
+<pre>
+bind / command-prompt "split-window 'exec %%'"
+</pre>
+
+
+<p>를 추가해서 간단한 shell command 를 tmux 안에서 날릴 수 있게 하였다.</p>
+
+<p>C-a / 를 누르고 ping localhost 를 때리면, pane 이 하나 열리고 ping 이 실행된다.</p>
+
+<pre><code>bind a send-prefix
+</code></pre>
+
+<p>로 Ctrl-a a 로 Ctrl-a 기능을 살린다. Ctrl-a / Ctrl-e / Ctrl-b 등의 Emacs 스타일 cursor moving 을 자주 쓴다면 필요.</p>
+
+<p>그리고 tmux 가 최근에 1.8 로 업글되었다.
+Ubuntu 의 경우 패키지로 아직 repo 에 안올라와서, source 를 컴파일해야 한다.
+OS X 의 경우 brew 에 1.8 패키지가 올라왔다. <code>brew install tmux</code> 또는 <code>brew upgrade tmux</code> 하면 된다.
+1.8 의 큰 장점은 pane zoom 이 된다는 것. 그 전까지는 꽁수로 했었는데, 이제는 native 하게 된다.
+<code>Ctrl-a z</code> 로 zoom 을 토글할 수 있다. 줌기능 대박이다.</p>
+
+<p>Ubuntu 에서 tmux 카피 버퍼와 OS 클립보드를 통합하는 방법:</p>
+
+<pre><code>$ sudo apt-get install xclip
+
+bind C-c run "tmux save-buffer - |xclip -i -sel clipboard"
+bind C-v run "tmux set-buffer \"$(xclip -o -sel clipboard)\"; tmux paste-buffer"
+</code></pre>
+
+<p>OS X 에서 통합하는 방법:</p>
+
+<pre><code>$ git clone https://github.com/ChrisJohnsen/tmux-MacOSX-pasteboard.git
+$ cd tmux-MacOSX-pasteboard
+$ make reattach-to-user-namespace
+$ mv reattach-to-user-namespace /usr/local/bin
+$ export PATH="/usr/local/bin:$PATH"
+
+set -g default-command "reattach-to-user-namespace -l /bin/zsh"
+bind C-c run "tmux save-buffer - | reattach-to-user-namespace pbcopy"
+bind C-v run "tmux set-buffer $(reattach-to-user-namespace pbpaste); tmux paste-buffer"
+</code></pre>
+
+<p>이제 C-a C-c 로 tmux buffer -> OS X clipboard 로 카피할 수 있다.</p>
+
+<h3>vim</h3>
+
+<p>만약 Solarized 를 안쓴다면, TabLine 을 바꾸는 것이 좋다.</p>
+
+<p>.vimrc 에</p>
+
+<pre>
+hi TabLineSel ctermfg=Red ctermbg=Yellow
+hi TabLine ctermfg=Blue ctermbg=Yellow
+hi TabLineFill ctermfg=LightGreen ctermbg=DarkGreen
+</pre>
+
+
+<p>ftplugin 으로 안하고, 그냥 .vimrc 에 때려박은 것들이 있는데,</p>
+
+<pre><code>autocmd FileType python set sts=4|set sw=4|set expandtab
+autocmd FileType ruby set sts=2|set sw=2|set expandtab
+</code></pre>
+
+<p>나중에 filetype plugin 으로 정리할 생각.</p>
+
+<p>사람들이 잘 모르는 것이 sts 와 ts 와 sw 의 차이.</p>
+
+<p>expandtab 을 할 경우에는 ts 를 할 필요없이 sts 만 해줘도 된다.</p>
+
+<p>그리고</p>
+
+<pre>
+noremap &lt;CR> :
+</pre>
+
+
+<p>를 했는데.</p>
+
+<p>ESC : 로 커맨드모드를 진입하면 : 를 누를때 SHIFT 를 같이 눌러야해서,
+손이 아팠는데, 이제는 ESC ENTER 로 커맨드모드 진입이 가능해진다.</p>
+
+<p>손이 한결 편해진다.</p>
+
+<h4>10 J</h4>
+
+<p>그리고 vim 에서 흔히 텐제이라고 부르는 매핑.</p>
+
+<pre>
+map &lt;C-j> 10j
+map &lt;C-k> 10k
+</pre>
+
+
+<p>로 빠르게 상하이동이 가능하다. Ctrl + J / Ctrl + K</p>
+
+<h4>Indentation</h4>
+
+<p>Code indentation 은 visual mode 에서 &lt; &lt; 로 할 수 있는데, 좀 더 편하게 하기 위해서
+visual mode non-recursive mapping 을 추가한다.</p>
+
+<pre><code>vnoremap &lt; &lt;gv
+vnoremap &gt; &gt;gv
+</code></pre>
+
+<p>이렇게 하면, Visual mode 에서 &lt; 를 연속으로 눌러 indentation 을 들이거나 낼 수 있다.
+파이썬같이 인덴테이션이 중요한 언어에서는 꼭 필요한 매핑이다.</p>
+
+<p>vim 팁으로는,</p>
+
+<p>코드 인덴팅할때, 편리한 vim 커맨드.</p>
+
+<pre>
+5&lt;&lt;
+Vjj&lt;
+&lt;%
+]p
+</pre>
+
+
+<h4>.vimrc</h4>
+
+<pre><code>nnoremap &lt;leader&gt;ev :vsplit $MYVIMRC&lt;cr&gt;
+</code></pre>
+
+<p>하면 편하게 .vimrc 를 에디팅할 수 있다.</p>
+
+<h4>Rails</h4>
+
+<p>Rails 를 사용한다면, route 화일이나 DB 스키마를 에디트할 경우가 많다. 그래서 다음 매크로가 유용하다.</p>
+
+<pre><code>command! Rroutes :e config/routes.rb
+command! Rschema :e db/schema.rb
+</code></pre>
+
+<h4>Vim Plugin</h4>
+
+<p>vim plugin 중에서는 Command-T, Solarized, YouCompleteMe, Taglist 를 사용.</p>
+
+<p>Taglist 를 쓸 경우, .vimrc 에 (OS X 에서 brew 로 Exuberant ctags 를 깔았을 경우)</p>
+
+<pre><code>nnoremap &lt;silent&gt; &lt;F8&gt; :TlistToggle&lt;CR&gt;
+let Tlist_Ctags_Cmd='/usr/local/Cellar/ctags/5.8/bin/ctags'
+</code></pre>
+
+<p><F8> 로 클래스/함수 pane 을 on/off 시킬 수 있다.</p>
+
+<p>YouCompleteMe 때문에, OS X 에서는 MacVim 에 딸려오는 Vim 을 사용한다 (nogui). 만약 SIGSEGV 가 발생하면, 아마 python library 가 잘못 링크되었을 경우인데, 임시로 brew unlink python 으로 python 라이브러리 쫑나는 것 해결할 수 있다.</p>
+
+<p>MacVim 은 <a href="http://github.com/b4winckler/macvim/downloads">여기서</a> 다운받아 컴파일한다.</p>
+
+<p>Ubuntu 에서는 ruby 와 python 써포트를 On 하고, 링크되는 라이브러리에 신경을 써서 새로 컴파일하는 것이 좋다. 12.04 에 딸려오는 vim 이 너무 구식이라.</p>
+
+<p>OS X iTerm2 터미널도 Solarize 할 수 있는 스크립이 찾아보면 있으니. <a href="altercation/solarized/iterm2-colors-solarized">https://github.com/altercation/solarized</a></p>
+
+<p>그리고, Linux gnome 의 경우도 github 에 <a href="sigurdga/gnome-terminal-colors-solarized">https://github.com/sigurdga/gnome-terminal-colors-solarized</a> 로 찾으면 나옴.</p>
+
+<p>vim colorscheme 만 solarized 를 쓰면 terminal 로 돌아올때 번쩍해서 눈이 피곤하다. 둘 다 맞춰주는 것이 좋다.</p>
+
+<p>Command-T 를 설치할 때, Linux 는 간단한데, OS X 는 약간 까다롭다.</p>
+
+<p>$ vim &ndash;version 으로 vim 컴파일에 사용된 FLAG 랑 맞춰주는 것이 기본인데,
+OS X Mountain Lion 에서는
+처음에 아무생각없이 build 했다가 SIGSEGV 이 발생해서,</p>
+
+<pre>
+vim --version|grep arch
+vim --version|grep ruby
+ARCHFLAGS="-arch x86_64"
+rbenv local system 
+ruby --version
+ruby extconf.rb
+make
+</pre>
+
+
+<p>rbenv 로 /usr/bin/ruby 가 실행되게 하는 것.
+ruby 버전이 1.8.7 인지 확인하는 것.
+vim 이 컴파일된 아키텍쳐와 루비 써포트를 확인하는 것.</p>
+
+<p>vim 이 +ruby 가 아니라면, <a href="http://stackoverflow.com/questions/3794895/installing-vim-with-ruby-support-ruby">Installing vim with ruby support (+ruby)</a> 참조.</p>
+
+<p>15 인치 노트북에서 화면 가득한 iTerm 을 띄워놓고,
+vim window + vim tab + tmux pane + tmux screen 을 활용하면,
+마우스나 트랙패드를 사용할 필요가 없다.</p>
+
+<p>iTerm 과 크롬을 한개씩 띄워놓고 개발이 가능해진다.</p>
+
+<p>CMD-TAB 과 크롬 단축기를 사용하면, 키보드에서 손을 뗄 필요가 없어진다.</p>
+
+<p>참고로 iTerm 의 경우 CMD+OPTION+1 등으로 윈도우를 선택할 수 있다.</p>
+
+<h4>Vim Key Mapping</h4>
+
+<p>그리고 vim key mapping 에 관한 좋은 글
+Mapping keys in Vim - Tutorial -
+<a href="http://vim.wikia.com/wiki/Mapping_keys_in_Vim_-_Tutorial_(Part_1)">here</a></p>
+
+<p>vim 으로 hex edit 하는 법</p>
+
+<pre><code>:%!xxd
+:%!xxd -r
+</code></pre>
+
+<p>다량의 Tab 을 열어놓고 작업하다가 한꺼번에 닫고 나갈때,</p>
+
+<pre><code>:qa
+:wqa
+</code></pre>
+
+<p>하면 된다.</p>
+
+<h3>irb</h3>
+
+<p>ruby 를 사용하면 irb 를 많이 쓰게되는데, irb 에서 vi key 를 쓰는 방법.</p>
+
+<pre><code>$ vim ~/.editrc
+bind -v
+bind \\t rl_complete
+</code></pre>
+
+<p>이렇게 하면 ESC i j k l 등으로 이동할 수 있고, TAB 으로 completion 을 할 수 있다.</p>
+
+<p>python REPL 에서도 먹는다. Emacs 스타일보다 Vim 스타일이 더 편하다.</p>
+
+<h3>ctags &amp; cscope</h3>
+
+<p>Python 코딩은 OS X 보다는 Linux 에서 작업하는데,</p>
+
+<pre><code>sudo apt-get install ctags 
+</code></pre>
+
+<p>~/.ctags 에다가</p>
+
+<pre><code>--python-kinds=-i
+</code></pre>
+
+<p>그리고 .vimrc 에다가</p>
+
+<pre><code>set tags=./mytags
+</code></pre>
+
+<p>그리고</p>
+
+<pre><code>ctags -R -o ./mytags ~/code
+</code></pre>
+
+<p>를 해두면,</p>
+
+<p>vim 에서,</p>
+
+<pre><code>vim -t &lt;tag name&gt;
+Ctrl-] / Ctrl-T
+:tselect / :stselect
+:tnext / :tprev
+:help tags
+</code></pre>
+
+<p>으로 tag 들을 navigating 할 수 있다.</p>
+
+<p>그리고 ctags v.s. cscope 에 관한 좋은 글 <a href="http://stackoverflow.com/questions/934233/cscope-or-ctags-why-choose-one-over-the-other">cscope or ctags why choose one over the other?</a></p>
+
+<p>그리고, OS X 에서 Exuberant ctags 를 사용해서 python 등을 코딩하고 싶다면,
+Homebrew 를 사용해 인스톨한다. 오리지널 ctags 는 /usr/bin/ctags 에 있을 것이고,
+새로 인스톨된 것은 /usr/local 아래 어딘가 있을 듯.</p>
+
+<pre><code>$ brew install ctags-exuberant
+</code></pre>
+
+<p>/usr/local/bin/ctags 가 실행되도록 확인하고, 마찬가지로 ~/.ctags 에</p>
+
+<pre><code>--python-kinds=-i
+</code></pre>
+
+<p>추가.</p>
+
+<p>ctags 에 관한 좋은 블로그 <a href="http://www.scholarslab.org/research-and-development/code-spelunking-with-ctags-and-vim/">Code Spelunking with Ctags and Vim</a></p>
+
+<p>그리고 pycscope 을 쓸수도 있는데,</p>
+
+<p>OS X 에서는 <code>brew install cscope</code> 해주고, cscope_maps.vim 을 ~/vim/plugin 아래에 설치한다.
+그리고 pycscope 도 설치한다. <code>pycscope -R .</code> cscope_maps.vim 도 추가.</p>
+
+<p><a href="http://cscope.sourceforge.net/cscope_vim_tutorial.html">The Vim/Cscope tutorial</a></p>
+
+<p>개인적으로는 cscope 이 ctags 보다 편하다.</p>
+
+<p><code>Ctrl-\</code>+<code>c</code> 나 <code>Ctrl-\</code>+<code>s</code> 그리고, <code>Ctrl-\</code>+<code>d</code></p>
+
+<h3>ack &amp; z jumper</h3>
+
+<p>ack 가 grep 보다 소스코드에서 뭐 찾을때 훨 편하다.</p>
+
+<p>그리고 디렉토리 navigation 은 z jumper 가 최고다. 예전의 노턴 ncd 같은 녀석.</p>
+
+<h3>bash</h3>
+
+<p>스크린캐스트에서 본 쉘 커맨드.</p>
+
+<pre><code>~/code/jade[master]% find . -iname "*.rb" | 
+xargs grep -h '^[[:space:]]*class\|module\b' | 
+sed 's/^[[:space:]]*//' | grep -v '^#' | cut -d ' ' -f 2 | 
+while read class; 
+do echo `grep -rl "\b$class\b" app lib --include "*.rb" |wc -l` $class ; 
+done | sort -n
+</code></pre>
+
+<p>한 줄이다. ruby 의 클래스를 참조하는 화일 갯수를 세는건데.</p>
+
+<ul>
+<li>grep -l 옵션은 화일에서 패턴 존재가 확인되면 그냥 스킵. 존재 여부를 확인할때.</li>
+<li>grep -r 은 디렉토리 리커시브.</li>
+<li>grep -v 는 패턴이 없는 라인을 출력.</li>
+<li>grep -h 는 화일 이름을 출력 안함.</li>
+<li>find &hellip; | xargs 가 find &hellip; -exec 보다 빠르다.</li>
+<li>sort -n 은 numerical sort 를 하란 것인데, 그냥 sort 하면 &ldquo;10&rdquo; 이 &ldquo;2&rdquo; 보다 앞에 나온다. -n 을 해주면 &ldquo;2&rdquo; 가 &ldquo;10&rdquo; 보다 먼저 나오게 된다.</li>
+</ul>
+
+
+<h3>zsh</h3>
+
+<p>zsh 에서는 Global alias 이용해</p>
+
+<pre><code>alias -g G='|grep '
+</code></pre>
+
+<p>하면</p>
+
+<pre>
+cat log G ERROR
+</pre>
+
+
+<p>와 같은 커맨드가 가능하다.</p>
+
+<h3>bash I/O redirection</h3>
+
+<p><a href="http://www.cyberciti.biz/faq/bash-while-loop/">Bash While Loop Example</a> 에서.</p>
+
+<pre><code>cmd &gt;&gt;file.txt 2&gt;&amp;1
+</code></pre>
+
+<p> stderr, stdout 을 함께 화일에 append 할 때.</p>
+
+<pre><code>#!/bin/bash
+FILE=$1
+exec 3&lt;&amp;0
+exec 0&lt;$FILE
+while read line
+do
+  echo $line
+done
+exec 0&lt;&amp;3
+</code></pre>
+
+<p> stdin 을 3 에 카피해놓고, 화일을 stdin 으로 돌리고, 나중에 원복.</p>
+
+<pre><code>#!/bin/bash
+x=1
+while [ $x -le 5 ]
+do
+  echo "$x times"
+  x=$(( $x + 1 ))
+done
+</code></pre>
+
+<p>bash 의 arithmetic operator 는 (( )) 이다.</p>
+
+<pre><code>#!/bin/sh
+counter=$1
+factorial=1
+while [ $counter -gt 0 ]
+do
+  factorial=$(( $factorial * $counter ))
+  counter=$(( $counter - 1 ))
+done
+echo $factorial
+</code></pre>
+
+<p>factorial 구하는 것.</p>
+
+<pre><code>#!/bin/sh
+while :
+do
+  read -p "Enter two numbers ( -1 to quit ) : " a b
+  if [ $a -eq -1 ]
+  then
+    break
+  fi
+  ans=$(( a + b ))
+  echo $and
+done
+</code></pre>
+
+<p>읽을만한 shell scripting 문서: <a href="http://bash.cyberciti.biz/guide/Main_Page">Linux Shell Scripting Tutorial (LSST) v2.0</a></p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1688,140 +2136,6 @@ end
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2012/10/14/what-is-the-new-keyword-in-javascript/">What Is the 'New' Keyword in JavaScript?</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2012-10-14T20:45:00+09:00'><span class='date'><span class='date-month'>Oct</span> <span class='date-day'>14</span><span class='date-suffix'>th</span>, <span class='date-year'>2012</span></span> <span class='time'>8:45 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>스택오버플로우에서 좋은 질문을 찾았다.</p>
-
-<ul>
-<li><a href="http://stackoverflow.com/questions/1646698/what-is-the-new-keyword-in-javascript">What is the &lsquo;new&rsquo; keyword in JavaScript?</a></li>
-<li><a href="http://stackoverflow.com/questions/383201/relation-between-prototype-and-prototype-in-javascript">Relation between [[Prototype]] and prototype in JavaScript
-</a></li>
-</ul>
-
-
-<p>간단히 번역 &amp; 정리해본다.</p>
-
-<h3>JavaScript 의 상속</h3>
-
-<p>&ldquo;constructor 함수 가지고 만들어진 Object 는, constructor 함수의 <em>prototype</em> 프라퍼티가 가리키는 Object 로부터 상속받는다.&rdquo;</p>
-
-<h3>JavaScript 의 new 가 하는 일</h3>
-
-<p>JavaScript 의 new 가 하는 일은 3 가지이다.</p>
-
-<ol>
-<li>새로운 object 를 생성한다. 생성된 object 의 type 은 심플하게 그냥 <em>object</em> 이다.</li>
-<li>생성된 object 의 접근불가한 <em>[[Prototype]]</em> 프라퍼티를 constructor 함수의 접근가능한 외부용 <em>prototype</em> 이 가리키는 오브젝트로 세팅한다.</li>
-<li>constructor 함수를 실행한다. (함수에서 <code>this</code> 가 나오면 새로 생성된 오브젝트를 사용)</li>
-</ol>
-
-
-<p>예제를 가지고 알아보자.</p>
-
-<pre><code> js&gt; function C() { this.a = "babo" }
- js&gt; C.prototype = { b: "babo2" }
- ({b:"babo2"})
- js&gt; obj = new C()
- ({a:"babo"})
- js&gt; obj.a
- "babo"
- js&gt; obj.b
- "babo2"
- js&gt; obj.c
- js&gt; C.prototype.c = "babo3"
- "babo3"
- js&gt; obj.c
- "babo3"
- js&gt;
-</code></pre>
-
-<p>간단한 constructor 함수를 정의한다.
-그리고 이 constructor 함수의 <em>prototype</em> 을 간단히 <code>{ b: "babo2" }</code> object 로 세팅한다.</p>
-
-<p><code>new C()</code> 하는 순간</p>
-
-<ol>
-<li>새로운 object 가 생성되고. <em>obj</em> 라고 칭하면.</li>
-<li><code>obj.[[Prototype]] = C.prototype</code> 이 실행되고.</li>
-<li><code>{ obj.a = 'babo' }</code> 가 실행된다.</li>
-</ol>
-
-
-<p>풀어서 따라가보면</p>
-
-<ol>
-<li><code>obj.[[Prototype]]</code> 은 <code>{ b: "babo2" }</code> object 를 가리키고,
-constructor 가 수행되면서 <code>obj.a</code> 가 <code>"babo"</code> 로 세팅되었다.</li>
-<li>그래서 <code>obj.a</code> 와 <code>obj.b</code> 가 각각 <code>"babo"</code>, <code>"babo2"</code> 로 evaluated 된다.</li>
-<li>그 다음에 <code>C.prototype.c = "babo3"</code> 로 <code>{ b: "babo2" }</code> 에 <code>c</code>를 추가한다.</li>
-<li>그러면 <code>obj.[[Prototype]]</code> 은 이제 <code>{ b: "babo2", c: "babo3" }</code> object 를 가리키게 된다.</li>
-<li>그래서 <code>obj.c</code> 가 &ldquo;babo3&rdquo; 로 evaluated 된다.</li>
-</ol>
-
-
-<p>정리하면</p>
-
-<ul>
-<li>function 만이 <em>prototype</em> 프라퍼티를 갖는다.</li>
-<li>모든 object 는 숨겨진 <em>[[Prototype]]</em> 프라퍼티를 갖는다.</li>
-<li>Browser implementation 에 따라 <em>[[Prototype]]</em> 이 <em><strong>proto</strong></em> 인 경우도 있다.</li>
-<li>function 도 <em>[[Prototype]]</em> 프라퍼티를 갖는다. (&ldquo;Functions are first-class objects in JavaScript.&rdquo;)</li>
-<li>따라서 function 만 <em>[[Prototype]]</em> 과 <em>prototype</em> 을 모두 가진다.</li>
-<li>그외의 object 는 <em>[[Prototype]]</em> 만 가진다.</li>
-<li>object 의 <em>[[Prototype]]</em> 은 new 키워드를 통해서만 세팅 가능하다. (브라우저 임플리멘테이션에 따라서 다를 수 있지만)</li>
-</ul>
-
-
-<h3>Crockford 책에 나오는 beget()</h3>
-
-<p>이제, Douglas Crockford 책에 나오는 beget() 를 보도록 하자.</p>
-
-<pre><code> if (typeof Object.beget !== 'function') {
-   Object.beget = function (o) {
-     var F = function () {};
-     F.prototype = o;
-     return new F();
-   };
- }
- var another_stooge = Object.beget(stooge);
-</code></pre>
-
-<p>상속을 위한 Constructor 함수를 대신 만들어서 오브젝트를 생성해준다.</p>
-
-<h3>Eloquent JavaScript 에 나오는 예제</h3>
-
-<h3>Further reading:</h3>
-
-<ul>
-<li><a href="http://prototypejs.org/learn/class-inheritance">Prototype.js 의 class 와 상속에 관한 아티클</a></li>
-</ul>
-
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/21">&larr; Older</a>
@@ -1839,6 +2153,10 @@ constructor 가 수행되면서 <code>obj.a</code> 가 <code>"babo"</code> 로 �
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/02/11/racing-midi-messages-in-chrome/">Racing MIDI Messages in Chrome</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/02/11/unlocking-the-motorola-bootloader/">Unlocking the Motorola Bootloader</a>
       </li>
     
@@ -1852,10 +2170,6 @@ constructor 가 수행되면서 <code>obj.a</code> 가 <code>"babo"</code> 로 �
     
       <li class="post">
         <a href="/blog/2016/01/15/tf-idf/">TF-IDF</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/01/13/android-hackers-handbook/">Android Hacker's Handbook</a>
       </li>
     
   </ul>

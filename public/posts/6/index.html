@@ -9,7 +9,8 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="FREAK INRIA, Microsoft Research, IMDEA 의 암호학자들이 OpenSSL 을 사용한 프로그램에서 취약점을 발견했다. MitM 포지션을 잡고 있는 해커가, 커넥션의 암호화 강도를 떨어뜨릴 수 있는 취약점이다. &lsquo;export- &hellip;">
+  <meta name="description" content="R.L. Rivest, A. Shamir, and L. Adleman 의 그 논문. here
+">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -65,6 +66,37 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/06/07/a-method-for-obtaining-digital-signature-and-public-key-cryptosystems/">A Method for Obtaining Digital Signature and Public-Key Cryptosystems</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-06-07T10:23:59+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>7</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>10:23 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>R.L. Rivest, A. Shamir, and L. Adleman 의 그 논문.</p>
+
+<p><a href="https://people.csail.mit.edu/rivest/Rsapaper.pdf">here</a></p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1244,56 +1276,6 @@ adbd run as root in the next reboot.</p>
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/05/24/ios-security-guide-ios-8-dot-3-or-later/">iOS Security Guide - iOS 8.3 or Later</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2015-05-24T14:07:16+09:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>24</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>2:07 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p><a href="https://www.apple.com/business/docs/iOS_Security_Guide.pdf">iOS Security Guide - iOS 8.3 or later</a></p>
-
-<p>Apple Watch 가 나오면서 저 문서가 update 되었다.</p>
-
-<ul>
-<li><a href="http://fromsiliconvalley.com/tag/secure-enclave/">Apple Shoots, Scores in Security. Quietly.</a></li>
-</ul>
-
-
-<h3>Secure Enclave</h3>
-
-<ul>
-<li><p>우선 ROM 에 Apple Certificate 이 박혀있어서, 애플이 서명한 컨텐츠를 검증할 수 있는데, ROM 에 박혀있기 때문에,
-손대는 것이 불가능.</p></li>
-<li><p>아이폰에는 Secure Enclave 라는 암호 코프로세서가 존재하는데, 이 안에 디바이스마다 유니크한 256-bit UID 가
-제작 과정에서 각인됨. 애플에 따르면 자기들도 기록해두지 않아서 모르고, 생산된 디바이스에서 UID 를 recover
-하는 것은 불가능. 아무도 모르는 유니크한 256-bit 가 코프로세서 안에 존재하는 셈.</p></li>
-<li><p>Secure Enclave 는 암호화 엔진을 가지고 있는데, 암호키를 만들때 유저가 입력한 패스워드에 UID 를 섞기
-때문에 고성능 FPGA 를 이용한 딕셔너리 공격이 어렵게 된다. Enc(사전에 나오는 단어+UID, Key) 를 돌려야하는데,
-UID 는 코프로세서 밖으로 추출이 불가능하기때문에, 해당 아이폰에서만 복호화가 가능한 구조. 패스워드와 UID 를 섞는 과정은 80ms 가 걸리도록 튜닝되어있음.</p></li>
-</ul>
-
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/7">&larr; Older</a>
@@ -1311,6 +1293,10 @@ UID 는 코프로세서 밖으로 추출이 불가능하기때문에, 해당 아
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/02/11/racing-midi-messages-in-chrome/">Racing MIDI Messages in Chrome</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/02/11/unlocking-the-motorola-bootloader/">Unlocking the Motorola Bootloader</a>
       </li>
     
@@ -1324,10 +1310,6 @@ UID 는 코프로세서 밖으로 추출이 불가능하기때문에, 해당 아
     
       <li class="post">
         <a href="/blog/2016/01/15/tf-idf/">TF-IDF</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/01/13/android-hackers-handbook/">Android Hacker's Handbook</a>
       </li>
     
   </ul>
