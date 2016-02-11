@@ -4,7 +4,7 @@
   <title><![CDATA[KC's blog]]></title>
   <link href="http://zomo.heroku.com/atom.xml" rel="self"/>
   <link href="http://zomo.heroku.com/"/>
-  <updated>2016-02-11T17:38:27+09:00</updated>
+  <updated>2016-02-11T17:58:12+09:00</updated>
   <id>http://zomo.heroku.com/</id>
   <author>
     <name><![CDATA[KC]]></name>
@@ -12,6 +12,23 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[How2heap]]></title>
+    <link href="http://zomo.heroku.com/blog/2016/02/11/how2heap/"/>
+    <updated>2016-02-11T17:45:34+09:00</updated>
+    <id>http://zomo.heroku.com/blog/2016/02/11/how2heap</id>
+    <content type="html"><![CDATA[<p>shellphish team 에서 github 에 공개한 <a href="https://github.com/shellphish/how2heap">Educational Heap Exploitation</a> 을 정리한다.</p>
+
+<h4>first_fit.c</h4>
+
+<p><a href="https://github.com/shellphish/how2heap/blob/master/first_fit.c">first_fit.c</a></p>
+
+<p>malloc() allocator 의 behavior 때문에 생기는 use after free 상황을 설명하기 위한 예제.</p>
+
+<p>malloc() 후에, free() 하고 다시 malloc() 을 했더니, 두 개의 포인터가 동일한 위치를 가리킨다. 편의상 포인터를 A,B 라고 하자. A 는 free 된 포인터, B 는 legitimate 한 포인터. B 를 통해 메모리 내용을 조작한다음에 A 가 사용되면 A object 의 context 에서 메모리내용이 해석되기때문에, 의도치않은 코드가 수행될 수 있다.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Racing MIDI Messages in Chrome]]></title>
@@ -1732,82 +1749,6 @@ BoxType 은 4 글자 코드로 구성된다. FourCC 라고 불리는데, <code>c
 
 
 <p><code>vold</code>, <code>debuggered</code>, <code>netd</code> 까지는 괜찮은데, <code>eapd</code> 는 뭐지?</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Type Casting Verification: Stopping an Emerging Attack Vector]]></title>
-    <link href="http://zomo.heroku.com/blog/2015/08/20/type-casting-verification-stopping-an-emerging-attack-vector/"/>
-    <updated>2015-08-20T17:23:58+09:00</updated>
-    <id>http://zomo.heroku.com/blog/2015/08/20/type-casting-verification-stopping-an-emerging-attack-vector</id>
-    <content type="html"><![CDATA[<p>USENIX 2015 에 발표된, Type Casting Verification: Stopping an Emerging Attack Vector.</p>
-
-<h4>C++ Bad-casting Demystified</h4>
-
-<p>논문에 나온 코드. Downcasting 을 잘못해서 memory 에러가 나오는 경우를 예로 든다.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>class SVGElement: public Element { ... };
-</span><span class='line'>
-</span><span class='line'>Element *pDom = new Element();
-</span><span class='line'>SVGElement *pCanvas = new SVGElement();
-</span><span class='line'>
-</span><span class='line'>// valid upcast
-</span><span class='line'>Element *pEle = static_cast&lt;Element*&gt;(pCanvas);
-</span><span class='line'>
-</span><span class='line'>// valid downcast
-</span><span class='line'>SVGElement *pCanvasAgain = static_cast&lt;SVGElement*&gt;(pEle);
-</span><span class='line'>
-</span><span class='line'>// invlaid downcast
-</span><span class='line'>SVGElement *p = static_cast&lt;SVGElement*&gt;(pDom);
-</span><span class='line'>
-</span><span class='line'>// leads to memory corruption
-</span><span class='line'>p-&gt;m_className = "my-canvas";
-</span><span class='line'>
-</span><span class='line'>// invalid downcast with dynamic_cast, but no corruption
-</span><span class='line'>SVGElement *p = dynamic_cast&lt;SVGElement*&gt;(pDom);
-</span><span class='line'>if (p) {
-</span><span class='line'>    p-&gt;m_className = "my-canvas";
-</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
-
-
-<h4>Bad-casting: CVE-2013-0912</h4>
-
-<p>논문에서는 Pwn2Own 2013 에서 Chrome 을 깨는데 사용되었던 CVE-2013-0912 를 예로.</p>
-
-<ul>
-<li>HTML5 에서, SVG 이미지는 svg 태그를 사용해 HTML 에 Embed 될 수 있다.</li>
-<li>svg 는 SVGElement class 로 구현된다.</li>
-<li>SVGElement 는 Element 의 child class 이다.</li>
-<li>Unknown tag 는 HTMLUnknownElement 로 구현.</li>
-<li>만약, HTMLUnknownElement 가 Element 로 upcasting 된다음에, SVGElement 로 downcasting 된다면? (SVG rendering 을 위해서)</li>
-<li>SVGElement 오브젝 사이즈는 160 bytes > HTMLUnknownElement 오브젝트의 사이즈는 96 bytes.</li>
-<li>HTMLUnknownElement 로 alloc 받아서, SVGElement 로 casting 해서 쓰면, 97~160 bytes 를 더 addressing 할 수 있다.</li>
-<li>이걸 활용해서, 가까이 있는 오브젝의 vtable 포인터를 오염시켜서 control-flow 하이재킹을 수행.</li>
-<li>HTMLUnknownElement 는 sibling 이 56 개 이상. Element class 는 parent 가 10 개 이상.</li>
-</ul>
-
 ]]></content>
   </entry>
   

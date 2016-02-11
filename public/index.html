@@ -9,8 +9,7 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="PZ 블로그에 새로 올라온 글, Racing MIDI messages in Chrome를 읽었다. 정리해본다.
-">
+  <meta name="description" content="shellphish team 에서 github 에 공개한 Educational Heap Exploitation 을 정리한다. first_fit.c first_fit.c malloc() allocator 의 behavior 때문에 생기는 use after free &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -66,6 +65,43 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2016/02/11/how2heap/">How2heap</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2016-02-11T17:45:34+09:00'><span class='date'><span class='date-month'>Feb</span> <span class='date-day'>11</span><span class='date-suffix'>th</span>, <span class='date-year'>2016</span></span> <span class='time'>5:45 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>shellphish team 에서 github 에 공개한 <a href="https://github.com/shellphish/how2heap">Educational Heap Exploitation</a> 을 정리한다.</p>
+
+<h4>first_fit.c</h4>
+
+<p><a href="https://github.com/shellphish/how2heap/blob/master/first_fit.c">first_fit.c</a></p>
+
+<p>malloc() allocator 의 behavior 때문에 생기는 use after free 상황을 설명하기 위한 예제.</p>
+
+<p>malloc() 후에, free() 하고 다시 malloc() 을 했더니, 두 개의 포인터가 동일한 위치를 가리킨다. 편의상 포인터를 A,B 라고 하자. A 는 free 된 포인터, B 는 legitimate 한 포인터. B 를 통해 메모리 내용을 조작한다음에 A 가 사용되면 A object 의 context 에서 메모리내용이 해석되기때문에, 의도치않은 코드가 수행될 수 있다.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -505,35 +541,6 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/12/23/on-the-juniper-backdoor/">On the Juniper Backdoor</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2015-12-23T16:09:25+09:00'><span class='date'><span class='date-month'>Dec</span> <span class='date-day'>23</span><span class='date-suffix'>rd</span>, <span class='date-year'>2015</span></span> <span class='time'>4:09 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Matthew Green 블로그에 올라온 Juniper 장비 백도어에 대해 정리해본다.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/2">&larr; Older</a>
@@ -549,6 +556,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/02/11/how2heap/">How2heap</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/02/11/racing-midi-messages-in-chrome/">Racing MIDI Messages in Chrome</a>
       </li>
     
@@ -562,10 +573,6 @@
     
       <li class="post">
         <a href="/blog/2016/02/03/qseecom/">Qseecom</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/01/15/tf-idf/">TF-IDF</a>
       </li>
     
   </ul>
