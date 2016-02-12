@@ -43,7 +43,7 @@ DCD 4
 DCD 4
 ```
 
-이 콜은 QFuses 에서 읽고 쓰는 함수.
+이 콜은 QFuses 에서 읽고 쓰는 함수. QFuses 는 Qualcomm 에서 만든, 한번 날리면 그 이후에는 software 적으로 write 가 불가능한 immutable 한 메모리. 
 
 정리하면,
 

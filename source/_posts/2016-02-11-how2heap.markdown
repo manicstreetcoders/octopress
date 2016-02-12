@@ -15,3 +15,10 @@ shellphish team 에서 github 에 공개한 [Educational Heap Exploitation](http
 malloc() allocator 의 behavior 때문에 생기는 use after free 상황을 설명하기 위한 예제.
 
 malloc() 후에, free() 하고 다시 malloc() 을 했더니, 두 개의 포인터가 동일한 위치를 가리킨다. 편의상 포인터를 A,B 라고 하자. A 는 free 된 포인터, B 는 legitimate 한 포인터. B 를 통해 메모리 내용을 조작한다음에 A 가 사용되면 A object 의 context 에서 메모리내용이 해석되기때문에, 의도치않은 코드가 수행될 수 있다.
+
+#### house_of_spirit.c
+
+[house of spirit](https://github.com/shellphish/how2heap/blob/master/house_of_spirit.c)
+
+House of spirit 공격을 설명하기 위한 예제.
+
