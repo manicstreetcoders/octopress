@@ -9,7 +9,8 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="Off-by-one 이제, size check 가 들어가는데 체크를 잘못해서, Off-by-one 에러가 날 경우를 정리해본다. 다음과 같은 체크가 들어간다고 한다. if (strlen(av[1])&gt;512){ printf("Buffer overflow &hellip;">
+  <meta name="description" content="format string
+">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -65,6 +66,35 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/11/10/linux-x86-64-shellcode-8/">Linux X86_64 Shellcode 8</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-11-10T23:10:47+09:00'><span class='date'><span class='date-month'>Nov</span> <span class='date-day'>10</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>11:10 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h4>format string</h4>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1032,35 +1062,6 @@ public class Main {
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/10/24/shellshock/">Shellshock</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2014-10-24T09:10:49+09:00'><span class='date'><span class='date-month'>Oct</span> <span class='date-day'>24</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>9:10 am</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content">
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/12">&larr; Older</a>
@@ -1078,6 +1079,10 @@ public class Main {
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/02/12/unlocking-the-motorola-bootloader-by-azimuth-security/">Unlocking the Motorola Bootloader by Azimuth Security</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/02/11/how2heap/">How2heap</a>
       </li>
     
@@ -1091,10 +1096,6 @@ public class Main {
     
       <li class="post">
         <a href="/blog/2016/02/07/the-dependency-of-android-sdk/">The Dependency of Android SDK</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/02/03/qseecom/">Qseecom</a>
       </li>
     
   </ul>

@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>http://zomo.heroku.com/blog/2016/02/12/unlocking-the-motorola-bootloader-by-azimuth-security/</loc>
+    <lastmod>2016-02-12T10:12:12+09:00</lastmod>
+  </url>
+  <url>
     <loc>http://zomo.heroku.com/blog/2016/02/11/how2heap/</loc>
     <lastmod>2016-02-11T17:45:34+09:00</lastmod>
   </url>

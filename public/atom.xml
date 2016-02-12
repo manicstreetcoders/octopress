@@ -4,7 +4,7 @@
   <title><![CDATA[KC's blog]]></title>
   <link href="http://zomo.heroku.com/atom.xml" rel="self"/>
   <link href="http://zomo.heroku.com/"/>
-  <updated>2016-02-12T10:07:00+09:00</updated>
+  <updated>2016-02-12T10:13:04+09:00</updated>
   <id>http://zomo.heroku.com/</id>
   <author>
     <name><![CDATA[KC]]></name>
@@ -12,6 +12,17 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Unlocking the Motorola Bootloader by Azimuth Security]]></title>
+    <link href="http://zomo.heroku.com/blog/2016/02/12/unlocking-the-motorola-bootloader-by-azimuth-security/"/>
+    <updated>2016-02-12T10:12:12+09:00</updated>
+    <id>http://zomo.heroku.com/blog/2016/02/12/unlocking-the-motorola-bootloader-by-azimuth-security</id>
+    <content type="html"><![CDATA[<p>이번에는 좀 오래되었지만, Azimuth Security 블로그의 글을 정리해본다.</p>
+
+<p><a href="http://blog.azimuthsecurity.com/2013/04/unlocking-motorola-bootloader.html?m=1">Unlocking the Motorola Bootlaoder</a></p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[How2heap]]></title>
@@ -1682,79 +1693,6 @@ BoxType 은 4 글자 코드로 구성된다. FourCC 라고 불리는데, <code>c
 
 
 <p>즉 흐름을 정리하면 <code>(512 bytes) PING SOCK</code> -> bug free -> <code>(512 bytes) FREE chunk</code> -> sendmmsg -> <code>(512 bytes) TRANSFER BUFFER</code> 가 되는 셈.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Offensive and Defensive Android Reverse Engineering]]></title>
-    <link href="http://zomo.heroku.com/blog/2015/08/22/offensive-and-defensive-android-reverse-engineering/"/>
-    <updated>2015-08-22T22:03:57+09:00</updated>
-    <id>http://zomo.heroku.com/blog/2015/08/22/offensive-and-defensive-android-reverse-engineering</id>
-    <content type="html"><![CDATA[<p>DEFCON 2015, Offensive and Defensive Android Reverse Engineering 에서.</p>
-
-<p>Github.com 의 rednaga/training 에 가보면 있음.</p>
-
-<h4>Alcatel One Touch Pop Icon A564C</h4>
-
-<p>우선 전략을 짜면,</p>
-
-<ul>
-<li>Factory img 는 없고</li>
-<li>OTA zip 은 완전하지 않고</li>
-<li>JTAG 은 노력이 너무 들고</li>
-<li>Chip off 로 가면 기계가 망가지고</li>
-</ul>
-
-
-<p>우선 sharedUserId</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>sharedUserId="android.uid.system"</span></code></pre></td></tr></table></div></figure>
-
-
-<p>그리고 서비스 퍼미션.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;service android:name="com.qualcomm.agent.PhoneProcessAgent"</span></code></pre></td></tr></table></div></figure>
-
-
-<p>엔트리 포인트.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>public int onStartCommand(Intent intent, int flags, int startId) {
-</span><span class='line'>    ...
-</span><span class='line'>    else if (Values.ACTION_AGENT.equals(intent.getAction())) {
-</span><span class='line'>        this.doSystemActions(intent.getStringExtra("para")); // ACTION_AGENT = "android.system.agent"
-</span><span class='line'>    }
-</span><span class='line'>    ...
-</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
-
-
-<p>doSystemAction() 을 따라가보면.</p>
-
-<h4>HTC Desire 310</h4>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>$ adb shell ps | grep root | grep system
-</span><span class='line'>/system/bin/vold
-</span><span class='line'>/system/bin/debuggered
-</span><span class='line'>/system/bin/netd
-</span><span class='line'>/system/bin/eapd
-</span><span class='line'>$</span></code></pre></td></tr></table></div></figure>
-
-
-<p><code>vold</code>, <code>debuggered</code>, <code>netd</code> 까지는 괜찮은데, <code>eapd</code> 는 뭐지?</p>
 ]]></content>
   </entry>
   

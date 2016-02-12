@@ -9,48 +9,9 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="Much Ado About Null Exploiting 1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-11
-12
-13
-14
-15
-16
-17
-18
-19
-20
-21
-22
-23
-24
-25
-26
-27
-28
-29
-30
-31
-32
-33
-34
-35
-36
-37
-38
-39
-40
-41
-42 &hellip;">
+  <meta name="description" content="HackingTeam 이 사용하는 exploits framaroot
+towelroot
+putuser Gingerbreak The vulnerability exploited by Gingerbreak exists in the Volume Manager (vold) on &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -106,6 +67,209 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/05/25/rooting-methods/">Rooting Methods</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-05-25T22:20:02+09:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>25</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>10:20 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h3>HackingTeam 이 사용하는 exploits</h3>
+
+<ul>
+<li>framaroot</li>
+<li><a href="https://github.com/android-rooting-tools">towelroot</a></li>
+<li><a href="https://github.com/fi01/libput_user_exploit/blob/master/put_user.c">putuser</a></li>
+</ul>
+
+
+<h3>Gingerbreak</h3>
+
+<p>The vulnerability exploited by Gingerbreak exists in the Volume Manager (vold) on Android version 2.2 (Froyo) - and 3.0 (Honeycomb). Vold manages the mounting of external storage volumes on Android. The vulnerability was an out-of-bounds array access that allowed the exploit author to overwrite entries in the Global Offset Table (GOT) to trick the system into executing a copy of the sh binary as root.</p>
+
+<p><a href="http://c-skills.blogspot.com/2011/04/yummy-yummy-gingerbreak.html">here</a></p>
+
+<h3>Exynos Abuse - Exploiting Custom Drivers</h3>
+
+<p><a href="http://forum.xda-developers.com/showthread.php?t=2048511">here</a></p>
+
+<p>The post detailed that a block device located at /dev/exynos-mem allowed the mapping of kernel memory into user space by any user. The exploitation technique used was to patch a comparison made in the <code>setresuid()</code> function. This comparison is normally <code>cmp r0,#0</code> and was altered to <code>cmp r0,#1</code> as a result of having complete access to the memory space, which meant that when sysresuid(0) was called later on the code, access was granted to change to root context. This exploit also elegantly bypassed the <code>kptr_restrict</code> memory protection, which does not allow applications to read <code>/proc/kallsyms</code> and obtain kernel pointers. It did so by changing the enforcing flag of this check in live memory.</p>
+
+<h3>Samsung Admire - Abusing File Permissions with Symlinks</h3>
+
+<p>Permissive file permissions on files used by the system on Android devices can sometimes be used to obtain root. This method may sound obscure but consider the following classic example from Dan Rosenberg in his exploit for the Samsung Admire: <a href="http://vulnfactory.org/blog/2011/09/12/rooting-the-samsung-admire/">here</a></p>
+
+<p>He discovered that when an application crashes, a dump file was created at <code>/data/log/dumpState_app_native.log</code> on the filesystem by root with the world-writable file permission. In addition, the <code>/data/log</code> parent directory was also world-writable. Therefore, placing a symbolic link named <code>dumpState_app_native.log</code> in this directory and causing an application to crash would cause a file to be written somewhere else on the filesystem as world-writable. There existed a file in older versions of Android at <code>/data/local.prop</code>, which was used to (among other things) determine what privilege level ADB should run under. This file was not present on this device and so Dan exploited this vulnerability to create the <code>/data/local/prop</code> file as wrold-writable and then insert a command in this file stating that ADB should run as root. This attribute is <code>ro.kernel.qemu=1</code> on this particular device. From there the exploit uses ADB as root, place the su binary, and installs the root manager application.</p>
+
+<h3>Acer Iconia - Exploiting SUID binaries</h3>
+
+<p>A SUID binary that is owned by root and world-executable is very high-value target for root exploit developers. If they discover any vulnerabilities in this binary that allow the execution of arbitary code, they will have gained root access on the device.
+This particular issue was discovered by an XDA Developers user named sc2k on the Acer Iconia A1000, which had a pre-installed SUID binary named cmdclient that was vulnerable to command injection. See the original post at <a href="http://forum.xda-developers.com/showthread.php?t=1138228">here</a>.</p>
+
+<h3>Master Key Bugs - Exploiting Android AOSP System Code</h3>
+
+<p><a href="http://www.saurik.com/id/17">here</a>
+<a href="http://www.cydiaimpactor.com">Cydia Impactor</a></p>
+
+<h3>TowelRoot</h3>
+
+<p><a href="http://www.all-things-android.com/content/android-and-linux-kernel-towelroot-exploit">here</a></p>
+
+<h3>Wunderbar/asroot</h3>
+
+<p>This bug was discovered by Tavis Ormandy and Julien Tinnes of the Google Security Team and was assigned CVE-2009-2692.</p>
+
+<p>The Linux kernel 2.6.0 through 2.6.30.4 and 2.4.4 through 2.4.37.4, does not initialize all function pointers for socket operations in proto_ops structures, which allows local users to trigger a NULL pointer dereference and gain privileges by using mmap to map page zero, placing arbitrary code on this page, and then invoking an unavailable operation, as demonstrated by the sendpage operation (sock_sendpage function) on a PF_PPPOX socket.</p>
+
+<p><a href="http://www.zenthought.org/content/file/android-root-2009-08-16-source">here</a></p>
+
+<h3>Recovery: Volez</h3>
+
+<p>A typographical error in the signature verifier used in Android 2.0 and 2.0.1 recovery images caused the recovery to incorrectly detect the End of Central Directory (EOCD) record inside a signed update.zip file. This issue resulted in the ability to modify the contents of a signed OTA recovery image.</p>
+
+<p><a href="http://zenthought.org/content/project/volez">here</a></p>
+
+<h3>Udev: Exploid</h3>
+
+<ul>
+<li>CVE-2009-1185</li>
+</ul>
+
+
+<h3>Adbd: RageAgainstTheCage</h3>
+
+<p><a href="http://stealth.openwall.net/xSports/RageAgainstTheCage.tgz">here</a></p>
+
+<h3>Zygote: Zimperlich and Zyysploit</h3>
+
+<p><a href="http://c-skills.blogspot.com.es/2011/02/zimperlich-sources.html">here</a>
+<a href="https://github.com/unrevoked/zysploit">here</a></p>
+
+<h3>Ashmem: KillingTheNameOf and psneuter</h3>
+
+<p><a href="http://c-skills.blogspot.com/2011/01/adb-trickery-again.html">here</a>
+<a href="https://github.com/tmzt/g2root-kmod/tree/scotty2/scotty2/psneuter">here</a></p>
+
+<h3>PowerVR: Ievitator</h3>
+
+<p><a href="http://jon.oberheide.org/files/levitator.c">here</a></p>
+
+<h3>Libsysutils: zergRush</h3>
+
+<p><a href="https://github.com/revolutionary/zergRush">here</a></p>
+
+<h3>Kernel: mempodroid</h3>
+
+<p>[here](<a href="https://github.com/saurik/mempoj">https://github.com/saurik/mempoj</a></p>
+
+<h3>File Permission and Symbolic Link-Related Attacks</h3>
+
+<p><a href="http://vulnfactory.org/blog/">here</a></p>
+
+<p>Initial versions of Android 4.0 had a bug in the init functions for do_chmod, mkdir, and do_chown
+that applied the ownership and file permissions specified even if the last element of their target
+path was a symbolic link. Some Android devices have the following line in their init.rc script.</p>
+
+<p><code>mkdir /data/local/tmp 0771 shell shell</code></p>
+
+<p>As you can guess now, if the /data/local folder is writeable by the user or group shell, you can
+exploit this flaw to make the /data folder writeable by replacing /data/local/tmp with a symbolic
+link to /data and rebooting the device. After rebooting, you can create or modify the /data/local.prop
+file to set the property <code>ro.kernel.qemu</code> to 1.</p>
+
+<p>The commands to exploit this flaw are as follows:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>adb shell rm -r /data/local/tmp
+</span><span class='line'>adb shell ln -s /data/ /data/local/tmp
+</span><span class='line'>adb reboot
+</span><span class='line'>adb shell "echo 'ro.kernel.qemu=1' &gt; /data/local.prop"
+</span><span class='line'>adb reboot</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Another popular variant of this vulnerability links /data/local/tmp to the system partition and then
+uses debugfs to write the su binary and make it set-uid root. For example, the ASUS Transformer Prime
+running Android 4.0.3 is vulnerable to this variant.</p>
+
+<p>The init scripts in Android 4.2 apply <code>O_NOFOLLOW</code> semantics to prevent this calss of symbolic link attacks.</p>
+
+<h3>Adb Restore Race Condition</h3>
+
+<p>Android 4.0 introduced the ability to do full device backups through the adb backup command.
+This command backs up all data and applications into the file backup.ab, which is a compressed
+TAR file with a prepended header. The <code>adb restore</code> command is used to restore the data.</p>
+
+<p>There were two security issues in the initial implementation of the restore process that were
+fixed in Android 4.1.1. The first issue allowed creating files and directories accessible by other
+applications. The second issue allowed restoring file sets from packages that run under a special UID,
+such as system, without a special backup agent to handle the restore process.</p>
+
+<p>To exploit these issues, Andreas Makris (Bin4ry) created a specially crafted backup file with a world
+readble/writeable/executable directory containing 100 files with the content <code>ro.kernel.qemu=1</code> and
+<code>ro.secure=0</code> inside it. When the contents of this file are written to <code>/data/local.prop</code>, it makes
+<code>adbd</code> run with root privieges on boot.</p>
+
+<p><a href="http://forum.xda-developers.com/showthread.php?t=1886460">here</a></p>
+
+<p>The following one-liner, if executed while the <code>adb restore</code> command is running, causes a race between
+the restore process in the backup manager service and the while loop run by the <code>shell</code> user:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>adb shell "while ! ln -s /data/local.prop /data/data/com.android.settings/a/file99; do :; done"</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If the loop creates the symbolic link in file99 before the restore process restores it, the restore
+process follows the symbolic link and writes the read-only system properties to /data/local.prop, making
+adbd run as root in the next reboot.</p>
+
+<h3>Exynos4: exynos-abuse</h3>
+
+<ul>
+<li><a href="http://forum.xda-developers.com/showthread.php?t=2048511">here</a></li>
+<li><a href="http://blog.azimuthsecurity.com/2013/02/revisiting-exynos-memory-mapping-bug.html">Framaroot</a></li>
+</ul>
+
+
+<h3>Diag: lit / diaggetroot</h3>
+
+<p>This vulnerability was discovered by giantpune and was assigned CVE identifier CVE-2012-4220:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>diagchar_core.c in the Qualcomm Innovation Center (QuIC) Diagnostics (aka DIAG) kernel-mode driver
+</span><span class='line'>for Android 2.3 through 4.2 allows attackers to execute arbitrary code or cause a 
+</span><span class='line'>denial of service (incorrect pointer dereference) via an application that uses crafted arguments in a
+</span><span class='line'>local diagchar_ioctl call.</span></code></pre></td></tr></table></div></figure>
+
+
+<p><a href="https://docs.google.com/file/d/oB8LDObFOpzZqQzducmxjRExXNnM/edit?pli=1">here</a></p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1823,343 +1987,6 @@ kernel memory, when exploiting custom vulnerabilities.</p>
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/05/09/tls/">TLS</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2015-05-09T13:54:37+09:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>9</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>1:54 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><h4>TLS Data Structures</h4>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>struct {
-</span><span class='line'>    uint8 major;
-</span><span class='line'>    uint8 minor;
-</span><span class='line'>} ProtocolVersion;
-</span><span class='line'>
-</span><span class='line'>enum {
-</span><span class='line'>    change_cipher_spec (20),
-</span><span class='line'>    alert (21),
-</span><span class='line'>    handshake (22),
-</span><span class='line'>    application_data (23)
-</span><span class='line'>} ContentType;
-</span><span class='line'>
-</span><span class='line'>struct {
-</span><span class='line'>    ContentType type;
-</span><span class='line'>    ProtocolVersion version;
-</span><span class='line'>    uint16 length;
-</span><span class='line'>    opaque fragment[TLSPlaintext.length];
-</span><span class='line'>} TLSPlaintext;
-</span><span class='line'>
-</span><span class='line'>struct {
-</span><span class='line'>    HandshakeType msg_type;
-</span><span class='line'>    uint24 length;
-</span><span class='line'>    HandshakeMessage message;
-</span><span class='line'>} Handshake;</span></code></pre></td></tr></table></div></figure>
-
-
-<h4>Full Handshake</h4>
-
-<ol>
-<li>[ClientHello] Client begins a new handshake and submits its capabilities to the server.</li>
-<li>[ServerHello] Sever selects connection parameters.</li>
-<li>[Certificate] Server sends its certificate chain (only if server authentication is required).</li>
-<li>[ServerKeyExchange] Depending on the selected key exchange, the server sends additional information required to generate the master secret.</li>
-<li>[ServerHelloDone] Server indicates completion of its side of the negotiation.</li>
-<li>[ClientKeyExchange] Client sends additional information required to generate the master secret.</li>
-<li>[ChangeCipherSpec] Client switches to encryption and informs the server.</li>
-<li>[Finished] Client sends a MAC of the handshake messages it sent and received.</li>
-<li>[ChangeCipherSpec] Server switches to encryption and informs the client.</li>
-<li>[Finished] Server sends a MAC of the handshake messages it received and sent.</li>
-</ol>
-
-
-<h4>ClientHello</h4>
-
-<ul>
-<li>프로토콜 버전은 클라이언트가 지원하는 가장 높은 버전.</li>
-<li>그 다음은 랜덤 28 바이트 + 4 바이트 클락.</li>
-<li>첫 연결에서는 세션 ID 는 empty. 리쥼할 경우에는 32 바이트. 서버 세션 캐쉬 ID.</li>
-<li>그리고 클라이언트에서 지원하는 cipher suites.</li>
-</ul>
-
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>Handshake protocol: ClientHello
-</span><span class='line'>    Version: TLS 1.2
-</span><span class='line'>    Random
-</span><span class='line'>        Client time: May 22, 2030 02:43:46 GMT
-</span><span class='line'>        Random bytes: b76b...
-</span><span class='line'>    Session ID: (empty)
-</span><span class='line'>    Cipher Suites
-</span><span class='line'>        Suite: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
-</span><span class='line'>        Suite: TLS_DHE_RSA_WITH_AES_128_GCM_SHA256
-</span><span class='line'>        Suite: TLS_RSA_WITH_AES_128_GCM_SHA256
-</span><span class='line'>        ...
-</span><span class='line'>    Compression methods
-</span><span class='line'>        Method: null
-</span><span class='line'>    Extensions
-</span><span class='line'>        Extension: server_name
-</span><span class='line'>            Hostname: www.babo.com
-</span><span class='line'>        Extension: renegotiation_info
-</span><span class='line'>        Extension: elliptic_curves
-</span><span class='line'>            Named curve: secp256r1
-</span><span class='line'>            Named curve: secp384r1
-</span><span class='line'>        Extension: signature_algorithms
-</span><span class='line'>            Algorithm: sha1/rsa
-</span><span class='line'>            Algorithm: sha256/rsa
-</span><span class='line'>            Algorithm: sha1/ecdsa
-</span><span class='line'>            Algorithm: sha256/ecdsa</span></code></pre></td></tr></table></div></figure>
-
-
-<h4>ServerHello</h4>
-
-<p>옵션들중에서 서버가 선택한 초이스를 클라이언트에게 알려준다.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>Handshake protocol: ServerHello
-</span><span class='line'>    Version: TLS 1.2
-</span><span class='line'>    Random
-</span><span class='line'>        Server time: Mar 10, 2059 02:35:57 GMT
-</span><span class='line'>        Random bytes: 8469...
-</span><span class='line'>    Session ID: 4cae75...
-</span><span class='line'>    Cipher Suite: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
-</span><span class='line'>    Compression method: null
-</span><span class='line'>    Extensions
-</span><span class='line'>        Extension: server_name
-</span><span class='line'>        Extension: renegotiation_info</span></code></pre></td></tr></table></div></figure>
-
-
-<h4>Certificate</h4>
-
-<ul>
-<li>서버의 X.509 인증서 체인. ASN.1 DER 인코딩.</li>
-<li>서버 인증서가 첫번쨰. 그리고, validation chain 이 주르륵 따라간다. root 는 브라우저에 있으니 생략한다.</li>
-<li>선택된 cipher suite 와 호환되는 인증서여야한다.</li>
-</ul>
-
-
-<h4>Finished</h4>
-
-<ul>
-<li>verify_data = PRF(master_secret, finished_label, Hash(handshake_message))</li>
-</ul>
-
-
-<h4>Key Exchange</h4>
-
-<ul>
-<li>dh_anon, dhe_rsa, ecdh_anon, ecdhe_rsa, ecdhe_ecdsa, krb5, rsa, psk, dhe_psk, rsa_psk, srp</li>
-</ul>
-
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>struct {
-</span><span class='line'>    select (KeyExchangeAlgorithm) {
-</span><span class='line'>        case dh_anon:
-</span><span class='line'>            ServerDHParams      params;
-</span><span class='line'>        case dhe_rsa:
-</span><span class='line'>            ServerDHParams      params;
-</span><span class='line'>            Signature           params_signature;
-</span><span class='line'>        case ecdh_anon:
-</span><span class='line'>            ServerECDHParams    params;
-</span><span class='line'>        case ecdhe_rsa:
-</span><span class='line'>        case ecdhe_ecdsa:
-</span><span class='line'>            ServerECDHParams    params;
-</span><span class='line'>            Signature           params_signature;
-</span><span class='line'>        case rsa:
-</span><span class='line'>        case dh_rsa:
-</span><span class='line'>            /* no message */
-</span><span class='line'>    };
-</span><span class='line'>} ServerKeyExchange;</span></code></pre></td></tr></table></div></figure>
-
-
-<h4>RSA Key Exchange</h4>
-
-<p>굉장히 심플. 클라이언트가 premaster secret (46-byte random number) 를 생성해서, 서버의 public key 로 암호화해서 <code>ClientKeyExchange</code> 메시지로 보낸다. TLS 에서는 <code>RSAES-PKCS1-v1_5</code> 스킴을 사용. Forward secrecy 가 보장이 안되서 문제.</p>
-
-<h4>Diffie-Hellman Key Exchange</h4>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>struct {
-</span><span class='line'>    opaque dh_p;
-</span><span class='line'>    opaque dh_g;
-</span><span class='line'>    opaque dh_Ys;
-</span><span class='line'>} ServerDHParams;
-</span><span class='line'>
-</span><span class='line'>struct {
-</span><span class='line'>    select (PublicValueEncoding) {
-</span><span class='line'>        case implicit:
-</span><span class='line'>            /* empty; used when the client's public parameter is embedded in its certificate */
-</span><span class='line'>        case explicit:
-</span><span class='line'>            opaque dh_Yc;
-</span><span class='line'>    } dh_public;
-</span><span class='line'>} ClientDiffieHellmanPublic;</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Ephemeral Diffie-Hellman (DHE) key exchange 는 파라메터 재사용을 안하는 키교환. 반대로 static DH key exchange 도 있지만, TLS 에서 사용되지는 않는다.</p>
-
-<h4>Elliptic Curve Diffie-Hellman Key Exchange</h4>
-
-<h4>Authentication</h4>
-
-<p>RSA key exchange 에서는 프로토콜을 계속 진행할 수 있다면, 서버가 제시한 인증서의 당사자가 반대편에 있다는 것이 implicit 하게 보장이 된다.</p>
-
-<p>DHE / ECDHE 에서는 서버가 보낸 파라메터에 서명이 딸려온다. 서버의 public key 로 검증할 수 있다.</p>
-
-<h4>Encryption</h4>
-
-<p>Sequence #, Header, Plaintext 를 concat 해서 MAC 을 구해서, Plaintext 에 append 한다. 이 녀석을 encrypt 한 것이 TLS 의 ciphertext. Header + ciphertext 를 전송한다.</p>
-
-<p>Block encryption algorithm 을 사용할 경우 padding 이 들어가는데, Plaintext + MAC + Padding 을 encrypt 하는데, IV 를 generate 한다음에 CBC mode 로 Plaintext + MAC + Padding 을 encrypt 한다. Header + IV + Ciphertext 를 전송한다.</p>
-
-<p>예전에는 전의 ciphertext 를 IV 로 쓰는 chaining 을 했었는데, TLS 1.1 부터 모든 레코드에 IV 가 generate 된다.</p>
-
-<h4>Authenticated Encryption</h4>
-
-<ol>
-<li>Generate a unique 64-bit nounce.</li>
-<li>Encrypt plaintext with the authenticated encryption algorithm; at the same time feed it the sequence number and record header for it to take into account as additional data for purposes of integrity validation.</li>
-<li>Send the nounce and ciphertext together.</li>
-</ol>
-
-
-<p>Authenticated encryption is currently favored as the best encryption mode available in TLS, because it avoids the issues inherent with the MAC-then-encrypt approach.</p>
-
-<h4>PRF</h4>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>PRF(secret, label, seed) = P_hash(secret, label + seed)
-</span><span class='line'>P_hash(secret, seed) = HMAC_hash(secret, A(1) + seed) + HMAC_hash(secret, A(2) + seed) + ...
-</span><span class='line'>A(1) = HMAC_hash(secret, seed)
-</span><span class='line'>A(2) = HMAC_hash(secret, A(1))
-</span><span class='line'>A(3) = HMAC_hash(secret, A(2))
-</span><span class='line'>...</span></code></pre></td></tr></table></div></figure>
-
-
-<h4>Master Secret</h4>
-
-<p>master_secret = PRF(pre_master_secret, &ldquo;master secret&rdquo;, ClientHello.random + ServerHello.random)</p>
-
-<h4>Key Generation</h4>
-
-<p>key_block = PRF(SecurityParameters.master_secret, &ldquo;key expansion&rdquo;, SecurityParameters.server_random + SecurityParameters.client_random)</p>
-
-<p>The key block is divided into up to six keys: two MAC keys, two encryption keys, two IVs.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/8">&larr; Older</a>
@@ -2177,6 +2004,10 @@ kernel memory, when exploiting custom vulnerabilities.</p>
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/02/12/unlocking-the-motorola-bootloader-by-azimuth-security/">Unlocking the Motorola Bootloader by Azimuth Security</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/02/11/how2heap/">How2heap</a>
       </li>
     
@@ -2190,10 +2021,6 @@ kernel memory, when exploiting custom vulnerabilities.</p>
     
       <li class="post">
         <a href="/blog/2016/02/07/the-dependency-of-android-sdk/">The Dependency of Android SDK</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/02/03/qseecom/">Qseecom</a>
       </li>
     
   </ul>

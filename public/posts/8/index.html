@@ -9,8 +9,32 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="
-">
+  <meta name="description" content="TLS Data Structures 1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+struct { uint8 major; uint8 minor;
+} ProtocolVersion; enum { &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -66,6 +90,343 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/05/09/tls/">TLS</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-05-09T13:54:37+09:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>9</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>1:54 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h4>TLS Data Structures</h4>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>struct {
+</span><span class='line'>    uint8 major;
+</span><span class='line'>    uint8 minor;
+</span><span class='line'>} ProtocolVersion;
+</span><span class='line'>
+</span><span class='line'>enum {
+</span><span class='line'>    change_cipher_spec (20),
+</span><span class='line'>    alert (21),
+</span><span class='line'>    handshake (22),
+</span><span class='line'>    application_data (23)
+</span><span class='line'>} ContentType;
+</span><span class='line'>
+</span><span class='line'>struct {
+</span><span class='line'>    ContentType type;
+</span><span class='line'>    ProtocolVersion version;
+</span><span class='line'>    uint16 length;
+</span><span class='line'>    opaque fragment[TLSPlaintext.length];
+</span><span class='line'>} TLSPlaintext;
+</span><span class='line'>
+</span><span class='line'>struct {
+</span><span class='line'>    HandshakeType msg_type;
+</span><span class='line'>    uint24 length;
+</span><span class='line'>    HandshakeMessage message;
+</span><span class='line'>} Handshake;</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>Full Handshake</h4>
+
+<ol>
+<li>[ClientHello] Client begins a new handshake and submits its capabilities to the server.</li>
+<li>[ServerHello] Sever selects connection parameters.</li>
+<li>[Certificate] Server sends its certificate chain (only if server authentication is required).</li>
+<li>[ServerKeyExchange] Depending on the selected key exchange, the server sends additional information required to generate the master secret.</li>
+<li>[ServerHelloDone] Server indicates completion of its side of the negotiation.</li>
+<li>[ClientKeyExchange] Client sends additional information required to generate the master secret.</li>
+<li>[ChangeCipherSpec] Client switches to encryption and informs the server.</li>
+<li>[Finished] Client sends a MAC of the handshake messages it sent and received.</li>
+<li>[ChangeCipherSpec] Server switches to encryption and informs the client.</li>
+<li>[Finished] Server sends a MAC of the handshake messages it received and sent.</li>
+</ol>
+
+
+<h4>ClientHello</h4>
+
+<ul>
+<li>프로토콜 버전은 클라이언트가 지원하는 가장 높은 버전.</li>
+<li>그 다음은 랜덤 28 바이트 + 4 바이트 클락.</li>
+<li>첫 연결에서는 세션 ID 는 empty. 리쥼할 경우에는 32 바이트. 서버 세션 캐쉬 ID.</li>
+<li>그리고 클라이언트에서 지원하는 cipher suites.</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Handshake protocol: ClientHello
+</span><span class='line'>    Version: TLS 1.2
+</span><span class='line'>    Random
+</span><span class='line'>        Client time: May 22, 2030 02:43:46 GMT
+</span><span class='line'>        Random bytes: b76b...
+</span><span class='line'>    Session ID: (empty)
+</span><span class='line'>    Cipher Suites
+</span><span class='line'>        Suite: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+</span><span class='line'>        Suite: TLS_DHE_RSA_WITH_AES_128_GCM_SHA256
+</span><span class='line'>        Suite: TLS_RSA_WITH_AES_128_GCM_SHA256
+</span><span class='line'>        ...
+</span><span class='line'>    Compression methods
+</span><span class='line'>        Method: null
+</span><span class='line'>    Extensions
+</span><span class='line'>        Extension: server_name
+</span><span class='line'>            Hostname: www.babo.com
+</span><span class='line'>        Extension: renegotiation_info
+</span><span class='line'>        Extension: elliptic_curves
+</span><span class='line'>            Named curve: secp256r1
+</span><span class='line'>            Named curve: secp384r1
+</span><span class='line'>        Extension: signature_algorithms
+</span><span class='line'>            Algorithm: sha1/rsa
+</span><span class='line'>            Algorithm: sha256/rsa
+</span><span class='line'>            Algorithm: sha1/ecdsa
+</span><span class='line'>            Algorithm: sha256/ecdsa</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>ServerHello</h4>
+
+<p>옵션들중에서 서버가 선택한 초이스를 클라이언트에게 알려준다.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Handshake protocol: ServerHello
+</span><span class='line'>    Version: TLS 1.2
+</span><span class='line'>    Random
+</span><span class='line'>        Server time: Mar 10, 2059 02:35:57 GMT
+</span><span class='line'>        Random bytes: 8469...
+</span><span class='line'>    Session ID: 4cae75...
+</span><span class='line'>    Cipher Suite: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+</span><span class='line'>    Compression method: null
+</span><span class='line'>    Extensions
+</span><span class='line'>        Extension: server_name
+</span><span class='line'>        Extension: renegotiation_info</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>Certificate</h4>
+
+<ul>
+<li>서버의 X.509 인증서 체인. ASN.1 DER 인코딩.</li>
+<li>서버 인증서가 첫번쨰. 그리고, validation chain 이 주르륵 따라간다. root 는 브라우저에 있으니 생략한다.</li>
+<li>선택된 cipher suite 와 호환되는 인증서여야한다.</li>
+</ul>
+
+
+<h4>Finished</h4>
+
+<ul>
+<li>verify_data = PRF(master_secret, finished_label, Hash(handshake_message))</li>
+</ul>
+
+
+<h4>Key Exchange</h4>
+
+<ul>
+<li>dh_anon, dhe_rsa, ecdh_anon, ecdhe_rsa, ecdhe_ecdsa, krb5, rsa, psk, dhe_psk, rsa_psk, srp</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>struct {
+</span><span class='line'>    select (KeyExchangeAlgorithm) {
+</span><span class='line'>        case dh_anon:
+</span><span class='line'>            ServerDHParams      params;
+</span><span class='line'>        case dhe_rsa:
+</span><span class='line'>            ServerDHParams      params;
+</span><span class='line'>            Signature           params_signature;
+</span><span class='line'>        case ecdh_anon:
+</span><span class='line'>            ServerECDHParams    params;
+</span><span class='line'>        case ecdhe_rsa:
+</span><span class='line'>        case ecdhe_ecdsa:
+</span><span class='line'>            ServerECDHParams    params;
+</span><span class='line'>            Signature           params_signature;
+</span><span class='line'>        case rsa:
+</span><span class='line'>        case dh_rsa:
+</span><span class='line'>            /* no message */
+</span><span class='line'>    };
+</span><span class='line'>} ServerKeyExchange;</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>RSA Key Exchange</h4>
+
+<p>굉장히 심플. 클라이언트가 premaster secret (46-byte random number) 를 생성해서, 서버의 public key 로 암호화해서 <code>ClientKeyExchange</code> 메시지로 보낸다. TLS 에서는 <code>RSAES-PKCS1-v1_5</code> 스킴을 사용. Forward secrecy 가 보장이 안되서 문제.</p>
+
+<h4>Diffie-Hellman Key Exchange</h4>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>struct {
+</span><span class='line'>    opaque dh_p;
+</span><span class='line'>    opaque dh_g;
+</span><span class='line'>    opaque dh_Ys;
+</span><span class='line'>} ServerDHParams;
+</span><span class='line'>
+</span><span class='line'>struct {
+</span><span class='line'>    select (PublicValueEncoding) {
+</span><span class='line'>        case implicit:
+</span><span class='line'>            /* empty; used when the client's public parameter is embedded in its certificate */
+</span><span class='line'>        case explicit:
+</span><span class='line'>            opaque dh_Yc;
+</span><span class='line'>    } dh_public;
+</span><span class='line'>} ClientDiffieHellmanPublic;</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Ephemeral Diffie-Hellman (DHE) key exchange 는 파라메터 재사용을 안하는 키교환. 반대로 static DH key exchange 도 있지만, TLS 에서 사용되지는 않는다.</p>
+
+<h4>Elliptic Curve Diffie-Hellman Key Exchange</h4>
+
+<h4>Authentication</h4>
+
+<p>RSA key exchange 에서는 프로토콜을 계속 진행할 수 있다면, 서버가 제시한 인증서의 당사자가 반대편에 있다는 것이 implicit 하게 보장이 된다.</p>
+
+<p>DHE / ECDHE 에서는 서버가 보낸 파라메터에 서명이 딸려온다. 서버의 public key 로 검증할 수 있다.</p>
+
+<h4>Encryption</h4>
+
+<p>Sequence #, Header, Plaintext 를 concat 해서 MAC 을 구해서, Plaintext 에 append 한다. 이 녀석을 encrypt 한 것이 TLS 의 ciphertext. Header + ciphertext 를 전송한다.</p>
+
+<p>Block encryption algorithm 을 사용할 경우 padding 이 들어가는데, Plaintext + MAC + Padding 을 encrypt 하는데, IV 를 generate 한다음에 CBC mode 로 Plaintext + MAC + Padding 을 encrypt 한다. Header + IV + Ciphertext 를 전송한다.</p>
+
+<p>예전에는 전의 ciphertext 를 IV 로 쓰는 chaining 을 했었는데, TLS 1.1 부터 모든 레코드에 IV 가 generate 된다.</p>
+
+<h4>Authenticated Encryption</h4>
+
+<ol>
+<li>Generate a unique 64-bit nounce.</li>
+<li>Encrypt plaintext with the authenticated encryption algorithm; at the same time feed it the sequence number and record header for it to take into account as additional data for purposes of integrity validation.</li>
+<li>Send the nounce and ciphertext together.</li>
+</ol>
+
+
+<p>Authenticated encryption is currently favored as the best encryption mode available in TLS, because it avoids the issues inherent with the MAC-then-encrypt approach.</p>
+
+<h4>PRF</h4>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>PRF(secret, label, seed) = P_hash(secret, label + seed)
+</span><span class='line'>P_hash(secret, seed) = HMAC_hash(secret, A(1) + seed) + HMAC_hash(secret, A(2) + seed) + ...
+</span><span class='line'>A(1) = HMAC_hash(secret, seed)
+</span><span class='line'>A(2) = HMAC_hash(secret, A(1))
+</span><span class='line'>A(3) = HMAC_hash(secret, A(2))
+</span><span class='line'>...</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>Master Secret</h4>
+
+<p>master_secret = PRF(pre_master_secret, &ldquo;master secret&rdquo;, ClientHello.random + ServerHello.random)</p>
+
+<h4>Key Generation</h4>
+
+<p>key_block = PRF(SecurityParameters.master_secret, &ldquo;key expansion&rdquo;, SecurityParameters.server_random + SecurityParameters.client_random)</p>
+
+<p>The key block is divided into up to six keys: two MAC keys, two encryption keys, two IVs.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1208,42 +1569,6 @@ DLL 의 <code>DLL_PROCESS_ATTACH</code> 때 돌아가게 코드를 만들어 놓
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/04/08/validating-ssl-certificates-in-non-browser-software/">Validating SSL Certificates in Non-Browser Software</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2015-04-08T11:16:42+09:00'><span class='date'><span class='date-month'>Apr</span> <span class='date-day'>8</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>11:16 am</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p><a href="http://www.cs.utexas.edu/~shmat/shmat_ccs12.pdf">The Most Dangerous Code in the World: Validating SSL Certificates in Non-Browser Software</a></p>
-
-<h4>Hostname verification</h4>
-
-<ul>
-<li>SubjectAltNames</li>
-</ul>
-
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/9">&larr; Older</a>
@@ -1261,6 +1586,10 @@ DLL 의 <code>DLL_PROCESS_ATTACH</code> 때 돌아가게 코드를 만들어 놓
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/02/12/unlocking-the-motorola-bootloader-by-azimuth-security/">Unlocking the Motorola Bootloader by Azimuth Security</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/02/11/how2heap/">How2heap</a>
       </li>
     
@@ -1274,10 +1603,6 @@ DLL 의 <code>DLL_PROCESS_ATTACH</code> 때 돌아가게 코드를 만들어 놓
     
       <li class="post">
         <a href="/blog/2016/02/07/the-dependency-of-android-sdk/">The Dependency of Android SDK</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/02/03/qseecom/">Qseecom</a>
       </li>
     
   </ul>

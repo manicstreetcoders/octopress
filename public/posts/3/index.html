@@ -9,7 +9,7 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="USENIX 2015 에 발표된, Type Casting Verification: Stopping an Emerging Attack Vector. C++ Bad-casting Demystified 논문에 나온 코드. Downcasting 을 잘못해서 memory &hellip;">
+  <meta name="description" content="DEFCON 2015, Offensive and Defensive Android Reverse Engineering 에서. Github.com 의 rednaga/training 에 가보면 있음. Alcatel One Touch Pop Icon A564C 우선 전략을 &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -65,6 +65,99 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/08/22/offensive-and-defensive-android-reverse-engineering/">Offensive and Defensive Android Reverse Engineering</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-08-22T22:03:57+09:00'><span class='date'><span class='date-month'>Aug</span> <span class='date-day'>22</span><span class='date-suffix'>nd</span>, <span class='date-year'>2015</span></span> <span class='time'>10:03 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>DEFCON 2015, Offensive and Defensive Android Reverse Engineering 에서.</p>
+
+<p>Github.com 의 rednaga/training 에 가보면 있음.</p>
+
+<h4>Alcatel One Touch Pop Icon A564C</h4>
+
+<p>우선 전략을 짜면,</p>
+
+<ul>
+<li>Factory img 는 없고</li>
+<li>OTA zip 은 완전하지 않고</li>
+<li>JTAG 은 노력이 너무 들고</li>
+<li>Chip off 로 가면 기계가 망가지고</li>
+</ul>
+
+
+<p>우선 sharedUserId</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>sharedUserId="android.uid.system"</span></code></pre></td></tr></table></div></figure>
+
+
+<p>그리고 서비스 퍼미션.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;service android:name="com.qualcomm.agent.PhoneProcessAgent"</span></code></pre></td></tr></table></div></figure>
+
+
+<p>엔트리 포인트.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>public int onStartCommand(Intent intent, int flags, int startId) {
+</span><span class='line'>    ...
+</span><span class='line'>    else if (Values.ACTION_AGENT.equals(intent.getAction())) {
+</span><span class='line'>        this.doSystemActions(intent.getStringExtra("para")); // ACTION_AGENT = "android.system.agent"
+</span><span class='line'>    }
+</span><span class='line'>    ...
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p>doSystemAction() 을 따라가보면.</p>
+
+<h4>HTC Desire 310</h4>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ adb shell ps | grep root | grep system
+</span><span class='line'>/system/bin/vold
+</span><span class='line'>/system/bin/debuggered
+</span><span class='line'>/system/bin/netd
+</span><span class='line'>/system/bin/eapd
+</span><span class='line'>$</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>vold</code>, <code>debuggered</code>, <code>netd</code> 까지는 괜찮은데, <code>eapd</code> 는 뭐지?</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1895,68 +1988,6 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/07/17/hacking-teams-android-browser-exploit/">Hacking Team's Android Browser Exploit</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2015-07-17T17:20:22+09:00'><span class='date'><span class='date-month'>Jul</span> <span class='date-day'>17</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>5:20 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Tencent 보안팀의 <a href="https://translate.google.com/translate?sl=zh-CN&amp;tl=en&amp;js=y&amp;prev=_t&amp;hl=en&amp;ie=UTF-8&amp;u=http%3A%2F%2Fsecurity.tencent.com%2Findex.php%2Fblog%2Fmsg%2F87&amp;edit-text=">Hacking Team Android Browser Exploit</a> 을 요약해본다.</p>
-
-<p><code>vector-exploit-master\src\ht-webkit-Android4-src</code> 디렉토리에 Android Browser exploit 코드가 있다.</p>
-
-<ul>
-<li>Information leak (CVE-2011-1202)</li>
-<li>Arbitrary Memory Read (CVE-2012-2825)</li>
-<li>Heap-Buffer-Overflow (CVE-2012-2871)</li>
-</ul>
-
-
-<p>을 사용한다.</p>
-
-<h4>map_pages(Layout, num)</h4>
-
-<h4>createsheetblob(addr)</h4>
-
-<h4>start_bisect() / find_spray_addr()</h4>
-
-<h4>CVE-2011-1202</h4>
-
-<h4>XSLTObject.prototype.free</h4>
-
-<h4>Overwrite ArrayBuffer</h4>
-
-<h4>BufferMemoryObject.write32()</h4>
-
-<h4>module.so</h4>
-
-<h4>libwebcore.so / libc.so</h4>
-
-<h4>fakevtable</h4>
-
-<h4>ROP</h4>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/4">&larr; Older</a>
@@ -1974,6 +2005,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/02/12/unlocking-the-motorola-bootloader-by-azimuth-security/">Unlocking the Motorola Bootloader by Azimuth Security</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/02/11/how2heap/">How2heap</a>
       </li>
     
@@ -1987,10 +2022,6 @@
     
       <li class="post">
         <a href="/blog/2016/02/07/the-dependency-of-android-sdk/">The Dependency of Android SDK</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/02/03/qseecom/">Qseecom</a>
       </li>
     
   </ul>
