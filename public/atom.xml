@@ -4,7 +4,7 @@
   <title><![CDATA[KC's blog]]></title>
   <link href="http://zomo.heroku.com/atom.xml" rel="self"/>
   <link href="http://zomo.heroku.com/"/>
-  <updated>2016-02-12T16:14:12+09:00</updated>
+  <updated>2016-02-12T17:56:35+09:00</updated>
   <id>http://zomo.heroku.com/</id>
   <author>
     <name><![CDATA[KC]]></name>
@@ -19,6 +19,83 @@
     <updated>2016-02-12T16:13:07+09:00</updated>
     <id>http://zomo.heroku.com/blog/2016/02/12/understanding-the-heap-and-exploiting-heap-overflows</id>
     <content type="html"><![CDATA[<p>Mathy Vanhoef blog 의 <a href="http://www.mathyvanhoef.com/2013/02/understanding-heap-exploiting-heap.html">Understanding the Heap &amp; Exploiting Heap Overflows</a> 를 정리한다.</p>
+
+<p>먼저 취약한 예제.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>#include &lt;string.h&gt;
+</span><span class='line'>#include &lt;stdlib.h&gt;
+</span><span class='line'>#include &lt;stdio.h&gt;
+</span><span class='line'>
+</span><span class='line'>int main(int argc, char *argv[])
+</span><span class='line'>{
+</span><span class='line'>  char *buf1 = malloc(128);
+</span><span class='line'>  char *buf2 = malloc(256);
+</span><span class='line'>
+</span><span class='line'>  printf("addr buf1: %p\n", buf1);
+</span><span class='line'>  printf("addr buf2: %p\n", buf2);
+</span><span class='line'>
+</span><span class='line'>  read(fileno(stdin), buf1, 200);
+</span><span class='line'>
+</span><span class='line'>  free(buf2);
+</span><span class='line'>  free(buf1);
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>Basic Heap and Chunk Layout</h4>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>struct malloc_chunk {
+</span><span class='line'>  INTERNAL_SIZE_T     prev_size;
+</span><span class='line'>  INTERNAL_SIZE_T     size;
+</span><span class='line'>  
+</span><span class='line'>  struct malloc_chunk* fd;
+</span><span class='line'>  struct malloc_chunk* bk;
+</span><span class='line'>
+</span><span class='line'>  struct malloc_chunk* fd_nextsize;
+</span><span class='line'>  struct malloc_chunk* bk_nextsize;
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>Interpretation of the Chunk Structure</h4>
+
+<ul>
+<li>Allocated chunk 에서 사용되는 필드는 size 뿐이다.</li>
+<li>그리고, <code>malloc()</code> 으로 돌아오는 포인터는 <code>fd</code> 랑 일치한다.</li>
+<li><code>fd</code>, <code>bk</code> 를 이용해서 free 된 chunk 를 doubly linked list 로 관리한다.</li>
+<li>size 의 하위 3 bit 는 사용되지 않는다. (align 되기때문에 항상 000 이 된다)</li>
+<li>그래서, size 의 사용되지 않는 하위 비트들을 flag 로 사용한다.</li>
+<li>size 의 LSB 는 previous chunk 가 alloc 인지 아닌지 flag 로 사용된다.</li>
+<li>current chunk 가 사용되고 있는지 아닌지 아는 방법은, next chunk 의 size 필드의 LSB 를 보는 것이다. 즉 <code>cur_chunk + size + sizeof(INTERNAL_SIZE_T)</code> 로 next chunk 로 가서, <code>size &amp; 0x1</code> 로 체크하는 것이다.</li>
+</ul>
+
+
+<h4>Managing Free Chunks</h4>
 ]]></content>
   </entry>
   
