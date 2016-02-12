@@ -9,9 +9,8 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="HackingTeam 이 사용하는 exploits framaroot
-towelroot
-putuser Gingerbreak The vulnerability exploited by Gingerbreak exists in the Volume Manager (vold) on &hellip;">
+  <meta name="description" content="Windows 8.x TrackPopupMenu Privilege Escalation
+">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -67,6 +66,35 @@ putuser Gingerbreak The vulnerability exploited by Gingerbreak exists in the Vol
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/05/25/windows-8-dot-x-trackpopupmenu-privilege-escalation/">Windows 8.X TrackPopupMenu Privilege Escalation</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-05-25T23:02:30+09:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>25</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>11:02 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><a href="http://packetstormsecurity.com/files/131964/trackpopupmenu-escalate.txt">Windows 8.x TrackPopupMenu Privilege Escalation</a></p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1794,199 +1822,6 @@ kernel memory, when exploiting custom vulnerabilities.</p>
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/05/10/root-detection-on-android-is-useless/">Root Detection on Android Is Useless</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2015-05-10T21:50:03+09:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>10</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>9:50 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p><a href="http://github.com/serianox/rd">@Serianox_: Root detection on Android is useless, so I wrote 200 lines of (ugly) C to prove it. :3</a></p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-<span class='line-number'>42</span>
-<span class='line-number'>43</span>
-<span class='line-number'>44</span>
-<span class='line-number'>45</span>
-<span class='line-number'>46</span>
-<span class='line-number'>47</span>
-<span class='line-number'>48</span>
-<span class='line-number'>49</span>
-<span class='line-number'>50</span>
-<span class='line-number'>51</span>
-<span class='line-number'>52</span>
-<span class='line-number'>53</span>
-<span class='line-number'>54</span>
-<span class='line-number'>55</span>
-<span class='line-number'>56</span>
-<span class='line-number'>57</span>
-<span class='line-number'>58</span>
-<span class='line-number'>59</span>
-<span class='line-number'>60</span>
-<span class='line-number'>61</span>
-<span class='line-number'>62</span>
-<span class='line-number'>63</span>
-<span class='line-number'>64</span>
-<span class='line-number'>65</span>
-<span class='line-number'>66</span>
-<span class='line-number'>67</span>
-<span class='line-number'>68</span>
-<span class='line-number'>69</span>
-<span class='line-number'>70</span>
-<span class='line-number'>71</span>
-<span class='line-number'>72</span>
-<span class='line-number'>73</span>
-<span class='line-number'>74</span>
-<span class='line-number'>75</span>
-<span class='line-number'>76</span>
-<span class='line-number'>77</span>
-<span class='line-number'>78</span>
-<span class='line-number'>79</span>
-<span class='line-number'>80</span>
-<span class='line-number'>81</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>#include &lt;stdlib.h&gt;
-</span><span class='line'>#include &lt;stdio.h&gt;
-</span><span class='line'>#include &lt;unistd.h&gt;
-</span><span class='line'>#include &lt;fccntl.h&gt;
-</span><span class='line'>#include &lt;errono.h&gt;
-</span><span class='line'>#include &lt;dlfcn.h&gt;
-</span><span class='line'>#include &lt;sys/types.h&gt;
-</span><span class='line'>#include &lt;sys/user.h&gt;
-</span><span class='line'>#include &lt;sys/mman.h&gt;
-</span><span class='line'>#include &lt;sys/syscall.h&gt;
-</span><span class='line'>#include &lt;sys/ptrace.h&gt;
-</span><span class='line'>#include &lt;sys/wait.h&gt;
-</span><span class='line'>#include &lt;linux/user.h&gt;
-</span><span class='line'>
-</span><span class='line'>#define log(...) fprintf(stdout, __VA_ARGS__)
-</span><span class='line'>#define err(...) fprintf(stderr, __VA_ARGS__)
-</span><span class='line'>
-</span><span class='line'>const unsigned long CPSR_T = 0x00000020u;
-</span><span class='line'>
-</span><span class='line'>int shim_access(const char * path, int mode)
-</span><span class='line'>{
-</span><span class='line'>    if (strcmp(path, "/system/app/Superuser.apk") == 0)
-</span><span class='line'>        goto err_noent;
-</span><span class='line'>    if (strcmp(path, "/system/xbin/su") == 0)
-</span><span class='line'>        goto err_noent;
-</span><span class='line'>    return syscall(__NR_access, path, mode);
-</span><span class='line'>err_noent:
-</span><span class='line'>    errno = ENOENT;
-</span><span class='line'>    return -1;
-</span><span class='line'>}
-</span><span class='line'>
-</span><span class='line'>#if defined(SHARED)
-</span><span class='line'>static void __attribute__((constructor)) init()
-</span><span class='line'>{
-</span><span class='line'>    log("patching access@%@010x with shim@%#010x...\n", (unsigned) &access, (unsigne) &shim_access);
-</span><span class='line'>
-</span><span class='line'>    uint32_t * src = (uint32_t *) &access;
-</span><span class='line'>    uint32_t * dst = (uint32_t *) &shim_access;
-</span><span class='line'>
-</span><span class='line'>    size_t range = sysconf(_SC_PAGE_SIZE);
-</span><span class='line'>    void * page_base = (void *) ((uint32_t) src & ~(range - 1));
-</span><span class='line'>    void * page_end = page_base + range;
-</span><span class='line'>
-</span><span class='line'>    log("reset memory protection for [%#010x, %#010x[...\n", (unsigned) page_base, (unsigned) page_end);
-</span><span class='line'>
-</span><span class='line'>    if (mprotect(page_base, range, PROT_READ | PROT_WRITE | PROT_EXEC) != 0)
-</span><span class='line'>        exit(EXIT_FAILURE);
-</span><span class='line'>
-</span><span class='line'>    0x0[src] = ( 0xe59f3000); // ldr r3, [pc]
-</span><span class='line'>    0x1[src] = ( 0xea000000); // b +4
-</span><span class='line'>    0x2[src] = ((uint32_t) dst); // .word dst
-</span><span class='line'>    0x3[src] = ( 0xe12fff13); // bx r3
-</span><span class='line'>
-</span><span class='line'>    if (mprotect(page_base, range, PROT_READ | PROT_EXEC) != 0)
-</span><span class='line'>        exit(EXIT_FAILURE);
-</span><span class='line'>    
-</span><span class='line'>    log("syscall patched!\n");
-</span><span class='line'>}
-</span><span class='line'>#endif
-</span><span class='line'>
-</span><span class='line'>static char * get_image_path()
-</span><span class='line'>{
-</span><span class='line'>    char buffer[1024];
-</span><span class='line'>    char * image_path;
-</span><span class='line'>    int length; 
-</span><span class='line'>
-</span><span class='line'>    length = readlink("/proc/self/exe", buffer, sizeof buffer);
-</span><span class='line'>    buffer[length] = '\0';
-</span><span class='line'>    asprintf(&image_path, "%s", buffer);
-</span><span class='line'>    memcpy(&(strlen(image_path) - strlen("rd-patch"))[image_path], "librd.so", strlen("librd.so") + 1);
-</span><span class='line'>    return image_path;
-</span><span class='line'>}
-</span><span class='line'>
-</span><span class='line'>static void dump_registers(struct user_regs * regs)
-</span><span class='line'>{
-</span><span class='line'>    log(" r0=%#010lx   r1=%#010lx   r2=%#010lx   r3=%#010lx\n", 0x0[regs-&gt;uregs], 0x1[regs-&gt;uregs], 0x2[regs-&gt;uregs], 0x3[regs-&gt;uregs]);
-</span><span class='line'>    log(" r4=%#010lx   r5=%#010lx   r6=%#010lx   r7=%#010lx\n", 0x4[regs-&gt;uregs], 0x5[regs-&gt;uregs], 0x6[regs-&gt;uregs], 0x7[regs-&gt;uregs]);
-</span><span class='line'>    log(" r8=%#010lx   r9=%#010lx  r10=%#010lx  r11=%#010lx\n", 0x8[regs-&gt;uregs], 0x9[regs-&gt;uregs], 0xa[regs-&gt;uregs], 0xb[regs-&gt;uregs]);
-</span><span class='line'>    log("r12=%#010lx   sp=%#010lx   lr=%#010lx   pc=%#010lx\n", 0xc[regs-&gt;uregs], 0xd[regs-&gt;uregs], 0xe[regs-&gt;uregs], 0xf[regs-&gt;uregs]);
-</span><span class='line'>    log("            cpsr=%#010lx\n", 0x10[regs-&gt;uregs]);
-</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
-
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/8">&larr; Older</a>
@@ -2004,6 +1839,10 @@ kernel memory, when exploiting custom vulnerabilities.</p>
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/02/12/understanding-the-heap-and-exploiting-heap-overflows/">Understanding the Heap &amp; Exploiting Heap Overflows</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/02/12/unlocking-the-motorola-bootloader-by-azimuth-security/">Unlocking the Motorola Bootloader by Azimuth Security</a>
       </li>
     
@@ -2017,10 +1856,6 @@ kernel memory, when exploiting custom vulnerabilities.</p>
     
       <li class="post">
         <a href="/blog/2016/02/11/unlocking-the-motorola-bootloader/">Unlocking the Motorola Bootloader</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/02/07/the-dependency-of-android-sdk/">The Dependency of Android SDK</a>
       </li>
     
   </ul>

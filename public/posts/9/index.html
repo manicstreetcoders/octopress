@@ -9,7 +9,7 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="The Most Dangerous Code in the World: Validating SSL Certificates in Non-Browser Software Hostname verification SubjectAltNames ">
+  <meta name="description" content="책을 보고 정리해본다. Introduction 의 Historical Ciphers and Their Cryptanalysis 부분. The shift cipher and the sufficient key-space principle 가능한 키는 26 개. &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -65,6 +65,126 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/04/14/the-vigenere-cipher/">The Vigenere Cipher</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-04-14T08:31:54+09:00'><span class='date'><span class='date-month'>Apr</span> <span class='date-day'>14</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>8:31 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>책을 보고 정리해본다.</p>
+
+<p>Introduction 의 Historical Ciphers and Their Cryptanalysis 부분.</p>
+
+<h4>The shift cipher and the sufficient key-space principle</h4>
+
+<ul>
+<li>가능한 키는 26 개. Plaintext candidates 도 26 개.</li>
+<li>적어도 key space 가 2<sup>70</sup> 정도는 되어야함.</li>
+</ul>
+
+
+<h4>The mono-alphabetic substitution cipher</h4>
+
+<ul>
+<li>이제 Key space 는 모든 bijections 이 된다. 이제 Key space 는 26!</li>
+<li>Key space 는 꽤 커졌지만, 알파벳 출현 빈도를 가지고 분석을 하면, 가장 자주 나타나는 글자가 &lsquo;e&rsquo; 에 대응할 것이라 추측할 수 있다.</li>
+</ul>
+
+
+<h4>An improved attack on the shift cipher</h4>
+
+<ul>
+<li>p_i 를 영어에서 i 번째 글자의 출현 빈도라고 하자. (i 는 0 부터 25 까지)</li>
+<li>알파벳 출현 빈도를 제곱해서 summation 하면 약 0.065 가 나온다고 한다.</li>
+<li>이제 p_i 는 원판, q_j 는 cipher 에서 알파벳의 출현 빈도라고 하고, k 를 shift 라고 하면</li>
+<li>p_i 의 출현 빈도와 q_(j=i+k) 의 출현 빈도는 비슷할 것이다.</li>
+<li>이제 k 를 1 ~ 25 까지 바꿔가면서, p_i * q_j 의 summation 을 구해본다.</li>
+<li>0.065 에 근접하게 나오는 k 가 encryption key 일 확률이 높다.</li>
+</ul>
+
+
+<h4>The Vigenere cipher</h4>
+
+<figure class='code'><figcaption><span>vigenere.c</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="cp">#include &lt;stdio.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;stdlib.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;string.h&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kt">void</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="kt">char</span> <span class="n">cipher</span><span class="p">[</span><span class="mi">256</span><span class="p">];</span>
+</span><span class='line'>    <span class="kt">char</span> <span class="o">*</span> <span class="n">key</span> <span class="o">=</span> <span class="s">&quot;cafe&quot;</span><span class="p">;</span>
+</span><span class='line'>    <span class="kt">char</span> <span class="o">*</span> <span class="n">plain</span> <span class="o">=</span> <span class="s">&quot;tellhimaboutme&quot;</span><span class="p">;</span>
+</span><span class='line'>    <span class="kt">int</span> <span class="n">len</span><span class="p">;</span>
+</span><span class='line'>    <span class="kt">int</span> <span class="n">key_len</span><span class="p">;</span>
+</span><span class='line'>    <span class="kt">int</span> <span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">;</span>
+</span><span class='line'>    <span class="kt">char</span> <span class="n">c</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">memset</span><span class="p">(</span><span class="n">cipher</span><span class="p">,</span><span class="mi">256</span><span class="p">,</span><span class="mi">0</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">len</span> <span class="o">=</span> <span class="n">strlen</span><span class="p">(</span><span class="n">plain</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">key_len</span> <span class="o">=</span> <span class="n">strlen</span><span class="p">(</span><span class="n">key</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">for</span> <span class="p">(</span><span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">len</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">c</span> <span class="o">=</span> <span class="n">plain</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="sc">&#39;a&#39;</span><span class="p">;</span>
+</span><span class='line'>        <span class="n">c</span> <span class="o">+=</span> <span class="n">key</span> <span class="p">[</span> <span class="n">i</span> <span class="o">%</span> <span class="n">key_len</span> <span class="p">]</span> <span class="o">-</span> <span class="sc">&#39;a&#39;</span><span class="p">;</span>
+</span><span class='line'>        <span class="n">c</span> <span class="o">=</span> <span class="n">c</span> <span class="o">%</span> <span class="mi">26</span><span class="p">;</span>
+</span><span class='line'>        <span class="n">cipher</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="sc">&#39;a&#39;</span> <span class="o">+</span> <span class="n">c</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;Cipher: [%s]</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">cipher</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>블럭으로 변환해서 영어 글자의 출현 빈도를 뭉갰다. Key length 를 n 이라고 할 때, C_i 와 C_i+n 이 같은 alphabet 으로 변환되었다는 것에 주목하여, C_i, C_i+n, C_i+2n, C_i+3n, &hellip; 등 같은 녀석들끼리 모아서 분석한다.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -802,152 +922,6 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/12/01/linux-kernel-linked-list/">Linux Kernel - Linked List</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2014-12-01T07:36:02+09:00'><span class='date'><span class='date-month'>Dec</span> <span class='date-day'>1</span><span class='date-suffix'>st</span>, <span class='date-year'>2014</span></span> <span class='time'>7:36 am</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><h3>Linked List</h3>
-
-<p><code>linux/list.h</code> 에 구현되어 있다. static inline 으로 헤더 화일에 짧게 구현되어있다.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="k">struct</span> <span class="n">list_head</span> <span class="p">{</span>
-</span><span class='line'>    <span class="k">struct</span> <span class="n">list_head</span> <span class="o">*</span><span class="n">prev</span><span class="p">;</span>
-</span><span class='line'>    <span class="k">struct</span> <span class="n">list_head</span> <span class="o">*</span><span class="n">next</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">static</span> <span class="kr">inline</span> <span class="kt">void</span> <span class="n">INIT_LIST_HEAD</span><span class="p">(</span><span class="k">struct</span> <span class="n">list_head</span> <span class="o">*</span><span class="n">list</span><span class="p">)</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="n">list</span><span class="o">-&gt;</span><span class="n">prev</span> <span class="o">=</span> <span class="n">list</span><span class="p">;</span>
-</span><span class='line'>    <span class="n">list</span><span class="o">-&gt;</span><span class="n">next</span> <span class="o">=</span> <span class="n">list</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">struct</span> <span class="n">cat</span> <span class="p">{</span>
-</span><span class='line'>    <span class="kt">char</span> <span class="o">*</span><span class="n">name</span><span class="p">;</span>
-</span><span class='line'>    <span class="k">struct</span> <span class="n">list_head</span> <span class="n">list</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="kt">int</span> <span class="n">main</span><span class="p">()</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="k">struct</span> <span class="n">cat</span> <span class="n">babo</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">INIT_LIST_HEAD</span><span class="p">(</span><span class="o">&amp;</span><span class="n">babo</span><span class="p">.</span><span class="n">list</span><span class="p">);</span>
-</span><span class='line'>    <span class="n">babo</span><span class="p">.</span><span class="n">name</span> <span class="o">=</span> <span class="s">&quot;kakaka&quot;</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>구조체에 <code>struct list_head</code> 를 넣는 것으로 doubliy-linked list 를 만들 수 있다.</p>
-
-<h4>container_of()</h4>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="cp">#define container_of(ptr,type,member) \</span>
-</span><span class='line'><span class="cp">    ((type*)((char*)(const typeof(((type*)0)-&gt;member)*)ptr-offsetof(type,member)))</span>
-</span><span class='line'>
-</span><span class='line'><span class="p">...</span>
-</span><span class='line'><span class="k">struct</span> <span class="n">dog</span> <span class="p">{</span>
-</span><span class='line'>    <span class="kt">char</span> <span class="o">*</span><span class="n">name</span><span class="p">;</span>
-</span><span class='line'>    <span class="k">struct</span> <span class="n">list_head</span> <span class="n">list</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'><span class="p">...</span>
-</span><span class='line'><span class="k">struct</span> <span class="n">list_head</span> <span class="o">*</span><span class="n">list_p</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">dog</span><span class="p">.</span><span class="n">list</span><span class="p">;</span>
-</span><span class='line'><span class="p">...</span>
-</span><span class='line'><span class="k">struct</span> <span class="n">dog</span> <span class="o">*</span><span class="n">p</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">p</span> <span class="o">=</span> <span class="n">container_of</span><span class="p">(</span><span class="n">list_p</span><span class="p">,</span> <span class="k">struct</span> <span class="n">dog</span><span class="p">,</span> <span class="n">list</span><span class="p">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p><code>list_head 포인터</code> 에서 <code>스트럭쳐에서의 오프셋</code> 만큼 뒤로 가는 매크로. 그만큼 뒤로 가면, 스트럭쳐의 시작 위치가 나온다.</p>
-
-<h4>LIST_HEAD_INIT()</h4>
-
-<p>node 를 초기화하기 위해 2 가지 함수가 제공되는데, 매크로 버전과 inline 함수 버전이 있다.</p>
-
-<h3>Priority List</h3>
-
-<p>우선순위를 가진 sorted list. 2 개의 linked list 로 구현되어있다. sorted list 이기 때문에, tail 에 붙인다는 개념보다는 head 에 붙인다는 식이다.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="k">struct</span> <span class="n">plist_head</span> <span class="p">{</span>
-</span><span class='line'>    <span class="k">struct</span> <span class="n">list_head</span> <span class="n">node_list</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">struct</span> <span class="n">plist_node</span> <span class="p">{</span>
-</span><span class='line'>    <span class="kt">int</span> <span class="n">prio</span><span class="p">;</span>
-</span><span class='line'>    <span class="k">struct</span> <span class="n">list_head</span> <span class="n">prio_list</span><span class="p">;</span>
-</span><span class='line'>    <span class="k">struct</span> <span class="n">list_head</span> <span class="n">node_list</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/10">&larr; Older</a>
@@ -965,6 +939,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/02/12/understanding-the-heap-and-exploiting-heap-overflows/">Understanding the Heap &amp; Exploiting Heap Overflows</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/02/12/unlocking-the-motorola-bootloader-by-azimuth-security/">Unlocking the Motorola Bootloader by Azimuth Security</a>
       </li>
     
@@ -978,10 +956,6 @@
     
       <li class="post">
         <a href="/blog/2016/02/11/unlocking-the-motorola-bootloader/">Unlocking the Motorola Bootloader</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/02/07/the-dependency-of-android-sdk/">The Dependency of Android SDK</a>
       </li>
     
   </ul>

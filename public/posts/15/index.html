@@ -9,10 +9,9 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="Alexander Sotirov 의 heapLib
-IOActive 의 Chris Valesek 이 공개한 heapLib2.0
-BlackHat 07 Alexander Sotirov, Heap Feng Shui
-Blackhat 08 Alexander Sotirov, &hellip;">
+  <meta name="description" content="기본적인 툴들을 인스톨한다. Android shell 은 MirBSD Korn shell. 불편하니 sshd 나 dropbear 를 인스톨한다.
+Android 의 대부분의 CLI 커맨드는 toolbox 로 구현되었다. busybox 를 인스톨한다.
+Emulator 의 &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -68,6 +67,58 @@ Blackhat 08 Alexander Sotirov, &hellip;">
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/05/31/debugging-android/">Debugging Android</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-05-31T20:50:15+09:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>31</span><span class='date-suffix'>st</span>, <span class='date-year'>2014</span></span> <span class='time'>8:50 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>기본적인 툴들을 인스톨한다.</p>
+
+<ul>
+<li>Android shell 은 MirBSD Korn shell. 불편하니 sshd 나 dropbear 를 인스톨한다.</li>
+<li>Android 의 대부분의 CLI 커맨드는 toolbox 로 구현되었다. busybox 를 인스톨한다.</li>
+<li>Emulator 의 /system/xbin 에 있는 툴들을 pull 해서, device 로 push 한다. Android 버전이 맞아야 하고, <code>objdump</code> 로 필요한 라이브러리를 파악해서 같이 옮겨준다.</li>
+</ul>
+
+
+<p>Dalvik 과 인터페이스하는 CLI 툴들.</p>
+
+<ul>
+<li>am: Interface to activity manager</li>
+<li>bmgr: Backup Manager</li>
+<li>content: Interface with Android Content Providers</li>
+<li>ime</li>
+<li>input</li>
+<li>monkey</li>
+<li>pm</li>
+<li>settings</li>
+<li>svc</li>
+<li>wm</li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1100,49 +1151,6 @@ C++ object 의 ctable pointer 를 0x0c0c0c0c 로 overwrite 했고,
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/04/25/android-paranoid-network/">ANDROID_PARANOID_NETWORK</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2014-04-25T12:35:34+09:00'><span class='date'><span class='date-month'>Apr</span> <span class='date-day'>25</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>12:35 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><pre><code>bootloader loads kernel
--&gt; kernel
--&gt; init process
--&gt; init spawns daemons (i.e. adbd)
--&gt; init launches zygote
--&gt; zygote launches the first DVM and proloads all core classes
--&gt; zygote forks itself and starts a process called system server
--&gt; the system server then starts all core android services i.e. activity manager
-
-ANDROID_PARANOID_NETWORK
-/include/linux/android_aids.h
-AID_INET
-/system/core/include/private/android_filesystem_config.h
-/system/etc/permissions/platform.xml
-</code></pre>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/16">&larr; Older</a>
@@ -1160,6 +1168,10 @@ AID_INET
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/02/12/understanding-the-heap-and-exploiting-heap-overflows/">Understanding the Heap &amp; Exploiting Heap Overflows</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/02/12/unlocking-the-motorola-bootloader-by-azimuth-security/">Unlocking the Motorola Bootloader by Azimuth Security</a>
       </li>
     
@@ -1173,10 +1185,6 @@ AID_INET
     
       <li class="post">
         <a href="/blog/2016/02/11/unlocking-the-motorola-bootloader/">Unlocking the Motorola Bootloader</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/02/07/the-dependency-of-android-sdk/">The Dependency of Android SDK</a>
       </li>
     
   </ul>

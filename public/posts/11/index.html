@@ -9,8 +9,7 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="format string
-">
+  <meta name="description" content="rop 참고 Return-oriented Programming: Exploitation without Code Injection, Erik Buchanan, Ryan Roemer, Stefan Savage, Hovav Shacham, UCSD, Black Hat &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -66,6 +65,42 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/11/10/linux-x86-64-shellcode-9/">Linux X86_64 Shellcode 9</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-11-10T23:10:59+09:00'><span class='date'><span class='date-month'>Nov</span> <span class='date-day'>10</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>11:10 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h4>rop</h4>
+
+<h4>참고</h4>
+
+<ul>
+<li><a href="">Return-oriented Programming: Exploitation without Code Injection, Erik Buchanan, Ryan Roemer, Stefan Savage, Hovav Shacham, UCSD, Black Hat 2008</a></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -909,159 +944,6 @@ End of assembler dump.
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/11/03/substrate-for-android/">Substrate for Android</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2014-11-03T10:40:38+09:00'><span class='date'><span class='date-month'>Nov</span> <span class='date-day'>3</span><span class='date-suffix'>rd</span>, <span class='date-year'>2014</span></span> <span class='time'>10:40 am</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><h4>Tools</h4>
-
-<ul>
-<li><a href="http://repo.xposed.info">Xposed Framework</a></li>
-<li><a href="http://www.cydiasubstrate.com">Cydia Substrate</a></li>
-<li><a href="http://www.cycript.org">Cycript</a></li>
-<li><a href="https://github.com/crmulliner/">ddi/adbi</a></li>
-<li><a href="http://www.frida.re">Frida</a></li>
-</ul>
-
-
-<h4>References</h4>
-
-<ul>
-<li><a href="https://github.com/Fuzion24/JustTrustMe">JustTrustMe: SSL Pinning kill switch</a></li>
-<li><a href="https://github.com/M66B/XPrivacy">XPrivacy</a></li>
-<li><a href="https://github.com/iSECPartners/Introspy-iOS">iSECPartners Introspy-iOS </a></li>
-</ul>
-
-
-<h4>Cydia Substrate</h4>
-
-<p>우선 Violet example. Substrate 를 깔고, violet.apk 를 설치하면 일부 시스템 메시지들이 색이 violet 으로 바뀐다. Build 가 잘 안되면, SDK 폴더 밑에 있는 <code>saurikit/cydia_substrate/substrate-api.jar</code> 화일을 프로젝트 폴더로 카피.</p>
-
-<h4>AndroidManifest.xml</h4>
-
-<pre><code>&lt;?xml version="1.0" encoding="utf-8" standalone="no"?&gt;
-&lt;manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.saurik.android.violetexample"&gt;
-    &lt;application android:label="@string/app_name"&gt;
-        &lt;meta-data android:name="com.saurik.substrate.main" android:value=".Main"/&gt;
-    &lt;/application&gt;
-    &lt;uses-permission android:name="cydia.permission.SUBSTRATE"/&gt;
-&lt;/manifest&gt;
-</code></pre>
-
-<h4>Main.java</h4>
-
-<pre><code>package com.saurik.android.violetexample;
-import android.util.Log;
-import java.lang.reflect.Method;
-import android.content.res.Resources;
-import com.saurik.substrate.MS;
-import com.saurik.substrate.MS.ClassLoadHook;
-import com.saurik.substrate.MS.MethodAlteration;
-
-public class Main {
-    public static void initialize() {
-        Log.d("HOOK", "hook initialized");
-
-        MS.hookClassLoad("android.content.res.Resources", new ClassLoadHook() {
-            public void classLoaded(Class Resources) {
-                try {
-                    MS.hookMethod(Resources, Resources.getDeclaredMethod("getColor", new Class[]{Integer.TYPE}),
-                        new MethodAlteration&lt;Resources, Integer&gt;() {
-                            public Integer invoked(Resources resources, Object... args) throws Throwable {
-                                return Integer.valueOf((((Integer) invoke(resources, args)).intValue() &amp; 
-                                    ~0x0000ff00) | 0x00ff0000);
-                            }
-                        });
-                } catch (NoSuchMethodException e) {
-                }
-            }
-        });
-    }
-}
-</code></pre>
-
-<h4>com.android.internal.telephony.gsm.SmsMessage</h4>
-
-<p>이제 pdu 를 캡쳐해보자.</p>
-
-<pre><code>public class Main {
-    public static void initialize() {
-        MS.hookClassLoad("com.android.internal.telephony.gsm.SmsMessage", new MS.ClassLoadHook() {
-            public void classLoaded(Class&lt;?&gt; smsMessage) {
-                Method getSubmitPdu;
-                try {
-                    getSubmitPdu = smsMessage.getMethod("getSubmitPdu",
-                        String.class,
-                        String.class,
-                        String.class,
-                        Boolean.TYPE,
-                        byte[].class,
-                        Integer.class,
-                        Integer.class,
-                        Integer.class,
-                        Integer.class
-                        );
-                } catch (NoSuchMethodException e) { getSubmitPdu = null; }
-                if (getSubmitPdu != null) {
-                    final MS.MethodPointer old = new MS.MethodPointer();
-                    MS.hookMethod(smsMessage, getSubmitPdu, new MS.MethodHook() {
-                        public Object invoked(Object smsMessage, Object... args) throws Throwable {
-                            Object submitPdu;
-                            submitPdu = old.invoke(smsMessage, args);
-                            try {
-                                Field field;
-                                field = submitPdu.getClass().getSuperclass().getDeclaredField("encodedMessage");
-                                field.setAccessible(true);
-                                if (field.getType() == byte[].class) {
-                                    Object val = field.get(submitPdu);
-                                    Log.d("Substrate", "pdu: " + this.bytesToHex((byte []) val));
-                                }
-                            } catch (Exception e) {
-                                Log.e("Substrate", "Error in Hook_getSubmitPdu. " + e.toString());
-                            }
-                            return submitPdu;
-                        }
-                    }, old);
-                }
-            } 
-        });
-    }
-}
-</code></pre>
-
-<p>추가로, pdu 를 교체하는 것도 가능하다.</p>
-
-<h5>SELinux</h5>
-
-<ul>
-<li><a href="http://forum.xda-developers.com/showthread.php?t=2466101&amp;page=3">Saurik&rsquo;s post</a></li>
-<li><a href="http://forum.xda-developers.com/showthread.php?t=2524485">SELinuxModeChanger</a></li>
-</ul>
-
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/12">&larr; Older</a>
@@ -1079,6 +961,10 @@ public class Main {
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/02/12/understanding-the-heap-and-exploiting-heap-overflows/">Understanding the Heap &amp; Exploiting Heap Overflows</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/02/12/unlocking-the-motorola-bootloader-by-azimuth-security/">Unlocking the Motorola Bootloader by Azimuth Security</a>
       </li>
     
@@ -1092,10 +978,6 @@ public class Main {
     
       <li class="post">
         <a href="/blog/2016/02/11/unlocking-the-motorola-bootloader/">Unlocking the Motorola Bootloader</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/02/07/the-dependency-of-android-sdk/">The Dependency of Android SDK</a>
       </li>
     
   </ul>
