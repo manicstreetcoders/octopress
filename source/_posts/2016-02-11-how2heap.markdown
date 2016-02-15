@@ -34,3 +34,5 @@ House of spirit 공격을 요약하면.
 * 정상적으로 malloc() 을 통해서 받아온 pointer `p` 를 free() 의 인자로 주는 것이 아니라, 공격하고 싶은 메모리 주소를 fastbin 에 밀어넣기 위한 조작된 데이터를 free() 의 인자로 넘긴다.
 
 즉 요약하면, `dlmalloc` 이나, `glmalloc` 등이 OS 에서 `sbrk()` 나 `mmap()` 으로 받아온 메모리가 아니라, 임의의 메모리가 malloc() 의 리턴값으로 떨어지게 만드는 공격 방법. 이를 레버리지해서 임의의 주소에 원하는 값을 쓰는 식으로 발전한다.
+
+* [GB_MASTER's /dev/null](https://gbmaster.wordpress.com/2015/07/21/x86-exploitation-101-house-of-spirit-friendly-stack-overflow/)
