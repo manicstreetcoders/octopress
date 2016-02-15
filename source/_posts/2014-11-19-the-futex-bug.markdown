@@ -8,9 +8,10 @@ categories:
 
 Towelroot 의 근간이 되는 취약점. CVE-2014-3153.
 
-다음 문서를 보고 이해해보려한다. 아주 잘씌여진 문서. 저자에게 감사.
+다음 문서를 보고 이해해보려한다. 아주 잘씌여진 문서. 두명의 저자에게 감사.
 
 * [Tinyhack.com 의 설명](http://tinyhack.com/2014/07/07/exploiting-the-futex-bug-and-uncovering-towelroot/)
+* [The Futex Vulnerability](http://blog.nativeflow.com/the-futex-vulnerability)
 
 GeoHot 이 만든 Towelroot 소스.
 
