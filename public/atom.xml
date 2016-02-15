@@ -4,7 +4,7 @@
   <title><![CDATA[KC's blog]]></title>
   <link href="http://zomo.heroku.com/atom.xml" rel="self"/>
   <link href="http://zomo.heroku.com/"/>
-  <updated>2016-02-15T15:31:42+09:00</updated>
+  <updated>2016-02-15T18:21:36+09:00</updated>
   <id>http://zomo.heroku.com/</id>
   <author>
     <name><![CDATA[KC]]></name>
@@ -147,6 +147,8 @@
 <li>정상적으로 malloc() 을 통해서 받아온 pointer <code>p</code> 를 free() 의 인자로 주는 것이 아니라, 공격하고 싶은 메모리 주소를 fastbin 에 밀어넣기 위한 조작된 데이터를 free() 의 인자로 넘긴다.</li>
 </ul>
 
+
+<p>즉 요약하면, <code>dlmalloc</code> 이나, <code>glmalloc</code> 등이 OS 에서 <code>sbrk()</code> 나 <code>mmap()</code> 으로 받아온 메모리가 아니라, 임의의 메모리가 malloc() 의 리턴값으로 떨어지게 만드는 공격 방법. 이를 레버리지해서 임의의 주소에 원하는 값을 쓰는 식으로 발전한다.</p>
 ]]></content>
   </entry>
   
