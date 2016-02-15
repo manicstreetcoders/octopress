@@ -4,7 +4,7 @@
   <title><![CDATA[KC's blog]]></title>
   <link href="http://zomo.heroku.com/atom.xml" rel="self"/>
   <link href="http://zomo.heroku.com/"/>
-  <updated>2016-02-12T17:56:35+09:00</updated>
+  <updated>2016-02-15T14:07:14+09:00</updated>
   <id>http://zomo.heroku.com/</id>
   <author>
     <name><![CDATA[KC]]></name>
@@ -117,6 +117,11 @@
     <id>http://zomo.heroku.com/blog/2016/02/11/how2heap</id>
     <content type="html"><![CDATA[<p>shellphish team 에서 github 에 공개한 <a href="https://github.com/shellphish/how2heap">Educational Heap Exploitation</a> 을 정리한다.</p>
 
+<ul>
+<li><a href="https://sploitfun.wordpress.com/2015/02/10/understanding-glibc-malloc/">Understanding glibc malloc</a></li>
+</ul>
+
+
 <h4>first_fit.c</h4>
 
 <p><a href="https://github.com/shellphish/how2heap/blob/master/first_fit.c">first_fit.c</a></p>
@@ -130,6 +135,15 @@
 <p><a href="https://github.com/shellphish/how2heap/blob/master/house_of_spirit.c">house of spirit</a></p>
 
 <p>House of spirit 공격을 설명하기 위한 예제.</p>
+
+<p>House of spirit 공격을 오약하면.</p>
+
+<ul>
+<li>House of spirit 공격은 다른 heap 공격과는 달리, 메타데이터를 overwrite 하는 것이 목적이 아니다.</li>
+<li>malloc() 에서 return 되는 address 를 컨트롤 할 수 있다.</li>
+<li><code>p = malloc(...); memcpy(p, user_supplied_data,20);</code> 에서 p 를 컨트롤 할 수 있다면, code execution 은 어렵지 않다.</li>
+</ul>
+
 ]]></content>
   </entry>
   

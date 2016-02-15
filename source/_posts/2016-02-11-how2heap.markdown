@@ -8,6 +8,8 @@ categories:
 
 shellphish team 에서 github 에 공개한 [Educational Heap Exploitation](https://github.com/shellphish/how2heap) 을 정리한다.
 
+* [Understanding glibc malloc](https://sploitfun.wordpress.com/2015/02/10/understanding-glibc-malloc/)
+
 #### first_fit.c
 
 [first_fit.c](https://github.com/shellphish/how2heap/blob/master/first_fit.c)
@@ -21,4 +23,11 @@ malloc() 후에, free() 하고 다시 malloc() 을 했더니, 두 개의 포인�
 [house of spirit](https://github.com/shellphish/how2heap/blob/master/house_of_spirit.c)
 
 House of spirit 공격을 설명하기 위한 예제.
+
+House of spirit 공격을 오약하면.
+
+* House of spirit 공격은 다른 heap 공격과는 달리, 메타데이터를 overwrite 하는 것이 목적이 아니다.
+* malloc() 에서 return 되는 address 를 컨트롤 할 수 있다.
+* `p = malloc(...); memcpy(p, user_supplied_data,20);` 에서 p 를 컨트롤 할 수 있다면, code execution 은 어렵지 않다.
+
 
