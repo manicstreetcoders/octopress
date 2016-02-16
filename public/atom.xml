@@ -4,7 +4,7 @@
   <title><![CDATA[KC's blog]]></title>
   <link href="http://zomo.heroku.com/atom.xml" rel="self"/>
   <link href="http://zomo.heroku.com/"/>
-  <updated>2016-02-16T18:10:37+09:00</updated>
+  <updated>2016-02-16T18:13:45+09:00</updated>
   <id>http://zomo.heroku.com/</id>
   <author>
     <name><![CDATA[KC]]></name>
@@ -267,12 +267,15 @@
 <span class='line-number'>4</span>
 <span class='line-number'>5</span>
 <span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>RET      -&gt; 0xFFFFCF2C
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>
+</span><span class='line'>RET       -&gt; 0xFFFFCF2C
 </span><span class='line'>EBP       -&gt; 0xFFFFCF28
 </span><span class='line'>local_age -&gt; 0xFFFFCF24 (overwritten with a NUL)
 </span><span class='line'>PTR1      -&gt; 0xFFFFCF20 [0x43434343]에 위치
 </span><span class='line'>PTR2      -&gt; 0xFFFFCF1C [0x42424242]
-</span><span class='line'>name      -&gt; 0xFFFFCEFC</span></code></pre></td></tr></table></div></figure>
+</span><span class='line'>name      -&gt; 0xFFFFCEFC
+</span></code></pre></td></tr></table></div></figure>
 
 
 <p>즉, name[32] 가 overflow 나서, ptr1 &amp; ptr2 가 overwrite 된 상황.</p>

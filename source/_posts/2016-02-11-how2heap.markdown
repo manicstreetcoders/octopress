@@ -97,12 +97,14 @@ Segmentation fault
 메모리 주소들을 떠보면, (저자는 PTR2 가 왜 저기 끼어들어갔는지 모르겠다고, gcc 탓을 한다)
 
 ```
+
 RET		-> 0xFFFFCF2C
 EBP		-> 0xFFFFCF28
 local_age	-> 0xFFFFCF24 (overwritten with a NUL)
 PTR1		-> 0xFFFFCF20 [0x43434343]에 위치
 PTR2		-> 0xFFFFCF1C [0x42424242]
 name		-> 0xFFFFCEFC
+
 ```
 
 즉, name[32] 가 overflow 나서, ptr1 & ptr2 가 overwrite 된 상황.
