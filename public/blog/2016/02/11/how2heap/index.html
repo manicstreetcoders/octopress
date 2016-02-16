@@ -154,6 +154,8 @@
 <span class='line-number'>25</span>
 <span class='line-number'>26</span>
 <span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
 </pre></td><td class='code'><pre><code class=''><span class='line'>#include &lt;stdio.h&gt;
 </span><span class='line'>#include &lt;string.h&gt;
 </span><span class='line'>#include &lt;stdlib.h&gt;
@@ -167,12 +169,14 @@
 </span><span class='line'>  local_age = age;
 </span><span class='line'>
 </span><span class='line'>  ptr1 = (char *) malloc(256);
+</span><span class='line'>  printf("PTR1 = [ %p ]\n", ptr1);
 </span><span class='line'>  strcpy(name, str1); // &lt;----- (1)
+</span><span class='line'>  printf("PTR1 = [ %p ]\n", ptr1);
 </span><span class='line'>  free(ptr1); // &lt;----- (2)
 </span><span class='line'>
 </span><span class='line'>  ptr2 = (char *) malloc(40); // &lt;----- (3)
 </span><span class='line'>  snprintf(ptr2, 40-1, "%s is %d years old", name, local_age); // &lt;----- (4)
-</span><span class='line'>  printf("\n%s\n", ptr2);
+</span><span class='line'>  printf("%s\n", ptr2);
 </span><span class='line'>}
 </span><span class='line'>int main(int argc, char *argv[])
 </span><span class='line'>{
@@ -183,7 +187,7 @@
 </span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
 
 
-<p>흐름을 정리하면,</p>
+<p>Malloc Des-Maleficarum 의 흐름을 정리하면,</p>
 
 <ul>
 <li>(1) 에서 ptr1 에 대한 overwrite 가 일어난다.</li>
@@ -193,7 +197,46 @@
 </ul>
 
 
-<p>이걸 exploit 하기 위해, 저자는 ASLR off, noexec=off, GCC stack protection off 를 해주었다고.</p>
+<p>이걸 exploit 하기 위해, 저자는 ASLR off, noexec=off, GCC stack protection off 를 해주었다고. 그리고, stack 의 return address 를 overwrite 했음.</p>
+
+<p>우선 ptr1 overwrite 를 테스트하기 위해,</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ ./hos `perl -e 'print "A"x32 . "BBBB" . "CCCC"'` 20
+</span><span class='line'>PTR1 = [ 0x804b008 ]
+</span><span class='line'>PTR1 = [ 0x43434343 ]
+</span><span class='line'>Segmentation fault</span></code></pre></td></tr></table></div></figure>
+
+
+<p>메모리 주소들을 떠보면, (저자는 PTR2 가 왜 저기 끼어들어갔는지 모르겠다고, gcc 탓을 한다)</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>RET      -&gt; 0xFFFFCF2C 
+</span><span class='line'>EBP       -&gt; 0xFFFFCF28
+</span><span class='line'>local_age -&gt; 0xFFFFCF24 (overwritten with a NUL)
+</span><span class='line'>PTR1      -&gt; 0xFFFFCF20 [0x43434343]에 위치
+</span><span class='line'>PTR2      -&gt; 0xFFFFCF1C [0x42424242]
+</span><span class='line'>name      -&gt; 0xFFFFCEFC</span></code></pre></td></tr></table></div></figure>
+
+
+<p>즉, name[32] 가 overflow 나서, ptr1 &amp; ptr2 가 overwrite 된 상황.</p>
+
+<ul>
+<li>chunk 주소를 0xffffCF20 으로 하고, ptr1 을 0xffffCF28 로 (+8) overwrite 하면</li>
+<li>chunk->size 의 주소는 0xffffCF24 가 되고, 여기를 0x30 으로 overwrite 시켜야함.</li>
+<li>두번째 malloc() 에서는 0xffffCF28 이 돌아오게 될 것임</li>
+<li><code>snprintf(0xffffCF28, 39, "%s ...", name, ...)</code> 이 되니까, RET 를 overwrite 하기 위해서는 name[4],name[5],name[6],name[7] 에 원하는 return 주소가 담겨야함. 즉 RET 를 0xffffCEFC (name 이 위치한 곳) 로 overwrite. 그리고 이 주소에 shellcode 도입부가 위치함.</li>
+<li>쉘코드는 &ldquo;4 bytes JMP 코드 + 4 byte the new RET value + shellcode&rdquo; 로 구성.</li>
+</ul>
+
 </div>
 
 
