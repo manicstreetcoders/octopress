@@ -4,7 +4,7 @@
   <title><![CDATA[KC's blog]]></title>
   <link href="http://zomo.heroku.com/atom.xml" rel="self"/>
   <link href="http://zomo.heroku.com/"/>
-  <updated>2016-02-15T19:53:12+09:00</updated>
+  <updated>2016-02-16T09:34:23+09:00</updated>
   <id>http://zomo.heroku.com/</id>
   <author>
     <name><![CDATA[KC]]></name>
@@ -155,6 +155,76 @@
 <li><a href="https://gbmaster.wordpress.com/2015/07/21/x86-exploitation-101-house-of-spirit-friendly-stack-overflow/">GB_MASTER&rsquo;s /dev/null</a></li>
 </ul>
 
+
+<p>blackngel &amp; gb_master 의 vuln.c 를 들여다봤다.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>#include &lt;stdio.h&gt;
+</span><span class='line'>#include &lt;string.h&gt;
+</span><span class='line'>#include &lt;stdlib.h&gt;
+</span><span class='line'>
+</span><span class='line'>void fvuln(char *str1, int age)
+</span><span class='line'>{
+</span><span class='line'>  char *ptr1, name[32];
+</span><span class='line'>  int local_age;
+</span><span class='line'>  char *ptr2;
+</span><span class='line'>
+</span><span class='line'>  local_age = age;
+</span><span class='line'>
+</span><span class='line'>  ptr1 = (char *) malloc(256);
+</span><span class='line'>  strcpy(name, str1); // &lt;----- (1)
+</span><span class='line'>  free(ptr1); // &lt;----- (2)
+</span><span class='line'>
+</span><span class='line'>  ptr2 = (char *) malloc(40); // &lt;----- (3)
+</span><span class='line'>  snprintf(ptr2, 40-1, "%s is %d years old", name, local_age); // &lt;----- (4)
+</span><span class='line'>  printf("\n%s\n", ptr2);
+</span><span class='line'>}
+</span><span class='line'>int main(int argc, char *argv[])
+</span><span class='line'>{
+</span><span class='line'>  int pad[10] = { 0,0,0,0,0,0,0,10,0,0};
+</span><span class='line'>  if (argc == 3)
+</span><span class='line'>      fvuln(argv[1], atoi(argv[2]));
+</span><span class='line'>  return 0;
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p>흐름을 정리하면,</p>
+
+<ul>
+<li>(1) 에서 ptr1 에 대한 overwrite 가 일어난다.</li>
+<li>(2) 에서 잘못된 주소가 fastbin 에 들어간다.</li>
+<li>(3) 에서 (2) 의 주소가 return 된다.</li>
+<li>(4) 에서 잘못된 주소에 잘못된 데이터가 써진다.</li>
+</ul>
+
+
+<p>이걸 exploit 하기 위해, 저자는 ASLR off, noexec=off, GCC stack protection off 를 해주었다고.</p>
 ]]></content>
   </entry>
   
