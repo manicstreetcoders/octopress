@@ -393,7 +393,7 @@
 <ul>
 <li>chunk 주소를 0xffffCF20 으로 하고, ptr1 을 0xffffCF28 로 (+8) overwrite 하면</li>
 <li>chunk->size 의 주소는 0xffffCF24 가 되고, 여기를 0x30 으로 overwrite 시켜야함.</li>
-<li>그리고 next chunk 의 size 도 세팅해줘야함. (나중에 확인해보자)</li>
+<li>_int_free() 의 fastbin check code 를 통과하기 위해서는, next chunk (chunk addr + size) 의 size 도 세팅해줘야함. (나중에 확인해보자)</li>
 <li>두번째 malloc() 에서는 0xffffCF28 이 돌아오게 될 것임</li>
 <li><code>snprintf(0xffffCF28, 39, "%s ...", name, ...)</code> 이 되니까, RET 를 overwrite 하기 위해서는 name[4],name[5],name[6],name[7] 에 원하는 return 주소가 담겨야함. 즉 RET 를 0xffffCEFC (name 이 위치한 곳) 로 overwrite. 그리고 이 주소에 shellcode 도입부가 위치함.</li>
 <li>쉘코드는 &ldquo;4 bytes JMP 코드 + 4 byte the new RET value + shellcode&rdquo; 로 구성.</li>
