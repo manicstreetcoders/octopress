@@ -9,8 +9,7 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="UIWebView 에서 onclick event 를 잡을때, 터치 후 event 발사까지 300ms 정도의 딜레이가 있다.
-래깅이 느껴지고, 손가락이 오그라든다. 그 딜레이를 없애고 최대한 반응 속도를 올리기 위한 방법이 있다. 아래의 아티클들에 소개되어 있는데, &hellip;">
+  <meta name="description" content="Quicksort Pseudo-code 로 Quicksort 를 기술해보자. def qsort(a): if len(a) &lt;= 1: return a pivot = a[0] less = [] greater = [] for i in range(1,len(a)): if &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -66,6 +65,212 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/12/01/partition-function-in-quicksort/">Partition Function in Quicksort</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2012-12-01T21:18:00+09:00'><span class='date'><span class='date-month'>Dec</span> <span class='date-day'>1</span><span class='date-suffix'>st</span>, <span class='date-year'>2012</span></span> <span class='time'>9:18 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h3>Quicksort</h3>
+
+<p>Pseudo-code 로 Quicksort 를 기술해보자.</p>
+
+<pre><code>def qsort(a):
+    if len(a) &lt;= 1:
+        return a
+    pivot = a[0]
+    less = []
+    greater = []
+
+    for i in range(1,len(a)):
+        if a[i] &lt; pivot:
+            less.append(a[i])
+        else
+            greater.append(a[i])
+
+    return qsort(less) + [ pivot ] + qsort(greater)
+</code></pre>
+
+<p>Python 으로 구현하니까 너무 간단한데, C 나 Java 로 구현할때는 메모리에 신경을 써야 한다.
+별도의 메모리를 쓰지 않으면서, less / greater 로 파티셔닝하는 함수를 구현하는 것이 좀 까다로운데&hellip;</p>
+
+<p>Sedgewick 의 알고리즘 책에 나온 파티셔닝 함수가 있다. 근데 이 함수에 골때린 점이 있다.
+__Pivot 과 같은 값들이 여러개 있을 경우, left list / right list 양쪽으로 다 갈 수 있다는 점.
+다만 recursion 을 거듭하면서, 양쪽에 흩어져 있는 (Pivot 과) 동일 값들이 pivot 쪽으로 모이게 되는 것이다.</p>
+
+<pre><code>int _partition(int a[],int lo,int hi) {
+    int pivot;
+    int i,j;
+    pivot = a[lo];
+    i = lo; j = hi+1;
+    while(1) {
+        while (a[++i] &lt; pivot) if (i &gt;= hi) break;
+        while (a[--j] &gt; pivot) if (j &lt;= lo) break;
+        if (i&gt;=j) break;
+        swap(&amp;a[i],&amp;a[j]);
+    }
+    swap(&amp;a[lo],&amp;a[j]);
+    return j;
+}
+</code></pre>
+
+<p>좀 더 직관적인 파티션 함수</p>
+
+<pre><code>int __partition(int a[],int lo,int hi) {
+    int pivot;
+    int i,j;
+    pivot = a[lo];
+    i=j=lo;
+    for (++j;j&lt;=hi;j++) {
+        if (a[j] &lt; pivot) {
+            i++;
+            swap(a,i,j);
+        }
+    }
+    swap(a,lo,i);
+    return i;
+}
+void __q(int a[],int lo,int hi) {
+    int j;
+    if (hi-lo&lt;=0) return;
+    j = __partition(a,lo,hi);
+    __q(a,lo,j-1);
+    __q(a,j+1,hi);
+}
+</code></pre>
+
+<h3>Counting inversions by piggybacking mergesort</h3>
+
+<p>곁다리로, Mergesort 의 응용으로 재미난 것이 있는데.
+Sort 가 되지 않은 pair 의 갯수를 찾아내는 알고리즘.
+즉 inversion pair 를 찾는 알고리즘.
+Mergesort 를 piggybacking 해서 카운팅함.</p>
+
+<p>사람들이 1 부터 n 까지 랭킹을 매긴다고 했을때,
+Person A 와 Person B 가 각각 매긴 랭킹이 얼마나 유사한가를 측정하는 알고리즘도 응용해서 만들 수 있음.</p>
+
+<p>Recommendation 에서 쓰이는 collaborative filtering.</p>
+
+<h3>Binary Heap</h3>
+
+<p>Binary Heap 으로 Minimum priority queue 를 구현해보았다.</p>
+
+<pre><code>#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;string.h&gt;
+
+typedef struct _heap {
+    int heap[1024];
+    int N;
+} heap;
+
+/* heap index starts from 1 */
+int parent(int idx) { return idx/2; }
+int left(heap * p_heap, int idx) { return idx*2 &lt;= p_heap-&gt;N ? idx*2 : 0; }
+int right(heap * p_heap, int idx) { return idx*2+1 &lt;= p_heap-&gt;N ? idx*2+1 : 0; }
+swap(int a[],int i,int j) { int t = a[i]; a[i] = a[j]; a[j] = t; }
+bubble_up(heap * p_heap) {
+    int i = p_heap-&gt;N;
+
+    while (i &gt; 0 &amp;&amp; parent(i) &gt; 0) {
+        if (p_heap-&gt;heap[i] &lt; p_heap-&gt;heap[ parent(i) ] ) {
+            swap(p_heap-&gt;heap, i, parent(i));
+            i = parent(i);
+        } else
+            break;
+    }
+}
+sink(heap * p_heap) {
+    int i = 1;
+    int l,r;
+    int * a = p_heap-&gt;heap;
+
+    while (i &lt; p_heap-&gt;N) {
+        l = left(p_heap, i);
+        r = right(p_heap, i);
+        if (a[i] &gt; a[l]) {
+            if (a[l] &gt; a[r]) {
+                swap(a, i, r);
+                i = r;
+            } else {
+                swap(a, i, l);
+                i = l;
+            }
+        } else if (a[i] &gt; a[r]) {
+            if (a[r] &gt; a[l]) {
+                swap(a, i, l);
+                i = l;
+            } else {
+                swap(a, i, r);
+                i = r;
+            }
+        } else
+            break;
+    }
+}
+heap_init(heap * p_heap) {
+    p_heap-&gt;N = 0;
+    p_heap-&gt;heap[0] = (0xFFFFFFFF &lt;&lt; 1 &gt;&gt; 1);
+}
+heap_add(heap * p_heap, int x) {
+    p_heap-&gt;heap[ ++p_heap-&gt;N ] = x;
+    bubble_up(p_heap);
+}
+int heap_remove(heap * p_heap) {
+    int min = p_heap-&gt;heap[1];
+    int end = p_heap-&gt;heap[ p_heap-&gt;N ];
+    p_heap-&gt;heap[1] = end;
+    p_heap-&gt;N--;
+    sink(p_heap);
+
+    return min;
+}
+heap_isempty(heap * p_heap) { return p_heap-&gt;N == 0; }
+heap_heapify(heap * p_heap, int a[], int N) {
+    int i;
+    heap_init(p_heap);
+    for (i = 0;i &lt; N;i++)
+        heap_add(p_heap, a[i]);
+}
+void _d(int a[],int N) {
+    int i;
+    for (i=0;i&lt;N;i++) printf("%d ", a[i]);
+    printf("\n");
+}
+main()
+{
+    int a[]={ 123, 1, 0, -4, 45, 38, 24, 99, 88, 43, 23, 12, 9, 8, 7, 46, 77 };
+    int N = sizeof a / sizeof(int);
+    heap h;
+
+    _d(a,N);
+    heap_heapify(&amp;h, a, N);
+    while (!heap_isempty(&amp;h)) printf("%d ", heap_remove(&amp;h));
+    printf("\n");
+}
+</code></pre>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1670,74 +1875,6 @@ An API, she contends, can help companies bypass this.</p></blockquote>
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2012/05/21/the-pc-market-is-in-decline/">The PC Market Is in Decline</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2012-05-21T11:09:00+09:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>21</span><span class='date-suffix'>st</span>, <span class='date-year'>2012</span></span> <span class='time'>11:09 am</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>@asymco 의 <a href="http://www.asymco.com/2012/05/19/an-interview-with-chris-brennan-for-macuser-magazine-uk/">An interview with Chris Brennan for MacUser magazine UK</a></p>
-
-<p>는 훌륭한 인터뷰인데, 왜냐면</p>
-
-<p>인터뷰어가 좋은 질문을 했고, @asymco 가 좋은 대답을 했기 때문이다.</p>
-
-<p><br />
-Q: iPhone 은 이제 팔릴만큼 팔린 것인지?</p>
-
-<blockquote><p>Is the iPhone anywhere near saturation? Can Apple continue to shift iPhones in ever increasing numbers or is a sales plateau realistically on the horizon?</p></blockquote>
-
-<p>Q: 지금 PC 마켓은 decline 하고 있지만, Mac 판매는 성장하고 있는데, 언제까지 이럴 수 있을지?</p>
-
-<blockquote><p>Can the Mac also continue to outperform the rest of the PC market for long?</p></blockquote>
-
-<p>Q: 애플 제품의 기록적인 성장은 이제 끝날때가 된 것 아닌가? 비싼 애플 제품을 사줄 돈 잘버는 고객층이 남아있는가?</p>
-
-<blockquote><p>Finally, this exponential growth of Apple products has to end some time soon doesn’t it? How many high-income buyers for expensive products can there be left for Apple to target?</p></blockquote>
-
-<p>이것이 질문이고, @asymco 의 답변에 통찰이 넘친다.</p>
-
-<p><a href="http://www.asymco.com/2012/05/19/an-interview-with-chris-brennan-for-macuser-magazine-uk/">인터뷰 전문</a></p>
-
-<h2><br /></h2>
-
-<p><br />
-그리고 PC 제조 마켓은 10 년 뒤에는
-이제 메인프레임처럼 아무도 신경쓰지 않는 마켓이 되리라는 예상.
-개발 리소스는 모두 모바일이나 웹으로 이동.
-PC 전용 S/W 개발에는 심각한 자본이 투하되고 있지 않음.</p>
-
-<p><br />
-그렇기 때문에 &ldquo;점유율이 5% 라서 개발자를 끌어올 수 없다던가 있다던가&rdquo;
-- 맥이 예전에 겪었고 애플이 예전에 고민했던 -
-이런 논의 자체가 의미가 없게 되었음.</p>
-
-<p><br />
-S/W 가 없으니, 기계외에 추가되는 Value 가 없음. Commodity 가 되버림.</p>
-
-<blockquote><p>Applications for PCs are not an area of investment for any significant pool of capital. Development has moved almost entirely into mobile or web. Therefore, as the PC is now a commodity product, the best performers are those who can capture a larger margin. Those margins should be subsequently be invested in new platforms. PC vendors who neither capture margin, nor invest in new platforms are strategically insolvent.</p></blockquote>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/22">&larr; Older</a>
@@ -1755,6 +1892,10 @@ S/W 가 없으니, 기계외에 추가되는 Value 가 없음. Commodity 가 되
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/02/16/plaid-ctf-2015-one-null-byte/">Plaid CTF 2015 - One NULL Byte</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/02/12/understanding-the-heap-and-exploiting-heap-overflows/">Understanding the Heap &amp; Exploiting Heap Overflows</a>
       </li>
     
@@ -1768,10 +1909,6 @@ S/W 가 없으니, 기계외에 추가되는 Value 가 없음. Commodity 가 되
     
       <li class="post">
         <a href="/blog/2016/02/11/racing-midi-messages-in-chrome/">Racing MIDI Messages in Chrome</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/02/11/unlocking-the-motorola-bootloader/">Unlocking the Motorola Bootloader</a>
       </li>
     
   </ul>

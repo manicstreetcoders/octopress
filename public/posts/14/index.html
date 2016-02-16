@@ -9,7 +9,7 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="Original Post Original post 는 다음과 같다. 발견자는 Masashi Kikuchi 씨. How I discovered CCS Injection Vulnerability (CVE-2014-0224) ChangeCipherSpec 이라는 메시지는 &hellip;">
+  <meta name="description" content="How can Cipher Block Chaining (CBC) in SSL be attacked? Attacks on SSL: A Comprehensive Study of BEAST, CRIME, TIME, BREACH, LUCKY 13 &amp; RC4 &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -65,6 +65,40 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/06/23/beast-attack/">BEAST Attack</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-06-23T18:29:07+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>23</span><span class='date-suffix'>rd</span>, <span class='date-year'>2014</span></span> <span class='time'>6:29 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><a href="http://crypto.stackexchange.com/questions/1078/how-can-cipher-block-chaining-cbc-in-ssl-be-attacked">How can Cipher Block Chaining (CBC) in SSL be attacked?</a></p>
+
+<ul>
+<li><a href="https://www.isecpartners.com/media/106031/ssl_attacks_survey.pdf">Attacks on SSL: A Comprehensive Study of BEAST, CRIME, TIME, BREACH, LUCKY 13 &amp; RC4 Biases</a></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -696,70 +730,6 @@ Query 결과가 화면에 덤프되지는 않지만, 이런 미세한 차이를 
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/06/01/google-xss-game-area/">Google XSS Game Area</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2014-06-01T18:52:28+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>1</span><span class='date-suffix'>st</span>, <span class='date-year'>2014</span></span> <span class='time'>6:52 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p><a href="http://xss-game.appspot.com/">Google XSS Game Area</a></p>
-
-<h3>Level 1</h3>
-
-<p>Search form 에</p>
-
-<pre><code>a&lt;script&gt;alert('hi');&lt;/script&gt;
-</code></pre>
-
-<h3>Level 2</h3>
-
-<pre><code>&lt;blockquote&gt; 안에서도 &lt;img&gt; 는 먹으니까. &lt;img src='hi.jpg' onerror='alert("hi");'&gt;
-</code></pre>
-
-<h3>Level 3</h3>
-
-<pre><code>function chooseTab(num) {
-    ...
-    html += "&lt;img src='/static/level3/cloud" + num + ".jpg' /&gt;"
-    $('#tabContent').html(html);
-
-    window.location.hash = num;
-    ...
-}
-...
-window.onload = function() {
-    if (event.source == parent) {
-        chooseTab(self.location.hash.substr(1));
-    }
-}
-</code></pre>
-
-<p>URL 의 hash 부분에 html 이 influenced 되니까, 브라우저의 URL 표시창의 <code>#</code> 뒷부분에 입력한다.</p>
-
-<pre><code>#'onerror="alert('hi');"&gt;
-</code></pre>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/15">&larr; Older</a>
@@ -777,6 +747,10 @@ window.onload = function() {
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/02/16/plaid-ctf-2015-one-null-byte/">Plaid CTF 2015 - One NULL Byte</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/02/12/understanding-the-heap-and-exploiting-heap-overflows/">Understanding the Heap &amp; Exploiting Heap Overflows</a>
       </li>
     
@@ -790,10 +764,6 @@ window.onload = function() {
     
       <li class="post">
         <a href="/blog/2016/02/11/racing-midi-messages-in-chrome/">Racing MIDI Messages in Chrome</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/02/11/unlocking-the-motorola-bootloader/">Unlocking the Motorola Bootloader</a>
       </li>
     
   </ul>

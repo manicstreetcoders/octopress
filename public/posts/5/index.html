@@ -9,19 +9,13 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="Packing &amp; Unpacking 1
+  <meta name="description" content="Easy Local Windows Kernel Exploitation Nulling out ACLs 1
 2
 3
 4
-5
-6
-7
-8
-9
-10
-unzip On*.apk classes.dex
-java -mx512m -jar ./baksmali-2.0.3.jar classes.dex
-keytool -genkey -v - &hellip;">
+kd&gt; dt nt!_OBJECT_HEADER
+...
++0x014 SecurityDescriptor : Ptr32 Void +0x018 Body : &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -77,6 +71,58 @@ keytool -genkey -v - &hellip;">
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/07/07/easy-local-windows-kernel-exploitation/">Easy Local Windows Kernel Exploitation</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-07-07T17:04:01+09:00'><span class='date'><span class='date-month'>Jul</span> <span class='date-day'>7</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>5:04 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><a href="https://media.blackhat.com/bh-us-12/Briefings/Cerrudo/BH_US_12_Cerrudo_Windows_Kernel_WP.pdf">Easy Local Windows Kernel Exploitation</a></p>
+
+<h4>Nulling out ACLs</h4>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>kd&gt; dt nt!_OBJECT_HEADER
+</span><span class='line'>...
+</span><span class='line'>+0x014 SecurityDescriptor : Ptr32 Void 
+</span><span class='line'>+0x018 Body : _QUAD</span></code></pre></td></tr></table></div></figure>
+
+
+<ol>
+<li>NtQuerySystemInformation() 으로 target object 의 kernel 주소를 얻어낸다.</li>
+<li>address - 4 (x86) or address - 8 (x64) 에다가 NULL 을 쓴다. (SecurityDescriptor 를 밀어버린다)</li>
+<li>LSASS process 에 접근해서 hash 를 덤프한다.</li>
+</ol>
+
+
+<h4>SEP_TOKEN_PRIVILEGES 조작</h4>
+
+<h4>EPROCESS 의 Token 구조체 조작</h4>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -488,106 +534,6 @@ keytool -genkey -v - &hellip;">
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/06/14/exploring-control-flow-guard-in-windows-10/">Exploring Control Flow Guard in Windows 10</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2015-06-14T22:50:29+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>14</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>10:50 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><ul>
-<li><a href="http://sjc1-te-ftp.trendmicro.com/assets/wp/exploring-control-flow-guard-in-windows10.pdf">트렌드마이크로의 CFG in Windows 10 보고서</a></li>
-<li><a href="https://blog.coresecurity.com/2015/03/25/exploiting-cve-2015-0311-part-ii-bypassing-control-flow-guard-on-windows-8-1-update-3/">Exploiting CVE-2015-0311, Part II: Bypassing Control Flow Guard on Windows 8.1 Update 3</a></li>
-<li><a href="http://research.microsoft.com/pubs/69217/ccs05-cfi.pdf">Control-Flow Integrity - Principles, Implementations, and Applications</a></li>
-<li><a href="http://www.cs.berkeley.edu/~dawnsong/papers/Oakland2013-CCFIR-CR.pdf">Practical Control Flow Integrity &amp; Randomization for Binary Executables</a></li>
-<li><a href="http://static.googleusercontent.com/media/research.google.com/en/us/pubs/archive/34913.pdf">Native Client: A Sandbox for Portable, Untrusted x86 Native Code</a></li>
-<li><a href="http://www.powerofcommunity.net/poc2014/mj0011.pdf">Windows 10 Control Flow Guard Internals</a></li>
-</ul>
-
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>typedef int(*fun_t)(int);
-</span><span class='line'>int foo(int a) { printf("hello jack: %d\n", a); return a; }
-</span><span class='line'>class CTargetObject
-</span><span class='line'>{
-</span><span class='line'>public:
-</span><span class='line'>    fun_t _fun;
-</span><span class='line'>} 
-</span><span class='line'>int _tmain(int argc, _TCHAR* argv[])
-</span><span class='line'>{
-</span><span class='line'>    int i = 0;
-</span><span class='line'>    CTargetObject* o_array = new CTargetObject[5];
-</span><span class='line'>    for (i=0;i&lt;1000;i++)
-</span><span class='line'>        o_array[i]._fun = foo;
-</span><span class='line'>    o_array[0]._fun(1); // &lt;- indirect call
-</span><span class='line'>    return 0;
-</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Assembly 를 보면,</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>mov esi,[esi]
-</span><span class='line'>push 1
-</span><span class='line'>call esi</span></code></pre></td></tr></table></div></figure>
-
-
-<p>CFG 가 들어간 코드는,</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>mov esi,[esi]
-</span><span class='line'>mov ecx,esi
-</span><span class='line'>push 1
-</span><span class='line'>call @_guard_check_icall@4
-</span><span class='line'>call esi</span></code></pre></td></tr></table></div></figure>
-
-
-<p><code>_guard_check_icall</code> 은 <code>ntdll!LdrpValidateUserCallTarget</code> 을 point.</p>
-
-<p>하는 일은 Compiler 가 미리 만들어둔 function call address table (실제로는 bitmap) 을 보고, valid 한 펑션 start address 인지 아닌지 판단하는 것.
-Compiler instrumentation 이 매우 중요. 플러스 user space / kernel space 에서의 support routine 들이 있음.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/6">&larr; Older</a>
@@ -605,6 +551,10 @@ Compiler instrumentation 이 매우 중요. 플러스 user space / kernel space 
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/02/16/plaid-ctf-2015-one-null-byte/">Plaid CTF 2015 - One NULL Byte</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/02/12/understanding-the-heap-and-exploiting-heap-overflows/">Understanding the Heap &amp; Exploiting Heap Overflows</a>
       </li>
     
@@ -618,10 +568,6 @@ Compiler instrumentation 이 매우 중요. 플러스 user space / kernel space 
     
       <li class="post">
         <a href="/blog/2016/02/11/racing-midi-messages-in-chrome/">Racing MIDI Messages in Chrome</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/02/11/unlocking-the-motorola-bootloader/">Unlocking the Motorola Bootloader</a>
       </li>
     
   </ul>

@@ -9,9 +9,9 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="MS14-068: From MS14-068 to Full Compromise - Step by Step
-Digging into MS14-068, Exploitation and Defense
-Exploiting MS14-068 Vulnerable Domain &hellip;">
+  <meta name="description" content="트렌드마이크로의 CFG in Windows 10 보고서
+Exploiting CVE-2015-0311, Part II: Bypassing Control Flow Guard on Windows 8.1 Update 3
+Control-Flow Integrity - &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -67,6 +67,106 @@ Exploiting MS14-068 Vulnerable Domain &hellip;">
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/06/14/exploring-control-flow-guard-in-windows-10/">Exploring Control Flow Guard in Windows 10</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-06-14T22:50:29+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>14</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>10:50 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><ul>
+<li><a href="http://sjc1-te-ftp.trendmicro.com/assets/wp/exploring-control-flow-guard-in-windows10.pdf">트렌드마이크로의 CFG in Windows 10 보고서</a></li>
+<li><a href="https://blog.coresecurity.com/2015/03/25/exploiting-cve-2015-0311-part-ii-bypassing-control-flow-guard-on-windows-8-1-update-3/">Exploiting CVE-2015-0311, Part II: Bypassing Control Flow Guard on Windows 8.1 Update 3</a></li>
+<li><a href="http://research.microsoft.com/pubs/69217/ccs05-cfi.pdf">Control-Flow Integrity - Principles, Implementations, and Applications</a></li>
+<li><a href="http://www.cs.berkeley.edu/~dawnsong/papers/Oakland2013-CCFIR-CR.pdf">Practical Control Flow Integrity &amp; Randomization for Binary Executables</a></li>
+<li><a href="http://static.googleusercontent.com/media/research.google.com/en/us/pubs/archive/34913.pdf">Native Client: A Sandbox for Portable, Untrusted x86 Native Code</a></li>
+<li><a href="http://www.powerofcommunity.net/poc2014/mj0011.pdf">Windows 10 Control Flow Guard Internals</a></li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>typedef int(*fun_t)(int);
+</span><span class='line'>int foo(int a) { printf("hello jack: %d\n", a); return a; }
+</span><span class='line'>class CTargetObject
+</span><span class='line'>{
+</span><span class='line'>public:
+</span><span class='line'>    fun_t _fun;
+</span><span class='line'>} 
+</span><span class='line'>int _tmain(int argc, _TCHAR* argv[])
+</span><span class='line'>{
+</span><span class='line'>    int i = 0;
+</span><span class='line'>    CTargetObject* o_array = new CTargetObject[5];
+</span><span class='line'>    for (i=0;i&lt;1000;i++)
+</span><span class='line'>        o_array[i]._fun = foo;
+</span><span class='line'>    o_array[0]._fun(1); // &lt;- indirect call
+</span><span class='line'>    return 0;
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Assembly 를 보면,</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>mov esi,[esi]
+</span><span class='line'>push 1
+</span><span class='line'>call esi</span></code></pre></td></tr></table></div></figure>
+
+
+<p>CFG 가 들어간 코드는,</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>mov esi,[esi]
+</span><span class='line'>mov ecx,esi
+</span><span class='line'>push 1
+</span><span class='line'>call @_guard_check_icall@4
+</span><span class='line'>call esi</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>_guard_check_icall</code> 은 <code>ntdll!LdrpValidateUserCallTarget</code> 을 point.</p>
+
+<p>하는 일은 Compiler 가 미리 만들어둔 function call address table (실제로는 bitmap) 을 보고, valid 한 펑션 start address 인지 아닌지 판단하는 것.
+Compiler instrumentation 이 매우 중요. 플러스 user space / kernel space 에서의 support routine 들이 있음.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -968,412 +1068,6 @@ Client 로부터 <code>CONNECT</code> 를 받으면, 진짜 서버에 접속해�
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/06/01/ios-app-automating-the-decryption-process/">iOS App: Automating the Decryption Process</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2015-06-01T15:15:35+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>1</span><span class='date-suffix'>st</span>, <span class='date-year'>2015</span></span> <span class='time'>3:15 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p><a href="https://github.com/stefanesser/dumpdecrypted">dumpdecryted</a></p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-<span class='line-number'>42</span>
-<span class='line-number'>43</span>
-<span class='line-number'>44</span>
-<span class='line-number'>45</span>
-<span class='line-number'>46</span>
-<span class='line-number'>47</span>
-<span class='line-number'>48</span>
-<span class='line-number'>49</span>
-<span class='line-number'>50</span>
-<span class='line-number'>51</span>
-<span class='line-number'>52</span>
-<span class='line-number'>53</span>
-<span class='line-number'>54</span>
-<span class='line-number'>55</span>
-<span class='line-number'>56</span>
-<span class='line-number'>57</span>
-<span class='line-number'>58</span>
-<span class='line-number'>59</span>
-<span class='line-number'>60</span>
-<span class='line-number'>61</span>
-<span class='line-number'>62</span>
-<span class='line-number'>63</span>
-<span class='line-number'>64</span>
-<span class='line-number'>65</span>
-<span class='line-number'>66</span>
-<span class='line-number'>67</span>
-<span class='line-number'>68</span>
-<span class='line-number'>69</span>
-<span class='line-number'>70</span>
-<span class='line-number'>71</span>
-<span class='line-number'>72</span>
-<span class='line-number'>73</span>
-<span class='line-number'>74</span>
-<span class='line-number'>75</span>
-<span class='line-number'>76</span>
-<span class='line-number'>77</span>
-<span class='line-number'>78</span>
-<span class='line-number'>79</span>
-<span class='line-number'>80</span>
-<span class='line-number'>81</span>
-<span class='line-number'>82</span>
-<span class='line-number'>83</span>
-<span class='line-number'>84</span>
-<span class='line-number'>85</span>
-<span class='line-number'>86</span>
-<span class='line-number'>87</span>
-<span class='line-number'>88</span>
-<span class='line-number'>89</span>
-<span class='line-number'>90</span>
-<span class='line-number'>91</span>
-<span class='line-number'>92</span>
-<span class='line-number'>93</span>
-<span class='line-number'>94</span>
-<span class='line-number'>95</span>
-<span class='line-number'>96</span>
-<span class='line-number'>97</span>
-<span class='line-number'>98</span>
-<span class='line-number'>99</span>
-<span class='line-number'>100</span>
-<span class='line-number'>101</span>
-<span class='line-number'>102</span>
-<span class='line-number'>103</span>
-<span class='line-number'>104</span>
-<span class='line-number'>105</span>
-<span class='line-number'>106</span>
-<span class='line-number'>107</span>
-<span class='line-number'>108</span>
-<span class='line-number'>109</span>
-<span class='line-number'>110</span>
-<span class='line-number'>111</span>
-<span class='line-number'>112</span>
-<span class='line-number'>113</span>
-<span class='line-number'>114</span>
-<span class='line-number'>115</span>
-<span class='line-number'>116</span>
-<span class='line-number'>117</span>
-<span class='line-number'>118</span>
-<span class='line-number'>119</span>
-<span class='line-number'>120</span>
-<span class='line-number'>121</span>
-<span class='line-number'>122</span>
-<span class='line-number'>123</span>
-<span class='line-number'>124</span>
-<span class='line-number'>125</span>
-<span class='line-number'>126</span>
-<span class='line-number'>127</span>
-<span class='line-number'>128</span>
-<span class='line-number'>129</span>
-<span class='line-number'>130</span>
-<span class='line-number'>131</span>
-<span class='line-number'>132</span>
-<span class='line-number'>133</span>
-<span class='line-number'>134</span>
-<span class='line-number'>135</span>
-<span class='line-number'>136</span>
-<span class='line-number'>137</span>
-<span class='line-number'>138</span>
-<span class='line-number'>139</span>
-<span class='line-number'>140</span>
-<span class='line-number'>141</span>
-<span class='line-number'>142</span>
-<span class='line-number'>143</span>
-<span class='line-number'>144</span>
-<span class='line-number'>145</span>
-<span class='line-number'>146</span>
-<span class='line-number'>147</span>
-<span class='line-number'>148</span>
-<span class='line-number'>149</span>
-<span class='line-number'>150</span>
-<span class='line-number'>151</span>
-<span class='line-number'>152</span>
-<span class='line-number'>153</span>
-<span class='line-number'>154</span>
-<span class='line-number'>155</span>
-<span class='line-number'>156</span>
-<span class='line-number'>157</span>
-<span class='line-number'>158</span>
-<span class='line-number'>159</span>
-<span class='line-number'>160</span>
-<span class='line-number'>161</span>
-<span class='line-number'>162</span>
-<span class='line-number'>163</span>
-<span class='line-number'>164</span>
-<span class='line-number'>165</span>
-<span class='line-number'>166</span>
-<span class='line-number'>167</span>
-<span class='line-number'>168</span>
-<span class='line-number'>169</span>
-<span class='line-number'>170</span>
-<span class='line-number'>171</span>
-<span class='line-number'>172</span>
-<span class='line-number'>173</span>
-<span class='line-number'>174</span>
-<span class='line-number'>175</span>
-<span class='line-number'>176</span>
-<span class='line-number'>177</span>
-<span class='line-number'>178</span>
-<span class='line-number'>179</span>
-<span class='line-number'>180</span>
-<span class='line-number'>181</span>
-<span class='line-number'>182</span>
-<span class='line-number'>183</span>
-<span class='line-number'>184</span>
-<span class='line-number'>185</span>
-<span class='line-number'>186</span>
-<span class='line-number'>187</span>
-</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="cp">#include &lt;stdio.h&gt;</span>
-</span><span class='line'><span class="cp">#include &lt;stdlib.h&gt;</span>
-</span><span class='line'><span class="cp">#include &lt;unistd.h&gt;</span>
-</span><span class='line'><span class="cp">#include &lt;string.h&gt;</span>
-</span><span class='line'><span class="cp">#include &lt;fcntl.h&gt;</span>
-</span><span class='line'><span class="cp">#include &lt;mach-o/fat.h&gt;</span>
-</span><span class='line'><span class="cp">#include &lt;mach-o/loader.h&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">struct</span> <span class="n">ProgramVars</span> <span class="p">{</span>
-</span><span class='line'>    <span class="k">struct</span> <span class="n">mach_header</span><span class="o">*</span> <span class="n">mh</span><span class="p">;</span>
-</span><span class='line'>    <span class="kt">int</span><span class="o">*</span> <span class="n">NXArgcPtr</span><span class="p">;</span>
-</span><span class='line'>    <span class="k">const</span> <span class="kt">char</span><span class="o">***</span> <span class="n">NXArgvPtr</span><span class="p">;</span>
-</span><span class='line'>    <span class="k">const</span> <span class="kt">char</span><span class="o">***</span> <span class="n">environPtr</span><span class="p">;</span>
-</span><span class='line'>    <span class="k">const</span> <span class="kt">char</span> <span class="o">**</span> <span class="n">__prognamePtr</span><span class="p">;</span>
-</span><span class='line'><span class="p">};</span>
-</span><span class='line'>
-</span><span class='line'><span class="cp">#define swap32(value) (((value&amp;0xFF000000) &gt;&gt; 24) | ((value &amp; 0x00FF0000) &gt;&gt; 8) | ((value &amp; 0x0000FF00) &lt;&lt; 8) | ((value &amp; 0x000000FF) &lt;&lt; 24))</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">__attribute__</span><span class="p">((</span><span class="n">constructor</span><span class="p">))</span>
-</span><span class='line'><span class="kt">void</span> <span class="n">dumptofile</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">**</span><span class="n">argv</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">**</span><span class="n">envp</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">**</span><span class="n">apple</span><span class="p">,</span> <span class="k">struct</span> <span class="n">ProgramVars</span> <span class="o">*</span><span class="n">pvars</span><span class="p">)</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="k">struct</span> <span class="n">load_command</span> <span class="o">*</span><span class="n">lc</span><span class="p">;</span>
-</span><span class='line'>    <span class="k">struct</span> <span class="n">encryption_info_command</span> <span class="o">*</span><span class="n">eic</span><span class="p">;</span>
-</span><span class='line'>    <span class="k">struct</span> <span class="n">fat_header</span> <span class="o">*</span><span class="n">fh</span><span class="p">;</span>
-</span><span class='line'>    <span class="k">struct</span> <span class="n">fat_arch</span> <span class="o">*</span><span class="n">arch</span><span class="p">;</span>
-</span><span class='line'>    <span class="k">struct</span> <span class="n">mach_header</span> <span class="o">*</span><span class="n">mh</span><span class="p">;</span>
-</span><span class='line'>    <span class="kt">char</span> <span class="n">buffer</span><span class="p">[</span><span class="mi">1024</span><span class="p">];</span>
-</span><span class='line'>    <span class="kt">char</span> <span class="n">rpath</span><span class="p">[</span><span class="mi">4096</span><span class="p">],</span><span class="n">npath</span><span class="p">[</span><span class="mi">4096</span><span class="p">];</span>
-</span><span class='line'>    <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">fileoffs</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">off_cryptid</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">restsize</span><span class="p">;</span>
-</span><span class='line'>    <span class="kt">int</span> <span class="n">i</span><span class="p">,</span><span class="n">fd</span><span class="p">,</span><span class="n">outfd</span><span class="p">,</span><span class="n">r</span><span class="p">,</span><span class="n">n</span><span class="p">,</span><span class="n">toread</span><span class="p">;</span>
-</span><span class='line'>    <span class="kt">char</span> <span class="o">*</span><span class="n">tmp</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;mach-o decryption dumper</span><span class="se">\n\n</span><span class="s">&quot;</span><span class="p">);</span>
-</span><span class='line'>    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;DISCLAIMER: This tool is only meant for security research purposes, not for application crackers.</span><span class="se">\n\n</span><span class="s">&quot;</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">pvars</span><span class="o">-&gt;</span><span class="n">mh</span><span class="o">-&gt;</span><span class="n">magic</span> <span class="o">==</span> <span class="n">MH_MAGIC_64</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>        <span class="n">lc</span> <span class="o">=</span> <span class="p">(</span><span class="k">struct</span> <span class="n">load_command</span> <span class="o">*</span><span class="p">)((</span><span class="kt">unsigned</span> <span class="kt">char</span><span class="o">*</span><span class="p">)</span><span class="n">pvars</span><span class="o">-&gt;</span><span class="n">mh</span> <span class="o">+</span> <span class="k">sizeof</span><span class="p">(</span><span class="k">struct</span> <span class="n">mach_header_64</span><span class="p">));</span>
-</span><span class='line'>        <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[+] detected 64bit ARM binary in memory.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
-</span><span class='line'>    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-</span><span class='line'>        <span class="n">lc</span> <span class="o">=</span> <span class="p">(</span><span class="k">struct</span> <span class="n">load_command</span> <span class="o">*</span><span class="p">)((</span><span class="kt">unsigned</span> <span class="kt">char</span><span class="o">*</span><span class="p">)</span><span class="n">pvars</span><span class="o">-&gt;</span><span class="n">mh</span> <span class="o">+</span> <span class="k">sizeof</span><span class="p">(</span><span class="k">struct</span> <span class="n">mach_header</span><span class="p">));</span>
-</span><span class='line'>        <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[+] detected 32bit ARM binary in memory.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="k">for</span> <span class="p">(</span><span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;</span><span class="n">pvars</span><span class="o">-&gt;</span><span class="n">mh</span><span class="o">-&gt;</span><span class="n">ncmds</span><span class="p">;</span><span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="n">lc</span><span class="o">-&gt;</span><span class="n">cmd</span> <span class="o">==</span> <span class="n">LC_ENCRYPTION_INFO</span> <span class="o">||</span> <span class="n">lc</span><span class="o">-&gt;</span><span class="n">cmd</span> <span class="o">==</span> <span class="n">LC_ENCRYPTION_INFO_64</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>            <span class="n">eic</span> <span class="o">=</span> <span class="p">(</span><span class="k">struct</span> <span class="n">encryption_info_command</span> <span class="o">*</span><span class="p">)</span><span class="n">lc</span><span class="p">;</span>
-</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="n">eic</span><span class="o">-&gt;</span><span class="n">cryptid</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
-</span><span class='line'>                <span class="k">break</span><span class="p">;</span>
-</span><span class='line'>            <span class="n">off_cryptid</span><span class="o">=</span><span class="p">(</span><span class="kt">off_t</span><span class="p">)((</span><span class="kt">void</span><span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">eic</span><span class="o">-&gt;</span><span class="n">cryptid</span><span class="o">-</span><span class="p">(</span><span class="kt">void</span><span class="o">*</span><span class="p">)</span><span class="n">pvars</span><span class="o">-&gt;</span><span class="n">mh</span><span class="p">);</span>
-</span><span class='line'>            <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[+] offset to cryptid found: @%p(from %p) = %x</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">eic</span><span class="o">-&gt;</span><span class="n">cryptid</span><span class="p">,</span> <span class="n">pvars</span><span class="o">-&gt;</span><span class="n">mh</span><span class="p">,</span> <span class="n">off_cryptid</span><span class="p">);</span>
-</span><span class='line'>            <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[+] Found encrypted data at address %08x of length %u bytes - type %u.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">eic</span><span class="o">-&gt;</span><span class="n">cryptoff</span><span class="p">,</span> <span class="n">eic</span><span class="o">-&gt;</span><span class="n">cryptsize</span><span class="p">,</span> <span class="n">eic</span><span class="o">-&gt;</span><span class="n">cryptid</span><span class="p">);</span>
-</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="n">realpath</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">rpath</span><span class="p">)</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span>
-</span><span class='line'>                <span class="n">strlcpy</span><span class="p">(</span><span class="n">rpath</span><span class="p">,</span> <span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">rpath</span><span class="p">));</span>
-</span><span class='line'>            <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[+] Opening %s for reading.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">rpath</span><span class="p">);</span>
-</span><span class='line'>            <span class="n">fd</span> <span class="o">=</span> <span class="n">open</span><span class="p">(</span><span class="n">rpath</span><span class="p">,</span> <span class="n">O_RDONLY</span><span class="p">);</span>
-</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="n">fd</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>                <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[-] Failed opening.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
-</span><span class='line'>                <span class="n">_exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
-</span><span class='line'>            <span class="p">}</span>
-</span><span class='line'>            <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[+] Reading header</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
-</span><span class='line'>            <span class="n">n</span> <span class="o">=</span> <span class="n">read</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="p">(</span><span class="kt">void</span><span class="o">*</span><span class="p">)</span><span class="n">buffer</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">buffer</span><span class="p">));</span>
-</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="n">n</span><span class="o">!=</span><span class="k">sizeof</span><span class="p">(</span><span class="n">buffer</span><span class="p">))</span> <span class="p">{</span>
-</span><span class='line'>                <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[W] Warning read only %d bytes</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="n">n</span><span class="p">);</span>
-</span><span class='line'>            <span class="p">}</span>
-</span><span class='line'>            <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[+] Detecting header type</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
-</span><span class='line'>            <span class="n">fh</span> <span class="o">=</span> <span class="p">(</span><span class="k">struct</span> <span class="n">fat_header</span> <span class="o">*</span><span class="p">)</span><span class="n">buffer</span><span class="p">;</span>
-</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="n">fh</span><span class="o">-&gt;</span><span class="n">magic</span> <span class="o">==</span> <span class="n">FAT_CIGAM</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>                <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[+] Executable is a FAT image - searching for right architecture</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
-</span><span class='line'>                <span class="n">arch</span> <span class="o">=</span> <span class="p">(</span><span class="k">struct</span> <span class="n">fat_arch</span> <span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">fh</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span>
-</span><span class='line'>                <span class="k">for</span> <span class="p">(</span><span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;</span><span class="n">swap32</span><span class="p">(</span><span class="n">fh</span><span class="o">-&gt;</span><span class="n">nfat_arch</span><span class="p">);</span><span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>                    <span class="k">if</span> <span class="p">((</span><span class="n">pvars</span><span class="o">-&gt;</span><span class="n">mh</span><span class="o">-&gt;</span><span class="n">cputype</span> <span class="o">==</span> <span class="n">swap32</span><span class="p">(</span><span class="n">arch</span><span class="o">-&gt;</span><span class="n">cputype</span><span class="p">))</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="n">pvars</span><span class="o">-&gt;</span><span class="n">mh</span><span class="o">-&gt;</span><span class="n">cpusubtype</span> <span class="o">==</span> <span class="n">swap32</span><span class="p">(</span><span class="n">arch</span><span class="o">-&gt;</span><span class="n">cpusubtype</span><span class="p">)))</span> <span class="p">{</span>
-</span><span class='line'>                        <span class="n">fileoffs</span> <span class="o">=</span> <span class="n">swap32</span><span class="p">(</span><span class="n">arch</span><span class="o">-&gt;</span><span class="n">offset</span><span class="p">);</span>
-</span><span class='line'>                        <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[+] Correct arch is at offset %u in the file</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">fileoffs</span><span class="p">);</span>
-</span><span class='line'>                        <span class="k">break</span><span class="p">;</span>
-</span><span class='line'>                    <span class="p">}</span>
-</span><span class='line'>                    <span class="n">arch</span><span class="o">++</span><span class="p">;</span>
-</span><span class='line'>                <span class="p">}</span>
-</span><span class='line'>                <span class="k">if</span> <span class="p">(</span><span class="n">fileoffs</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>                    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[-] Could not find correct arch in FAT image</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
-</span><span class='line'>                    <span class="n">_exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
-</span><span class='line'>                <span class="p">}</span>
-</span><span class='line'>            <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">fh</span><span class="o">-&gt;</span><span class="n">magic</span> <span class="o">==</span> <span class="n">MH_MAGIC</span> <span class="o">||</span> <span class="n">fh</span><span class="o">-&gt;</span><span class="n">magic</span> <span class="o">==</span> <span class="n">MH_MAGIC_64</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>                <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[+] Executable is a plain MACH-O image</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
-</span><span class='line'>            <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-</span><span class='line'>                <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[-] Executable is of unknown type</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
-</span><span class='line'>                <span class="n">_exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
-</span><span class='line'>            <span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'>            <span class="n">tmp</span> <span class="o">=</span> <span class="n">strrchr</span><span class="p">(</span><span class="n">rpath</span><span class="p">,</span> <span class="sc">&#39;/&#39;</span><span class="p">);</span>
-</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="n">tmp</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>                <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[-] Unexpected error with filename.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
-</span><span class='line'>                <span class="n">_exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
-</span><span class='line'>            <span class="p">}</span>
-</span><span class='line'>            <span class="n">strlcpy</span><span class="p">(</span><span class="n">npath</span><span class="p">,</span> <span class="n">tmp</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">npath</span><span class="p">));</span>
-</span><span class='line'>            <span class="n">strlcat</span><span class="p">(</span><span class="n">npath</span><span class="p">,</span> <span class="s">&quot;.decrypted&quot;</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">npath</span><span class="p">));</span>
-</span><span class='line'>            <span class="n">strlcpy</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="n">npath</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">buffer</span><span class="p">));</span>
-</span><span class='line'>
-</span><span class='line'>            <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[+] Opening %s for writing.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">npath</span><span class="p">);</span>
-</span><span class='line'>            <span class="n">outfd</span> <span class="o">=</span> <span class="n">open</span><span class="p">(</span><span class="n">npath</span><span class="p">,</span> <span class="n">O_RDWR</span><span class="o">|</span><span class="n">O_CREAT</span><span class="o">|</span><span class="n">O_TRUNC</span><span class="p">,</span> <span class="mo">0644</span><span class="p">);</span>
-</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="n">outfd</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>                <span class="k">if</span> <span class="p">(</span><span class="n">strncmp</span><span class="p">(</span><span class="s">&quot;/private/var/mobile/Applications/&quot;</span><span class="p">,</span> <span class="n">rpath</span><span class="p">,</span> <span class="mi">33</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>                    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[-] Failed opening. Most probably a sandbox issue. Trying something different.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'>                    <span class="n">strlcpy</span><span class="p">(</span><span class="n">npath</span><span class="p">,</span> <span class="s">&quot;/private/var/mobile/Applications/&quot;</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">npath</span><span class="p">));</span>
-</span><span class='line'>                    <span class="n">tmp</span> <span class="o">=</span> <span class="n">strchr</span><span class="p">(</span><span class="n">rpath</span><span class="o">+</span><span class="mi">33</span><span class="p">,</span> <span class="sc">&#39;/&#39;</span><span class="p">);</span>
-</span><span class='line'>                    <span class="k">if</span> <span class="p">(</span><span class="n">tmp</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>                        <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[-] Unexpected error with filename.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
-</span><span class='line'>                        <span class="n">_exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
-</span><span class='line'>                    <span class="p">}</span>
-</span><span class='line'>                    <span class="n">tmp</span><span class="o">++</span><span class="p">;</span>
-</span><span class='line'>                    <span class="o">*</span><span class="n">tmp</span><span class="o">++</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-</span><span class='line'>                    <span class="n">strlcat</span><span class="p">(</span><span class="n">npath</span><span class="p">,</span> <span class="n">rpath</span><span class="o">+</span><span class="mi">33</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">npath</span><span class="p">));</span>
-</span><span class='line'>                    <span class="n">strlcat</span><span class="p">(</span><span class="n">npath</span><span class="p">,</span> <span class="s">&quot;tmp/&quot;</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">npath</span><span class="p">));</span>
-</span><span class='line'>                    <span class="n">strlcat</span><span class="p">(</span><span class="n">npath</span><span class="p">,</span> <span class="n">buffer</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">npath</span><span class="p">));</span>
-</span><span class='line'>                    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[+] Opening %s for writing.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">npath</span><span class="p">);</span>
-</span><span class='line'>                    <span class="n">outfd</span> <span class="o">=</span> <span class="n">open</span><span class="p">(</span><span class="n">npath</span><span class="p">,</span> <span class="n">O_RDWR</span><span class="o">|</span><span class="n">O_CREAT</span><span class="o">|</span><span class="n">O_TRUNC</span><span class="p">,</span> <span class="mo">0644</span><span class="p">);</span>
-</span><span class='line'>                <span class="p">}</span>
-</span><span class='line'>                <span class="k">if</span> <span class="p">(</span><span class="n">outfd</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>                    <span class="n">perror</span><span class="p">(</span><span class="s">&quot;[-] Failed opening&quot;</span><span class="p">);</span>
-</span><span class='line'>                    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
-</span><span class='line'>                    <span class="n">_exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
-</span><span class='line'>                <span class="p">}</span>
-</span><span class='line'>            <span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'>            <span class="n">n</span> <span class="o">=</span> <span class="n">fileoffs</span> <span class="o">+</span> <span class="n">eic</span><span class="o">-&gt;</span><span class="n">cryptoff</span><span class="p">;</span>
-</span><span class='line'>            <span class="n">restsize</span> <span class="o">=</span> <span class="n">lseek</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">SEEK_END</span><span class="p">)</span><span class="o">-</span><span class="n">n</span><span class="o">-</span><span class="n">eic</span><span class="o">-&gt;</span><span class="n">cryptsize</span><span class="p">;</span>
-</span><span class='line'>            <span class="n">lseek</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">SEEK_SET</span><span class="p">);</span>
-</span><span class='line'>            <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[+] Copying the not encrypted start of the file</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
-</span><span class='line'>            <span class="k">while</span> <span class="p">(</span><span class="n">n</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>                <span class="n">toread</span> <span class="o">=</span> <span class="p">(</span><span class="n">n</span><span class="o">&gt;</span><span class="k">sizeof</span><span class="p">(</span><span class="n">buffer</span><span class="p">))</span> <span class="o">?</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span> <span class="o">:</span> <span class="n">n</span><span class="p">;</span>
-</span><span class='line'>                <span class="n">r</span> <span class="o">=</span> <span class="n">read</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span><span class="n">buffer</span><span class="p">,</span><span class="n">toread</span><span class="p">);</span>
-</span><span class='line'>                <span class="k">if</span> <span class="p">(</span><span class="n">r</span><span class="o">!=</span><span class="n">toread</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>                    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[-] Error reading file</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
-</span><span class='line'>                    <span class="n">_exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
-</span><span class='line'>                <span class="p">}</span>
-</span><span class='line'>                <span class="n">n</span> <span class="o">-=</span> <span class="n">r</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>                <span class="n">r</span> <span class="o">=</span> <span class="n">write</span><span class="p">(</span><span class="n">outfd</span><span class="p">,</span><span class="n">buffer</span><span class="p">,</span><span class="n">toread</span><span class="p">);</span>
-</span><span class='line'>                <span class="k">if</span> <span class="p">(</span><span class="n">r</span><span class="o">!=</span><span class="n">toread</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>                    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[-] Error writing file</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
-</span><span class='line'>                    <span class="n">_exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
-</span><span class='line'>                <span class="p">}</span>
-</span><span class='line'>            <span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'>            <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[+] Dumping the decrypted data into the file</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
-</span><span class='line'>            <span class="n">r</span> <span class="o">=</span> <span class="n">write</span><span class="p">(</span><span class="n">outfd</span><span class="p">,</span> <span class="p">(</span><span class="kt">unsigned</span> <span class="kt">char</span> <span class="o">*</span><span class="p">)</span><span class="n">pvars</span><span class="o">-&gt;</span><span class="n">mh</span><span class="o">+</span><span class="n">eic</span><span class="o">-&gt;</span><span class="n">cryptoff</span><span class="p">,</span><span class="n">eic</span><span class="o">-&gt;</span><span class="n">cryptsize</span><span class="p">);</span>
-</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="n">r</span><span class="o">!=</span><span class="n">eic</span><span class="o">-&gt;</span><span class="n">cryptsize</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>                <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[-] Error writing file</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
-</span><span class='line'>                <span class="n">_exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
-</span><span class='line'>            <span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'>            <span class="n">n</span> <span class="o">=</span> <span class="n">restsize</span><span class="p">;</span>
-</span><span class='line'>            <span class="n">lseek</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span><span class="n">eic</span><span class="o">-&gt;</span><span class="n">cryptsize</span><span class="p">,</span><span class="n">SEEK_CUR</span><span class="p">);</span>
-</span><span class='line'>            <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[+] Copyting the not encrypted remainder of the file</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
-</span><span class='line'>            <span class="k">while</span> <span class="p">(</span><span class="n">n</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>                <span class="n">toread</span> <span class="o">=</span> <span class="p">(</span><span class="n">n</span><span class="o">&gt;</span><span class="k">sizeof</span><span class="p">(</span><span class="n">buffer</span><span class="p">))</span> <span class="o">?</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span> <span class="o">:</span> <span class="n">n</span><span class="p">;</span>
-</span><span class='line'>                <span class="n">r</span> <span class="o">=</span> <span class="n">read</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span><span class="n">buffer</span><span class="p">,</span><span class="n">toread</span><span class="p">);</span>
-</span><span class='line'>                <span class="k">if</span> <span class="p">(</span><span class="n">r</span><span class="o">!=</span><span class="n">toread</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>                    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[-] Error reading file</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
-</span><span class='line'>                    <span class="n">_exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
-</span><span class='line'>                <span class="p">}</span>
-</span><span class='line'>                <span class="n">n</span> <span class="o">-=</span> <span class="n">r</span><span class="p">;</span>
-</span><span class='line'>                <span class="n">r</span> <span class="o">=</span> <span class="n">write</span><span class="p">(</span><span class="n">outfd</span><span class="p">,</span><span class="n">buffer</span><span class="p">,</span><span class="n">toread</span><span class="p">);</span>
-</span><span class='line'>                <span class="k">if</span> <span class="p">(</span><span class="n">r</span><span class="o">!=</span><span class="n">toread</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>                    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[-] Error writing file</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
-</span><span class='line'>                    <span class="n">_exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
-</span><span class='line'>                <span class="p">}</span>
-</span><span class='line'>            <span class="p">}</span>
-</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="n">off_cryptid</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>                <span class="kt">uint32_t</span> <span class="n">zero</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
-</span><span class='line'>                <span class="n">off_cryptid</span><span class="o">+=</span><span class="n">fileoffs</span><span class="p">;</span>
-</span><span class='line'>                <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[+] Setting the LC_ENCRYPTION_INFO-&gt;cryptid to 0 at offset %x</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">off_cryptid</span><span class="p">);</span>
-</span><span class='line'>                <span class="k">if</span> <span class="p">(</span><span class="n">lseek</span><span class="p">(</span><span class="n">outfd</span><span class="p">,</span><span class="n">off_cryptid</span><span class="p">,</span><span class="n">SEEK_SET</span><span class="p">)</span><span class="o">!=</span><span class="n">off_cryptid</span><span class="o">||</span><span class="n">write</span><span class="p">(</span><span class="n">outfd</span><span class="p">,</span><span class="o">&amp;</span><span class="n">zero</span><span class="p">,</span><span class="mi">4</span><span class="p">)</span><span class="o">!=</span><span class="mi">4</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>                    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[-] Error writing cryptid value</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
-</span><span class='line'>                <span class="p">}</span>
-</span><span class='line'>            <span class="p">}</span>
-</span><span class='line'>            <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[+] Closing original file</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
-</span><span class='line'>            <span class="n">close</span><span class="p">(</span><span class="n">fd</span><span class="p">);</span>
-</span><span class='line'>            <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[+] Closing dump file</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
-</span><span class='line'>            <span class="n">close</span><span class="p">(</span><span class="n">outfd</span><span class="p">);</span>
-</span><span class='line'>            <span class="n">_exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
-</span><span class='line'>        <span class="p">}</span>
-</span><span class='line'>        <span class="n">lc</span> <span class="o">=</span> <span class="p">(</span><span class="k">struct</span> <span class="n">load_command</span> <span class="o">*</span><span class="p">)((</span><span class="n">unsgined</span> <span class="kt">char</span><span class="o">*</span><span class="p">)</span><span class="n">lc</span><span class="o">+</span><span class="n">lc</span><span class="o">-&gt;</span><span class="n">cmdsize</span><span class="p">);</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'>    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[-] This mach-o file is not encrypted. Nothing was decrypted.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
-</span><span class='line'>    <span class="n">_exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/7">&larr; Older</a>
@@ -1391,6 +1085,10 @@ Client 로부터 <code>CONNECT</code> 를 받으면, 진짜 서버에 접속해�
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/02/16/plaid-ctf-2015-one-null-byte/">Plaid CTF 2015 - One NULL Byte</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/02/12/understanding-the-heap-and-exploiting-heap-overflows/">Understanding the Heap &amp; Exploiting Heap Overflows</a>
       </li>
     
@@ -1404,10 +1102,6 @@ Client 로부터 <code>CONNECT</code> 를 받으면, 진짜 서버에 접속해�
     
       <li class="post">
         <a href="/blog/2016/02/11/racing-midi-messages-in-chrome/">Racing MIDI Messages in Chrome</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/02/11/unlocking-the-motorola-bootloader/">Unlocking the Motorola Bootloader</a>
       </li>
     
   </ul>
