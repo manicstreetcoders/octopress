@@ -9,10 +9,12 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="LoadLibrary() + DLL path CreateRemoteThread() 와 minhook 를 사용해서 openssl 을 사용하는 .exe 에 code 를 inject 해서, SSL_write() 을 후킹하여 plaintext 를 덤프하였다. 1
+  <meta name="description" content="CreateRemoteThread. Bypass Windows 7 Session Separation 을 정리. Opening the Victim Process Target 에 어태치할때&hellip; 1
 2
 3
-4 &hellip;">
+4
+5
+HANDLE WINAPI OpenProcess( &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -68,6 +70,117 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/04/15/createremotethread-bypass-windows-7-session-separation/">CreateRemoteThread. Bypass Windows 7 Session Separation</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-04-15T16:51:11+09:00'><span class='date'><span class='date-month'>Apr</span> <span class='date-day'>15</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>4:51 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><a href="http://syprog.blogspot.kr/2012/05/createremotethread-bypass-windows.html">CreateRemoteThread. Bypass Windows 7 Session Separation</a> 을 정리.</p>
+
+<h5>Opening the Victim Process</h5>
+
+<p>Target 에 어태치할때&hellip;</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>HANDLE WINAPI OpenProcess(
+</span><span class='line'>    DWORD dwDesiredAccess, /* PROCESS_ALL_ACCESS */
+</span><span class='line'>    BOOL bInheritHandle, /* FALSE */
+</span><span class='line'>    DWORD dwProcessID 
+</span><span class='line'>    );</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>Reading the Shellcode</h4>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>use 32
+</span><span class='line'>    ; offset of the LoadLibraryA address within the shellcode
+</span><span class='line'>    dd func
+</span><span class='line'>    ; save all registers
+</span><span class='line'>    push eax ebx ecx edx ebp edi esi
+</span><span class='line'>    ; get your EIP
+</span><span class='line'>    call next
+</span><span class='line'>next:
+</span><span class='line'>    pop eax
+</span><span class='line'>    mov ebx, eax
+</span><span class='line'>    ; get the address of the DLL name
+</span><span class='line'>    mov eax, string - next
+</span><span class='line'>    ; do this to avoid possible negative values (due to sign extend)
+</span><span class='line'>    movzx eax, al
+</span><span class='line'>    add eax, ebx
+</span><span class='line'>    ; pass it to the LoadLibraryA API
+</span><span class='line'>    push eax
+</span><span class='line'>    ; get the address of the LoadLibraryA function
+</span><span class='line'>    mov eax, func - next
+</span><span class='line'>    movzx eax, al
+</span><span class='line'>    add eax, ebx
+</span><span class='line'>    mov eax, [eax]
+</span><span class='line'>    ; call LoadLibraryA
+</span><span class='line'>    call eax
+</span><span class='line'>    ; restore registers
+</span><span class='line'>    pop esi edi ebp edx ecx ebx eax
+</span><span class='line'>    ; return
+</span><span class='line'>    ret
+</span><span class='line'>func dd 0x12345678 ; placeholder for the address
+</span><span class='line'>string:</span></code></pre></td></tr></table></div></figure>
+
+
+<p>메모리에 shellcode 를 넣고, DLL path 를 strcat() 한다. 그리고, <code>LoadLibraryA()</code> 어드레스를 채워준다. 채워줄때는 쉘코드 첫 DD 를 참조하여 <code>func</code> 의 offset 을 계산한다. 이 작업을 해야 usable 한 shellcode 가 된다.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -730,153 +843,6 @@ DLL 의 <code>DLL_PROCESS_ATTACH</code> 때 돌아가게 코드를 만들어 놓
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/03/03/bellman-ford-algorithm/">Bellman-Ford Algorithm</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2015-03-03T21:26:51+09:00'><span class='date'><span class='date-month'>Mar</span> <span class='date-day'>3</span><span class='date-suffix'>rd</span>, <span class='date-year'>2015</span></span> <span class='time'>9:26 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Bellman-Ford 알고리즘에서 negative edge 체크가 빠진 버전.</p>
-
-<p>파이썬으로 만들어봤다.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-<span class='line-number'>42</span>
-<span class='line-number'>43</span>
-<span class='line-number'>44</span>
-<span class='line-number'>45</span>
-<span class='line-number'>46</span>
-<span class='line-number'>47</span>
-<span class='line-number'>48</span>
-<span class='line-number'>49</span>
-<span class='line-number'>50</span>
-<span class='line-number'>51</span>
-<span class='line-number'>52</span>
-<span class='line-number'>53</span>
-<span class='line-number'>54</span>
-<span class='line-number'>55</span>
-<span class='line-number'>56</span>
-<span class='line-number'>57</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>class Vertex:
-</span><span class='line'>    def __init__(self,n):
-</span><span class='line'>        self.number = n
-</span><span class='line'>        self.adj = []
-</span><span class='line'>        self.d = float('inf')
-</span><span class='line'>
-</span><span class='line'>    def addNeighbor(self,v,weight):
-</span><span class='line'>        self.adj.append( (v,weight) )
-</span><span class='line'>
-</span><span class='line'>    def p(self):
-</span><span class='line'>        print("Vertex %d, depth %f -&gt;" % (self.number,self.d)),
-</span><span class='line'>        for (v,weight) in self.adj:
-</span><span class='line'>            print("%d:%d " % (v.number,weight)),
-</span><span class='line'>        print
-</span><span class='line'>
-</span><span class='line'>def relax(v):
-</span><span class='line'>    for i in v:
-</span><span class='line'>        for (nv,weight) in i.adj:
-</span><span class='line'>            if i.d == float('inf'):
-</span><span class='line'>                print "skip..."
-</span><span class='line'>                continue
-</span><span class='line'>            if (i.d + weight &lt; nv.d):
-</span><span class='line'>                print "relaxing vertex %d" % (nv.number)
-</span><span class='line'>                nv.d = i.d + weight
-</span><span class='line'>    return
-</span><span class='line'>
-</span><span class='line'>if __name__ == "__main__":
-</span><span class='line'>    v = []
-</span><span class='line'>    for i in range(0,10):
-</span><span class='line'>        v.append(Vertex(i))
-</span><span class='line'>
-</span><span class='line'>    v[9].addNeighbor(v[8],5)
-</span><span class='line'>    v[8].addNeighbor(v[7],5)
-</span><span class='line'>    v[7].addNeighbor(v[6],5)
-</span><span class='line'>    v[6].addNeighbor(v[5],5)
-</span><span class='line'>    v[5].addNeighbor(v[4],5)
-</span><span class='line'>    v[4].addNeighbor(v[3],5)
-</span><span class='line'>    v[3].addNeighbor(v[2],5)
-</span><span class='line'>    v[2].addNeighbor(v[1],5)
-</span><span class='line'>    v[1].addNeighbor(v[0],5)
-</span><span class='line'>
-</span><span class='line'>    v[7].addNeighbor(v[2],5)
-</span><span class='line'>
-</span><span class='line'>    v[9].d = 0
-</span><span class='line'>
-</span><span class='line'>    for i in v:
-</span><span class='line'>        i.p()
-</span><span class='line'>
-</span><span class='line'>    count = 0
-</span><span class='line'>    for i in range(0,10-1):
-</span><span class='line'>        count += 1
-</span><span class='line'>        relax(v)
-</span><span class='line'>
-</span><span class='line'>    print "performed relaxing operation %d times." % (count)
-</span><span class='line'>
-</span><span class='line'>    for i in v:
-</span><span class='line'>        i.p()</span></code></pre></td></tr></table></div></figure>
-
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/10">&larr; Older</a>
@@ -894,6 +860,10 @@ DLL 의 <code>DLL_PROCESS_ATTACH</code> 때 돌아가게 코드를 만들어 놓
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/02/25/mnist-for-ml-beginners/">MNIST for ML Beginners</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/02/16/plaid-ctf-2015-one-null-byte/">Plaid CTF 2015 - One NULL Byte</a>
       </li>
     
@@ -907,10 +877,6 @@ DLL 의 <code>DLL_PROCESS_ATTACH</code> 때 돌아가게 코드를 만들어 놓
     
       <li class="post">
         <a href="/blog/2016/02/11/how2heap/">How2heap</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/02/11/racing-midi-messages-in-chrome/">Racing MIDI Messages in Chrome</a>
       </li>
     
   </ul>

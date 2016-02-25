@@ -9,7 +9,7 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="Elementary Cellular Automaton 를 1 라인으로 구현한 코드. Best one liner: konno.c konno.c int _;main(O,l,o)char**l,**o;{_++&gt;&gt;9||main(1&amp;(o?(int)o:O)|O* &hellip;">
+  <meta name="description" content="Karatsuba Algorithm Karatsuba 가 23 살때 발명한 알고리즘. def kara(x,y): n = len(str(x)) n2 = pow(10,n/2) a = x / n2 b = x % n2 c = y / n2 d = y % n2 ans = pow &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -65,6 +65,59 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/08/28/karatsuba-algorithm/">Karatsuba Algorithm</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-08-28T02:19:00+09:00'><span class='date'><span class='date-month'>Aug</span> <span class='date-day'>28</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>2:19 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h3>Karatsuba Algorithm</h3>
+
+<p>Karatsuba 가 23 살때 발명한 알고리즘.</p>
+
+<pre><code>def kara(x,y):
+    n = len(str(x))
+    n2 = pow(10,n/2)
+    a = x / n2
+    b = x % n2
+    c = y / n2
+    d = y % n2
+    ans = pow(10,n)*a*c + pow(10,n/2)*(a*d+b*c) + b*d
+
+    return ans
+
+if __name__ == "__main__":
+    x = 4586
+    y = 1234
+    ans = kara(x,y)
+    print "%d == %d" % (ans, x*y)
+</code></pre>
+
+<p>여기서 n-digit 숫자간의 곱셈을 n/2-digit 숫자간의 곱셈으로 divide 할 수 있다.
+recursive 하게 적용하면, n-digit by n-digit 을 곱하는 일반적인 곱셈의 복잡도 Theta(N<sup>2</sup>)
+를 Theta(N^\log_2 3) 으로 낮출 수 있다.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -2168,126 +2221,6 @@ digest =      0x56be34521d144c88dbb8c733f0e8b3f6
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2012/12/14/simple-introduction-to-oauth/">Simple Introduction to OAuth</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2012-12-14T10:34:00+09:00'><span class='date'><span class='date-month'>Dec</span> <span class='date-day'>14</span><span class='date-suffix'>th</span>, <span class='date-year'>2012</span></span> <span class='time'>10:34 am</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><h3>OAuth: user, client, and server</h3>
-
-<p><a href="http://hueniverse.com">Eran Hammer</a> 가 OAuth 2.0 을 떠난다고 한다. Web 이 아니라 Enterprise 의 요구에 끌려가면서 복잡해지고 거대해지고 등등의 사퇴의 변을 블로그에 올렸다.</p>
-
-<ul>
-<li><p><a href="http://hueniverse.com">Eran Hammer&rsquo;s blog</a> 에 OAuth 1.0 에 대한 좋은 글들이 많다.</p></li>
-<li><p>Heroku 에서 일하는 Schneems 의 <a href="http://schneems.com/post/23164666348/oauth-a-tale-of-two-servers">OAuth: A Tale of Two Servers</a> 를 읽고 정리해본다.</p></li>
-</ul>
-
-
-<p>우선 이 글에 나오는 Facebook 이나 instagram 은 이해를 돕기위한 예일뿐, 그들이 이런 프로토콜이나 flow 나 URL 을 사용한다는 것은 절대 아님.</p>
-
-<ul>
-<li>리소스를 보관하고 있는 서버 (i.e. Facebook 의 Social Graph)</li>
-<li>OAuth Client (i.e. Facebook 의 Social Graph 를 import 하려는 instagram 서버)</li>
-</ul>
-
-
-<p>우선 OAuth Client (i.e. instagram) 를 OAuth Provider (i.e. Facebook) 에
-등록해야한다.</p>
-
-<p>예를 들어 instagram 개발자는 Facebook 개발자 페이지에 가서</p>
-
-<pre><code>client_id=instagram
-</code></pre>
-
-<p>를 등록하고</p>
-
-<pre><code>client_secret=bar
-</code></pre>
-
-<p>를 발급받는다.</p>
-
-<p>실제 유저가 instagram 을 사용하는 경우를 상상해보자.</p>
-
-<p>instagram 에서</p>
-
-<pre><code>GET facebook.com/oauth/authorize? 
-client_id=instagram
-callback=instagram.com/oauth_accept
-</code></pre>
-
-<p>를 facebook.com 에 쏜다.</p>
-
-<p>facebook 은 이제 유저한테서 허가를 받아야겠다고 생각한다.</p>
-
-<p>facebook 은 instagram 이 유저 XXX 의 어카운트를 접근하려고 한다&hellip;
-허가해줄거냐 말거냐 물어보는 화면을 출력.</p>
-
-<p>유저가 YES 하면 facebook 은</p>
-
-<pre><code>GET instagram.com/oauth_accept?
-code=foobahz
-</code></pre>
-
-<p>를 쏜다. 유저의 허락을 받았기에 <code>code=foobahz</code> 를 쏴주는 것이다.</p>
-
-<p>이제 instagram 은 다음을 facebook.com 에 쏘고, access_token 을 받는다.
-3 가지 정보를 같이 보냄으로써 유저의 허락도 받았고, legitimate 한 instagram 프로그램이라는 것을 입증하는 것이다.</p>
-
-<pre><code>POST facebook.com/oauth/access_token
-code=foobahz
-client_id=instgram
-client_secret=bar
-
-Result:
-
-{ 'access_token': 'supersecret' }
-</code></pre>
-
-<p>이제 access_token 을 받았으니 사용자의 Social Graph 를 요청한다던가 하는 리퀘스트를 access_token 과 같이 보낼 수 있다. Facebook 은 이 access_token 이 authorized 된 것이고 자기가 발급해준 것이라는 것을 확인할 수 있기때문에, instagram 의 요청을 받아들인다.</p>
-
-<pre><code>GET facebook.com/user/me/friends
-access_token=supersecret
-</code></pre>
-
-<h3>OAuth Provider</h3>
-
-<ul>
-<li><a href="http://api.babo.com/oauth/request_token">http://api.babo.com/oauth/request_token</a></li>
-<li><a href="http://api.babo.com/oauth/authorize">http://api.babo.com/oauth/authorize</a></li>
-<li><a href="http://api.babo.com/oauth/access_token">http://api.babo.com/oauth/access_token</a></li>
-</ul>
-
-
-<p>Further readings:</p>
-
-<ul>
-<li><a href="http://pydanny.com/the-sorry-state-of-python-oauth-providers.html">The sorry state of Python OAuth providers</a></li>
-<li><a href="http://www.apigee.com">Apigee homepage</a></li>
-</ul>
-
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/21">&larr; Older</a>
@@ -2305,6 +2238,10 @@ access_token=supersecret
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/02/25/mnist-for-ml-beginners/">MNIST for ML Beginners</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/02/16/plaid-ctf-2015-one-null-byte/">Plaid CTF 2015 - One NULL Byte</a>
       </li>
     
@@ -2318,10 +2255,6 @@ access_token=supersecret
     
       <li class="post">
         <a href="/blog/2016/02/11/how2heap/">How2heap</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/02/11/racing-midi-messages-in-chrome/">Racing MIDI Messages in Chrome</a>
       </li>
     
   </ul>

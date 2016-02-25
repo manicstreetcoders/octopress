@@ -9,7 +9,8 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="How to update github forked repository git remote add upstream git://github.com/whoever/whatever.git # Fetch all the branches of that remote into &hellip;">
+  <meta name="description" content="Horner&rsquo;s method
+">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -65,6 +66,35 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/10/02/horners-method/">Horner's Method</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-10-02T15:19:00+09:00'><span class='date'><span class='date-month'>Oct</span> <span class='date-day'>2</span><span class='date-suffix'>nd</span>, <span class='date-year'>2013</span></span> <span class='time'>3:19 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><a href="http://en.wikipedia.org/wiki/Horner's_method">Horner&rsquo;s method</a></p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1174,200 +1204,6 @@ AdSense 는 역으로 주어진 document 에 대해, 가장 relevant 한 키워�
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2013/09/09/mapreduce-simplified-data-processing-on-large-clusters/">MapReduce: Simplified Data Processing on Large Clusters</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2013-09-09T17:19:00+09:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>9</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>5:19 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Jeff Dean and Sanjay Ghemawat 의 논문 &ldquo;MapReduce: Simplified Data Processing on Large Clusters&rdquo; 를 읽고 있다.</p>
-
-<p>LISP-like 언어들의 Map(), Reduce() 함수가 MapReduce 의 시작이었다.</p>
-
-<h3>Problems</h3>
-
-<p>Map/Reduce 로 풀 수 있는 문제들을 제시한다. Scalable 하게 풀 수 있는 문제들.</p>
-
-<ul>
-<li>Distributed Grep - 패턴이 매치하면 그 라인을 emit.
-reduce 함수가 중간 데이터를 아웃풋에 출력.</li>
-<li>Count of URL Access Frequency - HTTP request log 를 프로세스해서 &lt;URL,1> 을 emit.
-reduce 함수가 같은 URL 에 대해서 값들을 summation. &lt;URL, total count> 를 emit.</li>
-<li>Reverse Web-Link Graph</li>
-<li>Term-Vector per Host</li>
-<li>Inverted Index</li>
-<li>Distributed Sort</li>
-</ul>
-
-
-<h3>Map() / Reduce()</h3>
-
-<p>JavaScript, Ruby, Python 으로 map() / reduce() 예제를 만들어본다.</p>
-
-<p>JavaScript</p>
-
-<pre><code>// map.js
-function map(fn, a) {
-    for (var i = 0; i &lt; a.length; i++) 
-        a[i] = fn(a[i]);
-}
-
-var x = [1,2,3,4,5];
-
-map( function(n) { return n*2; }, x);
-map( function(n) { process.stdout.write(n.toString()+'\n'); return n; }, x);
-
-code% node map.js
-2
-4
-6
-8
-10
-
-// mapreduce.js
-function map(fn, a) {
-    for (var i = 0; i &lt; a.length; i++) 
-        a[i] = fn(a[i]);
-}
-
-function reduce(apply, array, initial_value) {
-    var prev = initial_value;
-    for (var i = 0; i &lt; array.length; i++)
-        prev = apply(prev, array[i]);
-    return prev;        
-}
-
-var x = [1,2,3,4,5];
-
-map( function(n) { return n*2; }, x);
-process.stdout.write( 
-    reduce( function(x,y) { return x+y; }, x, 0 ).toString() + '\n' );
-
-code% node map.js
-30
-</code></pre>
-
-<p>Ruby 의 경우 map(), reduce() 가 있는데,</p>
-
-<pre><code>1.9.3-p448 :001 &gt; (1..10).map { |n| n*2 }
- =&gt; [2, 4, 6, 8, 10, 12, 14, 16, 18, 20]
-1.9.3-p448 :002 &gt; (1..10).reduce(0) { |prev,n| prev + n }
- =&gt; 55
-1.9.3-p448 :003 &gt; (1..10).reduce(0) { |prev,n| prev = prev + n }
- =&gt; 55
-1.9.3-p448 :004 &gt;
-</code></pre>
-
-<p>reduce() 의 의미는, list 의 아이템을 하나의 value 로 축약해내는 것.</p>
-
-<p>축약 과정은 ( 전의 값, list 의 아이템 ) 에 apply function 을 적용하여 새로운 값을
-계속해서 만들어나가는 것.</p>
-
-<p>요약하면 Apply funciton 으로 어레이를 단계별로 처리해나가서 하나의 값으로 증류해내는 것.</p>
-
-<p>이제 ruby 의 map(), reduce() 를 구현해서 monkey patching 으로 붙여보자.</p>
-
-<p>Python 의 경우에도 map(), reduce() 함수가 있는데,</p>
-
-<pre><code>Python 2.7.2 (default, Oct 11 2012, 20:14:37)
-[GCC 4.2.1 Compatible Apple Clang 4.0 (tags/Apple/clang-418.0.60)] on darwin
-Type "help", "copyright", "credits" or "license" for more information.
-&gt;&gt;&gt; a = [ 1,2,3,4,5 ]
-&gt;&gt;&gt; map ( lambda x: x* 2, a )
-[2, 4, 6, 8, 10]
-&gt;&gt;&gt; reduce( lambda x,y: x+y, a)
-15
-</code></pre>
-
-<h3>Word Count Example</h3>
-
-<p>Map-Reduce v.s. shared-memory, low-level message passing</p>
-
-<p>Web 에서 crawling 한 document 를 가지고 word count 을 map-reduce 로 기술해본다.</p>
-
-<p>Input: 도큐먼트와 content (d_k, &lsquo;w_1 &hellip; w_n&rsquo;)
-Output: (w_k, word-count-toal)</p>
-
-<ul>
-<li>mapper: (d_k, &lsquo;w1 &hellip; w_n&rsquo;) -> emits -> [ (w_i,c_i) ]</li>
-<li>reducer:  (w_i, [c_i]) -> (w_i, sum of all c_i)</li>
-</ul>
-
-
-<p>문서는 여러개의 mapper 에 분배된다.
-mapper 는 문서를 받아서 (key,value) 를 뱉어낸다.
-그 문서에 있는 단어와 단어의 카운트. combine 을 할수도 안할수도 있다.</p>
-
-<pre><code>('abc', 4)
-('cat', 2)
-('abc', 8)
-('dog', 1)
-('gun', 7)
-('dog', 2)
-...
-</code></pre>
-
-<p>word count 예제에서는
-reducer 는 mapper 들이 생성한 (key, value) 에 sum function 을 가지고 reduce 한다.
-(&lsquo;abc&rsquo;, &hellip;) 는 1st reducer 로 가고, (&lsquo;cat&rsquo;, &hellip;) 는 2nd reducer 로 가고&hellip;</p>
-
-<p>octo.py 를 가지고 map-reduce 를 간단하게 실습해본다.</p>
-
-<h4>wc.py</h4>
-
-<pre><code>import glob
-
-files = glob.glob('*.txt')
-
-def fbuf(fname):
-    f = open(fname)
-    try:
-        return f.read()
-    finally:
-        f.close()
-
-source = dict( (fname, fbuf(fname)) for fname in files)
-
-f = open('outfile','w')
-
-def final(k,v):
-    print k,v
-    f.write( str( (k,v) ) )
-
-def mapfn(k,v):
-    for line in v.splitlines():
-        for word in line.split():
-            yield word.lower(), 1
-
-def reducefn(k,v):
-    return k,len(v)
-</code></pre>
-
-<p>octo.py server 가 file contents 를 mapper 에게 분배하고,
-mapper 는 (word, 1) 을 emit 한다.
-reducer 는 ( &lsquo;alice&rsquo; , [1,1,1,1,1,1,1,1] ) 를 reduce 한다.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/19">&larr; Older</a>
@@ -1385,6 +1221,10 @@ reducer 는 ( &lsquo;alice&rsquo; , [1,1,1,1,1,1,1,1] ) 를 reduce 한다.</p>
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/02/25/mnist-for-ml-beginners/">MNIST for ML Beginners</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/02/16/plaid-ctf-2015-one-null-byte/">Plaid CTF 2015 - One NULL Byte</a>
       </li>
     
@@ -1398,10 +1238,6 @@ reducer 는 ( &lsquo;alice&rsquo; , [1,1,1,1,1,1,1,1] ) 를 reduce 한다.</p>
     
       <li class="post">
         <a href="/blog/2016/02/11/how2heap/">How2heap</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/02/11/racing-midi-messages-in-chrome/">Racing MIDI Messages in Chrome</a>
       </li>
     
   </ul>
