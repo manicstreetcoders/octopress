@@ -21,6 +21,9 @@ DROWN 공격은 RSA PKCS# v1.5 padding 구조를 이용함.
 
 N = p*q, l = len(N) 이라고 할때, k 는 symmetric key 라고 할 때, 암호화를 돌릴 블럭은 다음과 같이 만든다. `m = 00 || 02 || PS || 00 || k`
 
-`len(PS) >= 8` 이어야하고, `02` 는 block type, 처음 `00` 은 암호화를 돌릴 블럭(EB)가 N 보다 작은 정수가 되기 위해서 집어 넣는 것. PS 는 패딩. 패딩을 prepend 하는 구조. 이 EB 를 정수로 converting 한다. 256 의 i 승을 계속 곱하면서 더해나가는 식으로 변환.
-
-SSLv2 에서는 master_key 가 k 라고 보면 된다.
+* 처음 `00` 은 암호화를 돌릴 블럭(EB)가 N 보다 작은 정수가 되게 만들기 위해 집어 넣는 것
+* `02` 는 block type
+* PS 는 패딩. len(PS) >= 8 이어야 한다. 패딩을 prepend 하는 구조.
+* k 는 주로 symmetric key 가 되는데, SSLv2 에서는 master_key 가 k 라고 보면 된다.
+* 이 EB 를 정수로 변환한다. 변환은 256 의 index 승을 계속 곱해서 더해나가며 바이트 블럭을 변환하는 식.
+* 정수로 변환해서 c = m^e mod N 
