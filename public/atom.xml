@@ -4,7 +4,7 @@
   <title><![CDATA[KC's blog]]></title>
   <link href="http://zomo.heroku.com/atom.xml" rel="self"/>
   <link href="http://zomo.heroku.com/"/>
-  <updated>2016-03-03T15:36:28+09:00</updated>
+  <updated>2016-03-03T15:42:23+09:00</updated>
   <id>http://zomo.heroku.com/</id>
   <author>
     <name><![CDATA[KC]]></name>
@@ -250,7 +250,7 @@ OpenSSL 버그때문에, 서버 설정에 상관없이, 강제로 SSLv2 로 네�
 
 <h4>General DROWN</h4>
 
-<h4>Special DROWN</h4>
+<p>SSLv2 + 수출등급 cipher suites 가 먹는 서버를 oracle 로 만드는 방법.</p>
 ]]></content>
   </entry>
   
