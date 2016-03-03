@@ -282,6 +282,39 @@ OpenSSL version &lt;= 1.1.0 의 경우, 서버가 지정하지않은 것도 clie
 
 
 <p>Bleichenbacher 공격을 수행하려면, TLS ciphertext 를 SSLv2 key exchange 메시지로 변형시킬 방법이 필요하다. 우리가 가진 oracle 은 SSLv2 에서 쓰이는 symmetric key 를 RSA 로 암호/복호하는 프로세스에서 생기는 녀석이기때문에.</p>
+
+<p>이 한계를 극복하기 위해 다음과 같은 작업을 수행했다고 한다. 흠. 놀랐다. 이런 짓을 하다니. 흠좀무.</p>
+
+<ol>
+<li>TLS RSA key exchange 메시지 다수를 캡쳐해야한다.</li>
+<li>이제 캡쳐한 암호화된 premaster secret 를 RSA PKCS#1 v1.5 로 인코딩된 ciphertext 로 바꿔야한다.</li>
+<li>이 작업을 Bardou et al. 이 발표한 방법으로 수행한다.</li>
+<li>Bardou et al. 의 도움으로 SSLv2 RSA ciphertext 를 손에 쥐었다고 가정한다.</li>
+<li>이제 Bleichenbacher 변종공격으로 해독에 성공한다.</li>
+<li>이제 plaintext 를 premaster secret 로 다시 변환한다.</li>
+</ol>
+
+
+<p>SSLv2 가 취약하다는건 누구나 알고 있는 사실이다.
+설사 SSLv2 가 enable 되어있는 서버들이 꽤 있기는 하지만&hellip;
+하지만, Modern 클라이언트는 SSLv2 를 사용하지 않는다.
+그러니 인터넷은 안전한 것 아닌가?</p>
+
+<p>아니다. 인터넷은 SSLv2 가 enable 되어있는 서버들이 많기도 하지만,
+그리고 OpenSSL 버그때문에, 서버 설정에 상관없이, 강제로 SSLv2 로 네고할 수 있다.
+인터넷에는 수많은 SSLv2 oracle 이 널려있는 셈.</p>
+
+<p>천재적인 발상은, TLS 와 SSLv2 가 private key 를 공유하고 있다는 사실에 생각이 미친 것!!!</p>
+
+<p>즉 SSLv2 를 통해서 TLS 를 공격할 수 있는 것이다.</p>
+
+<p>크로스 프로토콜 공격!!!</p>
+
+<p>제네럴한 버전과 스페셜한 공격, 두가지가 있다고 한다.</p>
+
+<h4>General DROWN</h4>
+
+<h4>Special DROWN</h4>
 </div>
 
 
