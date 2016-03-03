@@ -10,9 +10,7 @@
 
   
   <meta name="description" content="
-Mobile Trusted Computing
-Modeling attacks on physical unclonable functions
-Silicon physical random functions ">
+Exploiting CVE-2015-0311: A Use-After-Free in Adobe Flash Player ">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -68,6 +66,38 @@ Silicon physical random functions ">
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/06/14/exploiting-cve-2015-0311-a-use-after-free-in-adobe-flash-player/">Exploiting CVE-2015-0311: A Use-After-Free in Adobe Flash Player</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-06-14T23:39:33+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>14</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>11:39 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><ul>
+<li><a href="https://blog.coresecurity.com/2015/03/04/exploiting-cve-2015-0311-a-use-after-free-in-adobe-flash-player/">Exploiting CVE-2015-0311: A Use-After-Free in Adobe Flash Player</a></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -847,155 +877,6 @@ Client 로부터 <code>CONNECT</code> 를 받으면, 진짜 서버에 접속해�
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/06/04/ios-building-a-basic-toolkit/">iOS: Building a Basic Toolkit</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2015-06-04T13:23:03+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>4</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>1:23 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><h4>Cydia</h4>
-
-<h4>BigBoss Recommended Tools</h4>
-
-<h4>otool</h4>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'># Inspect the Objective-C segment to reveal class and method names:
-</span><span class='line'>$ otool -oV MAHHApp
-</span><span class='line'>
-</span><span class='line'># List the libraries used by the binary:
-</span><span class='line'>$ otool -L MAHHApp
-</span><span class='line'>
-</span><span class='line'># List the symbols exported by a binary
-</span><span class='line'>$ otool -IV MAHHApp
-</span><span class='line'>
-</span><span class='line'># Display the short-form header information:
-</span><span class='line'>$ otool -hV MAHHApp
-</span><span class='line'>
-</span><span class='line'># Display the binary load commands:
-</span><span class='line'>$ otool -l MAHHApp</span></code></pre></td></tr></table></div></figure>
-
-
-<h4>nm</h4>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>$ nm MAHHApp</span></code></pre></td></tr></table></div></figure>
-
-
-<h4>lipo</h4>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>$ lipo -info MAHHApp
-</span><span class='line'>$ lipo -thin &lt;arch_type&gt; -output MAHHApp-v7 MAHHApp</span></code></pre></td></tr></table></div></figure>
-
-
-<h4>Debuggers</h4>
-
-<ul>
-<li>gdb (Help: <a href="http://www.pod2g.org/2012/02/working-gnu-debugger-on-ios-43.html">here</a></li>
-<li>radare (Add cydia repo as a source, <a href="http://cydia.radare.org">http://cydia.radare.org</a>)</li>
-</ul>
-
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>$ lipo -thin armv7 gdb-arm-apple-darwin -output gdb-arm7</span></code></pre></td></tr></table></div></figure>
-
-
-<h4>Tools for Signing Binaries</h4>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'># To sign or replace an existing signature, use the following command:
-</span><span class='line'>$ codesign -v -fs "CodeSignIdentity" MAHHApp.app/
-</span><span class='line'>
-</span><span class='line'># To display the code signature of an application:
-</span><span class='line'>$ codesign -v -d MAHHApp.app</span></code></pre></td></tr></table></div></figure>
-
-
-<ul>
-<li>saurik&rsquo;s ldid: <a href="http://www.saurik.com/id/8">here</a></li>
-</ul>
-
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>$ ldid -S MAHHApp</span></code></pre></td></tr></table></div></figure>
-
-
-<h4>Installipa</h4>
-
-<ul>
-<li><a href="https://github.com/autopear/ipainstaller">here</a></li>
-<li>AppSync (repo: <a href="http://cydia.appaddict.org">http://cydia.appaddict.org</a>)</li>
-</ul>
-
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'># ipainstaller Lab1.1a.ipa
-</span><span class='line'>Analyzing Lab1.1a.ipa...
-</span><span class='line'>Installing lab1.1a (v1.0)...
-</span><span class='line'>Installed lab1.1a (v1.0) successfully.</span></code></pre></td></tr></table></div></figure>
-
-
-<h4>Exploring the Filesystem</h4>
-
-<ul>
-<li><a href="http://2013.hackitoergosum.org/presentations/Day3-04.Hacking%20apple%20accessories%20to%20pown%20iDevices%20%E2%80%93%20Wake%20up%20Neo!%20Your%20phone%20got%20pwnd%20!%20by%20Mathieu%20GoToHack%20RENARD.pdf">Mathieu Renard</a></li>
-<li>iExplorer</li>
-<li>iFunBox</li>
-</ul>
-
-
-<h4>Property Lists</h4>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'># plutil com.google.Authenticator.plist
-</span><span class='line'>$ plutil -convert xml1 com.google.Authenticator.plist
-</span><span class='line'>$ plutil -convert binary1 com.google.Authenticator.plist</span></code></pre></td></tr></table></div></figure>
-
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/7">&larr; Older</a>
@@ -1013,6 +894,10 @@ Client 로부터 <code>CONNECT</code> 를 받으면, 진짜 서버에 접속해�
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/03/03/the-drown-attack/">The DROWN Attack</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/02/25/mnist-for-ml-beginners/">MNIST for ML Beginners</a>
       </li>
     
@@ -1026,10 +911,6 @@ Client 로부터 <code>CONNECT</code> 를 받으면, 진짜 서버에 접속해�
     
       <li class="post">
         <a href="/blog/2016/02/12/unlocking-the-motorola-bootloader-by-azimuth-security/">Unlocking the Motorola Bootloader by Azimuth Security</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/02/11/how2heap/">How2heap</a>
       </li>
     
   </ul>

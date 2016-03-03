@@ -1,0 +1,217 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>The DROWN Attack - KC's blog</title>
+  <meta name="author" content="KC">
+
+  
+  <meta name="description" content="The DROWN Attack 1,000 번의 TLS 핸드쉐이크를 관찰하고, 40,000 번의 SSLv2 연결을 시도해보고, 250 번의 symmetric cipher 연산을 하면, 2048-bit RSA TLS 핸드쉐이크를 해독하는 것이 가능하다&hellip;고 &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://zomo.heroku.com/blog/2016/03/03/the-drown-attack/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="KC's blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">KC's blog</a></h1>
+  
+    <h2>A blogging framework for hackers.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="sitesearch" value="zomo.heroku.com">
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">The DROWN Attack</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2016-03-03T09:38:55+09:00'><span class='date'><span class='date-month'>Mar</span> <span class='date-day'>3</span><span class='date-suffix'>rd</span>, <span class='date-year'>2016</span></span> <span class='time'>9:38 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p><a href="https://drownattack.com">The DROWN Attack</a></p>
+
+<p>1,000 번의 TLS 핸드쉐이크를 관찰하고, 40,000 번의 SSLv2 연결을 시도해보고, 2<sup>50</sup> 번의 symmetric cipher 연산을 하면, 2048-bit RSA TLS 핸드쉐이크를 해독하는 것이 가능하다&hellip;고 한다.</p>
+
+<p>배정된 CVE 는 다음과 같다.</p>
+
+<ul>
+<li>CVE-2016-0800</li>
+<li>CVE-2015-3197</li>
+<li>CVE-2016-0703</li>
+<li>CVE-2016-0704</li>
+</ul>
+
+
+<p>DROWN 공격은 RSA PKCS# v1.5 padding 구조를 이용함.</p>
+
+<p>N = p*q, l = len(N) 이라고 할때, k 는 symmetric key 라고 할 때, 암호화를 돌릴 블럭은 다음과 같이 만든다. <code>m = 00 || 02 || PS || 00 || k</code></p>
+
+<p><code>len(PS) &gt;= 8</code> 이어야하고, <code>02</code> 는 block type, 처음 <code>00</code> 은 암호화를 돌릴 블럭(EB)가 N 보다 작은 정수가 되기 위해서 집어 넣는 것. PS 는 패딩. 패딩을 prepend 하는 구조. 이 EB 를 정수로 converting 한다. 256 의 i 승을 계속 곱하면서 더해나가는 식으로 변환.</p>
+
+<p>SSLv2 에서는 master_key 가 k 라고 보면 된다.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">KC</span></span>
+
+      
+
+
+
+
+<time class='entry-date' datetime='2016-03-03T09:38:55+09:00'><span class='date'><span class='date-month'>Mar</span> <span class='date-day'>3</span><span class='date-suffix'>rd</span>, <span class='date-year'>2016</span></span> <span class='time'>9:38 am</span></time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://zomo.heroku.com/blog/2016/03/03/the-drown-attack/" data-via="" data-counturl="http://zomo.heroku.com/blog/2016/03/03/the-drown-attack/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2016/02/25/mnist-for-ml-beginners/" title="Previous Post: MNIST For ML Beginners">&laquo; MNIST For ML Beginners</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2016/03/03/the-drown-attack/">The DROWN Attack</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/02/25/mnist-for-ml-beginners/">MNIST for ML Beginners</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/02/16/plaid-ctf-2015-one-null-byte/">Plaid CTF 2015 - One NULL Byte</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/02/12/understanding-the-heap-and-exploiting-heap-overflows/">Understanding the Heap &amp; Exploiting Heap Overflows</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/02/12/unlocking-the-motorola-bootloader-by-azimuth-security/">Unlocking the Motorola Bootloader by Azimuth Security</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2016 - KC -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

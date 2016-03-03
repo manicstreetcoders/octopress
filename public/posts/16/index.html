@@ -9,9 +9,8 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="Sotirov 의 오래된 발표를 recap 해본다. 적지 않은 내용들이 outdated 되었지만, 가치가 있다. Heap Feng Shui in JavaScript
-Heap Feng Shui in JavaScript
-Heap Feng Shui in JavaScript &hellip;">
+  <meta name="description" content="큰 소수 p 를 정한다. (e.g. 600 digits -> approx. 2000 bits) {1,&hellip;,p} 중에서 정수 하나를 고른다. g. Alice : choose random a in {1,&hellip;,p-1}
+send A = ga (mod p &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -67,6 +66,68 @@ Heap Feng Shui in JavaScript &hellip;">
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/05/09/the-diffie-hellman-protocol/">The Diffie Hellman Protocol</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-05-09T19:54:33+09:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>9</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>7:54 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>큰 소수 p 를 정한다. (e.g. 600 digits -> approx. 2000 bits)</p>
+
+<p>{1,&hellip;,p} 중에서 정수 하나를 고른다. g.</p>
+
+<ol>
+<li>Alice : choose random a in {1,&hellip;,p-1}</li>
+<li>send A = g<sup>a</sup> (mod p) to Bob</li>
+<li>Bob: choose random b in {1,&hellip;,p-1}</li>
+<li>send B = g<sup>b</sup> (mod p) to Alice</li>
+<li>Shared key = g<sup>ab</sup> (mod p)</li>
+</ol>
+
+
+<p>Eavesdropper sees: p,g, A = g<sup>a</sup> (mod p), and B = g<sup>b</sup> (mod p)</p>
+
+<p>저 정보를 가지고 g<sup>ab</sup> (mod p) 를 계산할 수 있을까?</p>
+
+<p>Physical 한 예를 들어본다.</p>
+
+<p>e.g. 열쇠를 공유하지 않고 상자의 내용물을 안전하게 지키면서 deliver 하고 싶다.</p>
+
+<ol>
+<li>Alice 는 상자에 자신의 열쇠로 잠궈서 Bob 에게 보낸다.</li>
+<li>상자를 받은 Bob 역시 자신의 열쇠로 잠궈서 Alice 에서 다시 보낸다.</li>
+<li>Alice 는 상자를 잠근 두 개의 Lock 중에서 자신이 잠근 Lock 을 자신의 열쇠로 풀어서, 다시 Bob 에게 보낸다.</li>
+<li>Bob 은 상자를 잠근 자신의 Lock 을 푼다.</li>
+</ol>
+
+
+<p>중간에 상자를 가로채더라도 Eavesdropper 는 상자의 Lock 을 해제할 수 없다.</p>
+
+<p>수학적으로 열쇠를 채우는 연산은 exp + mod prime 연산인데, 이게 왜 계산이 어려운지 설명해보겠다.</p>
+
+<p>예를 들어 32478543<sup>743921429837645</sup> 의 remainder 를 찾는 문제를 생각해보자.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -897,58 +958,6 @@ def wait_timeout(proc, seconds)
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/03/26/picking-n-numbers/">Picking N Numbers</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2014-03-26T11:13:19+09:00'><span class='date'><span class='date-month'>Mar</span> <span class='date-day'>26</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>11:13 am</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>아이의 숙제를 해주기 위해&hellip;</p>
-
-<p>0 ~ 6 중에서 4 개의 수를 뽑는 프로그램.</p>
-
-<pre><code>depth = 4
-list = []
-def pick(d):
-    global depth
-    if (d &gt; depth):
-        print list
-        return
-    if (len(list) == 0):
-        smallest = -1
-    else:
-        smallest = list[-1]
-
-    for i in range(smallest+1,6+1):
-        list.append(i)
-        pick(d+1)
-        del list[-1]
-
-if __name__ == "__main__":
-    pick(1)
-</code></pre>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/17">&larr; Older</a>
@@ -966,6 +975,10 @@ if __name__ == "__main__":
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/03/03/the-drown-attack/">The DROWN Attack</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/02/25/mnist-for-ml-beginners/">MNIST for ML Beginners</a>
       </li>
     
@@ -979,10 +992,6 @@ if __name__ == "__main__":
     
       <li class="post">
         <a href="/blog/2016/02/12/unlocking-the-motorola-bootloader-by-azimuth-security/">Unlocking the Motorola Bootloader by Azimuth Security</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/02/11/how2heap/">How2heap</a>
       </li>
     
   </ul>

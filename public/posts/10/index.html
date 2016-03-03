@@ -9,39 +9,7 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="Bellman-Ford 알고리즘에서 negative edge 체크가 빠진 버전. 파이썬으로 만들어봤다. 1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-11
-12
-13
-14
-15
-16
-17
-18
-19
-20
-21
-22
-23
-24
-25
-26
-27
-28
-29
-30
-31
-32
-33 &hellip;">
+  <meta name="description" content="Ralf-Philipp Weinmann 의 Baseband Attacks: Remote Exploitation of Memory Corruptions in Cellular Protocol Stacks 을 읽고 정리한다. 참고가 될 만한 다른 글들 Random &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -97,6 +65,103 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/03/04/baseband-attacks-remote-exploitation-of-memory-corruptions-in-cellular-protocol-stacks/">Baseband Attacks: Remote Exploitation of Memory Corruptions in Cellular Protocol Stacks</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-03-04T11:13:38+09:00'><span class='date'><span class='date-month'>Mar</span> <span class='date-day'>4</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>11:13 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Ralf-Philipp Weinmann 의 <a href="https://www.usenix.org/system/files/conference/woot12/woot12-final24.pdf">Baseband Attacks: Remote Exploitation of Memory Corruptions in Cellular Protocol Stacks</a> 을 읽고 정리한다.</p>
+
+<p>참고가 될 만한 다른 글들</p>
+
+<ul>
+<li><a href="http://www.mulliner.org/security/feed/random_tales_mobile_hacker.pdf">Random tales from a mobile phone hacker, Collin Mulliner, CanSecWest 2010</a></li>
+<li><a href="https://www.usenix.org/legacy/events/sec11/tech/full_papers/Mulliner.pdf">SMS of Death: from analyzing to attacking mobile phones on a large scale</a></li>
+<li><a href="http://www.mulliner.org/security/sms/feed/smsfuzz_26c3.pdf">Fuzzing the phone in your phone</a></li>
+<li><a href="http://www.crisalis-project.eu/sites/crisalis-project.eu/files/crisalis_deliverable-D5.3.pdf">D5.3 Report on automated vulnerability discovery techniques</a></li>
+<li><a href="http://berlin.ccc.de/~tobias/31c3-ss7-locate-track-manipulate.pdf">SS7: Locate. Track. Manipulate.</a></li>
+<li><a href="http://www.tu-berlin.de/fileadmin/fg214/Papers/femto_ndss12.pdf">Weaponizing Femtocells: The Effect of Rogue Devices on Mobile Telecommunication</a></li>
+</ul>
+
+
+<h4>Attack Scenario</h4>
+
+<ul>
+<li>타겟이 되는 MS 근처에 BTS (Base Transceiver Station) 을 설치한다.</li>
+<li>BTS 는 강한 signal 강도로 network 가 avail 하다고 계속 때린다.</li>
+<li>MS 가 가짜 BTS 에 연결된다.</li>
+</ul>
+
+
+<h4>GSM</h4>
+
+<ul>
+<li>3G Baseband 칩/스택을 파는 회사는 Qualcomm, Intel (formerly Infineon), Broadcom, Texas Instruments, ST-Ericsson, Renesas (formerly Nokia), Marvell, MediaTek, NVidia (formerly Icera), VIA Telecom, Spreadtrum, Samsung 정도</li>
+</ul>
+
+
+<h4>Previous Works</h4>
+
+<ul>
+<li>AT command fuzzing</li>
+<li>SMS 로 DoS 공격 - Mulliner, Golde &amp; Seifert</li>
+<li>SMS 로 RCE - BlackHat 2009 Miller &amp; Mulliner</li>
+</ul>
+
+
+<h4>GSM 스택</h4>
+
+<h4>Reverse-Engineering of the Firmware</h4>
+
+<ul>
+<li>GSM 스택 소스는 라이센스를 받아야 얻을 수 있다.</li>
+<li>Vitelcom TSM30 프로젝트 소스코드가 공개된 적이 있는데, 거기 Condat GSM 스택 소스가 있었다.</li>
+<li>iPhone 4 용 업데이트 이미지에서 a full baseband binary blob 을 unpack 한후에 IDA Pro 와 BinDiff 를 이용해 분석.</li>
+<li>unltrasn0w -</li>
+<li>wiki -</li>
+</ul>
+
+
+<h4>Classification of bugs found</h4>
+
+<ul>
+<li>Insufficient length checks</li>
+<li>Object/structure lifecycle issues</li>
+<li>Integer Overflows/underflows</li>
+<li>Memory information leaks</li>
+</ul>
+
+
+<h4>Examples of exploitable bugs found</h4>
+
+<ul>
+<li>Sending a longer TMSI (e.g. 128 bytes) caused the baseband stack of iPhones with Intel/Comneon to crash</li>
+<li>For authentication, the base station transmits a challenge to the handset. In GSM, this challenge is a 16 byte value called RAND. For UMTS, a so-called AUTN challenge is used - which is encoded as a variable length in IE, but in fact is specified to also be 16 bytes long.</li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -2574,35 +2639,6 @@ $ adb shell
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/11/11/rop-add/">ROP Add</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2014-11-11T12:29:53+09:00'><span class='date'><span class='date-month'>Nov</span> <span class='date-day'>11</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>12:29 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content">
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/11">&larr; Older</a>
@@ -2620,6 +2656,10 @@ $ adb shell
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/03/03/the-drown-attack/">The DROWN Attack</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/02/25/mnist-for-ml-beginners/">MNIST for ML Beginners</a>
       </li>
     
@@ -2633,10 +2673,6 @@ $ adb shell
     
       <li class="post">
         <a href="/blog/2016/02/12/unlocking-the-motorola-bootloader-by-azimuth-security/">Unlocking the Motorola Bootloader by Azimuth Security</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/02/11/how2heap/">How2heap</a>
       </li>
     
   </ul>

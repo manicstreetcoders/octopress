@@ -9,8 +9,7 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="유명한 아저씨들의 Android Hacker&rsquo;s Handbook 중에서 챕터 8 을 정리해본다. 흠.
-">
+  <meta name="description" content="&ldquo;Multiplying TF and IDF therefore favours generally rare words that nevertheless occur often in our pages.&rdquo; TF-IDF 의 아이디어는 사실 단순하다. 웹페이지 &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -66,6 +65,70 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2016/01/15/tf-idf/">TF-IDF</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2016-01-15T15:10:14+09:00'><span class='date'><span class='date-month'>Jan</span> <span class='date-day'>15</span><span class='date-suffix'>th</span>, <span class='date-year'>2016</span></span> <span class='time'>3:10 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>&ldquo;Multiplying TF and IDF therefore favours generally rare words that nevertheless occur often in our pages.&rdquo;</p>
+
+<p>TF-IDF 의 아이디어는 사실 단순하다.</p>
+
+<ol>
+<li>웹페이지 하나를 분석한다고 치자. 분석 목적은 키워드 추출.</li>
+<li>가장 많이 등장하는 단어로 키워드를 추출한다면, &ldquo;the&rdquo; 나 &ldquo;a&rdquo; 같은 관사, 혹은 &ldquo;and&rdquo; 같은 전치사가 가장 많이 등장하지 않을까?</li>
+<li>절대적인 빈도가 아니라 상대적인 빈도가 더 맞을 것 같은데.</li>
+<li>&ldquo;the&rdquo; 의 경우 거의 모든 웹페이지에 등장할테니 상대적인 중요도는 떨어지지않을까?</li>
+<li>얼마나 많은 웹페이지에 등장하느냐를 측정하는 것이 IDF (Inverse Document Frequency)</li>
+<li>(특정 단어가 포함된 도큐먼트의 수/전체 도큐먼트 수)<sup>-1</sup></li>
+<li>Inverse 를 해주었기때문에 rare 한 단어의 경우 IDF 값이 커진다. (실상황에서는 log 값이 유의미하다고)</li>
+<li>하나의 문서에 등장하는 단어 빈도를 그대로 사용하지 말고 IDF 로 보정해주면, heuristic 하게 꽤 유의미한 키워드를 추출할 수 있다고 한다.</li>
+<li>TF (Term Frequency) * IDF (Inverse Document Frequency) = TF-IDF</li>
+</ol>
+
+
+<p>그렇다면, AdWords 같은 광고 스킴을 디자인한다고 가정하고. 광고주는 Nike 를 가정하자. 그리고 marathon, race, trophy 가 키워드인 웹페이지가 두 개있다고 가정하는데, 하나는 운동에 관한 페이지고 하나는 선거(election)에 관한 페이지다. 물론 Nike 는 운동에 관한 페이지에 자사 광고를 노출시키고 싶어한다. 맥락을 구별할 필요가 있는 것인데, 이런 경우 TF-IDF 를 이용할 수 있을까?</p>
+
+<p>이용할 수 있다. 두 개의 단어가 같이 출현하는 빈도를 생각해본다. 예를 들어, <code>marathon</code> 과 <code>42 kilometres</code> 또는 <code>26 miles</code> 는 실제 러닝을 다루는 웹페이지들에서 같이 출현했을 것이다. 또한 <code>election</code>, <code>voter</code>, <code>ballot</code> 은 선거를 다루는 글에서 같이 출현했을 것이다.</p>
+
+<p>다음의 계산을 거치면, 모든 pairs of words 에 대한 correlation 이 계산된다.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>for every page in all web pages on the Internet:
+</span><span class='line'>    for every pair of words in the page:
+</span><span class='line'>        correlation[word_A,word_B] += tf-idf(word_A) * tf-idf(word_B)</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>즉 <code>marathon</code> 과 <code>42 kilometres</code> 의 인터넷 전체에서의 correlation 값이 나오는 것이다. 이런 무지막지한 계산을 하려니 Hadoop 과 MapReduce 같은 녀석들이 필요했었고, 또 만들었겠지.</p>
+
+<p>위처럼 word-word correlation 을 이용해 semantic 을 분석하는 기법이 Latent Semantic Analysis 의 기본 아이디어라고 한다. LSA-based algorithm 을 이용하여 Topic Analysis 를 할 수가 있는데, 그 예를 들어본다.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -531,35 +594,6 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/09/13/sophail-applied-attacks-against-sophos-antivirus/">Sophail: Applied Attacks Against Sophos Antivirus</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2015-09-13T21:17:29+09:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>13</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>9:17 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Tavis Ormandy 의 <a href="https://lock.cmpxchg8b.com/sophailv2.pdf">Sophail: Applied attacks against Sophos Antivirus</a> 을 읽고 요약해본다.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/3">&larr; Older</a>
@@ -577,6 +611,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/03/03/the-drown-attack/">The DROWN Attack</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/02/25/mnist-for-ml-beginners/">MNIST for ML Beginners</a>
       </li>
     
@@ -590,10 +628,6 @@
     
       <li class="post">
         <a href="/blog/2016/02/12/unlocking-the-motorola-bootloader-by-azimuth-security/">Unlocking the Motorola Bootloader by Azimuth Security</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/02/11/how2heap/">How2heap</a>
       </li>
     
   </ul>

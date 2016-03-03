@@ -9,8 +9,54 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="
-">
+  <meta name="description" content="Bootstrapping 1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48 &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -66,6 +112,572 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/05/21/some-android-books/">Some Android Books</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-05-21T00:43:52+09:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>21</span><span class='date-suffix'>st</span>, <span class='date-year'>2015</span></span> <span class='time'>12:43 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h4>Bootstrapping</h4>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>export PATH=$PATH:/path/to/sdk/tools/:/path/to/sdk/platform-tools/
+</span><span class='line'>
+</span><span class='line'># cd /usr/local/bin
+</span><span class='line'># ln -s /path/to/binary
+</span><span class='line'>
+</span><span class='line'>$ sudo apt-get install openjdk-6-jdk
+</span><span class='line'>
+</span><span class='line'>A 64-bit system requires an additional installation of 32-bit packages needed by the SDK tools.
+</span><span class='line'>You can install these on Ubuntu 13.04 upward by using
+</span><span class='line'>
+</span><span class='line'>$ sudo dpkg -add-architecture i386
+</span><span class='line'>$ sudo apt-get update
+</span><span class='line'>$ sudo apt-get install libncurses5:i386 libstdc++6:i386 zlib1g:i386
+</span><span class='line'>
+</span><span class='line'>Prior to that version of Ubuntu, you use the following command:
+</span><span class='line'>
+</span><span class='line'>$ sudo apt-get 
+</span><span class='line'>
+</span><span class='line'>$ android sdk
+</span><span class='line'>
+</span><span class='line'>$ android avd
+</span><span class='line'>
+</span><span class='line'>$ emulator -avd kitkat
+</span><span class='line'>
+</span><span class='line'>$ adb devices
+</span><span class='line'>
+</span><span class='line'>$ adb -s device_id shell
+</span><span class='line'>
+</span><span class='line'>$ nc localhost 5554
+</span><span class='line'>Android Console: type 'help' for a list of commands
+</span><span class='line'>OK
+</span><span class='line'>help
+</span><span class='line'>
+</span><span class='line'>* Genymotion (http://www.genymotion.com/)
+</span><span class='line'>* Virtualbox running Android x86 (http://www.android-x86.org)
+</span><span class='line'>* Youwave (https://youwave.com)
+</span><span class='line'>* WindowsAndroid (http://windowsandroid.en.softonic.com/)
+</span><span class='line'>
+</span><span class='line'>shell@android:/ $ ps
+</span><span class='line'>USER        PID     PPID        VSIZE       RSS     WCHAN       PC          NAME
+</span><span class='line'>
+</span><span class='line'>shell@android:/ # ls -l /data/data
+</span><span class='line'>...
+</span><span class='line'>drwxr-x--x u0_a46   u0_a46      2014-04-10 10:41 com.amazingutils.batterysaver
+</span><span class='line'>
+</span><span class='line'>class Test
+</span><span class='line'>{
+</span><span class='line'>    public static void main(String[] args)
+</span><span class='line'>    {
+</span><span class='line'>        System.out.println("It works! :D");
+</span><span class='line'>    }
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>$ javac Test.java
+</span><span class='line'>$ dx -dex -output=test.jar Test.class
+</span><span class='line'>
+</span><span class='line'>$ adb push test.jar /data/local/tmp
+</span><span class='line'>$ adb shell dalvikvm -cp /data/local/tmp/test.jar Test
+</span><span class='line'>It works :D</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>Android Packages</h4>
+
+<p>Android applications are distributed in the form of a zipped archive with the file
+extension of .apk, which stands for Android Package. The official MIME-type of an
+Android Package is application/vnd.android.package-archive. These packages
+are nothing more than zip files containing the relevant compiled application code,
+resources, and application metadata required to define a complete application.
+According to Google&rsquo;s documentation at <a href="http://developer.android.com/tools/building/index.html,">http://developer.android.com/tools/building/index.html,</a>
+an APK is packaged by performing the following taks:</p>
+
+<ul>
+<li>An SDK tool named aapt (Android Asset Packaging Tool) converts all the XML resource files included
+in the application to a binary form. R.java is also produced by aapt to allow referencing of
+resources from code.</li>
+<li>A tool named aidl is used to convert any .aidl files to .java files containing a converted
+representation of it using a standard Java interface.</li>
+<li>All source code and converted output from aapt and aidl are compiled into .class files by
+the Java 1.6 compiler. This requires the android.jar file for your desired API version to be
+in the CLASSPATH environment variable.</li>
+<li>The dx utility is used to convert the produced .class files and any third-party libraries into a single
+classes.dex file.</li>
+<li>All compiled resources, non-compiled resouces (such as images or additional executables), and
+the application DEX file are used by the apkbuilder tool to package an APK file. More recent version of the
+SDK have deprecated the standalone apkbuilder tool and included it as a class inside sdklib.jar.
+The APK file is signed with a key using the jarsigner utility. It can either be signed by a default debug
+key or if it is going to production, it can be signed with your generated release key.</li>
+<li>If it is signed with a release key, the APK must be zip-aligned using the zipalign tool, which
+ensures that the application resources are aligned optimally for the way that they will be loaded into memory.
+The benefit of this is that the amount of RAM consumed when running the application is reduced.</li>
+</ul>
+
+
+<h4>Tools</h4>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ adb install /path/to/yourapplication.apk
+</span><span class='line'>$ adb shell pm
+</span><span class='line'>$ python -m  SimpleHTTPServer
+</span><span class='line'>
+</span><span class='line'>$ adb devices
+</span><span class='line'>$ adb shell
+</span><span class='line'>$ adb shell &lt;command&gt;
+</span><span class='line'>$ adb push /path/to/local/file /path/on/android/device
+</span><span class='line'>$ adb pull /path/on/android/device /path/to/local/file
+</span><span class='line'>$ adb forward tcp:&lt;local_port&gt; tcp:&lt;device_port&gt;
+</span><span class='line'>$ adb logcat
+</span><span class='line'>
+</span><span class='line'>http://www.busybox.net/downloads/binaries/
+</span><span class='line'>
+</span><span class='line'>$ adb push busybox-armv71 /data/local/tmp
+</span><span class='line'>shell@android:/ $ chmod 755 /data/local/tmp/busybox-armv71
+</span><span class='line'>sheel@android:/ $ export PATH=$PATH:/data/loal/tmp
+</span><span class='line'>
+</span><span class='line'>shell@android:/ $ pm list packages
+</span><span class='line'>shell@android:/ $ pm path &lt;package_name&gt;
+</span><span class='line'>shell@android:/ $ pm install /path/to/apk
+</span><span class='line'>shell@android:/ $ pm uninstall &lt;package_name&gt;
+</span><span class='line'>shell@android:/ $ pm disable &lt;package_name&gt;
+</span><span class='line'>shell@android:/ $ logcat
+</span><span class='line'>shell@android:/ $ logcat -s tag
+</span><span class='line'>
+</span><span class='line'>shell@android:/ $ getprop
+</span><span class='line'>shell@android:/ $ dumpsys
+</span><span class='line'>shell@android:/ $ service list</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>Drozer</h4>
+
+<p><a href="https://www.mwrinfosecurity.com/products/drozer/community-edition/">Drozer</a></p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ adb install agent.apk
+</span><span class='line'>$ adb forward tcp:31415 tcp:31415
+</span><span class='line'>$ drozer console connect
+</span><span class='line'>
+</span><span class='line'>dz&gt; list package
+</span><span class='line'>dz&gt; module search -d</span></code></pre></td></tr></table></div></figure>
+
+
+<p><a href="https://github.com/mwrlabs/drozer-modules/">Drozer modules</a></p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>app.activity
+</span><span class='line'>app.broadcast
+</span><span class='line'>app.package
+</span><span class='line'>app.provider
+</span><span class='line'>app.service
+</span><span class='line'>auxiliary
+</span><span class='line'>exploit.pilfer
+</span><span class='line'>exploit.root
+</span><span class='line'>information
+</span><span class='line'>scanner
+</span><span class='line'>shell
+</span><span class='line'>tools.file
+</span><span class='line'>tools.setup</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>dz&gt; shell
+</span><span class='line'>u0_a59@android:/data/data/com.mwr.dz $ id
+</span><span class='line'>
+</span><span class='line'>dz&gt; run app.package.info -a com.mwr.dz -h
+</span><span class='line'>
+</span><span class='line'>dz&gt; run app.package.info -a com.mwr.dz &gt; /path/to/output.txt</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>Retrieving APK Files</h4>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ adb shell pm list packages | grep twitter
+</span><span class='line'>package:com.twitter.android</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>dz&gt; run app.package.list -f "Terminal Emulator"
+</span><span class='line'>jackpal.androidterm (Terminal Emulator)</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ adb shell pm path jackpal.androidterm
+</span><span class='line'>package:/data/app/jackpal.androidterm-2.apk</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>dz&gt; run app.package.info -a jackpal.androidterm
+</span><span class='line'>Package: jackpal.androidterm
+</span><span class='line'>  Application Label: Terminal Emulator
+</span><span class='line'>  Process Name: jackpal.androidterm
+</span><span class='line'>  Version: 1.0.59
+</span><span class='line'>  Data Directory: /data/data/jackpal.androidterm
+</span><span class='line'>  APK Path: /data/app/jackpal.androidterm-2.apk
+</span><span class='line'>  UID: 10215
+</span><span class='line'>  GID: [3003, 1015, 1023, 1028]
+</span><span class='line'>  Shared Libraries: null
+</span><span class='line'>  Shared User ID: null
+</span><span class='line'>  Uses Permissions:
+</span><span class='line'>  - android.permission.INTERNET
+</span><span class='line'>  ...</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li><a href="http://apkleecher.com">http://apkleecher.com</a></li>
+<li><a href="http://apps.evozi.com/apk-downloader">http://apps.evozi.com/apk-downloader</a></li>
+</ul>
+
+
+<h4>Viewing Manifests</h4>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ aapt dump xmltree /path/to/agent.apk AndroidManifest.xml
+</span><span class='line'>
+</span><span class='line'>$ aapt l -a /path/to/agent.apk
+</span><span class='line'>
+</span><span class='line'>$ unzip agent.apk
+</span><span class='line'>
+</span><span class='line'>$ java -jar AXMLPrinter2.jar AndroidManifest.xml
+</span><span class='line'>&lt;?xml version="1.0" encoding="utf-8"?&gt;
+</span><span class='line'>&lt;manifest
+</span><span class='line'>    xmlns:android="http://schemas.android.com/apk/res/android"
+</span><span class='line'>    android:versionCode="5"
+</span><span class='line'>    android:versionName="2.3.4"
+</span><span class='line'>    package="com.mwr.dz"&gt;
+</span><span class='line'>    &lt;uses-sdk android:minSdkVersion="7" android:targetSdkVersion="18"&gt;
+</span><span class='line'>    &lt;/uses-sdk&gt;
+</span><span class='line'>...
+</span><span class='line'>
+</span><span class='line'>dz&gt; run app.package.manifest com.mwr.dz
+</span><span class='line'>...</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>Activity &amp; Contenet Provider</h4>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>dz&gt; run app.activity.start --action android.intent.action.VIEW --data-uri http://www.google.com --component com.android.browser com.android.browser.BrowserActivity
+</span><span class='line'>
+</span><span class='line'>dz&gt; run app.provider.query content://settings/system</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>Permissions</h4>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>dz&gt; run app.package.info -a com.android.browser
+</span><span class='line'>Package: com.android.browser
+</span><span class='line'>Application Label: Browser
+</span><span class='line'>Process Name: com.android.browser
+</span><span class='line'>Version: 4.4.2-938007
+</span><span class='line'>Data Directory: /data/data/com.android.browser
+</span><span class='line'>APK Path: /system/app/Browser.apk
+</span><span class='line'>UID: 10014
+</span><span class='line'>GID: [3003, 1028, 1015]
+</span><span class='line'>Shared Libraries: null
+</span><span class='line'>Shared User ID: null
+</span><span class='line'>Users Permissions:
+</span><span class='line'>- android.permission.ACCESS_COARSE_LOCATION
+</span><span class='line'>...
+</span><span class='line'>
+</span><span class='line'>dz&gt; run app.package.list -p android.permission.READ_SMS
+</span><span class='line'>com.android.phone (Phone)
+</span><span class='line'>com.android.mms (Messaging)
+</span><span class='line'>com.android.gallery (Camera)
+</span><span class='line'>com.android.camera (Camera)
+</span><span class='line'>...
+</span><span class='line'>
+</span><span class='line'>dz&gt; run app.provider.info -p android.permission.READ_SMS
+</span><span class='line'>Package: com.android.mms
+</span><span class='line'>...</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>Protection Levels</h4>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ drozer agent build --permission android.permission.INSTALL_PACKAGES
+</span><span class='line'>Done: /tmp/tmp2RdLTd/agent.apk
+</span><span class='line'>
+</span><span class='line'>$ adb install /tmp/tmp/2RdLTd/agent.apk
+</span><span class='line'>2312 KB/s (653054 bytes in 0.275s)
+</span><span class='line'>     pkg: /data/local/tmp/agent.apk
+</span><span class='line'>Success
+</span><span class='line'>
+</span><span class='line'>$ adb logcat
+</span><span class='line'>...
+</span><span class='line'>W/PackageManager(  373): Not granting permission
+</span><span class='line'>android.permission.INSTALL_PACKAGES to package com.mwr.dz (protectionLevel=18 flags=0x83e46)
+</span><span class='line'>...
+</span><span class='line'>
+</span><span class='line'>dz&gt; permissions
+</span><span class='line'>...</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>Code Signing</h4>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ keytool -genkey -v -keystore mykey.keystore -alias alias_name -keyalg RSA -keysize 2048 -validity 10000
+</span><span class='line'>
+</span><span class='line'>$ jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore mykey.keystore application.apk alias_name
+</span><span class='line'>
+</span><span class='line'>$ openssl pkcs7 -inform DER -in CERT.RSA -text -print_certs
+</span><span class='line'>
+</span><span class='line'>$ keytool -printcert -file CERT.RSA</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>Dex Tools</h4>
+
+<ul>
+<li>smali/baksmali</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ java -jar baksmali.jar app.apk
+</span><span class='line'>$ jav -jar smali.jar -o classes.dex out/
+</span><span class='line'>
+</span><span class='line'>$ java -jar baksmali.jar -a 19 -x Settings.odex -d framework
+</span><span class='line'>$ java -jar smali.jar -a 19 -o Settings.dex out/</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>IDA</li>
+<li>dex2jar</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ d2j-dex2jar.sh agent.apk -o agent.jar</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>JEB</li>
+<li>apktool</li>
+<li>jadx</li>
+<li>jad</li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1833,118 +2445,6 @@ kernel memory, when exploiting custom vulnerabilities.</p>
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/04/16/ms15-034-http-dot-sys/">MS15-034 HTTP.sys</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2015-04-16T16:09:37+09:00'><span class='date'><span class='date-month'>Apr</span> <span class='date-day'>16</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>4:09 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="kn">import</span> <span class="nn">socket</span>
-</span><span class='line'><span class="n">target</span> <span class="o">=</span> <span class="s">&#39;www.babo.com&#39;</span>
-</span><span class='line'><span class="n">port</span> <span class="o">=</span> <span class="mi">80</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">s</span> <span class="o">=</span> <span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">AF_INET</span><span class="p">,</span><span class="n">socket</span><span class="o">.</span><span class="n">SOCK_STREAM</span><span class="p">)</span>
-</span><span class='line'><span class="n">s</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span> <span class="p">(</span><span class="n">target</span><span class="p">,</span><span class="n">port</span><span class="p">)</span> <span class="p">)</span>
-</span><span class='line'><span class="n">s</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="s">&quot;GET / HTTP/1.1</span><span class="se">\r\n</span><span class="s">Host: www.babo.com</span><span class="se">\r\n</span><span class="s">Range: bytes=0-18446744073709551615</span><span class="se">\r\n\r\n</span><span class="s">&quot;</span><span class="p">)</span>
-</span><span class='line'><span class="n">resp</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">recv</span><span class="p">(</span><span class="mi">4096</span><span class="p">)</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">print</span> <span class="n">resp</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">if</span> <span class="s">&quot;Range Not Satisfiable&quot;</span> <span class="ow">in</span> <span class="n">resp</span><span class="p">:</span>
-</span><span class='line'>    <span class="k">print</span> <span class="s">&quot;Looks vulnerable.&quot;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Errata Security Blog 에 따르면, GET request 가 static contents 에 들어가야만 <code>Range:</code> 가 처리되서 버그가 trigger 된다고 한다. <code>.asp</code> 같은 동적 contents 를 호출하면 trigger 할 수 없다는 이야기.</p>
-
-<p><a href="http://blog.beyondtrust.com/the-delicate-art-of-remote-checks-a-glance-into-ms15-034">The Delicate Art of Remote Checks - A Glance Into MS15-034</a> 를 읽어보니,</p>
-
-<ul>
-<li>bindiff 를 때리고</li>
-<li>similarity 를 보고 패치가 들어간 함수들을 찾아서,</li>
-<li>IDA Pro 로 보니, <code>_UlpParseRange@32</code> 의 caller 는 <code>_UlContentRangeHeaderHandler@20</code></li>
-<li>`kd> bp HTTP!urlparserange &ldquo;k;g&rdquo;</li>
-</ul>
-
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="mo">0006</span><span class="n">ED31</span>    <span class="n">_UlpParseRange</span><span class="nd">@32</span>
-</span><span class='line'>
-</span><span class='line'><span class="mo">0006</span><span class="n">EEF9</span>    <span class="n">sub</span>     <span class="n">eax</span><span class="p">,</span> <span class="n">edi</span>
-</span><span class='line'><span class="mo">0006</span><span class="n">EEFB</span>    <span class="n">sbb</span>     <span class="n">ecx</span><span class="p">,</span> <span class="n">edx</span>
-</span><span class='line'><span class="mo">0006</span><span class="n">EEFD</span>    <span class="n">add</span>     <span class="n">eax</span><span class="p">,</span> <span class="mi">1</span>
-</span><span class='line'><span class="mo">0006</span><span class="n">EF00</span>    <span class="n">adc</span>     <span class="n">ecx</span><span class="p">,</span> <span class="mi">0</span>
-</span><span class='line'><span class="mo">0006</span><span class="n">EF03</span>    <span class="n">mov</span>     <span class="n">ds</span><span class="p">:[</span><span class="n">esi</span><span class="p">],</span> <span class="n">eax</span>
-</span><span class='line'><span class="mo">0006</span><span class="n">EF05</span>    <span class="n">mov</span>     <span class="n">ds</span><span class="p">:[</span><span class="n">esi</span><span class="o">+</span><span class="mi">4</span><span class="p">],</span> <span class="n">ecx</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>코드상으로 보면 <code>ecx:eax</code> 에서 <code>edx:edi</code> 를 subtract 하는 것이다. 즉 8 바이트 더하기/빼기 연산.
-하단부터 빼고, <code>sbb</code> 로 borrow 까지 쳐서 빼는 코드.
-그리고, 하단에 <code>+1</code> 을 하고, 상단에 <code>adc</code> 로 캐리까지 올려서 더해주기.</p>
-
-<p><code>Range: A-B</code> 에서 <code>B - A + 1</code> 을 구현하는 코드로 보인다.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="o">&gt;&gt;&gt;</span> <span class="mh">0xFFFFFFFFFFFFFFFF</span>
-</span><span class='line'><span class="il">18446744073709551615L</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>여기에 <code>B</code> 값에 <code>0xFFFFFFFFFFFFFFFF</code> 이 들어가면서 문제가 벌어지는 것 같은데.</p>
-
-<p>테스트해보는 김에 다음을 해봐야겠다.</p>
-
-<ol>
-<li>Visual C++ 에서 signed/unsigned 다양하게 <code>B - A + 1</code> 을 해본다. B 는 0xFFFFFFFFFFFFFFFF 를 넣어서.</li>
-<li>저 x86 인스트럭션을 가지고 그대로 테스트해본다.</li>
-</ol>
-
-
-<p>가장 좋은건 취약한 IIS 버전을 VM 에 올려서 kd 를 걸고 해보는 것인데, 나중에 해볼련다.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/9">&larr; Older</a>
@@ -1962,6 +2462,10 @@ kernel memory, when exploiting custom vulnerabilities.</p>
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/03/03/the-drown-attack/">The DROWN Attack</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/02/25/mnist-for-ml-beginners/">MNIST for ML Beginners</a>
       </li>
     
@@ -1975,10 +2479,6 @@ kernel memory, when exploiting custom vulnerabilities.</p>
     
       <li class="post">
         <a href="/blog/2016/02/12/unlocking-the-motorola-bootloader-by-azimuth-security/">Unlocking the Motorola Bootloader by Azimuth Security</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/02/11/how2heap/">How2heap</a>
       </li>
     
   </ul>
