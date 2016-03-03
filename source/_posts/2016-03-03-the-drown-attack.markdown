@@ -105,7 +105,7 @@ Bleichenbacher 의 공격은 apdding oracle attack. RSA ciphertext 는 PKCS#1 v1
 
 * oracle 이 1 을 돌려주면, plaintext m 이 어떤 특정 레인지 안쪽에 있다고 생각할 수 있다.
 * 그 레인지는 0x00020000.... 보다는 크거나 같고, 0x0002FFFF.... 보다는 작거나 같고.
-* 식으로 표시하면 2B <= m <= 3B -1, where B = 2^(8*(l-2))
+* 식으로 표시하면 2B <= m <= 3B -1, where B = 2^(8*(len-2))
 
 그 다음 스텝은 RSA 연산의 변형성을 활용하는 것.
 

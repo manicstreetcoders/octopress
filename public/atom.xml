@@ -4,7 +4,7 @@
   <title><![CDATA[KC's blog]]></title>
   <link href="http://zomo.heroku.com/atom.xml" rel="self"/>
   <link href="http://zomo.heroku.com/"/>
-  <updated>2016-03-03T13:38:24+09:00</updated>
+  <updated>2016-03-03T13:40:48+09:00</updated>
   <id>http://zomo.heroku.com/</id>
   <author>
     <name><![CDATA[KC]]></name>
@@ -144,7 +144,7 @@ OpenSSL version &lt;= 1.1.0 의 경우, 서버가 지정하지않은 것도 clie
 <ul>
 <li>oracle 이 1 을 돌려주면, plaintext m 이 어떤 특정 레인지 안쪽에 있다고 생각할 수 있다.</li>
 <li>그 레인지는 0x00020000&hellip;. 보다는 크거나 같고, 0x0002FFFF&hellip;. 보다는 작거나 같고.</li>
-<li>식으로 표시하면 2B &lt;= m &lt;= 3B -1, where B = 2<sup>8*(l-2)</sup></li>
+<li>식으로 표시하면 2B &lt;= m &lt;= 3B -1, where B = 2<sup>8*(len-2)</sup></li>
 </ul>
 
 
