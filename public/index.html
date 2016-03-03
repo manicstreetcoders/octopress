@@ -228,6 +228,10 @@ OpenSSL version &lt;= 1.1.0 의 경우, 서버가 지정하지않은 것도 clie
 <li>이런 식으로 특정 규칙을 가지고 만들어진 가라 ciphertext 를 가지고 oracle 에 계속 확인을하다가 1 이 걸리면</li>
 <li><code>c_0 * s^e</code> 가 decrypt 되었는데, 0x0002&hellip; 보다 크거나 같고, 0x0003&hellip; 보다 작은 정수로 decrypt 되었다는 것을 알게된다.</li>
 <li>그 plaintext 는 m_0 * s 와 어떤 연관성을 가질 것이다.</li>
+<li>그 연관성은 어떻게 될까?</li>
+<li>modulo 연산이니까  m_0 * s 값과 N 의 배수만큼의 차이가 있을 것</li>
+<li>즉 range 가 2B ~ 3B 사이가 아니라 2B + rN ~ 3B + rN 만큼 보정이 들어간다는 것.</li>
+<li>s,r 을 try 해서 레인지를 좁혀나가면 m_0 를 구할 수 있다고 한다. (Bleichenbacher 에 따르면)</li>
 </ul>
 
 </div>

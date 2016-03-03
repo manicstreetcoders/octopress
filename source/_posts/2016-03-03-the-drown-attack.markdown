@@ -118,3 +118,7 @@ Bleichenbacher 의 공격은 padding oracle attack. RSA ciphertext 는 PKCS#1 v1
 * 이런 식으로 특정 규칙을 가지고 만들어진 가라 ciphertext 를 가지고 oracle 에 계속 확인을하다가 1 이 걸리면
 * `c_0 * s^e` 가 decrypt 되었는데, 0x0002... 보다 크거나 같고, 0x0003... 보다 작은 정수로 decrypt 되었다는 것을 알게된다.
 * 그 plaintext 는 m_0 * s 와 어떤 연관성을 가질 것이다.
+* 그 연관성은 어떻게 될까?
+* modulo 연산이니까  m_0 * s 값과 N 의 배수만큼의 차이가 있을 것
+* 즉 range 가 2B ~ 3B 사이가 아니라 2B + rN ~ 3B + rN 만큼 보정이 들어간다는 것.
+* s,r 을 try 해서 레인지를 좁혀나가면 m_0 를 구할 수 있다고 한다. (Bleichenbacher 에 따르면)
