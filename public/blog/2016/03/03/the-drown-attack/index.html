@@ -358,6 +358,18 @@ OpenSSL 버그때문에, 서버 설정에 상관없이, 강제로 SSLv2 로 네�
 
 <p>이 oracle 이 워킹하는 이유는, 수출등급으로 cipher 를 고정하고, 40 bit 에 대해서 노가다를 하는 것이 가능했기때문.</p>
 
+<p>이 SSLv2 oracle 에 대해 정리하면,</p>
+
+<ul>
+<li>SSSLv2-export-oracle&copy; 를 돌리면, c 가 valid 한 PKCS#1 v1.5 EB 로 떨어지는 암호문인지 아닌지를 돌려준다.</li>
+<li>그 코스트는 네트워크 커넥션 2번, 40 bit space 에 대한 노가다 (MD5 + symmetric cipher 수준)</li>
+<li>valid 하다는 것은, plaintext 가 0x00 02 로 시작하며 중간에 0x00 딜리미터가 있고, 마지막 5 바이트는 찾아낸 master key 5 byte 랑 같다&hellip;라는 것.</li>
+<li>이 논문 저자들은, 이런 멋진 정보를 알려주는 oracle 을 만들어낸 것이다.</li>
+</ul>
+
+
+<p>이제 이 oracle 함수를 가지고, cipher 텍스트에 RSA 변형 - 다양한 s<sup>e</sup> 를 곱하는 등의 - 을 가해서, TLS premaster secret 를 찾아내서 TLS 세션을 복호화하는 것이 그 임팩트.</p>
+
 <p>그럼 이제 SSLv2 를 이용한 RSA oracle 은 만들었으니, TLS 에서 쓰이는 48 bytes premaster secret 을 SSLv2 oracle 이 받아들이는 형태로 변환하는 것이 필요하다.</p>
 </div>
 
