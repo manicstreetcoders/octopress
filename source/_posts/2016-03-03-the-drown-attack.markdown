@@ -148,4 +148,5 @@ Bleichenbacher 의 공격은 padding oracle attack. RSA ciphertext 는 PKCS#1 v1
 
 그럴려면 TLS 핸드쉐이크도 알아야하는데, 이 공격에서 중요한 점은 두가지 차이점.
 
-일단 premaster secret 이란 걸 도입했고, 서버가 `ClientKeyExchange` 를 받으면 `ClientFinished` 를 기다린다는 것
+1. 일단 premaster secret 이란 걸 도입했고, 
+2. 서버가 `ClientKeyExchange` 를 받으면 `ClientFinished` 를 기다린다는 것
