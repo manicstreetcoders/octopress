@@ -25,7 +25,7 @@ N = p*q, l = len(N), e 는 euler_pi(N) 과 coprime 인 정수(아마도 3 이나
 
 * 처음 `00` 은 암호화를 돌릴 블럭(EB)가 N 보다 작은 정수가 되게 만들기 위해 집어 넣는 것
 * `02` 는 block type
-* PS 는 패딩. len(PS) >= 8 이어야 한다. 패딩을 prepend 하는 구조.
+* PS 는 패딩. len(PS) >= 8 이어야 한다. 패딩을 prepend 하는 구조. EB 와 modulo N 이 같은 byte length 를 갖도록 맞춰주는 녀석이라고 보면 된다.
 * k 는 주로 symmetric key 가 되는데, SSLv2 에서는 master_key 가 k 라고 보면 된다.
 * 이 EB 를 정수로 변환한다. 변환은 256 의 index 승을 계속 곱해서 더해나가며 바이트 블럭을 변환하는 식.
 * 정수로 변환해서 c = m^e mod N 
