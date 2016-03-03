@@ -171,20 +171,22 @@ Bleichenbacher 공격을 수행하려면, TLS ciphertext 를 SSLv2 key exchange 
 4. 이제 Bleichenbacher 변종공격으로 해독에 성공한다.
 5. 이제 plaintext 를 premaster secret 로 다시 변환한다.
 
-SSLv2 가 취약하다는건 누구나 알고 있는 사실이다.
-설사 SSLv2 가 enable 되어있는 서버들이 꽤 있기는 하지만...
+인터넷에는 SSLv2 가 enable 되어있는 서버들이 널려있다.
+그리고, SSLv2 가 취약하다는건 누구나 알고 있는 사실이다.
 하지만, Modern 클라이언트는 SSLv2 를 사용하지 않는다. 
 그러니 인터넷은 안전한 것 아닌가?
 
 아니다. 인터넷은 SSLv2 가 enable 되어있는 서버들이 많기도 하지만,
-그리고 OpenSSL 버그때문에, 서버 설정에 상관없이, 강제로 SSLv2 로 네고할 수 있다.
-인터넷에는 수많은 SSLv2 oracle 이 널려있는 셈.
+OpenSSL 버그때문에, 서버 설정에 상관없이, 강제로 SSLv2 로 네고할 수 있다.
+생각보다 훨씬많은 SSLv2 oracle 이 인터넷에 널려있는 셈.
 
 천재적인 발상은, TLS 와 SSLv2 가 private key 를 공유하고 있다는 사실에 생각이 미친 것!!!
 
 즉 SSLv2 를 통해서 TLS 를 공격할 수 있는 것이다.
 
 크로스 프로토콜 공격!!!
+
+천재다!
 
 제네럴한 버전과 스페셜한 공격, 두가지가 있다고 한다.
 
