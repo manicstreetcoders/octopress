@@ -4,7 +4,7 @@
   <title><![CDATA[KC's blog]]></title>
   <link href="http://zomo.heroku.com/atom.xml" rel="self"/>
   <link href="http://zomo.heroku.com/"/>
-  <updated>2016-03-03T12:25:16+09:00</updated>
+  <updated>2016-03-03T12:49:45+09:00</updated>
   <id>http://zomo.heroku.com/</id>
   <author>
     <name><![CDATA[KC]]></name>
@@ -66,7 +66,7 @@
 <li>c->s, <code>ClientHello</code>: 클라이언트 지원 cipher suites. 그리고 클라이언트 nonce (챌린지)</li>
 <li>s->c, <code>ServerHello</code>: 서버 지원 cipher suites. 서버 인증서. 서버 nonce (커넥션 ID)</li>
 <li>c->s, <code>ClientMasterKey</code>: 공통의 cipher suites. 그리고 master_key 를 위한 키 데이터.</li>
-<li>s->c, <code>ServerVerify</code></li>
+<li>s->c, <code>ServerVerify</code>:</li>
 <li>c->s, <code>Finished</code></li>
 <li>s->c, <code>Finished</code></li>
 </ul>
@@ -83,6 +83,38 @@
 
 
 <p>Non-export 등급은 master_key 전체가 암호화되어있고, clear_key_data 의 길이는 zero. 즉 Export 등급은 의도적으로 약화시킨 것이라고 보면 된다.</p>
+
+<p>하여간, 이 정보들로 c,s 는 각각 session key 를 계산한다.</p>
+
+<ul>
+<li>server_write_key = MD5( mk || 0 || challenge || 커넥션 ID )</li>
+<li>client_write_key = MD5( mk || 1 || challenge || 커넥션 ID )</li>
+</ul>
+
+
+<p>그리고, challenge 를 <code>server_write_key</code> 로 암호화해서 <code>ServerVerify</code> 메시지로 보낸다.</p>
+
+<h4>The Drown attack</h4>
+
+<p>Drown 공격은 SSLv2 핸드쉐이크의 다음 몇가지를 활용한다.</p>
+
+<ul>
+<li>secret_key_data 는 PKCS#1 v1.5 로 암호화한다는 사실</li>
+<li>그리고, 클라이언트가 보내준 secret_key_data 를 자신의 private key (d) 로 복호화해서 master_key 를 만든다음에 그걸로 클라이언트가 보내준 <code>challenge</code> 를 암호화해서 다시 클라이언트에게 보내준다는 점. 이런 복호화 서비스를 서버는 항상 해준다는 점. 그것도 바로바로 즉시즉시.</li>
+<li>secret_key_data 는 수출등급의 경우 단지 5 바이트에 불과하다는 사실</li>
+</ul>
+
+
+<p>이런 사실때문에 Drown 공격은 chosen-ciphertext attack.</p>
+
+<h4>OpenSSL SSLv2 cipher suite selection bug</h4>
+
+<p>Drown 공격이 OpenSSL 과 만나 심각해지는 포인트.</p>
+
+<p>SSLv2 핸드쉐이크를 진행할때, <code>ClientMasterKey</code> 로 공통의 cipher suites 를 보내야하는데,
+OpenSSL version &lt;= 1.1.0 의 경우, 서버가 지정하지않은 것도 client 맘대로 보내서 관철시킬 수 있는 버그가 있었다. 서버가 지원하지도 않는 수출등급 cipher 를 강제시킬 수 있는 것이다. CVE-2015-3197.</p>
+
+<h4>Bleichenbacher&rsquo;s attack</h4>
 ]]></content>
   </entry>
   

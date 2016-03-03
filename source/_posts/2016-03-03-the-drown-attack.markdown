@@ -45,7 +45,7 @@ N = p*q, l = len(N) 이라고 할때, k 는 symmetric key 라고 할 때, 암호
 * c->s, `ClientHello`: 클라이언트 지원 cipher suites. 그리고 클라이언트 nonce (챌린지)
 * s->c, `ServerHello`: 서버 지원 cipher suites. 서버 인증서. 서버 nonce (커넥션 ID)
 * c->s, `ClientMasterKey`: 공통의 cipher suites. 그리고 master_key 를 위한 키 데이터.
-* s->c, `ServerVerify`
+* s->c, `ServerVerify`: 
 * c->s, `Finished`
 * s->c, `Finished`
 
@@ -57,3 +57,29 @@ Export 등급 `ClientMasterKey` 단계를 더 정리하면 (40-bit SSL_RC2_128_C
 * 40-bit 경우, secret_key_data 는 5 bytes. (5*8 = 40)
 
 Non-export 등급은 master_key 전체가 암호화되어있고, clear_key_data 의 길이는 zero. 즉 Export 등급은 의도적으로 약화시킨 것이라고 보면 된다.
+
+하여간, 이 정보들로 c,s 는 각각 session key 를 계산한다.
+
+* server_write_key = MD5( mk || 0 || challenge || 커넥션 ID )
+* client_write_key = MD5( mk || 1 || challenge || 커넥션 ID )
+
+그리고, challenge 를 `server_write_key` 로 암호화해서 `ServerVerify` 메시지로 보낸다.
+
+#### The Drown attack
+
+Drown 공격은 SSLv2 핸드쉐이크의 다음 몇가지를 활용한다.
+
+* secret_key_data 는 PKCS#1 v1.5 로 암호화한다는 사실
+* 그리고, 클라이언트가 보내준 secret_key_data 를 자신의 private key (d) 로 복호화해서 master_key 를 만든다음에 그걸로 클라이언트가 보내준 `challenge` 를 암호화해서 다시 클라이언트에게 보내준다는 점. 이런 복호화 서비스를 서버는 항상 해준다는 점. 그것도 바로바로 즉시즉시. 
+* secret_key_data 는 수출등급의 경우 단지 5 바이트에 불과하다는 사실
+
+이런 사실때문에 Drown 공격은 chosen-ciphertext attack.
+
+#### OpenSSL SSLv2 cipher suite selection bug
+
+Drown 공격이 OpenSSL 과 만나 심각해지는 포인트.
+
+SSLv2 핸드쉐이크를 진행할때, `ClientMasterKey` 로 공통의 cipher suites 를 보내야하는데,
+OpenSSL version <= 1.1.0 의 경우, 서버가 지정하지않은 것도 client 맘대로 보내서 관철시킬 수 있는 버그가 있었다. 서버가 지원하지도 않는 수출등급 cipher 를 강제시킬 수 있는 것이다. CVE-2015-3197.
+
+#### Bleichenbacher's attack
