@@ -159,3 +159,6 @@ Bleichenbacher 의 공격은 padding oracle attack. RSA ciphertext 는 PKCS#1 v1
 * premaster secret 를 SSLv2 에 태워서 신탁 문의(oracle query)를 해보려면 난점이 있다.
 * 48 bytes 라는 길이 차이.
 * SSLv2 cipher suites 중에 48 bytes key 를 갖는 녀석이 있으면 좋았을텐데.
+
+Bleichenbacher 공격을 수행하려면, TLS ciphertext 를 SSLv2 key exchange 메시지로 변형시킬 방법이 필요하다. 우리가 가진 oracle 은 SSLv2 에서 쓰이는 symmetric key 를 RSA 로 암호/복호하는 프로세스에서 생기는 녀석이기때문에.
+
