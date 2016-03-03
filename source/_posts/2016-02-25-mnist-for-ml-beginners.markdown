@@ -12,7 +12,7 @@ TensorFlow 를 들여다보고 있다.
 
 TensorFlow docker image 설치
 ```
-z@zui-MacBook-Pro-2  ~/git/octopress   master ●  docker images
+$ docker images
 REPOSITORY                                TAG                 IMAGE ID            CREATED             SIZE
 b.gcr.io/tensorflow/tensorflow            latest              002f882bde74        8 days ago          674.3 MB
 b.gcr.io/tensorflow-udacity/assignments   latest              59e4920e40f5        3 weeks ago         701.9 MB
