@@ -145,3 +145,7 @@ Bleichenbacher 의 공격은 padding oracle attack. RSA ciphertext 는 PKCS#1 v1
 * 각각의 경우 +3 을 하면 8, 27 bytes 에 대한 정보(!!!)가 노출됨.
 
 이제 SSLv2 oracle 을 가지고 TLS 를 해독하는 것이 이 연구자들의 시나리오다.
+
+그럴려면 TLS 핸드쉐이크도 알아야하는데, 이 공격에서 중요한 점은 두가지 차이점.
+
+일단 premaster secret 이란 걸 도입했고, 서버가 `ClientKeyExchange` 를 받으면 `ClientFinished` 를 기다린다는 것
