@@ -122,3 +122,12 @@ Bleichenbacher 의 공격은 padding oracle attack. RSA ciphertext 는 PKCS#1 v1
 * modulo 연산이니까  m_0 * s 값과 N 의 배수만큼의 차이가 있을 것
 * 즉 range 가 2B ~ 3B 사이가 아니라 2B + rN ~ 3B + rN 만큼 보정이 들어간다는 것.
 * s,r 을 try 해서 레인지를 좁혀나가면 m_0 를 구할 수 있다고 한다. (Bleichenbacher 에 따르면)
+
+#### The SSLv2 oracle
+
+그렇다면, 이 연구자들이 OpenSSL SSLv2 code 에서 찾아낸 oracle 은 무었일까?
+
+일단 general 한 oracle 이 있고 special 한 oracle 이 있다. 
+
+* 일단 공격 target 은 TLS 1.0 ~ 1.2 그리고, TLS_RSA ciphersuites 를 사용한다고 가정
+* 그리고, 같은 RSA public key 가 TLS / SSLv2 양쪽에서 관찰되고 있다고 가정
