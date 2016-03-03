@@ -129,5 +129,16 @@ Bleichenbacher 의 공격은 padding oracle attack. RSA ciphertext 는 PKCS#1 v1
 
 일단 general 한 oracle 이 있고 special 한 oracle 이 있다. 
 
-* 일단 공격 target 은 TLS 1.0 ~ 1.2 그리고, TLS_RSA ciphersuites 를 사용한다고 가정
-* 그리고, 같은 RSA public key 가 TLS / SSLv2 양쪽에서 관찰되고 있다고 가정
+* 일단 공격 target 은 TLS 1.0 ~ 1.2 그리고, TLS_RSA ciphersuites 를 사용한다고 가정.
+* 그리고, 같은 RSA public key 가 TLS / SSLv2 양쪽에서 관찰되고 있다고 가정.
+* passive monitoring 만하고, active 공격은 안한다고 가정. 즉, MitM 상황이 아님.
+* 서버에 최대한 가까운 네트웍에서 1,000 개 정도의 incoming 커넥션을 캡쳐할 수 있다고 가정.
+
+PKCS#1 v1.5 padding format 을 준수하는지 알려주는 oracle 이 노출하는 정보량은 다음과 같다.
+
+* 처음이 00 || 02 로 시작하고
+* non-zero padding 이 있고
+* 마지막이 00 || k 라는 것
+* SSL_RSA_EXPORT_WITH_RC2_CBC_40_MD5 의 경우 secret message k 는 5 bytes.
+* SSL_DES_192_EDE3_CBC_WITH_MD5 의 경우 k 는 24 bytes.
+* 각각의 경우 +3 을 하면 8, 27 bytes 에 대한 정보(!!!)가 노출됨.
