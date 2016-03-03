@@ -83,3 +83,33 @@ SSLv2 핸드쉐이크를 진행할때, `ClientMasterKey` 로 공통의 cipher su
 OpenSSL version <= 1.1.0 의 경우, 서버가 지정하지않은 것도 client 맘대로 보내서 관철시킬 수 있는 버그가 있었다. 서버가 지원하지도 않는 수출등급 cipher 를 강제시킬 수 있는 것이다. CVE-2015-3197.
 
 #### Bleichenbacher's attack
+
+Bleichenbacher 의 공격은 apdding oracle attack. RSA ciphertext 는 PKCS#1 v1.5 padding format 을 준수하는 plaintext 로 복호화되어야한다는 사실을 활용한다.
+
+그럼 PKCS#1 v1.5 padding format 을 준수한다는 것의 의미는,
+
+* `00||02||PS||00||k` 형태
+* |PS| >= 8
+* m[3]~m[10] 에는 0x00 이 없어야 함 (적어도 8 바이트)
+
+그럼, Bleichenbacher 알고리즘은 
+
+* 공격자는 PKCS#1 v1.5 ciphertext 를 가지고 있음
+* 공격자는 private key 는 접근 못함
+* 그러나 oracle 을 가지고 있다고 가정한다.
+* oracle 은 1 or 0 을 리턴하는데,
+* m = c^d mod N 의 값이 0x00 02 로 시작하면 1
+* 아니면 0 을 돌려준다.
+
+이런 oracle 을 가지고 있다고 가정할 경우.
+
+* oracle 이 1 을 돌려주면, plaintext m 이 어떤 특정 레인지 안쪽에 있다고 생각할 수 있다.
+* 그 레인지는 0x00020000.... 보다는 크거나 같고, 0x0002FFFF.... 보다는 작거나 같고.
+* 식으로 표시하면 2B <= m <= 3B -1, where B = 2^(8*(l-2))
+
+그 다음 스텝은 RSA 연산의 변형성을 활용하는 것.
+
+* d 는 몰라도 e 는 알고 있으니, 
+* `c_0 = m_0 ^ e mod N` 이라고 하면 양쪽에 s^e 를 곱하면
+* `c = (c_0 * s^e) mod N = (m_0 * s)^e mod N` 이 되니까, m_0 에 s 를 곱한 값을 encrypt 시킨 셈이 된다.
+* 이 encrypted 된 값을 가지고 oracle 에 물어본다.
