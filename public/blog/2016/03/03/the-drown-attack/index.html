@@ -317,6 +317,48 @@ OpenSSL 버그때문에, 서버 설정에 상관없이, 강제로 SSLv2 로 네�
 <h4>General DROWN</h4>
 
 <p>SSLv2 + 수출등급 cipher suites 가 먹는 서버를 oracle 로 만드는 방법.</p>
+
+<p>SSLv2 에 oracle 이 생긴 이유는 다음과 같다고.</p>
+
+<ol>
+<li>ClientMasterKey 를 ServerVerify 로 바로 응답해주는데, ClientMasterKey 에는 enc_server 의 pk 로 암호화(secret portion of master key) 가 들어있고, ServerVerify 는 RSA decrypt 를 해서, 그 master key 로 암호화된 ciphertext 를 보내준다는 점.</li>
+<li>40-bit 수출등급 RC2 or RC4 를 선택할경우, master key 의 11 bytes 는 clear text 로, 그리고 5 bytes 만이 암호화되서 보내진다는 점.</li>
+<li>anti-Bleichenbacher 카운터메져가 구현된 서버의 경우, decrypt 했는데 invalid padding 이 나오면, 내색을 하지 않고 진행을 하는데.</li>
+</ol>
+
+
+<p>이를 이용해 valid 한 RSA ciphertext 를 oracle 에게 보냈는지를 추측한다.</p>
+
+<ol>
+<li>ClientMasterKey 에, 11 bytes clear key 랑 ciphertext c0 를 보낸다.</li>
+<li>서버는 c0 를 RSA decrypt 해서 완벽한 master key 를 만들려고 할 것이다.</li>
+<li>올바른 padding format 으로 decrypt 가 잘 될 것인가?</li>
+<li>서버는 <code>server_write_key = MD5( mk || 0 || challenge || 커넥션 ID )</code> 로 만들어서, challenge 를 암호화해서 ServerVerify 로 돌려줄 것이다.</li>
+<li>우리는 master key 의 5 bytes 를 모르는 것이다.</li>
+<li>master key 에 모르는 5 bytes 만큼, 2<sup>40</sup> 만큼 노가다를 해서, server_write_key 를 exhaustive search 로 암호화된 challenge 를 복호화해본다.</li>
+<li>어느 한 녀석은 복호화가 성공할 것이다.</li>
+<li>이제 5 bytes 을 알게되었다.</li>
+<li>이 5 bytes 가 PKCS#1 v1.5 EB 의 맨 뒤의 k 가 되는 셈.</li>
+<li>두가지 가능성이, 하나는 ciphertext c0 가 PKCS#1 v1.5 EB 로 제대로 떨어졌을 경우와, 그렇지 않아서 anti-Bleichenbacher 카운터메져로 임의의 key 로 진행되었을 경우.</li>
+</ol>
+
+
+<p>이제 그 두 경우를 판별해내는 것이 필요하다.</p>
+
+<p>이제, 다시 서버에 연결한다.</p>
+
+<ol>
+<li>ClientMasterKey 에 아까와 동일한 c0 를 실어 보낸다.</li>
+<li>돌아온 ServerVerify 의 암호화된 challenge 를 <code>MD5( 아까 찾아낸 master key || 0 || 새로운 challenge || 새로운 커넥션 ID)</code> 로 decrypt 해본다.</li>
+<li>만약 decrypt 가 되어서 challenge 값이 내가 보낸 값이랑 같으면 master key 가 두 세션에 걸쳐서 안정적으로 유지되고 있다는 이야기.</li>
+<li>만약 challenge 값이 틀리면, 저번 세션과 이번 세션에 master key 가 다르다는 이야기.</li>
+<li>즉 anti-Bleichenbacher 카운터메저가 동작해서 random 으로 master key 가 만들어져서, 프로토콜이 이상없는 듯 가짜로 진행되었다는 것.</li>
+</ol>
+
+
+<p>이 oracle 이 워킹하는 이유는, 수출등급으로 cipher 를 고정하고, 40 bit 에 대해서 노가다를 하는 것이 가능했기때문.</p>
+
+<p>그럼 이제 SSLv2 를 이용한 RSA oracle 은 만들었으니, TLS 에서 쓰이는 48 bytes premaster secret 을 SSLv2 oracle 이 받아들이는 형태로 변환하는 것이 필요하다.</p>
 </div>
 
 
