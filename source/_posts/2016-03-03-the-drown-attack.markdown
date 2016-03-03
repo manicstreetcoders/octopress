@@ -148,5 +148,14 @@ Bleichenbacher 의 공격은 padding oracle attack. RSA ciphertext 는 PKCS#1 v1
 
 그럴려면 TLS 핸드쉐이크도 알아야하는데, 이 공격에서 중요한 점은 두가지 차이점.
 
-1. 일단 premaster secret 이란 걸 도입했고, 
+1. 일단 premaster secret 이란 걸 도입했고, 언제나 항상 48 bytes. 
 2. 서버가 `ClientKeyExchange` 를 받으면 `ClientFinished` 를 기다린다는 것
+
+#### DROWN attack template
+
+* TLS 에서 쓰이는 premaster secret 을 공격하려고 하는데.
+* premaster secret 는 decrypt 되면 48 byte 가 되는데.
+* SSLv2 의 경우, master key 가 PKCS#1 v1.5 포맷으로 decrypt 된는데.
+* premaster secret 를 SSLv2 에 태워서 신탁 문의(oracle query)를 해보려면 난점이 있다.
+* 48 bytes 라는 길이 차이.
+* SSLv2 cipher suites 중에 48 bytes key 를 갖는 녀석이 있으면 좋았을텐데.
