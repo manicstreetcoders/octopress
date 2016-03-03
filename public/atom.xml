@@ -4,7 +4,7 @@
   <title><![CDATA[KC's blog]]></title>
   <link href="http://zomo.heroku.com/atom.xml" rel="self"/>
   <link href="http://zomo.heroku.com/"/>
-  <updated>2016-03-03T12:01:49+09:00</updated>
+  <updated>2016-03-03T12:25:16+09:00</updated>
   <id>http://zomo.heroku.com/</id>
   <author>
     <name><![CDATA[KC]]></name>
@@ -32,6 +32,8 @@
 </ul>
 
 
+<h4>The PKCS#1 v1.5 padding structure</h4>
+
 <p>DROWN 공격은 RSA PKCS# v1.5 padding 구조를 이용함.</p>
 
 <p>N = p*q, l = len(N) 이라고 할때, k 는 symmetric key 라고 할 때, 암호화를 돌릴 블럭은 다음과 같이 만든다. <code>m = 00 || 02 || PS || 00 || k</code></p>
@@ -45,6 +47,42 @@
 <li>정수로 변환해서 c = m<sup>e</sup> mod N</li>
 </ul>
 
+
+<h4>The SSLv2 handshake protocol</h4>
+
+<ul>
+<li>클라이언트가 <code>ClientHello</code> 를 보냄</li>
+<li>서버는 <code>ServerHello</code> 를 보냄</li>
+<li>c->s, <code>ClientMasterKey</code></li>
+<li>s->c, <code>ServerVerify</code></li>
+<li>c->s, <code>Finished</code></li>
+<li>s->c, <code>Finished</code></li>
+</ul>
+
+
+<p>그럼 보내는 내용을 정리하면,</p>
+
+<ul>
+<li>c->s, <code>ClientHello</code>: 클라이언트 지원 cipher suites. 그리고 클라이언트 nonce (챌린지)</li>
+<li>s->c, <code>ServerHello</code>: 서버 지원 cipher suites. 서버 인증서. 서버 nonce (커넥션 ID)</li>
+<li>c->s, <code>ClientMasterKey</code>: 공통의 cipher suites. 그리고 master_key 를 위한 키 데이터.</li>
+<li>s->c, <code>ServerVerify</code></li>
+<li>c->s, <code>Finished</code></li>
+<li>s->c, <code>Finished</code></li>
+</ul>
+
+
+<p>Export 등급 <code>ClientMasterKey</code> 단계를 더 정리하면 (40-bit SSL_RC2_128_CBC_EXPORT40_WITH_MD5 가정).</p>
+
+<ul>
+<li>clear_key_data</li>
+<li>secret_key_data (RSA PKCS#1 v1.5 로 암호화)</li>
+<li>master_key = clear_key_data || secret_key_data</li>
+<li>40-bit 경우, secret_key_data 는 5 bytes. (5*8 = 40)</li>
+</ul>
+
+
+<p>Non-export 등급은 master_key 전체가 암호화되어있고, clear_key_data 의 길이는 zero. 즉 Export 등급은 의도적으로 약화시킨 것이라고 보면 된다.</p>
 ]]></content>
   </entry>
   
