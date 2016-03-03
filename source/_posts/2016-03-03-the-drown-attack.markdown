@@ -84,7 +84,7 @@ OpenSSL version <= 1.1.0 의 경우, 서버가 지정하지않은 것도 client 
 
 #### Bleichenbacher's attack
 
-Bleichenbacher 의 공격은 apdding oracle attack. RSA ciphertext 는 PKCS#1 v1.5 padding format 을 준수하는 plaintext 로 복호화되어야한다는 사실을 활용한다.
+Bleichenbacher 의 공격은 padding oracle attack. RSA ciphertext 는 PKCS#1 v1.5 padding format 을 준수하는 plaintext 로 복호화되어야한다는 사실을 활용한다.
 
 그럼 PKCS#1 v1.5 padding format 을 준수한다는 것의 의미는,
 
@@ -113,3 +113,8 @@ Bleichenbacher 의 공격은 apdding oracle attack. RSA ciphertext 는 PKCS#1 v1
 * `c_0 = m_0 ^ e mod N` 이라고 하면 양쪽에 s^e 를 곱하면
 * `c = (c_0 * s^e) mod N = (m_0 * s)^e mod N` 이 되니까, m_0 에 s 를 곱한 값을 encrypt 시킨 셈이 된다.
 * 이 encrypted 된 값을 가지고 oracle 에 물어본다.
+
+* oracle 이 0 이라고 대답하면, s 를 증가시켜서 다시 물어본다. 
+* 이런 식으로 특정 규칙을 가지고 만들어진 가라 ciphertext 를 가지고 oracle 에 계속 확인을하다가 1 이 걸리면
+* `c_0 * s^e` 가 decrypt 되었는데, 0x0002... 보다 크거나 같고, 0x0003... 보다 작은 정수로 decrypt 되었다는 것을 알게된다.
+* 그 plaintext 는 m_0 * s 와 어떤 연관성을 가질 것이다.
