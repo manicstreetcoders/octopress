@@ -228,7 +228,7 @@ SSLv2 에 oracle 이 생긴 이유는 다음과 같다고.
 
 이 SSLv2 oracle 에 대해 정리하면,
 
-* SSSLv2-export-oracle(c) 를 돌리면, c 가 valid 한 PKCS#1 v1.5 EB 로 떨어지는 암호문인지 아닌지를 돌려준다.
+* SSSLv2-export-oracle-function(c) 를 돌리면, c 가 valid 한 PKCS#1 v1.5 EB 로 떨어지는 암호문인지 아닌지를 돌려준다.
 * 그 코스트는 네트워크 커넥션 2번, 40 bit space 에 대한 노가다 (MD5 + symmetric cipher 수준)
 * valid 하다는 것은, plaintext 가 0x00 02 로 시작하며 중간에 0x00 딜리미터가 있고, 마지막 5 바이트는 찾아낸 master key 5 byte 랑 같다...라는 것.
 * 이 논문 저자들은, 이런 멋진 정보를 알려주는 oracle 을 만들어낸 것이다.
