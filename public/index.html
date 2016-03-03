@@ -199,7 +199,7 @@ OpenSSL version &lt;= 1.1.0 의 경우, 서버가 지정하지않은 것도 clie
 <p>그럼, Bleichenbacher 알고리즘은</p>
 
 <ul>
-<li>공격자는 PKCS#1 v1.5 ciphertext 를 가지고 있음</li>
+<li>공격자는 valid 한 PKCS#1 v1.5 ciphertext 를 가지고 있음 (이걸 시작 포인트로 삼음)</li>
 <li>공격자는 private key 는 접근 못함</li>
 <li>그러나 oracle 을 가지고 있다고 가정한다.</li>
 <li>oracle 은 1 or 0 을 리턴하는데,</li>

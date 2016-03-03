@@ -94,7 +94,7 @@ Bleichenbacher 의 공격은 padding oracle attack. RSA ciphertext 는 PKCS#1 v1
 
 그럼, Bleichenbacher 알고리즘은 
 
-* 공격자는 PKCS#1 v1.5 ciphertext 를 가지고 있음
+* 공격자는 valid 한 PKCS#1 v1.5 ciphertext 를 가지고 있음 (이걸 시작 포인트로 삼음)
 * 공격자는 private key 는 접근 못함
 * 그러나 oracle 을 가지고 있다고 가정한다.
 * oracle 은 1 or 0 을 리턴하는데,
