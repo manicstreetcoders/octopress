@@ -21,7 +21,7 @@ categories:
 
 DROWN 공격은 RSA PKCS# v1.5 padding 구조를 이용함.
 
-N = p*q, l = len(N) 이라고 할때, k 는 symmetric key 라고 할 때, 암호화를 돌릴 블럭은 다음과 같이 만든다. `m = 00 || 02 || PS || 00 || k`
+N = p*q, l = len(N), e 는 euler_pi(N) 과 coprime 인 정수(아마도 3 이나 65537)라고 할때, k 는 symmetric key 라고 할 때, 암호화를 돌릴 블럭은 다음과 같이 만든다. `m = 00 || 02 || PS || 00 || k`
 
 * 처음 `00` 은 암호화를 돌릴 블럭(EB)가 N 보다 작은 정수가 되게 만들기 위해 집어 넣는 것
 * `02` 는 block type
