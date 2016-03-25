@@ -9,8 +9,18 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="Polling, Long Polling, Push, SSE, WebSocket 의 정확한 차이점을 알 필요가 생겼다. Polling AJAX 로 HTTP query 를 주기적으로 날리는 식이다. AJAX 와 다른 특별한 기술이라고 하기는 그렇다.
-새로운 Data 가 &hellip;">
+  <meta name="description" content="Android reversing tools: jd-gui
+Procyon
+JAD
+jadx
+CFR
+JEB Decompiler (Native Dalvik decompiler)
+IDA 6.1
+dex2jar
+smali/baksmali
+apktool
+signapk
+ded &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -66,6 +76,105 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/01/13/reversing-android/">Reversing Android</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-01-13T18:20:00+09:00'><span class='date'><span class='date-month'>Jan</span> <span class='date-day'>13</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>6:20 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Android reversing tools:</p>
+
+<ul>
+<li><a href="http://jd.benow.ca/">jd-gui</a></li>
+<li><a href="https://bitbucket.org/mstrobel/procyon/wiki/Java%20Decompiler">Procyon</a></li>
+<li><a href="http://varaneckas.com/jad/">JAD</a></li>
+<li>jadx</li>
+<li>CFR</li>
+<li>JEB Decompiler (Native Dalvik decompiler)</li>
+<li>IDA 6.1</li>
+<li><a href="https://code.google.com/p/dex2jar/">dex2jar</a></li>
+<li><a href="https://code.google.com/p/smali/">smali/baksmali</a></li>
+<li><a href="https://code.google.com/p/android-apktool/">apktool</a></li>
+<li><a href="https://code.google.com/p/signapk/">signapk</a></li>
+<li><a href="http://siis.cse.psu.edu/ded/installation.html">ded</a></li>
+<li><a href="http://sourceforge.net/projects/androidicsjbext/">Android ICS JB EXT4 imagefile unpacker</a></li>
+<li><a href="http://sourceforge.net/projects/ext2read/">ext2read/ext2explorer</a></li>
+<li><a href="https://code.google.com/p/droidbox/">droidbox </a></li>
+<li><a href="http://code.google.com/p/androguard">androguard</a></li>
+<li><a href="http://developer.android.com/tools/help/emulator.html">Android Emulator</a></li>
+<li><a href="http://virtuous-ten-studio.com">VTS</a></li>
+<li><a href="http://forum.xda-developers.com/showthread.php?t=1248486">TLC UpdatezipCreator</a></li>
+<li><a href="http://apkmultitool.com/node/7">APK Multi-Tool</a></li>
+</ul>
+
+
+<p>안드로이드 framework 을 수정해서 폰에 올려서 커스텀 폰을 만드는 것도 재미있었고, apk 를 해제해서 smali 코드에 Log 를 code injection 하고 다시 패키징해서 폰에 인스톨해서 동적 분석하는 것도 꽤 스릴넘쳤다.</p>
+
+<p>몇 가지 Tip.</p>
+
+<h3><a href="http://stackoverflow.com/questions/647116/how-to-decompile-a-whole-jar-file">jar 를 .java 로 풀어내는 법</a>.</h3>
+
+<p>일단 smali/baksmali/dex2jar 를 가지고 optimized dex -> dex -> jar (*.class) 로 바꿔서 classes-dex2jar.jar 를 만든 다음에&hellip;</p>
+
+<pre><code>% cat jad.sh
+JAR=./classes-dex2jar.jar
+unzip -d $JAR.tmp $JAR
+pushd $JAR.tmp
+for f in `find . -name '*.class'`; do
+    jad -d $(dirname $f) -s java -lnc $f
+done
+popd
+</code></pre>
+
+<p>위와같은 shell script 로 java 로 바꾼다. java 로 바꿔서 IntelliJ 에서 import 해서 보면 JD-GUI 로 보는 것보다 편하다.</p>
+
+<h3>apk 를 서명한 private key 와 pair 인 cert 를 추출하는 법</h3>
+
+<pre><code>$ jarsigner -verify -certs -verbose testing.apk
+$ unzip testing.apk
+$ cd META-INF
+$ openssl pkcs7 -in CERT.RSA -print_certs -inform DER -out out.cer
+$ cat out.cer
+</code></pre>
+
+<h3>DroidBox</h3>
+
+<pre><code>wget http://droidbox.googlecode.com/files/DroidBox411RC.tar.gz
+android
+./startmenu.sh &lt;AVD name&gt;
+./droidbox.sh babo.apk
+</code></pre>
+
+<p>Resources:</p>
+
+<ul>
+<li><a href="http://stackoverflow.com/questions/1043322/why-do-i-get-access-denied-to-data-folder-when-using-adb">Why do I get access denied to data folder when using adb?</a></li>
+<li>Learning Pentesting for Android Devices</li>
+<li>Android Hacker&rsquo;s Handbook</li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1146,174 +1255,6 @@ else
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2013/09/11/javascript-method-invocation-patterns/">JavaScript Method Invocation Patterns</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2013-09-11T12:14:00+09:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>11</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>12:14 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>JavaScript: The Good Parts 에서 funciton 에 관한 내용을 발췌/정리한다.</p>
-
-<p>자바스크립에는 function 호출에 4 가지 패턴이 있다.</p>
-
-<h3>The Method Invocation Pattern</h3>
-
-<p>function 이 Object 의 property 로 저장되어있을때.</p>
-
-<pre><code>var myObject = { 
-    value: 0, 
-    increment: function(inc) { 
-        this.value += typeof inc === 'number' ? inc : 1; 
-    }
-}
-</code></pre>
-
-<p>JavaScript 에서 <code>this</code> 의 binding 은 invocation time 에 이루어진다. late binding.</p>
-
-<p>이 경우 <code>this</code> 는<code>myObject</code> 에 바인딩된다.</p>
-
-<h3>The Function Invocation Pattern</h3>
-
-<p>Object 의 property 가 아니면 method 가 아니라 function.</p>
-
-<pre><code>var sum = add(3, 4)
-</code></pre>
-
-<p>this 는 global object 에 binding 됨. Web Browser 에서 돌고 있다면,</p>
-
-<p>DOM object 인 <code>window</code> object 에 binding 될 것.</p>
-
-<pre><code>myObject.double = function() {
-    var add = function(a,b) { return a+b; };
-    var helper = function() { 
-        this.value = add(this.value, this.value);
-    };
-    helper();
-};
-</code></pre>
-
-<p>란 코드를 보자. inner function 의 this 는 어디에 binding 이 될까?</p>
-
-<p>테스트를 해보자.</p>
-
-<pre><code>&lt;html&gt;
-&lt;head&gt;&lt;/head&gt;
-&lt;body&gt;
-&lt;script&gt;
-var myObject = {
-    value: 0,
-    increment: function(inc) {
-        this.value += typeof inc === 'number' ? inc : 1;
-    }
-};
-
-myObject.double = function() {
-    var add = function(a,b) { return a+b; };
-    var helper = function() {
-        if (this === window) console.log('this === window');
-        this.value = add(this.value, this.value);
-    };
-    helper();
-};
-
-console.log(myObject.value);
-myObject.increment();
-console.log(myObject.value);
-myObject.double();
-console.log(myObject.value);
-&lt;/script&gt;
-&lt;/body&gt;
-&lt;/html&gt;
-
-% python -m SimpleHTTPServer 8888
-</code></pre>
-
-<p>이제 브라우저로 들어가 localhost:8888 을 로드하고, Console 을 띄운다.</p>
-
-<p>콘솔에 나와있는 메시지들.</p>
-
-<pre><code>0
-1
-this === window
-1
-</code></pre>
-
-<p>inner function 의 <code>this</code> 가 <code>myObject</code> 가 아닌, DOM object 인 <code>window</code> 에 바인딩되었음을
-알 수 있다.</p>
-
-<h3>The Constructor Invocation Pattern</h3>
-
-<p>constructor 를 정의하고, accessor 를 정의하였다.</p>
-
-<p>JavaScript 에서 constructor 는 new 키워드와 함께 사용된다.</p>
-
-<p><code>this</code> 는 메시지를 받는 object 에 binding 된다.</p>
-
-<pre><code>var Document = function ( name ) {
-    if (typeof name === "string")
-        this.title = name;
-    else
-        this.title = "&lt;empty&gt;";
-}
-
-Document.prototype.getTitle = function () {
-    return this.title;
-}
-
-var myDoc = new Document("confused");
-console.log( myDoc.getTitle() );
-
-% node constructor.js
-confused
-%
-</code></pre>
-
-<h3>The Apply Invocation Pattern</h3>
-
-<p>JavaScript 은 functional OO language 이기 때문에, function 이 method 를 가질 수 있다.</p>
-
-<p>function object 에 <code>apply</code> method 를 날려서, 함수를 실행시킬 수 있다.</p>
-
-<p>이 경우, arg0 에 binding 할 <code>this</code> 를 지정해줄 수 있다.</p>
-
-<pre><code>var add = function (a,b) {
-    return a+b;
-};
-
-var a = [ 1, 2 ];
-
-var sum = add.apply(this, a);
-
-console.log(sum);
-
-% node apply.js
-3
-%
-</code></pre>
-
-<p>이상 4 개의 호출 패턴 정리 끝.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/19">&larr; Older</a>
@@ -1331,6 +1272,10 @@ console.log(sum);
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/03/25/bleichenbacher/">Bleichenbacher</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/03/03/the-drown-attack/">The DROWN Attack</a>
       </li>
     
@@ -1344,10 +1289,6 @@ console.log(sum);
     
       <li class="post">
         <a href="/blog/2016/02/12/understanding-the-heap-and-exploiting-heap-overflows/">Understanding the Heap &amp; Exploiting Heap Overflows</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/02/12/unlocking-the-motorola-bootloader-by-azimuth-security/">Unlocking the Motorola Bootloader by Azimuth Security</a>
       </li>
     
   </ul>

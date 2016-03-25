@@ -9,8 +9,8 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="
-Exploiting CVE-2015-0311: A Use-After-Free in Adobe Flash Player ">
+  <meta name="description" content="언젠가 블랙햇 2014 에 발표된 자료. azimuth security 의 Dan Rosenberg. Reflections on Trusting TrustZone
+">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -66,6 +66,37 @@ Exploiting CVE-2015-0311: A Use-After-Free in Adobe Flash Player ">
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/06/16/reflections-on-trusting-trustzone/">Reflections on Trusting TrustZone</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-06-16T14:46:49+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>16</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>2:46 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>언젠가 블랙햇 2014 에 발표된 자료. azimuth security 의 Dan Rosenberg.</p>
+
+<p><a href="https://www.blackhat.com/docs/us-14/materials/us-14-Rosenberg-Reflections-on-Trusting-TrustZone.pdf">Reflections on Trusting TrustZone</a></p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -842,41 +873,6 @@ Client 로부터 <code>CONNECT</code> 를 받으면, 진짜 서버에 접속해�
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/06/04/using-wireshark-with-android/">Using Wireshark With Android</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2015-06-04T13:49:09+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>4</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>1:49 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>$ adb shell "tcpdump -s 0 -w - | nc -l -p 4444"
-</span><span class='line'>$ adb forward tcp:4444 tcp:4444
-</span><span class='line'>$ nc localhost 4444 | sudo wireshark -k -S -i -</span></code></pre></td></tr></table></div></figure>
-
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/7">&larr; Older</a>
@@ -894,6 +890,10 @@ Client 로부터 <code>CONNECT</code> 를 받으면, 진짜 서버에 접속해�
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/03/25/bleichenbacher/">Bleichenbacher</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/03/03/the-drown-attack/">The DROWN Attack</a>
       </li>
     
@@ -907,10 +907,6 @@ Client 로부터 <code>CONNECT</code> 를 받으면, 진짜 서버에 접속해�
     
       <li class="post">
         <a href="/blog/2016/02/12/understanding-the-heap-and-exploiting-heap-overflows/">Understanding the Heap &amp; Exploiting Heap Overflows</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/02/12/unlocking-the-motorola-bootloader-by-azimuth-security/">Unlocking the Motorola Bootloader by Azimuth Security</a>
       </li>
     
   </ul>
