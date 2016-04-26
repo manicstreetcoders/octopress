@@ -9,8 +9,8 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="Python: Run a process and kill it if it doesn&rsquo;t end within one hour 프로세스 생성은 다음과 같이&hellip; import subprocess
-subp = subprocess.Popen([' &hellip;">
+  <meta name="description" content="p = subprocess.Popen('myprogram', stdout = subprocess.PIPE)
+str = p.stdout.readline() 로 해서 readline() 에서 hang 이 걸리는 경우를 당했다. Non-blocking read on a &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -66,6 +66,70 @@ subp = subprocess.Popen([' &hellip;">
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/04/10/non-blocking-read-on-a-subprocess-dot-pipe-in-python/">Non-blocking Read on a subprocess.PIPE in Python</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-04-10T21:38:31+09:00'><span class='date'><span class='date-month'>Apr</span> <span class='date-day'>10</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>9:38 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><pre><code>p = subprocess.Popen('myprogram', stdout = subprocess.PIPE)
+str = p.stdout.readline()
+</code></pre>
+
+<p>로 해서 <code>readline()</code> 에서 hang 이 걸리는 경우를 당했다.</p>
+
+<p><a href="http://stackoverflow.com/questions/375427/non-blocking-read-on-a-subprocess-pipe-in-python">Non-blocking read on a subprocess.PIPE in python</a> 을 읽고 해결책을 찾았다.</p>
+
+<pre><code>import sys
+from subprocess import PIPE, Popen
+from threading import Thread
+
+try:
+    from Queue import Queue, Empty
+except ImportError:
+    from queue import Queue, Empty
+
+ON_POSIX = 'posix' in sys.builtin_module_names
+
+def enqueue_output(out, queue):
+    for line in iter(out.readline, b''):
+        queue.put(line)
+    out.close()
+
+p = Popen(['myprogram'], stdout=PIPE, bufsize=1, close_fds=ON_POSIX)
+q = Queue()
+t = Thread(target=enqueue_output, args=(p.stdout, q))
+t.daemon = True
+t.start()
+
+try: line = q.get_nowait()
+except Empty:
+    pass
+else:
+    yield line
+</code></pre>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -730,47 +794,6 @@ e 는 20 과 relative prime 인 11 을 선택. <br></p>
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/02/10/building-pyv8-from-scratch/">Building PyV8 From Scratch</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2014-02-10T21:53:00+09:00'><span class='date'><span class='date-month'>Feb</span> <span class='date-day'>10</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>9:53 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Google V8 을 Ubuntu 12.04 LTS 에서 컴파일해보았다. x64 로 컴파일하는데 에러가 나고 삽질 연속. MBA 11 하즈웰에서 VMware Fusion 으로 버추얼 머신을 돌리고 거기서 컴파일하는데 컴파일이 하세월이다. 안드로이드 컴파일은 MBPr 에서 해야겠다.</p>
-
-<p>PyV8 빌드가 최종 목표고, boost 빌드 -> V8 빌드 -> PyV8 빌드의 순서로 가본다.</p>
-
-<p>V8 Build</p>
-
-<ul>
-<li><code>export V8_HOME=/blah/blah/v8</code> 로 환경변수를 잡아주고.</li>
-<li><code>werror=no</code> 로 워닝 폭탄을 제거한다.</li>
-<li>PyV8 과 붙일려고 하는 거라서, -fPIC (Position Independent Code) 로 만들어야한다. <code>export CCFLAGS=-fPIC</code></li>
-<li><code>scons arch=x64</code> 를 했는데 scons 에서 에러가 난다. 찾아보니 GYP 로 가면서 scons 는 deprecate 되었다고. <code>make x64</code> 로 땜빵해보자.</li>
-</ul>
-
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/18">&larr; Older</a>
@@ -788,6 +811,10 @@ e 는 20 과 relative prime 인 11 을 선택. <br></p>
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/04/26/rsa-sample-number/">RSA Sample Number</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/03/25/bleichenbacher/">Bleichenbacher</a>
       </li>
     
@@ -801,10 +828,6 @@ e 는 20 과 relative prime 인 11 을 선택. <br></p>
     
       <li class="post">
         <a href="/blog/2016/02/16/plaid-ctf-2015-one-null-byte/">Plaid CTF 2015 - One NULL Byte</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/02/12/understanding-the-heap-and-exploiting-heap-overflows/">Understanding the Heap &amp; Exploiting Heap Overflows</a>
       </li>
     
   </ul>

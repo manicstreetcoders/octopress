@@ -9,8 +9,8 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="Unlock &amp; Rooting HTC One M7 을 준비했다. ./fastboot-mac oem get_identifier_token 로 token 을 얻어 htcdev.com 에 submit 하고 언락 코드를 얻는다. 그 코드로
-fastboot-mac &hellip;">
+  <meta name="description" content="A Crash Course on the Depths of Win32&trade; Structured Exception Handling 를 따라가본다. Exception Handler DWORD scratch; EXCEPTION_DISPOSITION
+__cdecl &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -66,6 +66,90 @@ fastboot-mac &hellip;">
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/09/21/structured-exception-handling/">Structured Exception Handling</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-09-21T05:39:25+09:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>21</span><span class='date-suffix'>st</span>, <span class='date-year'>2014</span></span> <span class='time'>5:39 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><a href="http://www.microsoft.com/msj/0197/exception/exception.aspx">A Crash Course on the Depths of Win32&trade; Structured Exception Handling</a> 를 따라가본다.</p>
+
+<h4>Exception Handler</h4>
+
+<pre><code>DWORD scratch;
+
+EXCEPTION_DISPOSITION
+__cdecl
+_except_handler(
+struct _EXCEPTION_RECORD *ExceptionRecord,
+void * EstablisherFrame,
+struct _CONTEXT *ContextRecord,
+void * DIspatcherContext)
+{
+    unsigned i;
+    printf("Hello from an except handler\n");
+    ContextRecord-&gt;Eax = (DWORD)&amp;scratch;
+    return ExceptionContinueException;
+}
+</code></pre>
+
+<h4>Set-up</h4>
+
+<p><code>_EXCEPTION_REGISTERATION</code> 을 셋업한다. 예전 VS 에는 어셈블리 INC 에 정의되어있었는데, 최신 VS 에는 C 로 정의되어있다.</p>
+
+<pre><code>_EXCEPTION_REGISTRATION struc
+    prev dd ?
+    handler dd ?
+_EXCEPTION_REGISTRATION ends
+</code></pre>
+
+<p>FS 가 <a href="http://en.wikipedia.org/wiki/Win32_Thread_Information_Block">TIB</a> 을 가리키고 있는데, 처음 DWORD 가 thread 의 EXCEPTION_REGISTRATION 구조체를 가리킨다.</p>
+
+<p><code>FS:[0]</code> 이 현재 EXCEPTION_REGISTRATION 을 가리키고 있으니, <code>push handler</code> <code>push FS:[0]</code> 을 연달아 하면 <code>prev</code> <code>handler</code> 가 메모리에 예쁘게 세팅되고, <code>mov FS:[0],ESP</code> 로 새로운 EXCEPTION_REGISTRATION 을 <code>FS:[0]</code> 에 세팅할 수 있다.</p>
+
+<p>그 다음에 <code>mov [eax],1</code> 로 액세스 바이올레이션을 일으킨다. 그러면, <code>printf("Hello from an except handler\n");</code> 가 <code>printf("After writing!\n");</code> 보다 먼저 handler 가 실행되게 된다.</p>
+
+<p>익셉션 핸들러에서 <code>ContextRecord-&gt;Eax = (DWORD)&amp;scratch;</code> 로, EAX 를 0 에서 올바른 주소로 설정하고 continue 시킨다. OS 에서, <code>ExceptionContinueException</code> 를 받으면, 문제가 해결된 것으로 보고, fault 를 만들었던 instruction 을 재실행한다.</p>
+
+<pre><code>DWORD handler = (DWORD) _except_handler;
+__asm {
+    push handler
+    push FS:[0]
+    mov FS:[0],ESP
+
+    mov eax,0
+    mov [eax],1
+}
+printf("After writing!\n");
+__asm {
+    mov eax,[ESP]
+    mov FS:[0],EAX
+    add esp,8
+}
+_gettch();
+</code></pre>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -601,49 +685,6 @@ sendBroadcast(fixedIntent2, "a.special.permission");
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/07/22/how-to-build-cyanogenmod-android-for-htc-one-m8/">How to Build CyanogenMod Android for HTC One (M8)</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2014-07-22T15:55:59+09:00'><span class='date'><span class='date-month'>Jul</span> <span class='date-day'>22</span><span class='date-suffix'>nd</span>, <span class='date-year'>2014</span></span> <span class='time'>3:55 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p><a href="http://wiki.cyanogenmod.org/w/Build_for_m8">How To Build CyanogenMod Android for HTC One (M8)</a></p>
-
-<p>HTC One M8 에 올릴 CyanogenMod 를 빌드하였다. 빌드 머신은 Ubuntu 14.04.1 LTS 64 bit.</p>
-
-<p>중간에 ./extract-files.sh 에서 에러가 난 것 빼고는 순조롭게 마쳤다.
-중간에 2 개의 shared object 가 없다고 중단이 되었는데, www.xda-developers.com 에서 답을 찾았다.</p>
-
-<ul>
-<li><a href="http://forum.xda-developers.com/htc-one-m8/help/missing-files-exctract-files-sh-cm-t2814905">Q: Missing files in ./exctract-files.sh (sic) from CM</a></li>
-<li><a href="https://github.com/TheMuppets/proprietary_vendor_htc/tree/cm-11.0/m8/proprietary">TheMuppets/proprietary_vendor_htc</a>
-에서 다운받았다.</li>
-</ul>
-
-
-<p>노트북에서 VM 으로 빌드해서 그런지 하룻밤 걸렸다.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/14">&larr; Older</a>
@@ -661,6 +702,10 @@ sendBroadcast(fixedIntent2, "a.special.permission");
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/04/26/rsa-sample-number/">RSA Sample Number</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/03/25/bleichenbacher/">Bleichenbacher</a>
       </li>
     
@@ -674,10 +719,6 @@ sendBroadcast(fixedIntent2, "a.special.permission");
     
       <li class="post">
         <a href="/blog/2016/02/16/plaid-ctf-2015-one-null-byte/">Plaid CTF 2015 - One NULL Byte</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/02/12/understanding-the-heap-and-exploiting-heap-overflows/">Understanding the Heap &amp; Exploiting Heap Overflows</a>
       </li>
     
   </ul>

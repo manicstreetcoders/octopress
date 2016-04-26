@@ -4,7 +4,7 @@
   <title><![CDATA[KC's blog]]></title>
   <link href="http://zomo.heroku.com/atom.xml" rel="self"/>
   <link href="http://zomo.heroku.com/"/>
-  <updated>2016-03-25T09:56:47+09:00</updated>
+  <updated>2016-04-26T15:25:43+09:00</updated>
   <id>http://zomo.heroku.com/</id>
   <author>
     <name><![CDATA[KC]]></name>
@@ -12,6 +12,99 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[RSA Sample Number]]></title>
+    <link href="http://zomo.heroku.com/blog/2016/04/26/rsa-sample-number/"/>
+    <updated>2016-04-26T15:24:39+09:00</updated>
+    <id>http://zomo.heroku.com/blog/2016/04/26/rsa-sample-number</id>
+    <content type="html"><![CDATA[<p>RSA sample number.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># 두개의 소수를 정한다. 
+</span><span class='line'>p = 3
+</span><span class='line'>q = 11
+</span><span class='line'>
+</span><span class='line'># 소수의 곱으로 큰 수를 하나 만든다.
+</span><span class='line'>N = p*q
+</span><span class='line'>
+</span><span class='line'># 이제 이 큰 N 의 order 를 구한다.
+</span><span class='line'>z = (p-1)*(q-1)
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'># 이제 소수를 하나 정해서 개인키로 쓰다. (실제로는 coprime to z 이기만 하면 된다.)
+</span><span class='line'>e = 7
+</span><span class='line'>
+</span><span class='line'>print "z: %d" % z
+</span><span class='line'>print "N: %d" % N
+</span><span class='line'>print "e: %d" % e
+</span><span class='line'>
+</span><span class='line'># e 의 인버스를 구한다. 인버스라 함은 곱해서 1 이 되는 수. (모듈로 z)
+</span><span class='line'>for d in range(1,z):
+</span><span class='line'>    if (e*d) % z  == 1:
+</span><span class='line'>        print "Found d!!!: %d" % d
+</span><span class='line'>        break
+</span><span class='line'>
+</span><span class='line'># e is the private key (in this case, 7)
+</span><span class='line'># d is the public key (in this case, 3)
+</span><span class='line'>
+</span><span class='line'>plain = 2
+</span><span class='line'>cipher = pow(plain,e) % N # 암호화: (plain)^e mod N
+</span><span class='line'>print "Encrypting %d -&gt; %d" % ( plain, cipher )
+</span><span class='line'>
+</span><span class='line'>plain = pow(cipher,d) % N # 복호화: (cipher)^d mod N
+</span><span class='line'>print "Decrypting %d -&gt; %d" % ( cipher, plain )
+</span><span class='line'>
+</span><span class='line'># $ python rsa.py
+</span><span class='line'># z: 20
+</span><span class='line'># N: 33
+</span><span class='line'># e: 7
+</span><span class='line'># Found d!!!: 3
+</span><span class='line'># Encrypting 2 -&gt; 29
+</span><span class='line'># Decrypting 29 -&gt; 2</span></code></pre></td></tr></table></div></figure>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Bleichenbacher]]></title>
@@ -977,15 +1070,6 @@ OpenSSL 버그때문에, 서버 설정에 상관없이, 강제로 SSLv2 로 네�
 <li></li>
 </ul>
 
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[The Inside Story Behind MS08-067]]></title>
-    <link href="http://zomo.heroku.com/blog/2015/10/02/the-inside-story-behind-ms08-067/"/>
-    <updated>2015-10-02T13:34:09+09:00</updated>
-    <id>http://zomo.heroku.com/blog/2015/10/02/the-inside-story-behind-ms08-067</id>
-    <content type="html"><![CDATA[<p><a href="http://blogs.technet.com/b/johnla/archive/2015/09/26/the-inside-story-behind-ms08-067.aspx">The Inside Story Behind MS08-067</a> 을 읽고 정리해본다.</p>
 ]]></content>
   </entry>
   

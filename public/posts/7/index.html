@@ -9,12 +9,8 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="1
-2
-3
-$ adb shell "tcpdump -s 0 -w - | nc -l -p 4444"
-$ adb forward tcp:4444 tcp:4444
-$ nc localhost 4444 | sudo wireshark -k -S -i - ">
+  <meta name="description" content="Imperfect Forward Secrecy: How Diffie-Hellman Fails in Practice
+Attack of the week: Logjam Matthew Green Blog 요약 알려진 가장 좋은 방법은 ga 를 캡쳐해서, log(ga) = &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -70,6 +66,70 @@ $ nc localhost 4444 | sudo wireshark -k -S -i - ">
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/06/05/logjam-diffie-hellman-falls-down/">Logjam: Diffie-Hellman Falls Down</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-06-05T18:30:24+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>5</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>6:30 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><ul>
+<li><a href="https://weakdh.org/imperfect-forward-secrecy.pdf">Imperfect Forward Secrecy: How Diffie-Hellman Fails in Practice</a></li>
+<li><a href="http://blog.cryptographyengineering.com/2015/05/attack-of-week-logjam.html">Attack of the week: Logjam</a></li>
+</ul>
+
+
+<h3>Matthew Green Blog 요약</h3>
+
+<ul>
+<li>알려진 가장 좋은 방법은 g<sup>a</sup> 를 캡쳐해서, log(g<sup>a</sup>) = a 인 이산로그 문제를 푸는 것.</li>
+<li>p 가 2048 bits 정도이면 수학적으로 풀기 어렵다.</li>
+<li><p>p 가 512 bits 라면?</p></li>
+<li><p>서버가 DHE-EXPORT 를 지원한다면, 공격자가 negotiation message 를 edit 해서, client 가 지원하는 cipher list 를 DHE-EXPORT 만 지원한다고 바꿔놓는다.</p></li>
+<li>이제 서버는 client 가 DHE-EXPORT 만 지원한다고 믿게 된다.</li>
+<li>이제 서버는 512-bit export-grade Diffie-Hellman tuple 을 보낸다.</li>
+<li>클라이언트는 512-bit DH tuple 을 믿어버린다. (클라이언트는 DHE-EXPORT 컨텍스트에서 negotiation 되고 있다는 것을 모른다)</li>
+<li>허잡한 파라메터가 오는데도 클라이언트는 모른다.</li>
+<li>Negotiation 마지막에 Finished 메시지에 지금까지 교환되었던 negotiation message 의 MAC 이 교환되는데, 이것때문에 뽀록난다.</li>
+<li>DH key 를 깨야한다. Finished 메시지가 교환되기전에.</li>
+<li>깰 수 있다면, forged Finished 메시지를 만들 수 있다.</li>
+</ul>
+
+
+<h3>Can you really solve a discrete logarithm before a TLS handshake times out?</h3>
+
+<p>Number Field Sieve 를 사용해야하는데, 이걸 optimize 할 수 있다.</p>
+
+<ul>
+<li>Pre-computation (for a given prime p): Polynomial selection, sieving, linear algebra 로 구성된 작업. p 에만 dependant.</li>
+<li>Solving to find a (for a given g<sup>a</sup> mod p): precomputation 에서 만들어진 table 을 사용한다. g, g<sup>a</sup> 를 가지고 table 을 사용하여 a 를 찾는 알고리즘.</li>
+</ul>
+
+
+<p>Pre-computation 은 p 에 dependant 한데. 그렇다면 실제 TLS 에서 p 는 어떻게 generate 되는 걸까?</p>
+
+<p>Large-scale 로 진행된 internet scan 에서 Apache/mod_ssl 의 92% 는 DH-EXPORT 의 경우, 2 개의 소수만 사용했다고 한다. 이 경우 2 개의 p 에 대해서만 테이블을 만들면 된다.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1224,88 +1284,6 @@ UID 는 코프로세서 밖으로 추출이 불가능하기때문에, 해당 아
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/05/24/peb/">PEB</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2015-05-24T12:43:54+09:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>24</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>12:43 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><ul>
-<li>youmin3.egloos.com/1650047</li>
-<li>anster.egloos.com/2128538</li>
-</ul>
-
-
-<h4>PEB &amp; TEB</h4>
-
-<ul>
-<li>EPROCESS (in kernel)</li>
-<li><p>ETHREAD (in kernel)</p></li>
-<li><p>KPROCESS(Process Control Block) in EPROCESS (in kernel)</p></li>
-<li><p>KTHREAD(Thread Control Block) in ETHREAD (in kernel)</p></li>
-<li><p>PEB (in user space)</p></li>
-<li>TEB (in user space)</li>
-</ul>
-
-
-<h4>WinDbg</h4>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>kd&gt; dt _PEB
-</span><span class='line'>
-</span><span class='line'>kd&gt; dt _EPROCESS
-</span><span class='line'>
-</span><span class='line'>kd&gt; dt _KPROCESS
-</span><span class='line'>
-</span><span class='line'>kd&gt; dt -a -b _TEB
-</span><span class='line'>
-</span><span class='line'>kd&gt; dt _ETHREAD
-</span><span class='line'>
-</span><span class='line'>kd&gt; dt _KTHREAD
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h4>GetCurrentProcessID</h4>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>kd&gt; uf kernel32!GetCurrentProcessID
-</span><span class='line'>
-</span><span class='line'>kd&gt; uf kernel32!GetCurrentThreadID</span></code></pre></td></tr></table></div></figure>
-
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/8">&larr; Older</a>
@@ -1323,6 +1301,10 @@ UID 는 코프로세서 밖으로 추출이 불가능하기때문에, 해당 아
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/04/26/rsa-sample-number/">RSA Sample Number</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/03/25/bleichenbacher/">Bleichenbacher</a>
       </li>
     
@@ -1336,10 +1318,6 @@ UID 는 코프로세서 밖으로 추출이 불가능하기때문에, 해당 아
     
       <li class="post">
         <a href="/blog/2016/02/16/plaid-ctf-2015-one-null-byte/">Plaid CTF 2015 - One NULL Byte</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/02/12/understanding-the-heap-and-exploiting-heap-overflows/">Understanding the Heap &amp; Exploiting Heap Overflows</a>
       </li>
     
   </ul>

