@@ -9,8 +9,7 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="A Crash Course on the Depths of Win32&trade; Structured Exception Handling 를 따라가본다. Exception Handler DWORD scratch; EXCEPTION_DISPOSITION
-__cdecl &hellip;">
+  <meta name="description" content="23rd USENIX Security Symposium 에서 발표된 On the Feasibility of Large-Scale Infections of iOS Devices 을 따라가보자. 저자는 Tielei Wang, Yeongjin Jang, Yizheng &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -66,6 +65,58 @@ __cdecl &hellip;">
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/09/22/on-the-feasibility-of-large-scale-infections-of-ios-devices/">On the Feasibility of Large-Scale Infections of iOS Devices</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-09-22T09:00:23+09:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>22</span><span class='date-suffix'>nd</span>, <span class='date-year'>2014</span></span> <span class='time'>9:00 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>23rd USENIX Security Symposium 에서 발표된 <a href="https://www.usenix.org/system/files/conference/usenixsecurity14/sec14-paper-wang-tielei.pdf">On the Feasibility of Large-Scale Infections of iOS Devices</a> 을 따라가보자.</p>
+
+<p>저자는 Tielei Wang, Yeongjin Jang, Yizheng Chen, Simon Chung, Billy Lau, Wenke Lee.</p>
+
+<h4>Introduction</h4>
+
+<p>Non-jailbroken iOS 디바이스를 대규모로 감염시키는 것이 어려운 이유.</p>
+
+<ol>
+<li><p>Apple has powerful revocation capabilities.</p></li>
+<li><p>The mandatory code signing mechanism in iOS ensures that only apps signed by Apple or certified by Apple can be installed and run on iOS devices.</p></li>
+<li><p>The DRM technology in iOS prevents users from sharing apps among arbitary iOS devices, which has a side effect of limiting the distribution of malicious apps published on the App Store.</p></li>
+</ol>
+
+
+<h4>Delivery of Apple-Signed Malicious Apps</h4>
+
+<p>두 개의 취약점을 사용했다고 한다.</p>
+
+<ol>
+<li><p>The first is a previously unknown design flaw in the iTunes syncing mechanism, which makes the iTunes syncing process vulnerable to MiTM attacks.</p></li>
+<li><p>The second security issue we discovered is that an iOS device can be stealthily provisioned for development through USB connections. This weakness allows a compromised computer to arbitrarily remove installed third-party appps from connected iOS devices and install any app signed by attackers in possession of enterprise or indivisual developer licenses issued by Apple.</p></li>
+</ol>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -643,48 +694,6 @@ sendBroadcast(fixedIntent2, "a.special.permission");
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/08/06/linux-vm-with-qemu/">Linux VM With QEMU</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2014-08-06T14:54:22+09:00'><span class='date'><span class='date-month'>Aug</span> <span class='date-day'>6</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>2:54 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><ol>
-<li><p>Mac의 경우 brew install qemu 로 qumu 가상 머신을 설치. qemu-system-i386 사용.</p></li>
-<li><p>debian 기반 linux 이미지 <a href="https://people.debian.org/~aurel32/qemu/i386/debian_wheezy_i386_standard.qcow2">https://people.debian.org/~aurel32/qemu/i386/debian_wheezy_i386_standard.qcow2</a> (root 패스워드가 &ldquo;root&rdquo;)</p></li>
-<li><p>가상머신을 start.</p>
-
-<p> $ qemu-system-i386 -hda debian_wheezy_i386_standard.qcow2</p></li>
-<li><p>하이버네이션을 위해서 debian 내에 power manager 패키지를 설치.</p>
-
-<p> # apt-get install pm-utils</p></li>
-<li><p>Hibernate.</p>
-
-<p> # pm-hibernate</p></li>
-</ol>
-
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/14">&larr; Older</a>
@@ -702,6 +711,10 @@ sendBroadcast(fixedIntent2, "a.special.permission");
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/05/03/security-analysis-of-emerging-smart-home-applications/">Security Analysis of Emerging Smart Home Applications</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/04/26/rsa-sample-number/">RSA Sample Number</a>
       </li>
     
@@ -715,10 +728,6 @@ sendBroadcast(fixedIntent2, "a.special.permission");
     
       <li class="post">
         <a href="/blog/2016/02/25/mnist-for-ml-beginners/">MNIST for ML Beginners</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/02/16/plaid-ctf-2015-one-null-byte/">Plaid CTF 2015 - One NULL Byte</a>
       </li>
     
   </ul>

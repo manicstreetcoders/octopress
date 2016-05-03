@@ -4,7 +4,7 @@
   <title><![CDATA[KC's blog]]></title>
   <link href="http://zomo.heroku.com/atom.xml" rel="self"/>
   <link href="http://zomo.heroku.com/"/>
-  <updated>2016-04-26T15:25:43+09:00</updated>
+  <updated>2016-05-03T18:10:33+09:00</updated>
   <id>http://zomo.heroku.com/</id>
   <author>
     <name><![CDATA[KC]]></name>
@@ -12,6 +12,15 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Security Analysis of Emerging Smart Home Applications]]></title>
+    <link href="http://zomo.heroku.com/blog/2016/05/03/security-analysis-of-emerging-smart-home-applications/"/>
+    <updated>2016-05-03T18:09:46+09:00</updated>
+    <id>http://zomo.heroku.com/blog/2016/05/03/security-analysis-of-emerging-smart-home-applications</id>
+    <content type="html"><![CDATA[<p>Earlence Fernandes, et al. 의 아티클을 읽어보았다.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[RSA Sample Number]]></title>
@@ -1054,22 +1063,6 @@ OpenSSL 버그때문에, 서버 설정에 상관없이, 강제로 SSLv2 로 네�
 
 
 <p>validate_input 에서 돌아오면, 비슷한 계산을 또 하는데.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Return Oriented Programming for the ARM Architecture]]></title>
-    <link href="http://zomo.heroku.com/blog/2015/10/04/return-oriented-programming-for-the-arm-architecture/"/>
-    <updated>2015-10-04T16:30:36+09:00</updated>
-    <id>http://zomo.heroku.com/blog/2015/10/04/return-oriented-programming-for-the-arm-architecture</id>
-    <content type="html"><![CDATA[<p>Tim Kornau 의 논문, <a href="">Return Oriented Programming for the ARM Architecture</a> 를 읽고 정리해본다.</p>
-
-<h4>Contents</h4>
-
-<ul>
-<li></li>
-</ul>
-
 ]]></content>
   </entry>
   

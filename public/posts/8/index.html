@@ -9,10 +9,7 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="youmin3.egloos.com/1650047
-anster.egloos.com/2128538 PEB &amp; TEB EPROCESS (in kernel)
-ETHREAD (in kernel)
-KPROCESS(Process Control Block) in &hellip;">
+  <meta name="description" content="Implementing A PBKDF2-Based Password Storage Scheme for FireFox OS The Passcode Module Make The Passcode Look &ldquo;Random&rdquo; Choosing PBKDF2 &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -68,6 +65,49 @@ KPROCESS(Process Control Block) in &hellip;">
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/05/24/implementing-a-pbkdf2-based-password-storage-scheme-for-firefox-os/">Implementing a PBKDF2-Based Password Storage Scheme for FireFox OS</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-05-24T13:39:40+09:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>24</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>1:39 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><a href="https://timtaubert.de/blog/2015/05/implementing-a-pbkdf2-based-password-storage-scheme-for-firefox-os/">Implementing A PBKDF2-Based Password Storage Scheme for FireFox OS</a></p>
+
+<h4>The Passcode Module</h4>
+
+<h4>Make The Passcode Look &ldquo;Random&rdquo;</h4>
+
+<h4>Choosing PBKDF2 Parameters</h4>
+
+<h4>Do Not Hard-code Parameters</h4>
+
+<h4>Storing a New Passcode</h4>
+
+<h4>Verifying a Given Passcode</h4>
+
+<h4>What About bcrypt or scrypt?</h4>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1962,436 +2002,6 @@ kernel memory, when exploiting custom vulnerabilities.</p>
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/04/27/a-memory-allocator/">A Memory Allocator</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2015-04-27T19:38:35+09:00'><span class='date'><span class='date-month'>Apr</span> <span class='date-day'>27</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>7:38 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Doug Lea 의 dlmalloc 소스를 보다가 간단하게 하나 만들어 보기로 했다.</p>
-
-<p>find-first-fit 으로 그냥 대충 만들어봤다. <code>unlink()</code> 가 들어있어서, exploit 은 가능한 버전으로.</p>
-
-<p>binning 은 없다. ㅋㅋㅋ <code>sbrk()</code> 로 grow 하지도 않는다. ㅋㅋㅋ</p>
-
-<figure class='code'><figcaption><span>kcmalloc.c</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-<span class='line-number'>42</span>
-<span class='line-number'>43</span>
-<span class='line-number'>44</span>
-<span class='line-number'>45</span>
-<span class='line-number'>46</span>
-<span class='line-number'>47</span>
-<span class='line-number'>48</span>
-<span class='line-number'>49</span>
-<span class='line-number'>50</span>
-<span class='line-number'>51</span>
-<span class='line-number'>52</span>
-<span class='line-number'>53</span>
-<span class='line-number'>54</span>
-<span class='line-number'>55</span>
-<span class='line-number'>56</span>
-<span class='line-number'>57</span>
-<span class='line-number'>58</span>
-<span class='line-number'>59</span>
-<span class='line-number'>60</span>
-<span class='line-number'>61</span>
-<span class='line-number'>62</span>
-<span class='line-number'>63</span>
-<span class='line-number'>64</span>
-<span class='line-number'>65</span>
-<span class='line-number'>66</span>
-<span class='line-number'>67</span>
-<span class='line-number'>68</span>
-<span class='line-number'>69</span>
-<span class='line-number'>70</span>
-<span class='line-number'>71</span>
-<span class='line-number'>72</span>
-<span class='line-number'>73</span>
-<span class='line-number'>74</span>
-<span class='line-number'>75</span>
-<span class='line-number'>76</span>
-<span class='line-number'>77</span>
-<span class='line-number'>78</span>
-<span class='line-number'>79</span>
-<span class='line-number'>80</span>
-<span class='line-number'>81</span>
-<span class='line-number'>82</span>
-<span class='line-number'>83</span>
-<span class='line-number'>84</span>
-<span class='line-number'>85</span>
-<span class='line-number'>86</span>
-<span class='line-number'>87</span>
-<span class='line-number'>88</span>
-<span class='line-number'>89</span>
-<span class='line-number'>90</span>
-<span class='line-number'>91</span>
-<span class='line-number'>92</span>
-<span class='line-number'>93</span>
-<span class='line-number'>94</span>
-<span class='line-number'>95</span>
-<span class='line-number'>96</span>
-<span class='line-number'>97</span>
-<span class='line-number'>98</span>
-<span class='line-number'>99</span>
-<span class='line-number'>100</span>
-<span class='line-number'>101</span>
-<span class='line-number'>102</span>
-<span class='line-number'>103</span>
-<span class='line-number'>104</span>
-<span class='line-number'>105</span>
-<span class='line-number'>106</span>
-<span class='line-number'>107</span>
-<span class='line-number'>108</span>
-<span class='line-number'>109</span>
-<span class='line-number'>110</span>
-<span class='line-number'>111</span>
-<span class='line-number'>112</span>
-<span class='line-number'>113</span>
-<span class='line-number'>114</span>
-<span class='line-number'>115</span>
-<span class='line-number'>116</span>
-<span class='line-number'>117</span>
-<span class='line-number'>118</span>
-<span class='line-number'>119</span>
-<span class='line-number'>120</span>
-<span class='line-number'>121</span>
-<span class='line-number'>122</span>
-<span class='line-number'>123</span>
-<span class='line-number'>124</span>
-<span class='line-number'>125</span>
-<span class='line-number'>126</span>
-<span class='line-number'>127</span>
-<span class='line-number'>128</span>
-<span class='line-number'>129</span>
-<span class='line-number'>130</span>
-</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="cp">#include &lt;stdio.h&gt;</span>
-</span><span class='line'><span class="cp">#include &lt;stdlib.h&gt;</span>
-</span><span class='line'><span class="cp">#include &lt;sys/types.h&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="cp">#define SBRK_UNIT (1024*10)</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">typedef</span> <span class="k">struct</span> <span class="n">_chunk</span> <span class="p">{</span>
-</span><span class='line'>    <span class="kt">int</span> <span class="n">in_use</span><span class="p">;</span>
-</span><span class='line'>    <span class="kt">size_t</span> <span class="n">size</span><span class="p">;</span>
-</span><span class='line'>    <span class="kt">char</span> <span class="o">*</span><span class="n">fd</span><span class="p">;</span>
-</span><span class='line'>    <span class="kt">char</span> <span class="o">*</span><span class="n">bk</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span> <span class="n">chunk</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="cp">#define mem2chunk(p) ((void*)(p) - sizeof(chunk))</span>
-</span><span class='line'><span class="cp">#define chunk2mem(p) ((void*)(p) + sizeof(chunk))</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">static</span> <span class="kt">char</span> <span class="o">*</span><span class="n">_start</span><span class="p">;</span>
-</span><span class='line'><span class="k">static</span> <span class="kt">char</span> <span class="o">*</span><span class="n">_end</span><span class="p">;</span>
-</span><span class='line'><span class="k">static</span> <span class="kt">char</span> <span class="o">*</span><span class="n">_top</span><span class="p">;</span>
-</span><span class='line'><span class="k">static</span> <span class="n">chunk</span> <span class="n">_free</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="kt">void</span> <span class="nf">kcinit</span><span class="p">()</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="n">_start</span> <span class="o">=</span> <span class="p">(</span><span class="kt">char</span><span class="o">*</span><span class="p">)</span><span class="n">sbrk</span><span class="p">(</span><span class="n">SBRK_UNIT</span><span class="p">);</span>
-</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">_start</span> <span class="o">==</span> <span class="p">(</span><span class="kt">char</span><span class="o">*</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>        <span class="n">printf</span><span class="p">(</span><span class="s">&quot;sbrk faield.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
-</span><span class='line'>        <span class="k">return</span><span class="p">;</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'>    <span class="n">_end</span> <span class="o">=</span> <span class="n">_start</span> <span class="o">+</span> <span class="n">SBRK_UNIT</span><span class="p">;</span>
-</span><span class='line'>    <span class="n">_top</span> <span class="o">=</span> <span class="n">_start</span><span class="p">;</span>
-</span><span class='line'>    <span class="n">_free</span><span class="p">.</span><span class="n">fd</span> <span class="o">=</span> <span class="n">_free</span><span class="p">.</span><span class="n">bk</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">_free</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'><span class="kt">void</span> <span class="nf">add_list</span><span class="p">(</span><span class="n">chunk</span> <span class="o">*</span><span class="n">head</span><span class="p">,</span> <span class="n">chunk</span> <span class="o">*</span><span class="n">item</span><span class="p">)</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="n">chunk</span> <span class="o">*</span><span class="n">tail</span><span class="p">;</span>
-</span><span class='line'>    <span class="n">tail</span> <span class="o">=</span> <span class="p">(</span><span class="n">chunk</span><span class="o">*</span><span class="p">)</span><span class="n">head</span><span class="o">-&gt;</span><span class="n">bk</span><span class="p">;</span>
-</span><span class='line'>    <span class="n">tail</span><span class="o">-&gt;</span><span class="n">bk</span> <span class="o">=</span> <span class="p">(</span><span class="kt">char</span><span class="o">*</span><span class="p">)</span><span class="n">item</span><span class="p">;</span>
-</span><span class='line'>    <span class="n">item</span><span class="o">-&gt;</span><span class="n">bk</span> <span class="o">=</span> <span class="p">(</span><span class="kt">char</span><span class="o">*</span><span class="p">)</span><span class="n">head</span><span class="p">;</span>
-</span><span class='line'>    <span class="n">head</span><span class="o">-&gt;</span><span class="n">bk</span> <span class="o">=</span> <span class="p">(</span><span class="kt">char</span><span class="o">*</span><span class="p">)</span><span class="n">item</span><span class="p">;</span>
-</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">head</span><span class="o">-&gt;</span><span class="n">fd</span> <span class="o">==</span> <span class="n">head</span><span class="p">)</span>
-</span><span class='line'>        <span class="n">head</span><span class="o">-&gt;</span><span class="n">fd</span> <span class="o">=</span> <span class="n">item</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'><span class="cp">#define unlink(P,BK,FD) {\</span>
-</span><span class='line'><span class="cp">    BK = P-&gt;bk; FD = P-&gt;fd; FD-&gt;bk = BK; BK-&gt;fd = FD; }</span>
-</span><span class='line'><span class="n">chunk</span> <span class="o">*</span><span class="nf">find_first_fit</span><span class="p">(</span><span class="kt">size_t</span> <span class="n">alloc_size</span><span class="p">)</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="n">chunk</span> <span class="o">*</span><span class="n">fd</span><span class="p">;</span>
-</span><span class='line'>    <span class="n">chunk</span> <span class="o">*</span><span class="n">bk</span><span class="p">;</span>
-</span><span class='line'>    <span class="n">chunk</span> <span class="o">*</span> <span class="n">thru</span><span class="p">;</span>
-</span><span class='line'>    <span class="n">thru</span> <span class="o">=</span> <span class="p">(</span><span class="n">chunk</span><span class="o">*</span><span class="p">)</span><span class="n">_free</span><span class="p">.</span><span class="n">fd</span><span class="p">;</span>
-</span><span class='line'>    <span class="k">while</span> <span class="p">(</span><span class="n">thru</span> <span class="o">!=</span> <span class="o">&amp;</span><span class="n">_free</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="n">alloc_size</span> <span class="o">&lt;=</span> <span class="n">thru</span><span class="o">-&gt;</span><span class="n">size</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>            <span class="n">unlink</span><span class="p">(</span><span class="n">thru</span><span class="p">,</span> <span class="n">bk</span><span class="p">,</span> <span class="n">fd</span><span class="p">);</span>
-</span><span class='line'>            <span class="k">return</span> <span class="n">thru</span><span class="p">;</span>
-</span><span class='line'>        <span class="p">}</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'>    <span class="k">return</span> <span class="nb">NULL</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'><span class="kt">void</span> <span class="o">*</span><span class="nf">kcmalloc</span><span class="p">(</span><span class="kt">size_t</span> <span class="n">size</span><span class="p">)</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="kt">char</span> <span class="o">*</span><span class="n">p</span><span class="p">;</span>
-</span><span class='line'>    <span class="n">chunk</span> <span class="o">*</span><span class="n">c</span><span class="p">;</span>
-</span><span class='line'>    <span class="kt">size_t</span> <span class="n">alloc_size</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">alloc_size</span> <span class="o">=</span> <span class="n">size</span> <span class="o">+</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">chunk</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="k">if</span> <span class="p">((</span><span class="n">p</span><span class="o">=</span><span class="n">find_first_fit</span><span class="p">(</span><span class="n">alloc_size</span><span class="p">))</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="n">_top</span><span class="o">+</span><span class="n">alloc_size</span> <span class="o">&gt;=</span> <span class="n">_end</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>            <span class="n">printf</span><span class="p">(</span><span class="s">&quot;kcmalloc failed.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
-</span><span class='line'>            <span class="k">return</span> <span class="nb">NULL</span><span class="p">;</span>
-</span><span class='line'>        <span class="p">}</span>
-</span><span class='line'>        <span class="n">p</span> <span class="o">=</span> <span class="n">_top</span><span class="p">;</span>
-</span><span class='line'>        <span class="n">_top</span> <span class="o">+=</span> <span class="n">alloc_size</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="n">c</span> <span class="o">=</span> <span class="p">(</span><span class="n">chunk</span><span class="o">*</span><span class="p">)</span><span class="n">p</span><span class="p">;</span>
-</span><span class='line'>        <span class="n">printf</span><span class="p">(</span><span class="s">&quot;kcmalloc: c %x</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">c</span><span class="p">);</span>
-</span><span class='line'>        <span class="n">p</span> <span class="o">+=</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">chunk</span><span class="p">);</span>
-</span><span class='line'>        <span class="n">printf</span><span class="p">(</span><span class="s">&quot;kcmalloc: p %x</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">p</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'>        <span class="n">c</span><span class="o">-&gt;</span><span class="n">in_use</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
-</span><span class='line'>        <span class="n">c</span><span class="o">-&gt;</span><span class="n">size</span> <span class="o">=</span> <span class="n">alloc_size</span><span class="p">;</span>
-</span><span class='line'>    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-</span><span class='line'>        <span class="n">c</span> <span class="o">=</span> <span class="p">(</span><span class="n">chunk</span><span class="o">*</span><span class="p">)</span><span class="n">p</span><span class="p">;</span>
-</span><span class='line'>        <span class="n">p</span> <span class="o">+=</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">chunk</span><span class="p">);</span>
-</span><span class='line'>        <span class="n">c</span><span class="o">-&gt;</span><span class="n">in_use</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'>    <span class="k">return</span> <span class="n">p</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'><span class="kt">void</span> <span class="nf">dump_list</span><span class="p">(</span><span class="n">chunk</span> <span class="o">*</span><span class="n">head</span><span class="p">)</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="n">chunk</span> <span class="o">*</span><span class="n">thru</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">thru</span> <span class="o">=</span> <span class="p">(</span><span class="n">chunk</span><span class="o">*</span><span class="p">)</span><span class="n">head</span><span class="o">-&gt;</span><span class="n">fd</span><span class="p">;</span>
-</span><span class='line'>    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;dump free_list</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
-</span><span class='line'>    <span class="k">while</span> <span class="p">(</span><span class="n">thru</span> <span class="o">!=</span> <span class="n">head</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>        <span class="n">printf</span><span class="p">(</span><span class="s">&quot;free_list -&gt; %x</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">thru</span><span class="p">);</span>
-</span><span class='line'>        <span class="n">thru</span> <span class="o">=</span> <span class="p">(</span><span class="n">chunk</span><span class="o">*</span><span class="p">)</span><span class="n">thru</span><span class="o">-&gt;</span><span class="n">bk</span><span class="p">;</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'><span class="kt">void</span> <span class="nf">kcfree</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="n">mem</span><span class="p">)</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="n">chunk</span> <span class="o">*</span><span class="n">c</span><span class="p">;</span>
-</span><span class='line'>    <span class="n">c</span> <span class="o">=</span> <span class="n">mem2chunk</span><span class="p">(</span><span class="n">mem</span><span class="p">);</span>
-</span><span class='line'>    <span class="n">c</span><span class="o">-&gt;</span><span class="n">in_use</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-</span><span class='line'>    <span class="n">add_list</span><span class="p">(</span><span class="o">&amp;</span><span class="n">_free</span><span class="p">,</span> <span class="n">c</span><span class="p">);</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'><span class="kt">void</span> <span class="nf">main</span><span class="p">()</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="kt">char</span> <span class="o">*</span><span class="n">a</span><span class="p">;</span>
-</span><span class='line'>    <span class="kt">char</span> <span class="o">*</span><span class="n">b</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">kcinit</span><span class="p">();</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">a</span> <span class="o">=</span> <span class="n">kcmalloc</span><span class="p">(</span><span class="mi">1024</span><span class="p">);</span> <span class="cm">/* &lt;- [1] */</span>
-</span><span class='line'>    <span class="n">b</span> <span class="o">=</span> <span class="n">kcmalloc</span><span class="p">(</span><span class="mi">128</span><span class="p">);</span>  <span class="cm">/* &lt;- [2] */</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">strcpy</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="s">&quot;babo&quot;</span><span class="p">);</span>
-</span><span class='line'>    <span class="n">puts</span><span class="p">(</span><span class="n">a</span><span class="p">);</span>
-</span><span class='line'>    <span class="n">strcpy</span><span class="p">(</span><span class="n">b</span><span class="p">,</span><span class="s">&quot;babo2&quot;</span><span class="p">);</span>
-</span><span class='line'>    <span class="n">puts</span><span class="p">(</span><span class="n">b</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">kcfree</span><span class="p">(</span><span class="n">a</span><span class="p">);</span>          <span class="cm">/* &lt;- [3] */</span>
-</span><span class='line'>    <span class="n">dump_list</span><span class="p">(</span><span class="o">&amp;</span><span class="n">_free</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">a</span> <span class="o">=</span> <span class="n">kcmalloc</span><span class="p">(</span><span class="mi">1000</span><span class="p">);</span> <span class="cm">/* &lt;- [4] */</span>
-</span><span class='line'>    <span class="n">puts</span><span class="p">(</span><span class="n">a</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">kcfree</span><span class="p">(</span><span class="n">b</span><span class="p">);</span>          <span class="cm">/* &lt;- [5] */</span>
-</span><span class='line'>    <span class="n">dump_list</span><span class="p">(</span><span class="o">&amp;</span><span class="n">_free</span><span class="p">);</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>이걸 실행시키면</p>
-
-<figure class='code'><figcaption><span>kcmalloc.c</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="o">%</span> <span class="p">.</span><span class="o">/</span><span class="n">m</span>
-</span><span class='line'><span class="nl">kcmalloc</span><span class="p">:</span> <span class="n">c</span> <span class="mf">7f</span><span class="mi">6000</span>
-</span><span class='line'><span class="nl">kcmalloc</span><span class="p">:</span> <span class="n">p</span> <span class="mf">7f</span><span class="mi">6020</span>
-</span><span class='line'><span class="nl">kcmalloc</span><span class="p">:</span> <span class="n">c</span> <span class="mf">7f</span><span class="mi">6420</span>
-</span><span class='line'><span class="nl">kcmalloc</span><span class="p">:</span> <span class="n">p</span> <span class="mf">7f</span><span class="mi">6440</span>
-</span><span class='line'><span class="n">babo</span>
-</span><span class='line'><span class="n">babo2</span>
-</span><span class='line'><span class="n">dump</span> <span class="n">free_list</span>
-</span><span class='line'><span class="n">free_list</span> <span class="o">-&gt;</span> <span class="mf">7f</span><span class="mi">6000</span>
-</span><span class='line'><span class="n">babo</span>
-</span><span class='line'><span class="n">dump</span> <span class="n">free_list</span>
-</span><span class='line'><span class="n">dump</span> <span class="n">free_list</span>
-</span><span class='line'><span class="n">free_list</span> <span class="o">-&gt;</span> <span class="mf">7f</span><span class="mi">6420</span>
-</span><span class='line'><span class="o">%</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p><code>[3]</code> 에서 <code>a</code> 에 alloc 되었던 chunk 가 free list 로 들어간다. 그리고 <code>[4]</code> 에서 1000 을 alloc 하면 free list 에서 가져오게 된다. chunk 가 reuse 되니까 <code>puts()</code> 에서 동일하게 <code>babo</code> 가 출력된다. free list 에서 chunk 를 떼어내면서 <code>unlink()</code> 가 들어가게 된다.</p>
-
-<p>만약 프로그램 순서가 <code>kcfree(b)</code> -> <code>kcmalloc(100)</code> 으로 가고, 그 사이에서 <code>a</code> 를 이용해 <code>b</code> 의 바운더리태그의 <code>fd</code>, <code>bk</code> 를 조작할 수 있다면 <code>kcmalloc(100)</code> 할 때 <code>unlink()</code> 에서 memory write 가 가능해진다.</p>
-
-<p>그럼 프로그램을 조금 바꿔보자.</p>
-
-<figure class='code'><figcaption><span>kcmalloc.c </span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="kt">void</span> <span class="nf">main</span><span class="p">()</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="kt">char</span> <span class="o">*</span><span class="n">a</span><span class="p">;</span>
-</span><span class='line'>    <span class="kt">char</span> <span class="o">*</span><span class="n">b</span><span class="p">;</span>
-</span><span class='line'>    <span class="kt">char</span> <span class="o">*</span><span class="n">c</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">kcinit</span><span class="p">();</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">a</span> <span class="o">=</span> <span class="n">kcmalloc</span><span class="p">(</span><span class="mi">1024</span><span class="p">);</span> <span class="cm">/* &lt;- [1] */</span>
-</span><span class='line'>    <span class="n">b</span> <span class="o">=</span> <span class="n">kcmalloc</span><span class="p">(</span><span class="mi">128</span><span class="p">);</span>  <span class="cm">/* &lt;- [2] */</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">strcpy</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="s">&quot;babo&quot;</span><span class="p">);</span>
-</span><span class='line'>    <span class="n">puts</span><span class="p">(</span><span class="n">a</span><span class="p">);</span>
-</span><span class='line'>    <span class="n">strcpy</span><span class="p">(</span><span class="n">b</span><span class="p">,</span><span class="s">&quot;babo2&quot;</span><span class="p">);</span>
-</span><span class='line'>    <span class="n">puts</span><span class="p">(</span><span class="n">b</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">kcfree</span><span class="p">(</span><span class="n">b</span><span class="p">);</span>          <span class="cm">/* &lt;- [3] */</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">memset</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="mh">0xff</span><span class="p">,</span><span class="mi">512</span><span class="o">+</span><span class="mi">32</span><span class="p">);</span>  <span class="cm">/* &lt;- [6] */</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">a</span> <span class="o">=</span> <span class="n">kcmalloc</span><span class="p">(</span><span class="mi">1000</span><span class="p">);</span> <span class="cm">/* &lt;- [4] */</span>
-</span><span class='line'>    <span class="n">puts</span><span class="p">(</span><span class="n">a</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">kcfree</span><span class="p">(</span><span class="n">b</span><span class="p">);</span>          <span class="cm">/* &lt;- [5] */</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>이제 a 뒤에 위치한 b 를 free 해서 b 를 linked list 에 집어 넣는다[3]. 그래야 unlink() 로 떼어낼 수 있을테니. 그리고 a 에 alloc 된 메모리를 쭈욱 밀어서 b 앞에 위치한 boundary tag 를 오염시킨다[6]. 그리고 kcmalloc() 에 들어간다[4]. free chunk 에서 알맞은 청크를 찾았다. 그래서 list 에서 unlink() 로 떼어날때 메모리 에러가 난다.</p>
-
-<figure class='code'><figcaption><span>kcmalloc.c </span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="o">%</span> <span class="p">.</span><span class="o">/</span><span class="n">m</span>
-</span><span class='line'><span class="nl">kcmalloc</span><span class="p">:</span> <span class="n">c</span> <span class="mi">1</span><span class="n">d00000</span>
-</span><span class='line'><span class="nl">kcmalloc</span><span class="p">:</span> <span class="n">p</span> <span class="mi">1</span><span class="n">d00020</span>
-</span><span class='line'><span class="nl">kcmalloc</span><span class="p">:</span> <span class="n">c</span> <span class="mi">1</span><span class="n">d00220</span>
-</span><span class='line'><span class="nl">kcmalloc</span><span class="p">:</span> <span class="n">p</span> <span class="mi">1</span><span class="n">d00240</span>
-</span><span class='line'><span class="n">babo</span>
-</span><span class='line'><span class="n">babo2</span>
-</span><span class='line'><span class="n">Segmentation</span> <span class="n">fault</span> <span class="p">(</span><span class="n">core</span> <span class="n">dumped</span><span class="p">)</span>
-</span><span class='line'><span class="o">%</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>이런식으로 memory write 를 하는 것이 heap overflow 의 기초.</p>
-
-<figure class='code'><figcaption><span>unlink()</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="cp">#define unlink(P,BK,FD) {\</span>
-</span><span class='line'><span class="cp">    BK = P-&gt;bk; \</span>
-</span><span class='line'><span class="cp">    FD = P-&gt;fd; \</span>
-</span><span class='line'><span class="cp">    FD-&gt;bk = BK; \</span>
-</span><span class='line'><span class="cp">    BK-&gt;fd = FD; \</span>
-</span><span class='line'><span class="cp">    }</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>이제 본격적으로 dlmalloc 을 뒤져봐야겠다.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/9">&larr; Older</a>
@@ -2409,6 +2019,10 @@ kernel memory, when exploiting custom vulnerabilities.</p>
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/05/03/security-analysis-of-emerging-smart-home-applications/">Security Analysis of Emerging Smart Home Applications</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/04/26/rsa-sample-number/">RSA Sample Number</a>
       </li>
     
@@ -2422,10 +2036,6 @@ kernel memory, when exploiting custom vulnerabilities.</p>
     
       <li class="post">
         <a href="/blog/2016/02/25/mnist-for-ml-beginners/">MNIST for ML Beginners</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/02/16/plaid-ctf-2015-one-null-byte/">Plaid CTF 2015 - One NULL Byte</a>
       </li>
     
   </ul>

