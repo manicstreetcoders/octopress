@@ -4,7 +4,7 @@
   <title><![CDATA[KC's blog]]></title>
   <link href="http://zomo.heroku.com/atom.xml" rel="self"/>
   <link href="http://zomo.heroku.com/"/>
-  <updated>2016-06-13T17:42:41+09:00</updated>
+  <updated>2016-06-13T18:11:10+09:00</updated>
   <id>http://zomo.heroku.com/</id>
   <author>
     <name><![CDATA[KC]]></name>
@@ -33,12 +33,48 @@
 
 
 <ul>
-<li>이제 <code>uint64_t* b_size_ptr = (uint64_t*)(b-8);</code> 을 통해서, <code>struct malloc_chunk</code> 구조체 멤버인 <code>INTERNAL_SIZE_T size;</code> 를 가리키는 포인터를 만든다.</li>
-<li>이 구조체를 이용해 b.size 를 찍어볼 수가 있는데,</li>
+<li><p>이제 <code>uint64_t* b_size_ptr = (uint64_t*)(b-8);</code> 을 통해서, <code>struct malloc_chunk</code> 구조체 멤버인 <code>INTERNAL_SIZE_T size;</code> 를 가리키는 포인터를 만든다.</p></li>
+<li><p>이 구조체를 이용해 b.size 를 찍어볼 수가 있는데,</p></li>
 <li><p>0x211 로 나온다. <code>(0x200 + 0x10) | prev_in_use</code> 가 되는 것.</p></li>
 <li><p>이제 <code>a[real_a_size] = 0;</code>  을 통해서, b.size 의 하위 1 바이트를 0 으로 만든다.</p></li>
-<li>b.size 를 찍어보면 이제 0x210 으로 나온다.</li>
+<li><p>b.size 를 찍어보면 이제 0x210 으로 나온다.</p></li>
+<li><p>이제 c.prev_size 를 찍어본다. b 를 free 했기때문에, 유효한 필드가 되버렸다. 찍으면 0x210 이 나온다.</p></li>
+<li><p>이제 <code>b1 = malloc(0x100);</code> 을 한다. 그러면 예전 b 자리에 할당될 것이다.</p></li>
 </ul>
+
+
+<p>만약 <code>a[real_a_size] = 0;</code> 을 안했다면, 다음과 같이 c.prev 가 제대로 update 되는데&hellip; (0x200 으로 앨록한 자리에 0x100 을 앨록했으니, c 앞에 free chunk 가 존재)</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>~ » ./a.out                                                              z@ubuntu
+</span><span class='line'>a: 0x1466010
+</span><span class='line'>real_a_size: 0x108
+</span><span class='line'>b: 0x1466120
+</span><span class='line'>real_b_size: 0x208
+</span><span class='line'>c: 0x1466330
+</span><span class='line'>addr of b_size_ptr: 0x1466118
+</span><span class='line'>b.size after free: 0x211
+</span><span class='line'>b.size is (0x200+0x10) | prev_in_use
+</span><span class='line'>addr of c_prev_size_ptr: 0x1466320
+</span><span class='line'>c.prev_size is 0x210
+</span><span class='line'>b1: 0x1466120
+</span><span class='line'>c.prev_size is 0x100
+</span><span class='line'>c' 0x100
+</span><span class='line'>c'' 0</span></code></pre></td></tr></table></div></figure>
 
 ]]></content>
   </entry>
