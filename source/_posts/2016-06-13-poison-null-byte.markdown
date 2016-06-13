@@ -51,3 +51,23 @@ c.prev_size is 0x100
 c' 0x100
 c'' 0
 ```
+
+`a[real_a_size] = 0;`... 즉 앞의 청크에서 NULL 바이트 오버플로우가 일어났다면... (`c'` 는 c - 16, c''` 는 c - 32)
+
+```
+~ » ./a.out                                                              z@ubuntu
+a: 0x1466010
+real_a_size: 0x108
+b: 0x1466120
+real_b_size: 0x208
+c: 0x1466330
+addr of b_size_ptr: 0x1466118
+b.size after free: 0x211
+b.size is (0x200+0x10) | prev_in_use
+addr of c_prev_size_ptr: 0x1466320
+c.prev_size is 0x210
+b1: 0x1466120
+c.prev_size is 0x100
+c' 0x100
+c'' 0xf0
+```

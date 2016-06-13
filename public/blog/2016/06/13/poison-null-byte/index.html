@@ -142,6 +142,40 @@
 </span><span class='line'>c' 0x100
 </span><span class='line'>c'' 0</span></code></pre></td></tr></table></div></figure>
 
+
+<p><code>a[real_a_size] = 0;</code>&hellip; 즉 앞의 청크에서 NULL 바이트 오버플로우가 일어났다면&hellip; (<code>c'</code> 는 c - 16, c'&lsquo;` 는 c - 32)</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>~ » ./a.out                                                              z@ubuntu
+</span><span class='line'>a: 0x1466010
+</span><span class='line'>real_a_size: 0x108
+</span><span class='line'>b: 0x1466120
+</span><span class='line'>real_b_size: 0x208
+</span><span class='line'>c: 0x1466330
+</span><span class='line'>addr of b_size_ptr: 0x1466118
+</span><span class='line'>b.size after free: 0x211
+</span><span class='line'>b.size is (0x200+0x10) | prev_in_use
+</span><span class='line'>addr of c_prev_size_ptr: 0x1466320
+</span><span class='line'>c.prev_size is 0x210
+</span><span class='line'>b1: 0x1466120
+</span><span class='line'>c.prev_size is 0x100
+</span><span class='line'>c' 0x100
+</span><span class='line'>c'' 0xf0</span></code></pre></td></tr></table></div></figure>
+
 </div>
 
 
