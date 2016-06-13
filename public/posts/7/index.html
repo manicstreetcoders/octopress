@@ -9,8 +9,8 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="
-">
+  <meta name="description" content="Explicit HTTP Explicity proxy 로 설정하는 것이 제일 안정적. Client 는 proxy 에게 다음과 같은 proxy protocol 을 돌린다. RFC 2068. 1
+GET http://www.naver.com/index.html HTTP/1 &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -66,6 +66,59 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/06/10/mitmproxy/">Mitmproxy</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-06-10T14:47:29+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>10</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>2:47 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h3>Explicit HTTP</h3>
+
+<p>Explicity proxy 로 설정하는 것이 제일 안정적.</p>
+
+<p>Client 는 proxy 에게 다음과 같은 proxy protocol 을 돌린다. RFC 2068.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>GET http://www.naver.com/index.html HTTP/1.1</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Explicit HTTPS</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>CONNECT example.com:443 HTTP/1.1</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Server 인증서를 위조해야하기때문에, mitmproxy 를 디바이스에다가 trusted CA certificate 으로 등록해야한다.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>CONNECT 10.1.1.1:443 HTTP/1.1</span></code></pre></td></tr></table></div></figure>
+
+
+<p>와 같이 숫자로 오는 경우도 있기때문에, <code>upstream certificate sniffing</code> 을 수행한다.
+Client 로부터 <code>CONNECT</code> 를 받으면, 진짜 서버에 접속해서 SSL 핸드쉐이크를 돌려서, 서버의 인증서를 가져온다.
+여기서 CN 을 추출해, 이 CN 과 동일한 가짜 인증서를 만들고, mitmproxy CA 인증서로 서명한다.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -971,209 +1024,6 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/05/25/rooting-methods/">Rooting Methods</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2015-05-25T22:20:02+09:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>25</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>10:20 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><h3>HackingTeam 이 사용하는 exploits</h3>
-
-<ul>
-<li>framaroot</li>
-<li><a href="https://github.com/android-rooting-tools">towelroot</a></li>
-<li><a href="https://github.com/fi01/libput_user_exploit/blob/master/put_user.c">putuser</a></li>
-</ul>
-
-
-<h3>Gingerbreak</h3>
-
-<p>The vulnerability exploited by Gingerbreak exists in the Volume Manager (vold) on Android version 2.2 (Froyo) - and 3.0 (Honeycomb). Vold manages the mounting of external storage volumes on Android. The vulnerability was an out-of-bounds array access that allowed the exploit author to overwrite entries in the Global Offset Table (GOT) to trick the system into executing a copy of the sh binary as root.</p>
-
-<p><a href="http://c-skills.blogspot.com/2011/04/yummy-yummy-gingerbreak.html">here</a></p>
-
-<h3>Exynos Abuse - Exploiting Custom Drivers</h3>
-
-<p><a href="http://forum.xda-developers.com/showthread.php?t=2048511">here</a></p>
-
-<p>The post detailed that a block device located at /dev/exynos-mem allowed the mapping of kernel memory into user space by any user. The exploitation technique used was to patch a comparison made in the <code>setresuid()</code> function. This comparison is normally <code>cmp r0,#0</code> and was altered to <code>cmp r0,#1</code> as a result of having complete access to the memory space, which meant that when sysresuid(0) was called later on the code, access was granted to change to root context. This exploit also elegantly bypassed the <code>kptr_restrict</code> memory protection, which does not allow applications to read <code>/proc/kallsyms</code> and obtain kernel pointers. It did so by changing the enforcing flag of this check in live memory.</p>
-
-<h3>Samsung Admire - Abusing File Permissions with Symlinks</h3>
-
-<p>Permissive file permissions on files used by the system on Android devices can sometimes be used to obtain root. This method may sound obscure but consider the following classic example from Dan Rosenberg in his exploit for the Samsung Admire: <a href="http://vulnfactory.org/blog/2011/09/12/rooting-the-samsung-admire/">here</a></p>
-
-<p>He discovered that when an application crashes, a dump file was created at <code>/data/log/dumpState_app_native.log</code> on the filesystem by root with the world-writable file permission. In addition, the <code>/data/log</code> parent directory was also world-writable. Therefore, placing a symbolic link named <code>dumpState_app_native.log</code> in this directory and causing an application to crash would cause a file to be written somewhere else on the filesystem as world-writable. There existed a file in older versions of Android at <code>/data/local.prop</code>, which was used to (among other things) determine what privilege level ADB should run under. This file was not present on this device and so Dan exploited this vulnerability to create the <code>/data/local/prop</code> file as wrold-writable and then insert a command in this file stating that ADB should run as root. This attribute is <code>ro.kernel.qemu=1</code> on this particular device. From there the exploit uses ADB as root, place the su binary, and installs the root manager application.</p>
-
-<h3>Acer Iconia - Exploiting SUID binaries</h3>
-
-<p>A SUID binary that is owned by root and world-executable is very high-value target for root exploit developers. If they discover any vulnerabilities in this binary that allow the execution of arbitary code, they will have gained root access on the device.
-This particular issue was discovered by an XDA Developers user named sc2k on the Acer Iconia A1000, which had a pre-installed SUID binary named cmdclient that was vulnerable to command injection. See the original post at <a href="http://forum.xda-developers.com/showthread.php?t=1138228">here</a>.</p>
-
-<h3>Master Key Bugs - Exploiting Android AOSP System Code</h3>
-
-<p><a href="http://www.saurik.com/id/17">here</a>
-<a href="http://www.cydiaimpactor.com">Cydia Impactor</a></p>
-
-<h3>TowelRoot</h3>
-
-<p><a href="http://www.all-things-android.com/content/android-and-linux-kernel-towelroot-exploit">here</a></p>
-
-<h3>Wunderbar/asroot</h3>
-
-<p>This bug was discovered by Tavis Ormandy and Julien Tinnes of the Google Security Team and was assigned CVE-2009-2692.</p>
-
-<p>The Linux kernel 2.6.0 through 2.6.30.4 and 2.4.4 through 2.4.37.4, does not initialize all function pointers for socket operations in proto_ops structures, which allows local users to trigger a NULL pointer dereference and gain privileges by using mmap to map page zero, placing arbitrary code on this page, and then invoking an unavailable operation, as demonstrated by the sendpage operation (sock_sendpage function) on a PF_PPPOX socket.</p>
-
-<p><a href="http://www.zenthought.org/content/file/android-root-2009-08-16-source">here</a></p>
-
-<h3>Recovery: Volez</h3>
-
-<p>A typographical error in the signature verifier used in Android 2.0 and 2.0.1 recovery images caused the recovery to incorrectly detect the End of Central Directory (EOCD) record inside a signed update.zip file. This issue resulted in the ability to modify the contents of a signed OTA recovery image.</p>
-
-<p><a href="http://zenthought.org/content/project/volez">here</a></p>
-
-<h3>Udev: Exploid</h3>
-
-<ul>
-<li>CVE-2009-1185</li>
-</ul>
-
-
-<h3>Adbd: RageAgainstTheCage</h3>
-
-<p><a href="http://stealth.openwall.net/xSports/RageAgainstTheCage.tgz">here</a></p>
-
-<h3>Zygote: Zimperlich and Zyysploit</h3>
-
-<p><a href="http://c-skills.blogspot.com.es/2011/02/zimperlich-sources.html">here</a>
-<a href="https://github.com/unrevoked/zysploit">here</a></p>
-
-<h3>Ashmem: KillingTheNameOf and psneuter</h3>
-
-<p><a href="http://c-skills.blogspot.com/2011/01/adb-trickery-again.html">here</a>
-<a href="https://github.com/tmzt/g2root-kmod/tree/scotty2/scotty2/psneuter">here</a></p>
-
-<h3>PowerVR: Ievitator</h3>
-
-<p><a href="http://jon.oberheide.org/files/levitator.c">here</a></p>
-
-<h3>Libsysutils: zergRush</h3>
-
-<p><a href="https://github.com/revolutionary/zergRush">here</a></p>
-
-<h3>Kernel: mempodroid</h3>
-
-<p>[here](<a href="https://github.com/saurik/mempoj">https://github.com/saurik/mempoj</a></p>
-
-<h3>File Permission and Symbolic Link-Related Attacks</h3>
-
-<p><a href="http://vulnfactory.org/blog/">here</a></p>
-
-<p>Initial versions of Android 4.0 had a bug in the init functions for do_chmod, mkdir, and do_chown
-that applied the ownership and file permissions specified even if the last element of their target
-path was a symbolic link. Some Android devices have the following line in their init.rc script.</p>
-
-<p><code>mkdir /data/local/tmp 0771 shell shell</code></p>
-
-<p>As you can guess now, if the /data/local folder is writeable by the user or group shell, you can
-exploit this flaw to make the /data folder writeable by replacing /data/local/tmp with a symbolic
-link to /data and rebooting the device. After rebooting, you can create or modify the /data/local.prop
-file to set the property <code>ro.kernel.qemu</code> to 1.</p>
-
-<p>The commands to exploit this flaw are as follows:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>adb shell rm -r /data/local/tmp
-</span><span class='line'>adb shell ln -s /data/ /data/local/tmp
-</span><span class='line'>adb reboot
-</span><span class='line'>adb shell "echo 'ro.kernel.qemu=1' &gt; /data/local.prop"
-</span><span class='line'>adb reboot</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Another popular variant of this vulnerability links /data/local/tmp to the system partition and then
-uses debugfs to write the su binary and make it set-uid root. For example, the ASUS Transformer Prime
-running Android 4.0.3 is vulnerable to this variant.</p>
-
-<p>The init scripts in Android 4.2 apply <code>O_NOFOLLOW</code> semantics to prevent this calss of symbolic link attacks.</p>
-
-<h3>Adb Restore Race Condition</h3>
-
-<p>Android 4.0 introduced the ability to do full device backups through the adb backup command.
-This command backs up all data and applications into the file backup.ab, which is a compressed
-TAR file with a prepended header. The <code>adb restore</code> command is used to restore the data.</p>
-
-<p>There were two security issues in the initial implementation of the restore process that were
-fixed in Android 4.1.1. The first issue allowed creating files and directories accessible by other
-applications. The second issue allowed restoring file sets from packages that run under a special UID,
-such as system, without a special backup agent to handle the restore process.</p>
-
-<p>To exploit these issues, Andreas Makris (Bin4ry) created a specially crafted backup file with a world
-readble/writeable/executable directory containing 100 files with the content <code>ro.kernel.qemu=1</code> and
-<code>ro.secure=0</code> inside it. When the contents of this file are written to <code>/data/local.prop</code>, it makes
-<code>adbd</code> run with root privieges on boot.</p>
-
-<p><a href="http://forum.xda-developers.com/showthread.php?t=1886460">here</a></p>
-
-<p>The following one-liner, if executed while the <code>adb restore</code> command is running, causes a race between
-the restore process in the backup manager service and the while loop run by the <code>shell</code> user:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>adb shell "while ! ln -s /data/local.prop /data/data/com.android.settings/a/file99; do :; done"</span></code></pre></td></tr></table></div></figure>
-
-
-<p>If the loop creates the symbolic link in file99 before the restore process restores it, the restore
-process follows the symbolic link and writes the read-only system properties to /data/local.prop, making
-adbd run as root in the next reboot.</p>
-
-<h3>Exynos4: exynos-abuse</h3>
-
-<ul>
-<li><a href="http://forum.xda-developers.com/showthread.php?t=2048511">here</a></li>
-<li><a href="http://blog.azimuthsecurity.com/2013/02/revisiting-exynos-memory-mapping-bug.html">Framaroot</a></li>
-</ul>
-
-
-<h3>Diag: lit / diaggetroot</h3>
-
-<p>This vulnerability was discovered by giantpune and was assigned CVE identifier CVE-2012-4220:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>diagchar_core.c in the Qualcomm Innovation Center (QuIC) Diagnostics (aka DIAG) kernel-mode driver
-</span><span class='line'>for Android 2.3 through 4.2 allows attackers to execute arbitrary code or cause a 
-</span><span class='line'>denial of service (incorrect pointer dereference) via an application that uses crafted arguments in a
-</span><span class='line'>local diagchar_ioctl call.</span></code></pre></td></tr></table></div></figure>
-
-
-<p><a href="https://docs.google.com/file/d/oB8LDObFOpzZqQzducmxjRExXNnM/edit?pli=1">here</a></p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/8">&larr; Older</a>
@@ -1191,6 +1041,10 @@ adbd run as root in the next reboot.</p>
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/06/13/poison-null-byte/">Poison NULL Byte</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/06/13/control-flow-enforcement-technology-preview/">Control-flow Enforcement Technology Preview</a>
       </li>
     
@@ -1204,10 +1058,6 @@ adbd run as root in the next reboot.</p>
     
       <li class="post">
         <a href="/blog/2016/04/26/rsa-sample-number/">RSA Sample Number</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/03/25/bleichenbacher/">Bleichenbacher</a>
       </li>
     
   </ul>

