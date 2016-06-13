@@ -146,7 +146,7 @@
 </span><span class='line'>c'' 0</span></code></pre></td></tr></table></div></figure>
 
 
-<p><code>a[real_a_size] = 0;</code>&hellip; 즉 앞의 청크에서 NULL 바이트 오버플로우가 일어났다면&hellip; (<code>c'</code> 는 c - 16, c'&lsquo;` 는 c - 32)</p>
+<p><code>a[real_a_size] = 0;</code>&hellip; 즉 앞의 청크에서 NULL 바이트 오버플로우가 일어났다면&hellip; 그래서 b.size 의 하위 1 바이트를 0 으로 만들었다면 무슨 일이 벌어지는가? (<code>c'</code> 는 <code>c - 16</code>, <code>c''</code> 는 <code>c - 32</code>)</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -175,10 +175,14 @@
 </span><span class='line'>addr of c_prev_size_ptr: 0x1466320
 </span><span class='line'>c.prev_size is 0x210
 </span><span class='line'>b1: 0x1466120
-</span><span class='line'>c.prev_size is 0x100
-</span><span class='line'>c' 0x100
+</span><span class='line'>c.prev_size is 0x210
+</span><span class='line'>c' 0x210
 </span><span class='line'>c'' 0xf0</span></code></pre></td></tr></table></div></figure>
 
+
+<p>c.prev_size 가 제대로 update 되지 않는다. 0x210 -> 0x100 으로 줄어야하는데. 대신 엉뚱한데 0f0 이 써졌다.</p>
+
+<p>정리하면, <code>a|b|c</code> 가 앨록된 상황에서, b 가 프리되고, a 가 overflow 되면서 b.size 의 1 바이트가 0 으로 바뀌었다. 그랬더니, 추후 앨록을 하니까 c 의 메타데이터가 연쇄반응으로 깨져버렸다.</p>
 </div>
   
   

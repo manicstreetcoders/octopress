@@ -52,7 +52,7 @@ c' 0x100
 c'' 0
 ```
 
-`a[real_a_size] = 0;`... 즉 앞의 청크에서 NULL 바이트 오버플로우가 일어났다면... (`c'` 는 c - 16, c''` 는 c - 32)
+`a[real_a_size] = 0;`... 즉 앞의 청크에서 NULL 바이트 오버플로우가 일어났다면... 그래서 b.size 의 하위 1 바이트를 0 으로 만들었다면 무슨 일이 벌어지는가? (`c'` 는 `c - 16`, `c''` 는 `c - 32`)
 
 ```
 ~ » ./a.out                                                              z@ubuntu
@@ -67,7 +67,11 @@ b.size is (0x200+0x10) | prev_in_use
 addr of c_prev_size_ptr: 0x1466320
 c.prev_size is 0x210
 b1: 0x1466120
-c.prev_size is 0x100
-c' 0x100
+c.prev_size is 0x210
+c' 0x210
 c'' 0xf0
 ```
+
+c.prev_size 가 제대로 update 되지 않는다. 0x210 -> 0x100 으로 줄어야하는데. 대신 엉뚱한데 0f0 이 써졌다.
+
+정리하면, `a|b|c` 가 앨록된 상황에서, b 가 프리되고, a 가 overflow 되면서 b.size 의 1 바이트가 0 으로 바뀌었다. 그랬더니, 추후 앨록을 하니까 c 의 메타데이터가 연쇄반응으로 깨져버렸다.
