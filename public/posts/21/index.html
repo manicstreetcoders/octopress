@@ -9,13 +9,7 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="tmux 와 vimrc 에 몇가지를 추가했는데. tmux pane 을 vi key 로 옮겨다니기 위해서 unbind j
-unbind k
-unbind h
-unbind l
-bind j select-pane -D
-bind k select-pane -U
-bind h &hellip;">
+  <meta name="description" content="ANTLR 의 개발자 T.P. 가 Pragmatic 에서 책을 두 권 출판했다. 처음 예제는 List Parser 를 만드는 것. 리스트라 함은. [ a,b,c] 나 [a, [x,y,z], b, c] 같은 것들. Token Token 을 보관하는 데이터 구조. &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -71,6 +65,429 @@ bind h &hellip;">
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/06/23/antlr-and-language-implementation-patterns/">ANTLR &amp; Language Implementation Patterns</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-06-23T11:26:00+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>23</span><span class='date-suffix'>rd</span>, <span class='date-year'>2013</span></span> <span class='time'>11:26 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>ANTLR 의 개발자 T.P. 가 Pragmatic 에서 책을 두 권 출판했다.</p>
+
+<p>처음 예제는 List Parser 를 만드는 것.</p>
+
+<p>리스트라 함은.</p>
+
+<p>[ a,b,c] 나 [a, [x,y,z], b, c]</p>
+
+<p>같은 것들.</p>
+
+<h3>Token</h3>
+
+<p>Token 을 보관하는 데이터 구조.</p>
+
+<p>Type 과 Text 로 이루어져있고,</p>
+
+<p>Type 으로는</p>
+
+<pre><code>T_EOF
+T_NAME
+T_COMMA
+T_LBRACK
+T_RBRACK
+</code></pre>
+
+<p>등이 있다.</p>
+
+<p>Text 에는 &ldquo;<EOF>&rdquo;, &ldquo;NAME&rdquo;, &ldquo;COMMA&rdquo;, &ldquo;LBRACK&rdquo;, &ldquo;RBRACK&rdquo; 등이.</p>
+
+<p>Token class 의 method 로는,</p>
+
+<p>new_token / print_token 정도.</p>
+
+<h3>LL(1) Parser</h3>
+
+<p>기본적인 사상은,</p>
+
+<p>lookahead 오퍼레이션과 consume 을 분리하는 것.</p>
+
+<p>LL(1) Parser 에서는 말장난같지만, LL(k) Parser 로 가면 개념이 명료해짐.</p>
+
+<p>기본적인 함수는 nextToken() - 버퍼를 tokenize 하는 함수.</p>
+
+<p>whitespace 는 consume 해버린다.</p>
+
+<p>&lsquo;,&rsquo;, &lsquo;[&rsquo;, &lsquo;]&rsquo; 을 만나면, consume 하고, 새로운 토큰을</p>
+
+<pre><code>new_token(T_LBRACK, "[") 
+new_token(T_RBRACK, "]") 
+new_token(T_COMMA, ",") 
+</code></pre>
+
+<p>등으로 만들어 리턴.</p>
+
+<p>Character buffer 를 tokenizing 해서 token stream 으로 변환.</p>
+
+<h3>LL(k) Parser</h3>
+
+<p>LL(k) Parser 는 lookahead 를 몇 개 앞의 토큰까지 보고 판단하느냐가 핵심.</p>
+
+<p>1 개의 lookahead 만 가지고 파싱을 진행할 수 있는 문법이 있는가하면,</p>
+
+<p>불가능한 문법도 있기 때문에, LL(k) Parser 가 필요.</p>
+
+<p>LL(1) 에서는 lookahead 토큰 하나만 가지고 했다면, LL(4) 에서는 4 개의 lookahead 토큰을 가지고 파싱 작업을 수행하게 된다.</p>
+
+<p>LIST 를 그래머로 기술하면,</p>
+
+<pre><code>list : '[' elements ']' ;
+elements : element (',' element)* ;
+element : NAME | list
+
+[ a, b, c ] 
+[ a, [ x, y, z ], b ] 
+</code></pre>
+
+<p>등을 기술할 수 있다.</p>
+
+<p>위의 그래머는 다음 코드로 변환된다.</p>
+
+<pre><code>list() { match(T_LBRACK); elements(); match(T_RBRACK); }
+elements() { element(); if (lookahead.type == T_COMMA) { match(T_COMMA); elements(); } }
+element() { 
+  if (lookahead.type == T_NAME) match(T_NAME);
+  else if (lookahead.type == T_LBRACK) list();
+  else throw new Error("unexpeced: " + lookahead.type);
+}
+</code></pre>
+
+<p>결국 해보니, 위의 그래머는 lookahead 하나만 가지고 구현 가능하다. LL(1).</p>
+
+<p>그럼 LL(2) 파서가 필요한 그래머를 만들어본다.</p>
+
+<pre><code>list : '[' elements ']' ;
+elements : element (',' element)* ;
+element : NAME '=' NAME | NAME | list ;
+</code></pre>
+
+<p><code>NAME = NAME</code> 과 <code>NAME</code> 이 동일한 <code>NAME</code> 으로 시작하기때문에, one lookahead 만으로는
+파싱이 불가능하다. two lookaheads 를 유지하도록 한다.</p>
+
+<p>Circular Lookahead Buffer 를 만들어 관리.</p>
+
+<p>[a,b,c] 를 LL(4) 에서 예제.</p>
+
+<pre><code>lookahead[0] '[' &lt;-- bp
+lookahead[1] 'a'
+lookahead[2] ','
+lookahead[3] 'b'
+</code></pre>
+
+<p>가 초기 상태. 4 개의 lookahead 를 가지게 된다.</p>
+
+<p>초기 lookahead 버퍼를 셋업하는 방법은,</p>
+
+<pre><code>lookahead[bp] = lexer.getToken();
+bp = (bp+1) % k;
+</code></pre>
+
+<p>를 k 번 만큼하면, <code>lookahead[0]</code> ~  <code>lookahead[k-1]</code> 까지의 버퍼가 토큰으로 채워지고, bp 는 0 으로 돌아와서, 처음을 가리키게 된다.
+버퍼도 채우고, 맨 처음도 가리키고.</p>
+
+<p>consume 을 한번 하면.</p>
+
+<pre><code>lookahead[0] ','
+lookahead[1] 'a' &lt;-- bp
+lookahead[2] ','
+lookahead[3] 'b'
+</code></pre>
+
+<p>첫 &lsquo;[&rsquo; 는 discard 되고, base pointer 가 전진했으며, 4 개의 lookahead 를 maintain 하기 위해, 새로운 &lsquo;,&rsquo; 가 들어왔다.</p>
+
+<pre><code>lookahead = new Token[4];
+for (i=0;i&lt;4;i++) lookahead[i] = lexer.nextToken();
+bp = 0;
+</code></pre>
+
+<p>하면 초기 CLB 셋업이 끝난다.</p>
+
+<pre><code>consume() { lookahead[bp] = lexer.nextToken(); bp = (bp + 1) % 4; }
+</code></pre>
+
+<p>를 하면 자연스럽게 가장 오래된 것을 버리고, 새로운 토큰을 맨 뒤에 넣고, base pointer 는 circular buffer 의 처음을 가리키게 된다.</p>
+
+<pre><code>LT(i) { return lookahead[bp + i - 1]; }
+</code></pre>
+
+<p>하면 1 번째, 2 번째 등등의 lookahead 를 할 수 있게 된다.</p>
+
+<pre><code>"To visualize parsing decisions, imagine a maze with a single entrance and a
+single exit that has words written on the floor. Every sequence of words along
+a path from entrance to exit represents a sentence. The structure of the maze
+is analogous to the rules in a grammar that define a language. To test a sentence
+for membership in a language, we compare the sentence's words with
+the words along the floor as we traverse the maze. If we can get to the exit by
+following the sentence's words, that sentence is valid."
+</code></pre>
+
+<h3>JSON Grammar</h3>
+
+<p>예제삼아 JSON 을 ANTLR 그래머로 기술해본다.</p>
+
+<pre><code>object
+    : '{' pair (',' pair)* '}'
+    | '{' '}'
+    ;
+
+array
+    : '[' value (',' value)* ']'
+    | '[' ']'
+    ;
+
+value
+    : STRING
+    | NUMBER
+    | object
+    | array
+    | 'true'
+    | 'false'
+    | 'null'
+    ;
+</code></pre>
+
+<h3>Building AST</h3>
+
+<p>ANTLR 를 사용하지 않고, 손으로 AST 를 만들어보았다.</p>
+
+<p>AST 는 Homogeneous AST / Normalized Heterogeneous AST / Irregular Heterogeneous AST 정도로
+나눌 수 있는데, 간단한 Homogeneous AST 를 만들어 보았다.</p>
+
+<p>Recursive 하게 decent 하는 파서의 특성을 활용하면, <code>AST.addChild(parent, int astType, Token token)</code>
+정도의 콜을 적절히 달아주는 것으로 트리 빌딩이 가능하다.</p>
+
+<pre><code>public class AST {
+    Token token;
+    List&lt;AST&gt; children;
+    public AST(Token token) { this.token = token; }
+    public void addChild(AST t) { 
+        if (children == null) children = new ArrayList&lt;AST&gt;();
+        children.add(t);
+    }
+}
+</code></pre>
+
+<p>일단 하나의 클래스로 모든 노드를 담는다.
+하나의 타입만 있으니까, children 을 <code>List&lt;AST&gt; children</code> 으로 관리할 수 있다.
+AST 를 만들기 위해, 3 lookaheads 를 사용하였다.</p>
+
+<pre><code>$ java Test '[1,x=2,[3,4]]'
+match LBRACK
+match NAME
+match COMMA
+match NAME
+match EQUALS
+match NAME
+match COMMA
+match LBRACK
+match NAME
+match COMMA
+match NAME
+match RBRACK
+match RBRACK
+AST Type: AST_ROOT
+    AST Type: AST_LIST
+        AST Type: AST_NAME
+            Token: NAME : 1
+        AST Type: AST_ASSIGN
+            AST Type: AST_IDENTIFIER
+                Token: NAME : x
+            AST Type: AST_VALUE
+                Token: NAME : 2
+        AST Type: AST_LIST
+            AST Type: AST_NAME
+                Token: NAME : 3
+            AST Type: AST_NAME
+                Token: NAME : 4
+</code></pre>
+
+<h3>Building AST with ANTLR</h3>
+
+<p>벡터 계산에 관한 문법을 만들고, ANTLR 를 가지고 AST 를 build 한다.</p>
+
+<pre><code>x = 1+2
+y = 1*2+3
+z = [1,2] + [3,4]
+a = [1,2] . [3,4]
+b = 3 * [1,2]
+print x+2
+
+statline : stat+ ;
+stat: ID '=' expr | 'print' expr ;
+expr: multExpr ('+' multExpr)* ; // E.g., "3*4 + 9"
+multExpr: primary (('*'|'.') primary)* ;
+primary : INT | ID | '[' expr (',' expr)* ']'
+</code></pre>
+
+<p>우선 <code>output=AST;</code> 로 AST 를 빌드 모드로.</p>
+
+<pre><code>grammar VecMathAST;
+options {output=AST;}
+tokens {VEC;}
+</code></pre>
+
+<p>그리고 기존 문법에 AST rewrite 를 위한 규칙을 추가한다. 예를 들어</p>
+
+<pre><code>statlist : stat+ ;
+stat: ID '=' expr
+</code></pre>
+
+<p>같은 경우 <code>stat: ID '=' expr</code> 에 AST rewrite 규칙을 추가한다.</p>
+
+<pre><code>statlist : stat+ ;
+stat: ID '=' expr -&gt; ^('=' ID expr)
+</code></pre>
+
+<p><code>^('=' ID expr)</code> 은, <code>'='</code> 가 subtree 의 root 고, <code>ID</code>, <code>expr</code> 가 children 으로,
+AST 를 구성하라는 rewriting rule 이 된다.</p>
+
+<p>Antlr 의 AST rewriting 을 이해하기 위해 참조한 블로그는 <a href="http://bkiers.blogspot.kr/2011/03/5-building-ast.html">Bart&rsquo;s Blog</a> 임.</p>
+
+<pre><code>bar : A B C D -&gt; ^(B A C) ;
+</code></pre>
+
+<p>을 하면, B 가 root 가 되고, A, C 가 children 이 되고, D 는 없어진다.</p>
+
+<p>다른 예.</p>
+
+<pre><code>addExpr : multiplyExpr (('+' | '-') multiplyExpr)* ;
+
+addExpr : multiplyExpr (('+' | '-')^ multiplyExpr)* ;
+</code></pre>
+
+<p>을 하면, &lsquo;+&rsquo;, &lsquo;-&rsquo; 가 root 가 되고 multiplyExpr 2 개가 children 이 된다.</p>
+
+<p>root 로 할만한 적당한 녀석이 없을 경우에는 하나 만들면 된다.</p>
+
+<pre><code>block : (statement | funcitonDecl)* (Return expression ';')? ;
+
+block : 
+    (statement | functionDecl)* (Return expression ';')?
+        -&gt; ^(BLOCK ^(STATEMENTS statement*) ^(RETURN expression?))
+    ;
+</code></pre>
+
+<p>을 하면, 모든 block 은 STATEMENTS, RETURN 이라는 2 개의 children 을 가지게 된다.</p>
+
+<p>본격적으로 AST rewriting rule 을 추가하면,</p>
+
+<pre><code>// START: header
+grammar VecMathAST;
+options {output=AST;} // we want to create ASTs
+tokens {VEC;} // define imaginary token for vector literal
+// END: header
+
+// START: stat
+statlist : stat+ ;                    // builds list of stat trees
+stat: ID '=' expr  -&gt; ^('=' ID expr)  // '=' is operator subtree root
+    | 'print' expr -&gt; ^('print' expr) // 'print' is subtree root
+    ;
+// END: stat
+
+// START: expr
+expr:   multExpr ('+'^ multExpr)* ;        // '+' is root node
+multExpr: primary (('*'^|'.'^) primary)* ; // '*', '.' are roots
+primary
+    :   INT   // automatically create AST node from INT's text
+    |   ID    // automatically create AST node from ID's text
+    |   '[' expr (',' expr)* ']' -&gt; ^(VEC expr+)
+    ;
+// END: expr
+
+ID  :   'a'..'z'+ ;
+INT :   '0'..'9'+ ;
+WS  :   (' '|'\r'|'\n')+ {skip();} ;
+</code></pre>
+
+<h3>Parse Tree</h3>
+
+<p>AST 와 Parse Tree 의 차이점이 <a href="http://stackoverflow.com/questions/5026517/whats-the-difference-between-parse-tree-and-ast">What&rsquo;s the difference between parse tree and AST?</a> 에 정리되어 있다.</p>
+
+<pre><code>The AST only contains all 'useful' elements that will be used for further processing,
+while the parse tree contains all the artifacts (spaces, brackets, ...)
+from the original document you parse
+</code></pre>
+
+<h3>Backtracking Parser &amp; Memoizing Parser</h3>
+
+<p>LL(k) 파서로 판단하기 어려운 모호성이 존재할 때, 쓰는 기법.</p>
+
+<pre><code>The easiest way to implement a backtracking strategy for a parsing
+decision is to speculatively attempt the alternatives in order until we
+find one that matches. Upon success, the parser rewinds the input and 
+parses the alternative normally. Upon failing to match an alternative,
+the parser rewinds the input and tries the next one. If the parser can't 
+find any matching alternative, it throws a "no viable alternative" 
+exception.
+</code></pre>
+
+<p>다음과 같은 문법을 보자. Python 과 같이 <code>[a,b] = [c,d]</code> 와 같은 리스트 어사인을 지원하는 문법이다.</p>
+
+<pre><code>stat    : list EOF | assign EOF ;
+assign  : list '=' list ;
+list    : '[' elements ']' ;
+elements    : element (',' element)* ;
+element     : NAME '=' NAME | NAME | list
+</code></pre>
+
+<p>stat 의 경우, list 인지 assign 인지 정하기 위해서는 리스트를 파싱하고 나서, 토큰 하나를 더 봐야
+알 수 있다.</p>
+
+<p>얼터너티브를 시도해보면서, 경우에 따라 백트래킹하는 코드.</p>
+
+<pre><code>public void statement() throws RecognitionException {
+    if ( speculate_stat_alt1() ) { list(); match(Lexer.EOF_TYPE); }
+    else if ( speculate_stat_alt2() ) { assign(); match(Lexer.EOF_TYPE); }
+    else throw new NoViableAltException("expecting stat found " + LT(1));
+}
+
+public boolean speculate_stat_al1() {
+    boolean success = true;
+    mark();
+    try { list(); match(Lexer.EOF_TYPE); }
+    catch (RecognitionException e) { success = false; }
+    release();
+    return success;
+}
+public boolean speculate_stat_al2() {
+    boolean success = true;
+    mark();
+    try { assign(); match(Lexer.EOF_TYPE); }
+    catch (RecognitionException e) { success = false; }
+    release();
+    return success;
+}
+</code></pre>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -2042,100 +2459,6 @@ CMD-L 을 누르고 da 라고 치면 tag 를 묻는 prompt 가 뜨고, 바로 pi
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2012/10/18/restful-json-in-rails/">RESTful JSON in Rails</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2012-10-18T10:10:00+09:00'><span class='date'><span class='date-month'>Oct</span> <span class='date-day'>18</span><span class='date-suffix'>th</span>, <span class='date-year'>2012</span></span> <span class='time'>10:10 am</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><ul>
-<li><a href="http://blog.gomiso.com/2011/06/27/building-a-platform-api-on-rails">Building a platform API on rails</a></li>
-<li><a href="http://engineering.gomiso.com/2011/05/16/if-youre-using-to_json-youre-doing-it-wrong">If you&rsquo;re using to_json, you&rsquo;re doing it wrong way</a></li>
-<li><a href="http://railscasts.com/episodes/322-rabl">RailsCasts #322 RABL</a></li>
-<li><a href="http://travisjeffery.com/b/2012/04/rendering-errors-in-json-with-rails">Rendering errors in json with rails</a></li>
-<li><a href="http://railscasts.com/episodes/350-rest-api/versioning">RailsCasts #350 REST API Versioning</a></li>
-</ul>
-
-
-<p>을 번역 정리 해본다.</p>
-
-<h3>Curl 로 JSON 서버를 Test 할 경우</h3>
-
-<p><code>curl -v -H "Accept: application/json" -H "Content-type: application/json" -X POST -d '[{"exam_id":1,"user":"GILDONG", "answer":1,"used_time":5.2 }]' http://localhost:3000/results</code></p>
-
-<ul>
-<li><code>-v</code> 로 verbose 세팅</li>
-<li><code>-X POST</code> 로 HTTP METHOD 를 <em>POST</em> 로 세팅</li>
-<li>그리고 <em>Accept:</em> 와 <em>Content-type:</em> 헤더를 <em>application/json</em> 으로 세팅</li>
-</ul>
-
-
-<h3>Handling Errors</h3>
-
-<p>RESTful JSON 을 Rails 로 구현할때 HTTP Status Code 를 깜빡하기 쉽다.</p>
-
-<pre><code>def create
-  @model = Model.create(params[:model])
-  if @model.save
-    render :json =&gt; @model
-  else
-    render :json =&gt; { :errors =&gt; @model.errors.full_messages }, :status =&gt; 422
-  end
-end
-</code></pre>
-
-<p>Error 시에 적절하게 HTTP Status Code 를 세팅하는 것. 예를 들어 <em>422 unprocessable entity</em> 로 세팅한다거나.</p>
-
-<p>full_messages 대신에 errors 오브젝트를 사용할수도 있어.</p>
-
-<pre><code>render :json =&gt; { :errors =&gt; @model.errors }
-</code></pre>
-
-<h3>Versioning REST API</h3>
-
-<h3>Securing API &amp; OAuth</h3>
-
-<h4>id:password 방식</h4>
-
-<p><a href="http://railscasts.com/episodes/352-securing-an-api?autoplay=true">Railscasts ep352: Securing an API</a> 를 보면</p>
-
-<p>기본적으로는 Rails controller 에</p>
-
-<pre><code>http_basic_authentication_with name: "dhh", password: "secret"
-</code></pre>
-
-<p>으로 하면 <code>curl http://localhost:3000/api/products</code> 로 하면 <code>401 Unauthorized</code>
-되고,
-<code>curl http://localhost:3000/api/products -u 'admin:secret'</code> 처럼 id:password 를 주면 된다.</p>
-
-<ul>
-<li><a href="http://www.thebuzzmedia.com/designing-a-secure-rest-api-without-oauth-authentication/">Designing a Secure REST API without OAuth</a></li>
-<li>Web API Design: Crafting Interfaces that Developers Love</li>
-<li><a href="https://github.com/ltbl/api.gae9.com">gae9 API</a></li>
-</ul>
-
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/22">&larr; Older</a>
@@ -2153,6 +2476,10 @@ end
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/06/13/control-flow-enforcement-technology-preview/">Control-flow Enforcement Technology Preview</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/06/13/cve-2016-2468/">CVE-2016-2468</a>
       </li>
     
@@ -2166,10 +2493,6 @@ end
     
       <li class="post">
         <a href="/blog/2016/03/25/bleichenbacher/">Bleichenbacher</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/03/03/the-drown-attack/">The DROWN Attack</a>
       </li>
     
   </ul>

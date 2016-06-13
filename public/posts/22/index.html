@@ -9,8 +9,10 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="스택오버플로우에서 좋은 질문을 찾았다. What is the &lsquo;new&rsquo; keyword in JavaScript?
-Relation between [[Prototype]] and prototype in JavaScript 간단히 번역 &amp; &hellip;">
+  <meta name="description" content="Building a platform API on rails
+If you&rsquo;re using to_json, you&rsquo;re doing it wrong way
+RailsCasts #322 RABL
+Rendering errors in json with &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -66,6 +68,100 @@ Relation between [[Prototype]] and prototype in JavaScript 간단히 번역 &amp
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/10/18/restful-json-in-rails/">RESTful JSON in Rails</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2012-10-18T10:10:00+09:00'><span class='date'><span class='date-month'>Oct</span> <span class='date-day'>18</span><span class='date-suffix'>th</span>, <span class='date-year'>2012</span></span> <span class='time'>10:10 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><ul>
+<li><a href="http://blog.gomiso.com/2011/06/27/building-a-platform-api-on-rails">Building a platform API on rails</a></li>
+<li><a href="http://engineering.gomiso.com/2011/05/16/if-youre-using-to_json-youre-doing-it-wrong">If you&rsquo;re using to_json, you&rsquo;re doing it wrong way</a></li>
+<li><a href="http://railscasts.com/episodes/322-rabl">RailsCasts #322 RABL</a></li>
+<li><a href="http://travisjeffery.com/b/2012/04/rendering-errors-in-json-with-rails">Rendering errors in json with rails</a></li>
+<li><a href="http://railscasts.com/episodes/350-rest-api/versioning">RailsCasts #350 REST API Versioning</a></li>
+</ul>
+
+
+<p>을 번역 정리 해본다.</p>
+
+<h3>Curl 로 JSON 서버를 Test 할 경우</h3>
+
+<p><code>curl -v -H "Accept: application/json" -H "Content-type: application/json" -X POST -d '[{"exam_id":1,"user":"GILDONG", "answer":1,"used_time":5.2 }]' http://localhost:3000/results</code></p>
+
+<ul>
+<li><code>-v</code> 로 verbose 세팅</li>
+<li><code>-X POST</code> 로 HTTP METHOD 를 <em>POST</em> 로 세팅</li>
+<li>그리고 <em>Accept:</em> 와 <em>Content-type:</em> 헤더를 <em>application/json</em> 으로 세팅</li>
+</ul>
+
+
+<h3>Handling Errors</h3>
+
+<p>RESTful JSON 을 Rails 로 구현할때 HTTP Status Code 를 깜빡하기 쉽다.</p>
+
+<pre><code>def create
+  @model = Model.create(params[:model])
+  if @model.save
+    render :json =&gt; @model
+  else
+    render :json =&gt; { :errors =&gt; @model.errors.full_messages }, :status =&gt; 422
+  end
+end
+</code></pre>
+
+<p>Error 시에 적절하게 HTTP Status Code 를 세팅하는 것. 예를 들어 <em>422 unprocessable entity</em> 로 세팅한다거나.</p>
+
+<p>full_messages 대신에 errors 오브젝트를 사용할수도 있어.</p>
+
+<pre><code>render :json =&gt; { :errors =&gt; @model.errors }
+</code></pre>
+
+<h3>Versioning REST API</h3>
+
+<h3>Securing API &amp; OAuth</h3>
+
+<h4>id:password 방식</h4>
+
+<p><a href="http://railscasts.com/episodes/352-securing-an-api?autoplay=true">Railscasts ep352: Securing an API</a> 를 보면</p>
+
+<p>기본적으로는 Rails controller 에</p>
+
+<pre><code>http_basic_authentication_with name: "dhh", password: "secret"
+</code></pre>
+
+<p>으로 하면 <code>curl http://localhost:3000/api/products</code> 로 하면 <code>401 Unauthorized</code>
+되고,
+<code>curl http://localhost:3000/api/products -u 'admin:secret'</code> 처럼 id:password 를 주면 된다.</p>
+
+<ul>
+<li><a href="http://www.thebuzzmedia.com/designing-a-secure-rest-api-without-oauth-authentication/">Designing a Secure REST API without OAuth</a></li>
+<li>Web API Design: Crafting Interfaces that Developers Love</li>
+<li><a href="https://github.com/ltbl/api.gae9.com">gae9 API</a></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1475,117 +1571,6 @@ P&amp;L 을 염두에 두고, 이익을 목적으로 비즈니스를 하는 진�
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2012/05/15/9-deadliest-start-up-sins/">9 Deadliest Start-up Sins</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2012-05-15T16:57:00+09:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>15</span><span class='date-suffix'>th</span>, <span class='date-year'>2012</span></span> <span class='time'>4:57 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>@sgblank 가 쓴, <a href="http://steveblank.com/2012/05/14/9-deadliest-start-up-sins/">9 Deadliest Start-up Sins</a> 에서.</p>
-
-<p>Excerpts from <a href="http://www.amazon.com/gp/product/0984999302/ref=as_li_tf_tl?ie=UTF8&amp;tag=wwwsteveblank-20&amp;linkCode=as2&amp;camp=1789&amp;creative=9325&amp;creativeASIN=0984999302">The Startup Owner&rsquo;s Manual: The Step-By-Step Guide for Building a Great Company</a></p>
-
-<p><br /></p>
-
-<blockquote><p><strong>Confusing traditional job titles with a startup&rsquo;s needs</strong></p>
-
-<p>Most startups simple borrow job titles from established companies.
-But remember, these are jobs in an organization that&rsquo;s executing
-a <em>known</em> business model. The term &ldquo;Sales&rdquo; at an existing company
-refers to a team that repeatedly sells a known product to a well-
-understood group of customers with standard presentations, prices,
-terms, and conditions.
-Start-ups by definition have few, if any, of these. In fact,
-they&rsquo;re out searching for them!</p></blockquote>
-
-<p>이미 돈을 버는 프로세스가 셋업된, well-established 비즈니스를 가진 조직에서
-타이틀을 가져왔는데, 사람들이 그 타이틀에 갖혀버리면 최악.</p>
-
-<p>i.e. 기존 조직의 Sales 란 자리는 이미 있는 제품을 이미 있는 고객들한테
-이미 있는 채널을 통해서 이미 정해진 가격과 조건으로 파는 것.</p>
-
-<p>v.s. 스타트업에는?</p>
-
-<p>자리가 사람을 만든다는 말이 항상 긍정적인 뜻만을 가진 것은 아님.</p>
-
-<p><br /></p>
-
-<blockquote><p><strong>Writing a business plan that doesn&rsquo;t allow for trial and error</strong></p>
-
-<p>Traditional business plans and product development models have one great advantage: They provide boards and founders an unambiguous path with clearly defined milestones the board presumes will be achieved. Financial progress is tracked using metrics like income statement, balance sheet, and cash flow. The problem is, none of these metrics are very useful because they don’t track progress against your start-up’s only goal: to find a repeatable and scalable business model.</p></blockquote>
-
-<p>손익계산서가 스타트업 초기의 목표가 될 수는 없음.</p>
-
-<p>Plan 과 그 달성 여부를 측정할 metric 선정을 잘해야 함.</p>
-
-<p>투자자와 갈등의 요소가 될 수 있음.</p>
-
-<p>스타트업의 목표는 repeatable &amp; scalable business model 을 찾아내는 것.</p>
-
-<p><br /></p>
-
-<blockquote><p><strong>Emphasizing execution instead of testing, learning, and iteration</strong></p>
-
-<p>Established companies execute business models where customers, problems, and necessary product features are all knowns; start-ups, on the other hand, need to operate in a “search” mode as they test and prove every one of their initial hypotheses.
-They learn from the results of each test, refine the hypothesis, and test again—all in search of a repeatable, scalable, and profitable business model. In practice, start-ups begin with a set of initial guesses, most of which will end up being wrong. Therefore, focusing on execution and delivering a product or service based on those initial, untested hypotheses is a going-out-of-business strategy.</p></blockquote>
-
-<p>Ram Charan 의 책에 나오는 execution 컨셉으로 접근하기에는 스타트업의 초기 시간들은 그 다이나미즘이 많이 다름.</p>
-
-<p>실행을 강조하는 문화는, 어느정도 자리가 잡힌 조직에서 효과가 발휘되며,</p>
-
-<p>스타트업에서는 빠르게 프로토타입을 만들고 런칭하고 배우고, 계속 개선하고&hellip; 이런 것들을 강조하는 것이 더 나음.</p>
-
-<p><br /></p>
-
-<blockquote><p><strong> Focusing on the launch date</strong></p>
-
-<p>Traditionally, engineering, sales, and marketing have all focused on the immovable launch date. Marketing tries to pick an “event” (trade show, conference, blog, etc.) where they can “launch” the product. Executives look at that date and the calendar, working backward to ignite fireworks on the day the product is launched. Neither management nor investors tolerate “wrong turns” that result in delays.</p></blockquote>
-
-<p>서비스 런칭 날짜를 심각하게 받아들이지 말고, 이 정도면 첫번째 릴리즈를 내보내도 되겠다&hellip; 정도로 생각할 것. 고객을 다 파악해서 완벽한 제품을 만들어서 짜잔! 이런 건 없음.</p>
-
-<p><br /></p>
-
-<blockquote><p><strong>Assuming you know what the customer wants</strong></p>
-
-<p>To succeed, founders need to turn these guesses into facts as soon as possible by getting out of the building, asking customers if the hypotheses are correct, and quickly changing those that are wrong.</p></blockquote>
-
-<p>고객이 원하는 것을 다 알고 이런 것은 없음. 부딪혀보고 Iteration.</p>
-
-<p><br /></p>
-
-<blockquote><p><strong>The &ldquo;I know what feature to build&rdquo; flaw</strong></p>
-
-<p>These founders specify, design, and build a fully featured product using classic product development methods without ever leaving their building. Yet without direct and continuous customer contact, it’s unknown whether the features will hold any appeal to customers.</p></blockquote>
-
-<ul>
-<li>고객이 원하는 것을 나는 알아!(일단 여기서부터 틀리고),</li>
-<li>어떤 기능들을 구현해야겠다로 가버려서,</li>
-<li>열심히 너무 많이 만들어 버리면,</li>
-<li>골때려지는 상황이 올수 있음.</li>
-</ul>
-
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/23">&larr; Older</a>
@@ -1603,6 +1588,10 @@ They learn from the results of each test, refine the hypothesis, and test again�
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/06/13/control-flow-enforcement-technology-preview/">Control-flow Enforcement Technology Preview</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/06/13/cve-2016-2468/">CVE-2016-2468</a>
       </li>
     
@@ -1616,10 +1605,6 @@ They learn from the results of each test, refine the hypothesis, and test again�
     
       <li class="post">
         <a href="/blog/2016/03/25/bleichenbacher/">Bleichenbacher</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/03/03/the-drown-attack/">The DROWN Attack</a>
       </li>
     
   </ul>
