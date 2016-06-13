@@ -4,7 +4,7 @@
   <title><![CDATA[KC's blog]]></title>
   <link href="http://zomo.heroku.com/atom.xml" rel="self"/>
   <link href="http://zomo.heroku.com/"/>
-  <updated>2016-06-13T17:17:53+09:00</updated>
+  <updated>2016-06-13T17:42:41+09:00</updated>
   <id>http://zomo.heroku.com/</id>
   <author>
     <name><![CDATA[KC]]></name>
@@ -32,7 +32,14 @@
 </span><span class='line'>c = (uint8_t*)malloc(0x100);</span></code></pre></td></tr></table></div></figure>
 
 
-<p>이제 <code>uint64_t* b_size_ptr = (uint64_t*)(b-8);</code> 을 통해서, <code>struct malloc_chunk</code> 구조체 의 <code>INTERNAL_SIZE_T size;</code> 를 가리키는 포인터를 만든다.</p>
+<ul>
+<li>이제 <code>uint64_t* b_size_ptr = (uint64_t*)(b-8);</code> 을 통해서, <code>struct malloc_chunk</code> 구조체 멤버인 <code>INTERNAL_SIZE_T size;</code> 를 가리키는 포인터를 만든다.</li>
+<li>이 구조체를 이용해 b.size 를 찍어볼 수가 있는데,</li>
+<li><p>0x211 로 나온다. <code>(0x200 + 0x10) | prev_in_use</code> 가 되는 것.</p></li>
+<li><p>이제 <code>a[real_a_size] = 0;</code>  을 통해서, b.size 의 하위 1 바이트를 0 으로 만든다.</p></li>
+<li>b.size 를 찍어보면 이제 0x210 으로 나온다.</li>
+</ul>
+
 ]]></content>
   </entry>
   
