@@ -4,7 +4,7 @@
   <title><![CDATA[KC's blog]]></title>
   <link href="http://zomo.heroku.com/atom.xml" rel="self"/>
   <link href="http://zomo.heroku.com/"/>
-  <updated>2016-06-13T13:54:54+09:00</updated>
+  <updated>2016-06-13T14:15:14+09:00</updated>
   <id>http://zomo.heroku.com/</id>
   <author>
     <name><![CDATA[KC]]></name>
@@ -18,7 +18,11 @@
     <link href="http://zomo.heroku.com/blog/2016/06/13/control-flow-enforcement-technology-preview/"/>
     <updated>2016-06-13T13:54:08+09:00</updated>
     <id>http://zomo.heroku.com/blog/2016/06/13/control-flow-enforcement-technology-preview</id>
-    <content type="html"><![CDATA[<p>인텔에서 발표한 <a href="https://software.intel.com/sites/default/files/managed/4d/2a/control-flow-enforcement-technology-preview.pdf">Control-flow Enforcement Technology Preview</a>을 읽고 정리해본다.</p>
+    <content type="html"><![CDATA[<ol>
+<li><p>인텔에서 발표한 <a href="https://software.intel.com/sites/default/files/managed/4d/2a/control-flow-enforcement-technology-preview.pdf">Control-flow Enforcement Technology Preview</a>을 읽고 정리해본다.</p></li>
+<li><p><a href="https://people.eecs.berkeley.edu/~daw/papers/shadow-asiaccs15.pdf">The Performance Cost of Shadow Stacks and Stack Canaries</a> 를 읽고 정리해본다.</p></li>
+</ol>
+
 ]]></content>
   </entry>
   
