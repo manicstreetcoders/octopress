@@ -4,7 +4,7 @@
   <title><![CDATA[KC's blog]]></title>
   <link href="http://zomo.heroku.com/atom.xml" rel="self"/>
   <link href="http://zomo.heroku.com/"/>
-  <updated>2016-06-14T16:10:00+09:00</updated>
+  <updated>2016-06-14T16:19:57+09:00</updated>
   <id>http://zomo.heroku.com/</id>
   <author>
     <name><![CDATA[KC]]></name>
@@ -43,23 +43,23 @@
   </entry>
   
   <entry>
-    <title type="html"><![CDATA[Glibc Adventures: The Forgotten Chunks]]></title>
-    <link href="http://zomo.heroku.com/blog/2016/06/14/glibc-adventures-the-forgotten-chunks/"/>
-    <updated>2016-06-14T09:50:05+09:00</updated>
-    <id>http://zomo.heroku.com/blog/2016/06/14/glibc-adventures-the-forgotten-chunks</id>
-    <content type="html"><![CDATA[
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Hitcon Ctf 2014 Unexploitable Heap Overflow]]></title>
+    <title type="html"><![CDATA[HITCON CTF 2014 'Unexploitable' Heap Overflow]]></title>
     <link href="http://zomo.heroku.com/blog/2016/06/14/hitcon-ctf-2014-unexploitable-heap-overflow/"/>
-    <updated>2016-06-14T00:00:00+09:00</updated>
+    <updated>2016-06-14T09:53:38+09:00</updated>
     <id>http://zomo.heroku.com/blog/2016/06/14/hitcon-ctf-2014-unexploitable-heap-overflow</id>
     <content type="html"><![CDATA[<ul>
 <li><a href="http://acez.re/ctf-writeup-hitcon-ctf-2014-stkof-or-modern-heap-overflow/">acez.re&rsquo;s writeup</a></li>
 </ul>
 
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Glibc Adventures: The Forgotten Chunks]]></title>
+    <link href="http://zomo.heroku.com/blog/2016/06/14/glibc-adventures-the-forgotten-chunks/"/>
+    <updated>2016-06-14T09:50:05+09:00</updated>
+    <id>http://zomo.heroku.com/blog/2016/06/14/glibc-adventures-the-forgotten-chunks</id>
+    <content type="html"><![CDATA[
 ]]></content>
   </entry>
   
@@ -317,6 +317,7 @@
     <content type="html"><![CDATA[<ol>
 <li><p>인텔에서 발표한 <a href="https://software.intel.com/sites/default/files/managed/4d/2a/control-flow-enforcement-technology-preview.pdf">Control-flow Enforcement Technology Preview</a>을 읽고 정리해본다.</p></li>
 <li><p><a href="https://people.eecs.berkeley.edu/~daw/papers/shadow-asiaccs15.pdf">The Performance Cost of Shadow Stacks and Stack Canaries</a> 를 읽고 정리해본다.</p></li>
+<li><p><a href="https://forums.grsecurity.net/viewtopic.php?f=7&amp;t=4490">grsecurity 의 비평</a></p></li>
 </ol>
 
 ]]></content>
