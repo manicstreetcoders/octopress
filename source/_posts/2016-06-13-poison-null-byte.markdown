@@ -94,6 +94,86 @@ c.prev_size 가 제대로 update 되지 않는다. 0x210 -> 0x100 으로 줄어�
 
 `b.size` 의 `prev_in_use` 가 overwrite 되지 않았을 경우,
 
+소스.
+
+```
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdint.h>
+#include <malloc.h>
+
+int main()
+{
+	uint8_t* a;
+	uint8_t* b;
+	uint8_t* c;
+	uint8_t* b1;
+	uint8_t* b2;
+	uint8_t* d;
+
+	a = (uint8_t*) malloc(0x100);
+	int real_a_size = malloc_usable_size(a);
+	printf("a: %p\n",a);
+	printf("real_a_size: %#x\n",real_a_size);
+
+	b = (uint8_t*) malloc(0x200);
+	int real_b_size = malloc_usable_size(b);
+	printf("b: %p\n",b);
+	printf("real_b_size: %#x\n",real_b_size);
+	
+	c = (uint8_t*) malloc(0x100);
+	printf("c: %p\n",c);
+
+	uint64_t* b_size_ptr = (uint64_t*)(b-8);
+	printf("addr of b_size_ptr: %p\n",b_size_ptr);
+
+	free(b);
+
+	printf("b.size after free: %#lx\n",*b_size_ptr);
+	printf("b.size is (0x200+0x10) | prev_in_use\n");
+
+	a[real_a_size] = 0;
+	printf("b.size after free: %#lx\n",*b_size_ptr);
+
+	uint64_t* c_prev_size_ptr = (uint64_t*)(c-16);
+	printf("addr of c_prev_size_ptr: %p\n",c_prev_size_ptr);
+	
+	printf("c.prev_size is %#lx\n",*c_prev_size_ptr);
+
+	b1 = malloc(0x100);
+	printf("b1: %p\n",b1);
+
+	printf("c.prev_size is %#lx\n",*c_prev_size_ptr);
+	printf("c - 8 %#lx\n",*(((uint64_t*)c)-1));
+	printf("c - 16 %#lx\n",*(((uint64_t*)c)-2));
+	printf("c - 24 %#lx\n",*(((uint64_t*)c)-3));
+	printf("c - 32 %#lx\n",*(((uint64_t*)c)-4));
+
+	b2 = malloc(0x80);
+	printf("b2: %p\n",b2);
+	memset(b2,'B',0x80);
+	printf("Current b2 content:\n%s\n",b2);
+
+	printf("c.prev_size is %#lx\n",*c_prev_size_ptr);
+	printf("c - 8 %#lx\n",*(((uint64_t*)c)-1));
+	printf("c - 16 %#lx\n",*(((uint64_t*)c)-2));
+	printf("c - 24 %#lx\n",*(((uint64_t*)c)-3));
+	printf("c - 32 %#lx\n",*(((uint64_t*)c)-4));
+
+	free(b1);
+	free(c);
+	d = malloc(0x300);
+	printf("d: %p\n",d);
+
+	memset(d,'D',0x300);
+
+	printf("New b2 content:\n%s\n",b2);
+}
+```
+
+실행결과.
+
 ```
 ~ » ./a.out                                                      z@ubuntu
 a: 0x12f4010
