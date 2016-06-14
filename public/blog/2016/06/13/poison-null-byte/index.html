@@ -9,7 +9,7 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="Shellphish 가 쓴 힙 공격 문서중에 하나, Poison NULL byte 를 읽고 정리한다. 우선 a,b,c 를 차례로 alloc 한다. Ubuntu 에서 0x100 을 을 alloc 하고, malloc_usable_size() 를 해보면, 0x108 이 &hellip;">
+  <meta name="description" content="Shellphish 가 쓴 힙 공격 문서중에 하나, Poison NULL byte 를 읽고 정리한다. 참고 문서: Glibc Adventures: The Fogotten Chunks 우선 a,b,c 를 차례로 alloc 한다. Ubuntu 에서 0x100 을 을 &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -85,6 +85,11 @@
 
 
 <div class="entry-content"><p><a href="https://github.com/shellphish/how2heap/blob/master/poison_null_byte.c">Shellphish 가 쓴 힙 공격 문서중에 하나, Poison NULL byte</a> 를 읽고 정리한다.</p>
+
+<ul>
+<li>참고 문서: <a href="http://www.contextis.com/documents/120/Glibc_Adventures-The_Forgotten_Chunks.pdf">Glibc Adventures: The Fogotten Chunks</a></li>
+</ul>
+
 
 <p>우선 a,b,c 를 차례로 alloc 한다.</p>
 
@@ -180,6 +185,143 @@
 <p>c.prev_size 가 제대로 update 되지 않는다. 0x210 -> 0x100 으로 줄어야하는데. 대신 엉뚱한데 0f0 이 써졌다.</p>
 
 <p>정리하면, <code>a|b|c</code> 가 앨록된 상황에서, b 가 프리되고, a 가 overflow 되면서 b.size 의 1 바이트가 0 으로 바뀌었다. 그랬더니, 추후 앨록을 하니까 c 의 메타데이터가 연쇄반응으로 깨져버렸다.</p>
+
+<p>이제,</p>
+
+<ul>
+<li>현재 <code>a|b1|(free)|c</code> 로 앨록된 상황이다. c.prev_size 는 지나치게 크게 되어있다. b1 까지도 free 하다고 잘못 생각하고 있는 상황.</li>
+</ul>
+
+
+<p>이제 <code>b2</code> 를 앨록한다.</p>
+
+<ul>
+<li><p>그럼 <code>a|b1|b2|(free)|c</code> 로 앨록된 상황이다. 여전히 c.prev 는 잘못되어있다.</p></li>
+<li><p>여기서 <code>free(b1); free(c);</code> 를 해준다음에 꽤 큰 사이즈를 앨록 요청하면, 상식적으로 <code>c</code> 다음에 앨록되어야 하나, 메모리 매니저는 <code>b == b1</code> 자리에 앨록한다. <code>d</code> 와 b2` 가 overlapping 되는 셈.</p></li>
+<li><p>이제 <code>d</code> 에다가 쓰인 데이터는 <code>b2</code> 가 가리키는 메모리를 를 corrupt 시킨다.</p></li>
+<li><p>교훈은, malloc 에서 경계를 넘어가서, 1 바이트만 NULL 로 overwrite 되어도 메모리 커럽션이 일어날 수 있다는 것.</p></li>
+</ul>
+
+
+<p><code>b.size</code> 의 <code>prev_in_use</code> 가 overwrite 되지 않았을 경우,</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>~ » ./a.out                                                      z@ubuntu
+</span><span class='line'>a: 0x12f4010
+</span><span class='line'>real_a_size: 0x108
+</span><span class='line'>b: 0x12f4120
+</span><span class='line'>real_b_size: 0x208
+</span><span class='line'>c: 0x12f4330
+</span><span class='line'>addr of b_size_ptr: 0x12f4118
+</span><span class='line'>b.size after free: 0x211
+</span><span class='line'>b.size is (0x200+0x10) | prev_in_use
+</span><span class='line'>addr of c_prev_size_ptr: 0x12f4320
+</span><span class='line'>c.prev_size is 0x210
+</span><span class='line'>b1: 0x12f4120
+</span><span class='line'>c.prev_size is 0x100
+</span><span class='line'>c - 8 0x110
+</span><span class='line'>c - 16 0x100
+</span><span class='line'>c - 24 0
+</span><span class='line'>c - 32 0
+</span><span class='line'>b2: 0x12f4230
+</span><span class='line'>Current b2 content:
+</span><span class='line'>BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
+</span><span class='line'>c.prev_size is 0x70
+</span><span class='line'>c - 8 0x110
+</span><span class='line'>c - 16 0x70
+</span><span class='line'>c - 24 0
+</span><span class='line'>c - 32 0
+</span><span class='line'>d: 0x12f42c0
+</span><span class='line'>New b2 content:
+</span><span class='line'>BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB</span></code></pre></td></tr></table></div></figure>
+
+
+<p>이번에는 <code>b.size</code> 의 <code>prev_in_use</code> 가 corrupt 되었을 경우, <code>b2</code> 가 corrupt 됨을 알 수 있다.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>a: 0x1655010
+</span><span class='line'>real_a_size: 0x108
+</span><span class='line'>b: 0x1655120
+</span><span class='line'>real_b_size: 0x208
+</span><span class='line'>c: 0x1655330
+</span><span class='line'>addr of b_size_ptr: 0x1655118
+</span><span class='line'>b.size after free: 0x211
+</span><span class='line'>b.size is (0x200+0x10) | prev_in_use
+</span><span class='line'>b.size after free: 0x200
+</span><span class='line'>addr of c_prev_size_ptr: 0x1655320
+</span><span class='line'>c.prev_size is 0x210
+</span><span class='line'>b1: 0x1655120
+</span><span class='line'>c.prev_size is 0x210
+</span><span class='line'>c - 8 0x110
+</span><span class='line'>c - 16 0x210
+</span><span class='line'>c - 24 0
+</span><span class='line'>c - 32 0xf0
+</span><span class='line'>b2: 0x1655230
+</span><span class='line'>Current b2 content:
+</span><span class='line'>BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
+</span><span class='line'>c.prev_size is 0x210
+</span><span class='line'>c - 8 0x110
+</span><span class='line'>c - 16 0x210
+</span><span class='line'>c - 24 0
+</span><span class='line'>c - 32 0x60
+</span><span class='line'>d: 0x1655120
+</span><span class='line'>New b2 content:
+</span><span class='line'>DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD</span></code></pre></td></tr></table></div></figure>
+
 </div>
 
 
