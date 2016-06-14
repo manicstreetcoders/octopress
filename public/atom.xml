@@ -4,7 +4,7 @@
   <title><![CDATA[KC's blog]]></title>
   <link href="http://zomo.heroku.com/atom.xml" rel="self"/>
   <link href="http://zomo.heroku.com/"/>
-  <updated>2016-06-14T09:11:52+09:00</updated>
+  <updated>2016-06-14T16:10:00+09:00</updated>
   <id>http://zomo.heroku.com/</id>
   <author>
     <name><![CDATA[KC]]></name>
@@ -12,6 +12,56 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[The Poisoned NUL Byte]]></title>
+    <link href="http://zomo.heroku.com/blog/2016/06/14/the-poisoned-nul-byte/"/>
+    <updated>2016-06-14T10:19:02+09:00</updated>
+    <id>http://zomo.heroku.com/blog/2016/06/14/the-poisoned-nul-byte</id>
+    <content type="html"><![CDATA[<p>Google Project Zero blog 에서.</p>
+
+<ul>
+<li><a href="http://googleprojectzero.blogspot.kr/2014/08/the-poisoned-nul-byte-2014-edition.html">The poisoned NUL byte, 2014 edition</a></li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ CHARSET=//ABCDE pkexec
+</span><span class='line'>*** Error in `pkexec`: malloc(): memory corruption: 0x00007f15bc0732d0 ***</span></code></pre></td></tr></table></div></figure>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[PlaidCTF CTF 2015: PlaidDB]]></title>
+    <link href="http://zomo.heroku.com/blog/2016/06/14/plaidctf-ctf-2015-plaiddb/"/>
+    <updated>2016-06-14T09:53:54+09:00</updated>
+    <id>http://zomo.heroku.com/blog/2016/06/14/plaidctf-ctf-2015-plaiddb</id>
+    <content type="html"><![CDATA[
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Glibc Adventures: The Forgotten Chunks]]></title>
+    <link href="http://zomo.heroku.com/blog/2016/06/14/glibc-adventures-the-forgotten-chunks/"/>
+    <updated>2016-06-14T09:50:05+09:00</updated>
+    <id>http://zomo.heroku.com/blog/2016/06/14/glibc-adventures-the-forgotten-chunks</id>
+    <content type="html"><![CDATA[
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Hitcon Ctf 2014 Unexploitable Heap Overflow]]></title>
+    <link href="http://zomo.heroku.com/blog/2016/06/14/hitcon-ctf-2014-unexploitable-heap-overflow/"/>
+    <updated>2016-06-14T00:00:00+09:00</updated>
+    <id>http://zomo.heroku.com/blog/2016/06/14/hitcon-ctf-2014-unexploitable-heap-overflow</id>
+    <content type="html"><![CDATA[<ul>
+<li><a href="http://acez.re/ctf-writeup-hitcon-ctf-2014-stkof-or-modern-heap-overflow/">acez.re&rsquo;s writeup</a></li>
+</ul>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Poison NULL Byte]]></title>
@@ -1180,79 +1230,6 @@ OpenSSL 버그때문에, 서버 설정에 상관없이, 강제로 SSLv2 로 네�
     <content type="html"><![CDATA[<p>bits-please blog 에 있는 글을 정리해본다.</p>
 
 <p><a href="http://bits-please.blogspot.co.il/2015/08/android-linux-kernel-privilege.html">Android Linux Kernel Privilege</a></p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[TF-IDF]]></title>
-    <link href="http://zomo.heroku.com/blog/2016/01/15/tf-idf/"/>
-    <updated>2016-01-15T15:10:14+09:00</updated>
-    <id>http://zomo.heroku.com/blog/2016/01/15/tf-idf</id>
-    <content type="html"><![CDATA[<p>&ldquo;Multiplying TF and IDF therefore favours generally rare words that nevertheless occur often in our pages.&rdquo;</p>
-
-<p>TF-IDF 의 아이디어는 사실 단순하다.</p>
-
-<ol>
-<li>웹페이지 하나를 분석한다고 치자. 분석 목적은 키워드 추출.</li>
-<li>가장 많이 등장하는 단어로 키워드를 추출한다면, &ldquo;the&rdquo; 나 &ldquo;a&rdquo; 같은 관사, 혹은 &ldquo;and&rdquo; 같은 전치사가 가장 많이 등장하지 않을까?</li>
-<li>절대적인 빈도가 아니라 상대적인 빈도가 더 맞을 것 같은데.</li>
-<li>&ldquo;the&rdquo; 의 경우 거의 모든 웹페이지에 등장할테니 상대적인 중요도는 떨어지지않을까?</li>
-<li>얼마나 많은 웹페이지에 등장하느냐를 측정하는 것이 IDF (Inverse Document Frequency)</li>
-<li>(특정 단어가 포함된 도큐먼트의 수/전체 도큐먼트 수)<sup>-1</sup></li>
-<li>Inverse 를 해주었기때문에 rare 한 단어의 경우 IDF 값이 커진다. (실상황에서는 log 값이 유의미하다고)</li>
-<li>하나의 문서에 등장하는 단어 빈도를 그대로 사용하지 말고 IDF 로 보정해주면, heuristic 하게 꽤 유의미한 키워드를 추출할 수 있다고 한다.</li>
-<li>TF (Term Frequency) * IDF (Inverse Document Frequency) = TF-IDF</li>
-</ol>
-
-
-<p>그렇다면, AdWords 같은 광고 스킴을 디자인한다고 가정하고. 광고주는 Nike 를 가정하자. 그리고 marathon, race, trophy 가 키워드인 웹페이지가 두 개있다고 가정하는데, 하나는 운동에 관한 페이지고 하나는 선거(election)에 관한 페이지다. 물론 Nike 는 운동에 관한 페이지에 자사 광고를 노출시키고 싶어한다. 맥락을 구별할 필요가 있는 것인데, 이런 경우 TF-IDF 를 이용할 수 있을까?</p>
-
-<p>이용할 수 있다. 두 개의 단어가 같이 출현하는 빈도를 생각해본다. 예를 들어, <code>marathon</code> 과 <code>42 kilometres</code> 또는 <code>26 miles</code> 는 실제 러닝을 다루는 웹페이지들에서 같이 출현했을 것이다. 또한 <code>election</code>, <code>voter</code>, <code>ballot</code> 은 선거를 다루는 글에서 같이 출현했을 것이다.</p>
-
-<p>다음의 계산을 거치면, 모든 pairs of words 에 대한 correlation 이 계산된다.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>for every page in all web pages on the Internet:
-</span><span class='line'>    for every pair of words in the page:
-</span><span class='line'>        correlation[word_A,word_B] += tf-idf(word_A) * tf-idf(word_B)</span></code></pre></td></tr></table></div></figure>
-
-
-<p></p>
-
-<p>즉 <code>marathon</code> 과 <code>42 kilometres</code> 의 인터넷 전체에서의 correlation 값이 나오는 것이다. 이런 무지막지한 계산을 하려니 Hadoop 과 MapReduce 같은 녀석들이 필요했었고, 또 만들었겠지.</p>
-
-<p>위처럼 word-word correlation 을 이용해 semantic 을 분석하는 기법이 Latent Semantic Analysis 의 기본 아이디어라고 한다. LSA-based algorithm 을 이용하여 Topic Analysis 를 할 수가 있는데, 그 예를 들어본다.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Android Hacker's Handbook]]></title>
-    <link href="http://zomo.heroku.com/blog/2016/01/13/android-hackers-handbook/"/>
-    <updated>2016-01-13T11:11:01+09:00</updated>
-    <id>http://zomo.heroku.com/blog/2016/01/13/android-hackers-handbook</id>
-    <content type="html"><![CDATA[<p>유명한 아저씨들의 Android Hacker&rsquo;s Handbook 중에서 챕터 8 을 정리해본다.</p>
-
-<p>흠.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[CVE-2013-2094: Perf_swevent_enabled Revisited]]></title>
-    <link href="http://zomo.heroku.com/blog/2016/01/11/cve-2013-2094-perf-swevent-enabled-revisited/"/>
-    <updated>2016-01-11T15:55:36+09:00</updated>
-    <id>http://zomo.heroku.com/blog/2016/01/11/cve-2013-2094-perf-swevent-enabled-revisited</id>
-    <content type="html"><![CDATA[<p>몇 달전에 increment primitive 를 만들어서 특정 byte 를 0 으로 만드는 기법으로 IDT 를 고쳐서, RING 0 수행을 만든 exploit 을 정리했었는데, 이번에는 Brad Spengler 의 exploit 을 분석해본다.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[BSides Vienna 2015: Writing Your First Windows Exploit in Less Than One Hour]]></title>
-    <link href="http://zomo.heroku.com/blog/2016/01/11/bsides-vienna-2015-writing-your-first-windows-exploit-in-less-than-one-hour/"/>
-    <updated>2016-01-11T15:39:41+09:00</updated>
-    <id>http://zomo.heroku.com/blog/2016/01/11/bsides-vienna-2015-writing-your-first-windows-exploit-in-less-than-one-hour</id>
-    <content type="html"><![CDATA[<p>BSides Vienna 2015 에 발표된 <a href="https://github.com/maldevel/BSides_Vienna_2015/blob/master/exploit_workshop.pdf">Writing your first windows exploit in less than one hour</a> 를 정리해본다.</p>
 ]]></content>
   </entry>
   

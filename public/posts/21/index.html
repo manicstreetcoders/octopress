@@ -9,7 +9,8 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="몇 가지 Windows API Hooking 라이브러리를 테스트 해보기로 했다. Microsoft 의 Detours. x86 버전만 free 이고, x64 버전은 돈을 받는다. 탈락. MinHook - The Minimalistic x86/x64 API Hooking &hellip;">
+  <meta name="description" content="Karger&rsquo;s Algorithm
+">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -65,6 +66,407 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/08/29/kargers-algorithm/">Karger's Algorithm</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-08-29T12:39:00+09:00'><span class='date'><span class='date-month'>Aug</span> <span class='date-day'>29</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>12:39 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h3>Karger&rsquo;s Algorithm</h3>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/08/28/karatsuba-algorithm/">Karatsuba Algorithm</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-08-28T02:19:00+09:00'><span class='date'><span class='date-month'>Aug</span> <span class='date-day'>28</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>2:19 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h3>Karatsuba Algorithm</h3>
+
+<p>Karatsuba 가 23 살때 발명한 알고리즘.</p>
+
+<pre><code>def kara(x,y):
+    n = len(str(x))
+    n2 = pow(10,n/2)
+    a = x / n2
+    b = x % n2
+    c = y / n2
+    d = y % n2
+    ans = pow(10,n)*a*c + pow(10,n/2)*(a*d+b*c) + b*d
+
+    return ans
+
+if __name__ == "__main__":
+    x = 4586
+    y = 1234
+    ans = kara(x,y)
+    print "%d == %d" % (ans, x*y)
+</code></pre>
+
+<p>여기서 n-digit 숫자간의 곱셈을 n/2-digit 숫자간의 곱셈으로 divide 할 수 있다.
+recursive 하게 적용하면, n-digit by n-digit 을 곱하는 일반적인 곱셈의 복잡도 Theta(N<sup>2</sup>)
+를 Theta(N^\log_2 3) 으로 낮출 수 있다.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/08/22/elementary-cellular-automata/">Elementary Cellular Automata</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-08-22T00:34:00+09:00'><span class='date'><span class='date-month'>Aug</span> <span class='date-day'>22</span><span class='date-suffix'>nd</span>, <span class='date-year'>2013</span></span> <span class='time'>12:34 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><a href="http://mathworld.wolfram.com/ElementaryCellularAutomaton.html">Elementary Cellular Automaton</a> 를 1 라인으로 구현한 코드.</p>
+
+<p><a href="http://www.ioccc.org/2012/konno/konno.c">Best one liner: konno.c</a></p>
+
+<p>konno.c</p>
+
+<pre><code>int _;main(O,l,o)char**l,**o;{_++&gt;&gt;9||main(1&amp;(o?(int)o:O)|O*2,l,
+putchar(_%32?atoi(1[l])&gt;&gt;(7&amp;O&lt;&lt;!o&gt;&gt;!o+29)&amp;32&lt;_|_==16?35:32:10)%10);}
+</code></pre>
+
+<p>이것을 해독해보았다.</p>
+
+<pre><code>int pos=0;
+
+void p_b(int x)
+{
+    int b[33];
+    char *p;
+    int i;
+    unsigned int j;
+
+    memset(b,0,33);
+    for(i=32, j=(1L&lt;&lt;31); i&gt;0; i--,j&gt;&gt;=1)
+        *p++=(x&amp;j) ==j ? '1':'0';
+    return b;
+}
+
+main(evolution_seq,argv,prev_cell)
+int evolution_seq;
+char **argv;
+int prev_cell;
+{
+    /* recurse from pos=1 to pos=512 */
+    if (pos++ &lt; 32*16) {
+        int cell_color;
+
+        /* Fill the 1st line with seed value */
+        if (pos == 16)
+            cell_color = '#';       /* The 1st line: the mid pos is '#' */
+        else if (pos &lt; 32)
+            cell_color = ' ';       /* The 1st line: fill with ' ' except the mid pos */
+        else if (pos % 32 == 0)
+            cell_color = '\n';      /* Print newline for every 32nd pos */
+        else {
+            int rule;
+
+            /* 
+            * Get the hight-order 3 bits of evolution sequence
+            * (clears MSB if the previous cell was new-line)
+            * and shift rule bits by it.
+            */
+            if (prev_cell == '\n')
+                rule = atoi(argv[1]) &gt;&gt; (evolution_seq &lt;&lt; 1 &gt;&gt; 30 &amp; 0x7);  
+            else
+                rule = atoi(argv[1]) &gt;&gt; (evolution_seq &gt;&gt; 29 &amp; 0x7);
+
+            if (rule &amp; 0x1)
+                cell_color = '#'; /* black */
+            else
+                cell_color = ' '; /* white */
+        }        
+        putchar(cell_color);
+
+        if (prev_cell == '#') { 
+            evolution_seq = evolution_seq * 2 + 1;
+        } else 
+            evolution_seq = evolution_seq * 2; 
+
+        main(evolution_seq, argv, cell_color);
+    }
+}
+
+~% gcc k.c -o k
+~% ./k 126
+               #               
+              ###              
+             ## ##             
+            #######            
+           ##     ##           
+          ####   ####          
+         ##  ## ##  ##         
+        ###############        
+       ##             ##       
+      ####           ####      
+     ##  ##         ##  ##     
+    ########       ########    
+   ##      ##     ##      ##   
+  ####    ####   ####    ####  
+ ##  ##  ##  ## ##  ##  ##  ## 
+###############################
+</code></pre>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/08/20/recursive-things/">Recursive Things</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-08-20T12:15:00+09:00'><span class='date'><span class='date-month'>Aug</span> <span class='date-day'>20</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>12:15 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>&ldquo;알고리즘 문제 해결 전략&rdquo; 이라는 책을 읽고 있다. algospot.com 의 운영자가 쓴 책이다.</p>
+
+<h3>Combination</h3>
+
+<p>1 ~ 9 사이의 숫자를 4 개 뽑는 combination 구하기.</p>
+
+<pre><code>def pick(selection, last):
+    if len(selection) == 4:
+        print selection
+        return
+    for i in range(last+1,9):
+        selection.append(i)
+        pick(selection, i)
+        selection.remove(i)
+
+if __name__ == "__main__":
+    selection = []
+    pick(selection, 0)
+</code></pre>
+
+<h3>음식 대접</h3>
+
+<p>음식을 가리는 4 명의 사람들에게 6 가지의 메뉴 중, 최소한의 메뉴를 준비해서 대접하는 문제.</p>
+
+<pre><code>answer = []
+
+def OK(menu):
+    bit = 0
+    if 1 in menu:
+        bit = bit | 0b1100
+    if 2 in menu:
+        bit = bit | 0b1001
+    if 3 in menu:
+        bit = bit | 0b0101
+    if 4 in menu:
+        bit = bit | 0b0001
+    if 5 in menu:
+        bit = bit | 0b0110
+    if 6 in menu:
+        bit = bit | 0b1010
+
+    if bit == 0b1111:
+        return True
+    else:
+        return False
+
+def Explore(menu, depth):
+    if depth == 7:
+        if OK(menu):
+            answer.append( (len(menu), list(menu)) )
+            return len(menu)
+        else:
+            return 987654321
+    menu.append(depth)
+    size = Explore(menu, depth + 1)
+    menu.pop()
+    size2 = Explore(menu, depth + 1)
+    if size &lt; size2:
+        return size
+    else:
+        return size2
+
+if __name__ == "__main__":
+    menu = []
+    min = Explore(menu,1)
+    for (x,y) in answer:
+        if x == min:
+            print y
+</code></pre>
+
+<h3>구간 max</h3>
+
+<p>Recursive algorithm 은 아니지만.</p>
+
+<p>{ 5, -2, 4, -18, 8, 10, -7, 5, 8, 4, 3, -7, -2, 5, 8, -28, 9, 10, -12, 13, 5 } 라는 어레이에서 summation_from_i_to_j 가 가장 큰 index i, j 를 찾는 문제. 무식하지 않게 하는 것이 포인트.</p>
+
+<p>우선 O(N<sup>2</sup>) 으로 하는 방법은 간단하다.</p>
+
+<pre><code>#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+
+main()
+{
+    int a[] = { 5, -2, 4, -18, 8, 10, -7, 5, 8, 4, 3, -7, -2, 5, 8, 0, 9, 10, -28, 13, 5 };
+    int N = sizeof a / sizeof (int);
+
+    int i,j;
+    int max = 1 &lt;&lt; (sizeof(int) * 8 - 1);
+    int sum;
+    int _i,_j;
+
+    for (i = 0; i &lt; N; i++) {
+        sum = 0;
+        for (j = i; j &lt; N; j++) {
+            sum += a[j];
+            if (sum &gt; max) {
+                max = sum;
+                _i = i;
+                _j = j;
+            }
+        }
+    }
+    printf("sum(%d, %d) = %d\n", _i, _j, max);
+}
+</code></pre>
+
+<p>O(N) 알고리즘.</p>
+
+<ol>
+<li>과거를 잊고 새로 summation 을 시작해야 할지를 계속 결정해야 한다.</li>
+<li>과거가 minus 라면 싹 잊고 새로 시작하는 것이 낫다.</li>
+<li>과거가 그래도 plus 라면 구간합을 올리는데 도움은 된다.</li>
+<li>음수인 구간합은 의미가 없다. 0 이 낫다.</li>
+<li>i 까지의 최대구간합은 maxAt(i) = max( 0, maxAt(i-1) ) + a[i]</li>
+</ol>
+
+
+<p>등을 가지고 만들어본다.</p>
+
+<pre><code>#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+
+#define MAX(a,b) (a &gt; b ? a : b)
+sum2() 
+{
+    int a[] = { 5, -2, 4, -18, 8, 10, -7, 5, 8, 4, 3, -7, -2, 5, 8, 0, 9, 10, -28, 13, 5 };
+    int N = sizeof a / sizeof (int);
+    int partial_sum = 0;
+    int max = 1 &lt;&lt; (sizeof(int) * 8 - 1);
+    int i;
+
+    for (i = 0; i &lt; N; ++i) {
+        partial_sum = MAX(partial_sum, 0) + a[i];
+        max = MAX(partial_sum, max);
+    }
+    printf("max %d\n", max);
+    return max;
+}
+</code></pre>
+
+<p>여기서 구간을 알아내도록 고쳐보면,</p>
+
+<pre><code>#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+
+int _start = 0;
+int _end = 0;
+
+sum2() 
+{
+    int a[] = { 5, -2, 4, -18, 8, 10, -7, 5, 8, 4, 3, -7, -2, 5, 8, 0, 9, 10, -28, 13, 5 };
+    int N = sizeof a / sizeof (int);
+    int partial_sum = 0;
+    int max = 1 &lt;&lt; (sizeof(int) * 8 - 1);
+    int i;
+
+    for (i = 0; i &lt; N; ++i) {
+        if (partial_sum &lt; 0) {
+            partial_sum = a[i];
+            _start = i;
+        } else
+            partial_sum = partial_sum + a[i];
+
+        if (partial_sum &gt; max) {
+            max = partial_sum;
+            _end = i;
+        } 
+    }
+    return max;
+}
+main(){printf("sum(%d-%d) = %d\n",_start,_end,sum2());}
+</code></pre>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1704,772 +2106,6 @@ Session 의 정의를 하자면 &ldquo;a collection of requests from someone who
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2012/12/18/hmac-sha1-http-authorization-and-oauth/">HMAC, SHA1, HTTP Authorization and, OAuth</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2012-12-18T10:05:00+09:00'><span class='date'><span class='date-month'>Dec</span> <span class='date-day'>18</span><span class='date-suffix'>th</span>, <span class='date-year'>2012</span></span> <span class='time'>10:05 am</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><ul>
-<li><a href="http://en.wikipedia.org/wiki/Hash-based_message_authentication_code">Hash-based message authentication code</a></li>
-<li><a href="http://www.drdobbs.com/security/the-hmac-algorithm/184410908">Dr. Dobb&rsquo;s Journal: The HMAC Algorithm</a></li>
-<li><a href="http://en.wikipedia.org/wiki/SHA-1">SHA-1</a></li>
-</ul>
-
-
-<p>HMAC: Hash-based message authentication code</p>
-
-<ul>
-<li>Data integrity</li>
-<li>message sender 에 대한 authenticity 를 동시에 검증할 수 있다.</li>
-<li>핵심은 shared secret key 가 있다는 것</li>
-</ul>
-
-
-<p>MD5 나 SHA1 등의 cryptographic hash function 을 사용할 수 있다.
-HMAC-MD5 또는 HMAC-SHA1 등의 함수를 조합해낼 수 있다.</p>
-
-<p>HMAC-SHA1 알고리즘의 콤포넌트들을 설명하면,</p>
-
-<p>key 가 64 bytes (== 512 bits) 보다 크면 SHA1 을 돌려서 digest 해서 줄인다.</p>
-
-<p>SHA1 digest size 는 160 bit 니까, 이제 key size 는 무조건 64 bytes 보다 작다.</p>
-
-<p>그 다음에 뒤를 0 으로 패딩한다.</p>
-
-<p>그 다음에 이 (패딩된) key 를 가지고 inner pad, outer pad 를 만든다.</p>
-
-<ul>
-<li>inner pad = 64 bytes 각각의 byte 와 0x36 간에 XOR.</li>
-<li>outer pad = 64 bytes 각각의 byte 와 0x5c 간에 XOR.</li>
-</ul>
-
-
-<p>이제 inner pad + message 를 붙여서, SHA1 을 돌리고 나온 digest 를 가지고.</p>
-
-<p>outer pad + digest 를 붙여서 또 SHA1 을 돌린다.</p>
-
-<p>그럼 나온 최종 digest 160 bits. 이게 HMAC-SHA1 의 결과값이다.</p>
-
-<p>Dr. Dobb&rsquo;s Journal 에 나온 hmac_md5()</p>
-
-<pre><code>/* Function: hmac_md5 */
-void
-hmac_md5(text, text_len, key, key_len, digest)
-unsigned char* text; /* pointer to data stream */
-int text_len; /* length of data stream */
-unsigned char* key; /* pointer to authentication key */
-int key_len; /* length of authentication key */
-caddr_t digest; /* caller digest to be filled in */
-{
-     MD5_CTX context;
-     unsigned char k_ipad[65]; /* inner padding - key XORd with ipad */
-     unsigned char k_opad[65]; /* outer padding - key XORd with opad */
-     unsigned char tk[16];
-     int i;
-     /* if key is longer than 64 bytes reset it to key=MD5(key) */
-     if (key_len &gt; 64) {
-         MD5_CTX      tctx;
-         MD5Init(&amp;tctx);
-         MD5Update(&amp;tctx, key, key_len);
-         MD5Final(tk, &amp;tctx);
-
-         key = tk;
-         key_len = 16;
-     }
-     /* the HMAC_MD5 transform looks like:
-      * MD5(K XOR opad, MD5(K XOR ipad, text))
-      * where K is an n byte key
-      * ipad is the byte 0x36 repeated 64 times
-      * opad is the byte 0x5c repeated 64 times
-      * and text is the data being protected
-      */
-     /* start out by storing key in pads */
-     bzero( k_ipad, sizeof k_ipad);
-     bzero( k_opad, sizeof k_opad);
-     bcopy( key, k_ipad, key_len);
-     bcopy( key, k_opad, key_len);
-
-     /* XOR key with ipad and opad values */
-     for (i=0; i&lt;64; i++) {
-             k_ipad[i] ^= 0x36;
-             k_opad[i] ^= 0x5c;
-     }
-     /* perform inner MD5 */
-     MD5Init(&amp;context);               /* init context for 1st pass */
-     MD5Update(&amp;context, k_ipad, 64)      /* start with inner pad */
-     MD5Update(&amp;context, text, text_len); /* then text of datagram */
-     MD5Final(digest, &amp;context);          /* finish up 1st pass */
-     /* perform outer MD5 */
-     MD5Init(&amp;context);               /* init context for 2nd pass */
-     MD5Update(&amp;context, k_opad, 64); /* start with outer pad */
-     MD5Update(&amp;context, digest, 16); /* then results of 1st hash */
-     MD5Final(digest, &amp;context);      /* finish up 2nd pass */
-}
-
-key =         0x0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b
-key_len =     16 bytes
-data =        "Hi There"
-data_len =    8  bytes
-digest =      0x9294727a3638bb1c13f48ef8158bfc9d
-
-key =         "Jefe"
-data =        "what do ya want for nothing?"
-data_len =    28 bytes
-digest =      0x750c783e6ab0b503eaa86e310a5db738
-key =         0xAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-key_len       16 bytes
-data =        0xDDDDDDDDDDDDDDDDDDDD...
-              ..DDDDDDDDDDDDDDDDDDDD...
-              ..DDDDDDDDDDDDDDDDDDDD...
-              ..DDDDDDDDDDDDDDDDDDDD...
-              ..DDDDDDDDDDDDDDDDDDDD
-data_len =    50 bytes
-digest =      0x56be34521d144c88dbb8c733f0e8b3f6
-</code></pre>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2012/12/14/simple-introduction-to-oauth/">Simple Introduction to OAuth</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2012-12-14T10:34:00+09:00'><span class='date'><span class='date-month'>Dec</span> <span class='date-day'>14</span><span class='date-suffix'>th</span>, <span class='date-year'>2012</span></span> <span class='time'>10:34 am</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><h3>OAuth: user, client, and server</h3>
-
-<p><a href="http://hueniverse.com">Eran Hammer</a> 가 OAuth 2.0 을 떠난다고 한다. Web 이 아니라 Enterprise 의 요구에 끌려가면서 복잡해지고 거대해지고 등등의 사퇴의 변을 블로그에 올렸다.</p>
-
-<ul>
-<li><p><a href="http://hueniverse.com">Eran Hammer&rsquo;s blog</a> 에 OAuth 1.0 에 대한 좋은 글들이 많다.</p></li>
-<li><p>Heroku 에서 일하는 Schneems 의 <a href="http://schneems.com/post/23164666348/oauth-a-tale-of-two-servers">OAuth: A Tale of Two Servers</a> 를 읽고 정리해본다.</p></li>
-</ul>
-
-
-<p>우선 이 글에 나오는 Facebook 이나 instagram 은 이해를 돕기위한 예일뿐, 그들이 이런 프로토콜이나 flow 나 URL 을 사용한다는 것은 절대 아님.</p>
-
-<ul>
-<li>리소스를 보관하고 있는 서버 (i.e. Facebook 의 Social Graph)</li>
-<li>OAuth Client (i.e. Facebook 의 Social Graph 를 import 하려는 instagram 서버)</li>
-</ul>
-
-
-<p>우선 OAuth Client (i.e. instagram) 를 OAuth Provider (i.e. Facebook) 에
-등록해야한다.</p>
-
-<p>예를 들어 instagram 개발자는 Facebook 개발자 페이지에 가서</p>
-
-<pre><code>client_id=instagram
-</code></pre>
-
-<p>를 등록하고</p>
-
-<pre><code>client_secret=bar
-</code></pre>
-
-<p>를 발급받는다.</p>
-
-<p>실제 유저가 instagram 을 사용하는 경우를 상상해보자.</p>
-
-<p>instagram 에서</p>
-
-<pre><code>GET facebook.com/oauth/authorize? 
-client_id=instagram
-callback=instagram.com/oauth_accept
-</code></pre>
-
-<p>를 facebook.com 에 쏜다.</p>
-
-<p>facebook 은 이제 유저한테서 허가를 받아야겠다고 생각한다.</p>
-
-<p>facebook 은 instagram 이 유저 XXX 의 어카운트를 접근하려고 한다&hellip;
-허가해줄거냐 말거냐 물어보는 화면을 출력.</p>
-
-<p>유저가 YES 하면 facebook 은</p>
-
-<pre><code>GET instagram.com/oauth_accept?
-code=foobahz
-</code></pre>
-
-<p>를 쏜다. 유저의 허락을 받았기에 <code>code=foobahz</code> 를 쏴주는 것이다.</p>
-
-<p>이제 instagram 은 다음을 facebook.com 에 쏘고, access_token 을 받는다.
-3 가지 정보를 같이 보냄으로써 유저의 허락도 받았고, legitimate 한 instagram 프로그램이라는 것을 입증하는 것이다.</p>
-
-<pre><code>POST facebook.com/oauth/access_token
-code=foobahz
-client_id=instgram
-client_secret=bar
-
-Result:
-
-{ 'access_token': 'supersecret' }
-</code></pre>
-
-<p>이제 access_token 을 받았으니 사용자의 Social Graph 를 요청한다던가 하는 리퀘스트를 access_token 과 같이 보낼 수 있다. Facebook 은 이 access_token 이 authorized 된 것이고 자기가 발급해준 것이라는 것을 확인할 수 있기때문에, instagram 의 요청을 받아들인다.</p>
-
-<pre><code>GET facebook.com/user/me/friends
-access_token=supersecret
-</code></pre>
-
-<h3>OAuth Provider</h3>
-
-<ul>
-<li><a href="http://api.babo.com/oauth/request_token">http://api.babo.com/oauth/request_token</a></li>
-<li><a href="http://api.babo.com/oauth/authorize">http://api.babo.com/oauth/authorize</a></li>
-<li><a href="http://api.babo.com/oauth/access_token">http://api.babo.com/oauth/access_token</a></li>
-</ul>
-
-
-<p>Further readings:</p>
-
-<ul>
-<li><a href="http://pydanny.com/the-sorry-state-of-python-oauth-providers.html">The sorry state of Python OAuth providers</a></li>
-<li><a href="http://www.apigee.com">Apigee homepage</a></li>
-</ul>
-
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2012/12/01/partition-function-in-quicksort/">Partition Function in Quicksort</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2012-12-01T21:18:00+09:00'><span class='date'><span class='date-month'>Dec</span> <span class='date-day'>1</span><span class='date-suffix'>st</span>, <span class='date-year'>2012</span></span> <span class='time'>9:18 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><h3>Quicksort</h3>
-
-<p>Pseudo-code 로 Quicksort 를 기술해보자.</p>
-
-<pre><code>def qsort(a):
-    if len(a) &lt;= 1:
-        return a
-    pivot = a[0]
-    less = []
-    greater = []
-
-    for i in range(1,len(a)):
-        if a[i] &lt; pivot:
-            less.append(a[i])
-        else
-            greater.append(a[i])
-
-    return qsort(less) + [ pivot ] + qsort(greater)
-</code></pre>
-
-<p>Python 으로 구현하니까 너무 간단한데, C 나 Java 로 구현할때는 메모리에 신경을 써야 한다.
-별도의 메모리를 쓰지 않으면서, less / greater 로 파티셔닝하는 함수를 구현하는 것이 좀 까다로운데&hellip;</p>
-
-<p>Sedgewick 의 알고리즘 책에 나온 파티셔닝 함수가 있다. 근데 이 함수에 골때린 점이 있다.
-__Pivot 과 같은 값들이 여러개 있을 경우, left list / right list 양쪽으로 다 갈 수 있다는 점.
-다만 recursion 을 거듭하면서, 양쪽에 흩어져 있는 (Pivot 과) 동일 값들이 pivot 쪽으로 모이게 되는 것이다.</p>
-
-<pre><code>int _partition(int a[],int lo,int hi) {
-    int pivot;
-    int i,j;
-    pivot = a[lo];
-    i = lo; j = hi+1;
-    while(1) {
-        while (a[++i] &lt; pivot) if (i &gt;= hi) break;
-        while (a[--j] &gt; pivot) if (j &lt;= lo) break;
-        if (i&gt;=j) break;
-        swap(&amp;a[i],&amp;a[j]);
-    }
-    swap(&amp;a[lo],&amp;a[j]);
-    return j;
-}
-</code></pre>
-
-<p>좀 더 직관적인 파티션 함수</p>
-
-<pre><code>int __partition(int a[],int lo,int hi) {
-    int pivot;
-    int i,j;
-    pivot = a[lo];
-    i=j=lo;
-    for (++j;j&lt;=hi;j++) {
-        if (a[j] &lt; pivot) {
-            i++;
-            swap(a,i,j);
-        }
-    }
-    swap(a,lo,i);
-    return i;
-}
-void __q(int a[],int lo,int hi) {
-    int j;
-    if (hi-lo&lt;=0) return;
-    j = __partition(a,lo,hi);
-    __q(a,lo,j-1);
-    __q(a,j+1,hi);
-}
-</code></pre>
-
-<h3>Counting inversions by piggybacking mergesort</h3>
-
-<p>곁다리로, Mergesort 의 응용으로 재미난 것이 있는데.
-Sort 가 되지 않은 pair 의 갯수를 찾아내는 알고리즘.
-즉 inversion pair 를 찾는 알고리즘.
-Mergesort 를 piggybacking 해서 카운팅함.</p>
-
-<p>사람들이 1 부터 n 까지 랭킹을 매긴다고 했을때,
-Person A 와 Person B 가 각각 매긴 랭킹이 얼마나 유사한가를 측정하는 알고리즘도 응용해서 만들 수 있음.</p>
-
-<p>Recommendation 에서 쓰이는 collaborative filtering.</p>
-
-<h3>Binary Heap</h3>
-
-<p>Binary Heap 으로 Minimum priority queue 를 구현해보았다.</p>
-
-<pre><code>#include &lt;stdio.h&gt;
-#include &lt;stdlib.h&gt;
-#include &lt;string.h&gt;
-
-typedef struct _heap {
-    int heap[1024];
-    int N;
-} heap;
-
-/* heap index starts from 1 */
-int parent(int idx) { return idx/2; }
-int left(heap * p_heap, int idx) { return idx*2 &lt;= p_heap-&gt;N ? idx*2 : 0; }
-int right(heap * p_heap, int idx) { return idx*2+1 &lt;= p_heap-&gt;N ? idx*2+1 : 0; }
-swap(int a[],int i,int j) { int t = a[i]; a[i] = a[j]; a[j] = t; }
-bubble_up(heap * p_heap) {
-    int i = p_heap-&gt;N;
-
-    while (i &gt; 0 &amp;&amp; parent(i) &gt; 0) {
-        if (p_heap-&gt;heap[i] &lt; p_heap-&gt;heap[ parent(i) ] ) {
-            swap(p_heap-&gt;heap, i, parent(i));
-            i = parent(i);
-        } else
-            break;
-    }
-}
-sink(heap * p_heap) {
-    int i = 1;
-    int l,r;
-    int * a = p_heap-&gt;heap;
-
-    while (i &lt; p_heap-&gt;N) {
-        l = left(p_heap, i);
-        r = right(p_heap, i);
-        if (a[i] &gt; a[l]) {
-            if (a[l] &gt; a[r]) {
-                swap(a, i, r);
-                i = r;
-            } else {
-                swap(a, i, l);
-                i = l;
-            }
-        } else if (a[i] &gt; a[r]) {
-            if (a[r] &gt; a[l]) {
-                swap(a, i, l);
-                i = l;
-            } else {
-                swap(a, i, r);
-                i = r;
-            }
-        } else
-            break;
-    }
-}
-heap_init(heap * p_heap) {
-    p_heap-&gt;N = 0;
-    p_heap-&gt;heap[0] = (0xFFFFFFFF &lt;&lt; 1 &gt;&gt; 1);
-}
-heap_add(heap * p_heap, int x) {
-    p_heap-&gt;heap[ ++p_heap-&gt;N ] = x;
-    bubble_up(p_heap);
-}
-int heap_remove(heap * p_heap) {
-    int min = p_heap-&gt;heap[1];
-    int end = p_heap-&gt;heap[ p_heap-&gt;N ];
-    p_heap-&gt;heap[1] = end;
-    p_heap-&gt;N--;
-    sink(p_heap);
-
-    return min;
-}
-heap_isempty(heap * p_heap) { return p_heap-&gt;N == 0; }
-heap_heapify(heap * p_heap, int a[], int N) {
-    int i;
-    heap_init(p_heap);
-    for (i = 0;i &lt; N;i++)
-        heap_add(p_heap, a[i]);
-}
-void _d(int a[],int N) {
-    int i;
-    for (i=0;i&lt;N;i++) printf("%d ", a[i]);
-    printf("\n");
-}
-main()
-{
-    int a[]={ 123, 1, 0, -4, 45, 38, 24, 99, 88, 43, 23, 12, 9, 8, 7, 46, 77 };
-    int N = sizeof a / sizeof(int);
-    heap h;
-
-    _d(a,N);
-    heap_heapify(&amp;h, a, N);
-    while (!heap_isempty(&amp;h)) printf("%d ", heap_remove(&amp;h));
-    printf("\n");
-}
-</code></pre>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2012/10/18/300ms-delay/">300ms Delay</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2012-10-18T23:05:00+09:00'><span class='date'><span class='date-month'>Oct</span> <span class='date-day'>18</span><span class='date-suffix'>th</span>, <span class='date-year'>2012</span></span> <span class='time'>11:05 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>UIWebView 에서 onclick event 를 잡을때, 터치 후 event 발사까지 300ms 정도의 딜레이가 있다.
-래깅이 느껴지고, 손가락이 오그라든다.</p>
-
-<p>그 딜레이를 없애고 최대한 반응 속도를 올리기 위한 방법이 있다.</p>
-
-<p>아래의 아티클들에 소개되어 있는데,</p>
-
-<ul>
-<li><a href="http://labs.ft.com/articles/ft-fastclick">FT Fastclick</a></li>
-<li><a href="http://labs.ft.com/2011/08/fastclick-native-like-tapping-for-touch-apps/">FastClick: native-like tapping for touch apps</a></li>
-<li><a href="http://labs.ft.com/2012/08/fastclick-redux/">FastClick redux</a></li>
-<li><a href="http://github.com/ftlabs/fastclick">ftlabs/fastclick</a></li>
-<li><a href="http://github.com/dave1010/jquery-fast-click">dave1010/jquery-fast-click</a></li>
-</ul>
-
-
-<p>번역 &amp; 정리해본다.</p>
-
-<p>모바일 브라우저에서 다음과 같은 페이지를 로드했을 경우</p>
-
-<pre><code>&lt;button onclick='signup()'&gt;Sign Up!&lt;/button&gt;
-</code></pre>
-
-<p>유저가 button 을 누르고, 브라우저가 click event 를 쏘기까지 약 300ms 의 딜레이가 있다.
-모바일 브라우저가 이런 딜레이를 두는 이유는 더블탭을 감지하기 위해서이다.
-이 딜레이를 없앨 수 없을까?</p>
-
-<p>FT Labs 에서 제작한 FT FastClick 에서 쓴 방식은 TouchEnd event 가 잡혔을때, click event 를 쏴주는 식이다.</p>
-
-<p>고려해야 할 상황은 (<a href="http://code.google.com/mobile/articles/fast_buttons.html">Creating Fast Button for Mobile Web Applications</a>)</p>
-
-<ol>
-<li>딴데를 터치한 다음에 버튼 위로 손을 끌고 와서 놔버려서 button 에 touchend 가 뜬 경우 -> click event 를 쏘면 안됨.</li>
-<li>버튼을 터치하고 화면을 드래그한다음에 손을 놔버려서 button 에 touchend 가 뜬 경우 -> 버튼을 누를 의도였다기보다는 화면을 스크롤하고 싶었던 것. 그래서 click event 를 쏘면 안됨.</li>
-</ol>
-
-
-<h3>FT Fastclick</h3>
-
-<p><a href="http://github.com/ftlabs/fastclick">ftlabs/fastclick</a> 의 사용법은.</p>
-
-<pre><code>&lt;script type='application/javascript' src='/path/to/fastclick.js'&gt;&lt;/script&gt;
-
-window.addEventListener('load'), function() {
-  new FastClick(document.body);
-}, false);
-</code></pre>
-
-<p>으로 간단하다. 사용해보니 잘 동작한다. UIWebView 에서 터치가 native app 처럼 빠르게 인식된다. 하지만 여기에 만족할 수 없었다. 소스를 디벼야 직성이 풀릴 듯 했다.</p>
-
-<p>그래서 <a href="http://labs.ft.com/wp-content/uploads/2011/08/fastclick.js">FastClick() 소스</a> 를 디비기 시작했다.</p>
-
-<pre><code>// Determine whether touch handling is supported
-var touchSupport = 'ontouchstart' in window;
-</code></pre>
-
-<p><em>ontouchstart</em> 가 있으면 touch 를 지원하는 디바이스로 판단.</p>
-
-<pre><code>// Set up event handlers as required
-if (touchSupport) {
-  layer.addEventListener('touchstart', onTouchStart, true);
-  layer.addEventListener('touchmove', onTouchMove, true);
-  layer.addEventListener('touchend', onTouchEnd, true);
-  layer.addEventListener('touchcancel', onTouchCancel, true);
-}
-layer.addEventListener('click', onClick, true);
-</code></pre>
-
-<p>addEventListener() 를 통해서 touchstart / touchmove / touchend / touchcancel 에 listener 를 등록한다.</p>
-
-<p>addEventListener() 의 문법은</p>
-
-<pre><code>target.addEventListener(type, listener[, useCapture]);
-</code></pre>
-
-<p>여기서 <em>useCapture</em> 는 무얼까?</p>
-
-<blockquote><p>If true, useCapture indicates that the user wishes to initiate capture. After initiating capture, all events of the specified type will be dispatched to the registered listener before being dispatched to any EventTarget beneath it in the DOM tree. Events which are bubbling upward through the tree will not trigger a listener designated to use capture.</p></blockquote>
-
-<p>capture phase 는 <em>DefaultView</em> -> <em>Document</em> -> <em><html></em> -> &hellip; 해서 <em>target</em> 까지 내려오는 구간. bubbling phase 는 <em>target</em> 에서 다시 위로 올라가는 구간인데,
-<em>useCapture</em> 를 쓰면, <em>the capture and target phases</em> 에만 event listener 를 붙이는 것이다. 그리고, 하나의 타겟에 여러개의 event listener 들이 붙을 수 있음.</p>
-
-<p>실험을 해보자.  useCapture 를 <em>true</em> 로 세팅하면, DOM tree 의 child node 한테 가는 이벤트를 먼저 잡는 것을 볼 수 있다.</p>
-
-<p>Parent node 에 listener 를 붙이고, <em>useCapture = true</em> 로 listener 를 붙이고,
-child node 에는 <em>useCapture = false</em> 로 listener 를 붙인다.
-그리고, parent 쪽 listener 에서는 stopPropagation() 으로 propagation 을 끊는다.
-<em>two</em> 를 클릭해도, parent node 에 붙은 listener 가 control 을 가져가며,
-event propagation 을 stop 해버리므로 <em>two</em> 에 붙은 listner 는 수행될 기회를 가지지 못한다. 그래서 <em>three</em> 가 아닌 <em>four</em> 로 변해버린다.</p>
-
-<p>jsfiddle 에서 실험해보자.</p>
-
-<iframe style="width: 100%; height: 300px" src="http://jsfiddle.net/zomojj/mtd8d/1/embedded/" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
-
-
-<p>아무리 클릭해도 <em>three</em> 는 나오지 않고 <em>four</em> 만 나온다. <em>useCapture</em> 의 effect 를 알 수 있다.</p>
-
-<p>FT FastClick 코드로 다시 돌아가면, touchstart, touchend, touchmove, touchcancel 에 listener 를 붙이고, click 에도 listener 를 붙인다.
-그리고 이미 onclick 핸들러가 있었다면, listener 로 전환시켜서 나중에 불리도록 조치한다. 기존의 onclick 핸들러는 리셋.</p>
-
-<pre><code>// If a handler is already declared in the element's onclick attribute, it will be fired before
-// FastClick's onClick handler. Fix this by pulling out the user-defined handler function and
-// adding it as listener.
-if (layer.onclick instanceof Function) {
-  layer.addEventListener('click', layer.onclick, false);
-  layer.onclick = '';
-}
-</code></pre>
-
-<h3>Event Canceling</h3>
-
-<p>DOM event 를 cancel 하는데, 3 가지 method 가 있는데,</p>
-
-<ul>
-<li>preventDefault()</li>
-<li>stopPropagation()</li>
-<li>stopImmediatePropagation()</li>
-</ul>
-
-
-<p>우선 preventDefault() 부터 보면,</p>
-
-<blockquote><p>preventDefault()</p>
-
-<p>If an event is cancelable, the preventDefault method is used to signify that the event is to be canceled, meaning any default action normally taken by the implementation as a result of the event will not occur. If, during any stage of event flow, the preventDefault method is called the event is canceled. Any default action associated with the event will not occur. Calling this method for a non-cancelable event has no effect. Once preventDefault has been called it will remain in effect throughout the remainder of the event&rsquo;s propagation. This method may be used during any stage of event flow.</p></blockquote>
-
-<p>예제를 해봤다. <em>checkbox 에 클릭을 해도 check 가 되지 않는다!</em></p>
-
-<pre><code>&lt;!DOCTYPE html&gt;
-&lt;html&gt;
-&lt;head&gt;
-&lt;title&gt;DOM Event Example&lt;/title&gt; 
-&lt;script&gt;
-// Function to change the content of t2
-function stopDefAction(evt) {
-    evt.preventDefault();
-}  
-// Function to add event listener to t
-function load() { 
-  document.getElementById('my-checkbox').addEventListener(
-    'click', stopDefAction, false
-  );
-} 
-
-document.addEventListener("DOMContentLoaded", load, false);
-&lt;/script&gt;
-
-&lt;/head&gt;
-&lt;body&gt;
-
-&lt;p&gt;Please click on the checkbox control.&lt;/p&gt;
-
-&lt;form&gt;
-    &lt;input type="checkbox" id="my-checkbox" /&gt;
-    &lt;label for="my-checkbox"&gt;Checkbox&lt;/label&gt;
-&lt;/form&gt;
-
-&lt;/body&gt;
-&lt;/html&gt;
-</code></pre>
-
-<p>HTML 섹션을 클릭해서 보도록.</p>
-
-<iframe style="width: 100%; height: 300px" src="http://jsfiddle.net/zomojj/b2BPD/3/embedded/" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
-
-
-<p>그럼 다음은 stopPropagation().</p>
-
-<blockquote><p>stopPropagation()</p>
-
-<p>Prevents all other event listeners from being triggered, excluding any remaining candiate event listeners. Once it has been called, further calls to this method have no additional effect.</p></blockquote>
-
-<p>그럼 preventDefault() 와 stopPropagation() 의 차이는 무엇일까 궁금해졌다.</p>
-
-<p>간단히 정리하면, preventDefault() 는 event 에 대한 default functionality 가 일어나는 것을 막는다. 하지만 event 는 propagate 된다.</p>
-
-<p>반대로 stopPropagation() 은 default functionality 는 일어나지만, parent 로 propagate 되지는 않는다.</p>
-
-<blockquote><p><a href="http://stackoverflow.com/questions/5963669/whats-the-difference-between-event-stoppropagation-and-event-preventdefault">What&rsquo;s the difference between event.stopPropagation and event.preventDefault?</a></p>
-
-<p>stopPropagation stops the event from bubbling up the event chain.</p>
-
-<p>preventDefault prevents the default action the browser makes on that event.</p></blockquote>
-
-<pre><code> &lt;!DOCTYPE html&gt;
- &lt;html&gt;
- &lt;head&gt;
- &lt;script type="application/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.8.2/jquery.min.js"&gt;&lt;/script&gt;
- &lt;title&gt;DOM Event Example&lt;/title&gt;  
- &lt;/head&gt;
- &lt;body&gt;
- &lt;div id="foo"&gt;
-   &lt;button id="but" /&gt;
- &lt;/div&gt;   
- &lt;script&gt;
- $("#foo").click( function () { 
-   console.log("#foo click")
- });
-
- $("#but").click( function (ev) {
-   console.log("#but click");
-   ev.stopPropagation(); 
- })
- &lt;/script&gt;
- &lt;/body&gt;
- &lt;/html&gt;
-</code></pre>
-
-<p>위의 예제에서 보면, <code>ev.stopPropagation()</code> 을 하면 console 에</p>
-
-<pre><code> #but click 
-</code></pre>
-
-<p>만 나온다.</p>
-
-<p>하지만 <code>//ev.stopPropagation()</code> 로 comment-out 하면 console 에</p>
-
-<pre><code> #but click
- #foo click
-</code></pre>
-
-<p>이라고 나온다. parent node 로 event 가 propagate 된 것이다.</p>
-
-<p>그럼 stopPropagation() 과 stopImmediatePropagation() 의 차이는 무엇일까?</p>
-
-<p><a href="http://stackoverflow.com/questions/5299740/jquery-stoppropagation-vs-stopimmediatepropagation">jquery: stopPropagation vs stopImmediatePropagation</a> 에 설명이 되어 있다.</p>
-
-<p>우선 <a href="http://jsfiddle.net/syT6K/">jsfiddle 예제</a> 를 보자.</p>
-
-<h3>Exceptions thrown inside event listener</h3>
-
-<blockquote><p>Exceptions thrown inside event listeners must not stop the propagation of the event or affect the propagation path. The exception itself must not propogate outside the scope of the event handler.</p></blockquote>
-
-<pre><code>var e = document.createEvent("Event");
-e.initEvent("myevent", false, false);
-var target = document.createElement("div");
-target.addEventListener("myevent", function () {
-   throw "Error";
-});
-target.dispatchEvent(e); // Causes the event listener to throw an exception...
-// The previously thrown exception doesn't affect the code that follows:
-console.log("Exceptions? No problem");
-</code></pre>
-
-<p>실행해보면 &ldquo;Exceptions? No problem&rdquo; 이 출력된다. event listener 에서 던진 &ldquo;Error&rdquo; 가 parent scope 로 올라오지 않는다는 이야기.</p>
-
-<h3>Further works:</h3>
-
-<ol>
-<li>DOM Level 2 Events Spec 과 DOM Level 3 Events Spec 를 정독해봐야겠다.</li>
-<li>DOM Event Flow 와 addEventListener(), preventDefault(), stopPropagation(), stopImmediatePropagation() 부분을 정독해야겠다.</li>
-<li>Touch event 를 tracking 해서 drawing 을 하는 예제를 만들어 iPad 로 테스트해봐야겠다.</li>
-<li>FastClick.js 의 line-by-line 분석.</li>
-</ol>
-
-
-<h3>Further readings:</h3>
-
-<ul>
-<li><a href="https://developer.mozilla.org/en-US/docs/DOM/element.addEventListener">MDN: element.addEventListener</a></li>
-<li><a href="http://www.w3.org/TR/DOM-Level-3-Events/#event-flow">Event dispatch and DOM event flow</a></li>
-<li><a href="https://developer.mozilla.org/en-US/docs/DOM/Touch_events#Example">Touch event example</a></li>
-<li><a href="http://davidwalsh.name/javascript-events">David Walsh&rsquo;s blog</a></li>
-<li><a href="http://blog.bittersweetryan.com/2012/07/playing-around-with-javascripts.html">Playing Around With JavaScript&rsquo;s stopPropagation and preventDefault Methods </a></li>
-<li><a href="http://dev-tricks.com/event-preventdefault-and-event-stoppropagation-and-event-stopimmediatepropagation/">Quick Tips:event.preventDefault() and event.stopPropagation and event.stopImmediatePropagation</a></li>
-</ul>
-
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/22">&larr; Older</a>
@@ -2487,23 +2123,23 @@ console.log("Exceptions? No problem");
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/06/14/the-poisoned-nul-byte/">The Poisoned NUL Byte</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/06/14/plaidctf-ctf-2015-plaiddb/">PlaidCTF CTF 2015: PlaidDB</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/06/14/glibc-adventures-the-forgotten-chunks/">Glibc Adventures: The Forgotten Chunks</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/06/14/hitcon-ctf-2014-unexploitable-heap-overflow/">Hitcon Ctf 2014 Unexploitable Heap Overflow</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/06/13/poison-null-byte/">Poison NULL Byte</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/06/13/control-flow-enforcement-technology-preview/">Control-flow Enforcement Technology Preview</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/06/13/cve-2016-2468/">CVE-2016-2468</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/05/03/security-analysis-of-emerging-smart-home-applications/">Security Analysis of Emerging Smart Home Applications</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/04/26/rsa-sample-number/">RSA Sample Number</a>
       </li>
     
   </ul>

@@ -9,7 +9,9 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="iPhone and OS X Users Beware, All Your Data is Public (eg. When at your fav Starbucks) 무조건 SSLVerifySignedServerKeyExchange() 의 도입부에 goto fail 이 &hellip;">
+  <meta name="description" content="아이의 숙제를 해주기 위해&hellip; 0 ~ 6 중에서 4 개의 수를 뽑는 프로그램. depth = 4
+list = []
+def pick(d): global depth if (d &gt; depth): print list return if (len(list &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -65,6 +67,327 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/03/26/picking-n-numbers/">Picking N Numbers</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-03-26T11:13:19+09:00'><span class='date'><span class='date-month'>Mar</span> <span class='date-day'>26</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>11:13 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>아이의 숙제를 해주기 위해&hellip;</p>
+
+<p>0 ~ 6 중에서 4 개의 수를 뽑는 프로그램.</p>
+
+<pre><code>depth = 4
+list = []
+def pick(d):
+    global depth
+    if (d &gt; depth):
+        print list
+        return
+    if (len(list) == 0):
+        smallest = -1
+    else:
+        smallest = list[-1]
+
+    for i in range(smallest+1,6+1):
+        list.append(i)
+        pick(d+1)
+        del list[-1]
+
+if __name__ == "__main__":
+    pick(1)
+</code></pre>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/03/22/fermats-theorem/">Fermat's Theorem</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-03-22T20:54:02+09:00'><span class='date'><span class='date-month'>Mar</span> <span class='date-day'>22</span><span class='date-suffix'>nd</span>, <span class='date-year'>2014</span></span> <span class='time'>8:54 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>소수인 p 가 있을때,</p>
+
+<p>{ 1,2,3,&hellip;,p-1 } 의 숫자들 중에서 하나 골라서 x 라고 하면.</p>
+
+<p>x<sup>p-1</sup> = 1 in Z(p)</p>
+
+<p>을 만족한다.</p>
+
+<p>i.e.</p>
+
+<p>p = 5 라고 하면, p 의 residue class 는 { 0, 1, 2, 3, 4 } 가 된다.</p>
+
+<p>그 중에서 modular inverse 가 있는 수는 { 1, 2, 3, 4 } 가 된다.</p>
+
+<pre><code>1*1 = 1 in Z(5)
+
+2*3 = 1 in Z(5)
+
+3*2 = 1 in Z(5)
+
+4*4 = 1 in Z(5)
+</code></pre>
+
+<p>이기 때문.</p>
+
+<p>페르마의 Theorem 대로, 이 modular inverse 가 있는 수들의 (p-1) 제곱을 한 수들은, 나머지가 1 이 된다.</p>
+
+<pre><code>1^(5-1) = 1 in Z(5)
+
+2^(5-1) = 1 in Z(5)
+
+3^(5-1) = 1 in Z(5)
+
+4^(5-1) = 1 in Z(5)
+</code></pre>
+
+<p>정리하면, Z(p) 에서 p 가 소수이면, { 1,2,&hellip;,p-1 } 까지가 모두 모듈러 인버스를 가지게 되고,
+그 집합의 사이즈는 p-1, x<sup>p-1</sup> 의 residue class 는 1.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/03/22/modular-inversion/">Modular Inversion</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-03-22T13:48:16+09:00'><span class='date'><span class='date-month'>Mar</span> <span class='date-day'>22</span><span class='date-suffix'>nd</span>, <span class='date-year'>2014</span></span> <span class='time'>1:48 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>모든 x 가 modular inversion 를 가지고 있는 것은 아니다.
+그렇다면 어떤 x 만 modular inversion 을 가지게 되나?</p>
+
+<p>Lemma: x in Z(N) has an inverse if and only if gcd(x,N) = 1</p>
+
+<p>Proof:</p>
+
+<p>1) gcd(x,N) = 1 일 경우</p>
+
+<p>There exist a,b such that a<em>x+b</em>N = 1</p>
+
+<p>등식은 Z(N) 으로 reduce 해도 성립한다.</p>
+
+<p>b*N = 0 in Z(N) 이니까,</p>
+
+<p>a*x = 1 in Z(N)</p>
+
+<p>따라서 x 의 modular inversion 은 a.</p>
+
+<p>2) gcd(x,N) > 1 일 경우</p>
+
+<p>x 의 modular inversion 이 어떤 a 라고 가정하면,</p>
+
+<p>gcd(a*x,N) > 1 이게 된다. ( gcd(x,N) > 1 이니까 )</p>
+
+<p>예를 들어, gcd(x,N) = 2 라고 하면,</p>
+
+<p>x 와 a*x 모두 2 의 배수, 짝수가 된다.</p>
+
+<p>N 도 짝수이기때문에, a<em>x = b</em>N + 1 일 수가 없다. 짝수 = 짝수 + 1 ???</p>
+
+<p>a*x = 1 in z(N) 이 아니게 된다. 그러므로 저런 a 는 있을 수 없다.</p>
+
+<p>예를 들어, gcd(x,N) = 3 이라고 하면,</p>
+
+<p>x 와 a*x 모두 3 의 배수.</p>
+
+<p>N 도 3 의 배수. a<em>x = b</em>N + 1 일수가 있을까?</p>
+
+<p>3 의 배수에 1 을 더해서 3 의 배수가 만들어질 수 있을까?</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/03/22/extended-euclidean-algorithm/">Extended Euclidean Algorithm</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-03-22T09:37:42+09:00'><span class='date'><span class='date-month'>Mar</span> <span class='date-day'>22</span><span class='date-suffix'>nd</span>, <span class='date-year'>2014</span></span> <span class='time'>9:37 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>gcd(x,y) 를 찾는 Euclid 알고리즘.</p>
+
+<pre><code>exports.map = function (fn,a) { 
+    for (var i=0; i &lt; a.length; i++)
+        a[i] = fn(a[i]);
+};
+
+exports.reduce = function (fn, a) {
+    var prev = 0;
+    for (var i=0;i&lt;a.length;i++)
+        prev = fn(prev,a[i]);    
+    return prev;
+};
+
+exports.gcd = function (a,b) {
+    var t;
+    if (b &gt; a) {
+        t = a; a = b; b = t;
+    }
+    if (b == 0)
+        return a;
+    return exports.gcd(b, a % b)
+};
+
+% node
+&gt; var x = require('./reduce.js')
+undefined
+&gt; x.reduce(x.gcd, [487, 28, 100])
+1
+&gt; x.reduce(x.gcd, [84, 28, 100])
+4
+&gt; x.reduce(x.gcd, [48, 24, 36])
+12
+&gt;
+</code></pre>
+
+<p>Least positive linear combination of a and b 를 찾아보자.</p>
+
+<pre><code>% cat least_positive.py
+from fractions import gcd
+
+min = 999999999999999
+
+def search(x,y):
+    global min
+    g = gcd(x,y)
+
+    for i in range(-100,101):
+        i = -1 * i
+        for j in range(-100,101):
+            j = -1 * j
+            d = i * x + j * y
+            if d &lt;= 0:
+                continue
+            if d &lt; min:
+                min = d
+                print "New minimum: %d, gcd: %d" % (min,g)
+
+    print "Minimum: %d, gcd: %d" % (min,g)
+    print "done"
+
+search(100,40)
+
+% python least_positive.py
+...
+New minimum: 500, gcd: 20
+New minimum: 480, gcd: 20
+New minimum: 440, gcd: 20
+New minimum: 400, gcd: 20
+New minimum: 380, gcd: 20
+New minimum: 340, gcd: 20
+New minimum: 300, gcd: 20
+New minimum: 280, gcd: 20
+New minimum: 240, gcd: 20
+New minimum: 200, gcd: 20
+New minimum: 180, gcd: 20
+New minimum: 140, gcd: 20
+New minimum: 100, gcd: 20
+New minimum: 80, gcd: 20
+New minimum: 40, gcd: 20
+New minimum: 20, gcd: 20
+Minimum: 20, gcd: 20
+done
+</code></pre>
+
+<p>Theorem: If a and b are nonzero integers, then their gcd is a linear combination
+of a and b, that is there exist integer numbers s and t such that</p>
+
+<p>sa + tb = (a,b).</p>
+
+<p>Proof: Let d be the least positive integer that is a linear combination of a and b. We write</p>
+
+<p>d = sa + tb,</p>
+
+<p>where s and t are integers.</p>
+
+<p>We first show that d | a. By the Division Algorithm we have</p>
+
+<p>a = dq + r, where 0 &lt;= r &lt; d.</p>
+
+<p>r = a - dq = a - q(sa + tb) = a - qsa - qtb = (1 - qs)a + (-qt)b</p>
+
+<p>This shows that r is a linear combination of a and b.
+Since 0&lt;= r &lt; d, and d is the least positive linear combination of a and b,
+we conclude that r = 0, and hence d | a.</p>
+
+<p>이제, a<em>x + b</em>y = gcd(x,y) 를 만족하는 a,b 를 찾는 Extended Euclid 알고리즘.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -463,391 +786,6 @@ android
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2013/10/09/server-sent-events/">Server Sent Events</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2013-10-09T09:52:00+09:00'><span class='date'><span class='date-month'>Oct</span> <span class='date-day'>9</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>9:52 am</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Polling, Long Polling, Push, SSE, WebSocket 의 정확한 차이점을 알 필요가 생겼다.</p>
-
-<h3>Polling</h3>
-
-<p>AJAX 로 HTTP query 를 주기적으로 날리는 식이다. AJAX 와 다른 특별한 기술이라고 하기는 그렇다.
-새로운 Data 가 없을 경우 헛 쿼리를 하게되니, bandwidth 낭비가 된다.</p>
-
-<h3>Long Polling (Hanging GET/COMET)</h3>
-
-<p>보낼 데이타가 없으면, 서버가 HTTP request 를 잡고 있다가, data 가 available 할 때,
-HTTP response 를 보내준다. 서버가 잡고 있기 때문에 Hanging GET 이라고도 칭한다.</p>
-
-<p><a href="http://infrequently.org/2006/03/comet-low-latency-data-for-the-browser/">Alex Russel 의 블로그를 참조</a></p>
-
-<h3>Server Sent Events</h3>
-
-<p><a href="https://developer.mozilla.org/en-US/docs/Server-sent_events/Using_server-sent_events">Mozilla Developer Network</a> 를 보면 SSE 에 대한 좋은 예제가 있다.</p>
-
-<p>서버에서 MIME Type <code>text/event-stream</code> 으로, 내용은 JSON 으로 보내되, <code>event:</code>, <code>data:</code> 로 구분해서 보내고, 클라이언트에서는 <code>EventSource</code> 인터페이스를 사용한다. 보다 자세한 설명은 <a href="http://www.html5rocks.com/en/tutorials/eventsource/basics/">HTML5Rocks</a>로.</p>
-
-<p>sse.html</p>
-
-<pre><code>&lt;html&gt;
-&lt;head&gt;&lt;/head&gt;
-&lt;body&gt; 
-    &lt;ul id="evt"&gt;
-    &lt;/ul&gt;
-&lt;script&gt;
-    var source = new EventSource("sse.php");
-    source.addEventListener("ping", function(e) {
-        var elem = document.createElement("li");
-        var obj = JSON.parse(e.data);
-        elem.innerHTML = "ping at " + obj.time;
-        document.getElementById("evt").appendChild(elem);
-    }, false);
-&lt;/script&gt;
-&lt;/body&gt;
-&lt;/html&gt;
-</code></pre>
-
-<p>sse.php</p>
-
-<pre><code>&lt;?php
-date_default_timezone_set("Asia/Seoul");
-header("Content-Type: text/event-stream\n\n");
-
-while (1) {
-    echo "event: ping\n";
-    $curDate = date(DATE_RFC2822);
-    echo 'data: {"time": "'. $curDate . '"}';
-    echo "\n\n";
-    ob_flush();
-    flush();
-    $r = rand(1,3)
-    sleep($r);
-}
-?&gt;
-</code></pre>
-
-<p>브라우저에서 접속해보면,</p>
-
-<p><img src="/images/ssedemo.png"></p>
-
-<p><a href="http://www.html5rocks.com/en/tutorials/eventsource/basics/">HTML5Rocks</a> 의 nodejs 예제.</p>
-
-<pre><code>var http = require('http');
-var sys = require('sys');
-var fs = require('fs');
-
-http.createServer(function(req,res) {
-    if (req.headers.accept &amp;&amp; req.headers.accept == 'text/event-stream') {
-        if (req.url == '/events') {
-            sendSSE(req,res);
-        } else {
-            res.writeHead(404);
-            res.end();
-        }
-    } else {
-        res.writeHead(200, { 'Content-Type': 'text/html' });
-        res.write(fs.readFileSync(__dirname+'/sse.html'));
-        res.end();
-    }
-}).listen(8000);
-
-function sendSSE(req,res) {
-    res.writeHead(200, {
-        'Content-Type': 'text/event-stream',
-        'Cache-Control': 'no-cache',
-        'Connection': 'keep-alive'
-    });
-    var id = (new Date()).toLocaleTimeString();
-    setInterval(function() { 
-        constructSSE(res, id, (new Date()).toLocaleTimeString() );
-    }, 5000);
-    constructSSE(res, id, (new Date()).toLocaleTimeString() );
-}
-
-function constructSSE(res, id, data) {
-    res.write('event: ping' + '\n');
-    //res.write('id: ' + id + '\n');
-    res.write('data: ' + '{ "time": "' + data + '"}' + '\n\n');
-}
-</code></pre>
-
-<p>sse.html</p>
-
-<pre><code>&lt;!DOCTYPE html&gt;
-&lt;html&gt;
-&lt;head&gt;&lt;/head&gt;
-&lt;body&gt;
-    &lt;ul id="evt"&gt;
-    &lt;/ul&gt;
-    &lt;script&gt;
-        var source = new EventSource('/events');
-        source.addEventListener("ping", function(e) {
-            var elem = document.createElement("li");
-            var obj = JSON.parse(e.data);
-            elem.innerHTML = "ping at " + obj.time;
-            document.getElementById("evt").appendChild(elem);
-        }, false);
-    &lt;/script&gt;
-&lt;/body&gt;
-&lt;/html&gt;
-</code></pre>
-
-<p>HTTP connection 을 유지하면서, 서버가 random 딜레이를 두고 event 를 쏴주는데,
-브라우저가 이벤트를 처리하게 된다.</p>
-
-<p><a href="http://stackoverflow.com/questions/5195452/websockets-vs-server-sent-events-eventsource">WebSocket 과 SSE 간에 큰 차이점</a>은 다음과 같다.</p>
-
-<ol>
-<li>WebSocket 은 Full-Duplex 채널 v.s. SSE 는 Server -> Browser</li>
-<li>SSE 는 HTTP 로 구현</li>
-<li>Internet Explorer 는 SSE 를 지원하지 않음</li>
-</ol>
-
-
-<p>WebSocket 이나 SSE 는 브라우저 호환성때문에, 현실에서는 (i.e. Facebook) long polling 을 주로 사용하는 모양이다.</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2013/10/02/horners-method/">Horner's Method</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2013-10-02T15:19:00+09:00'><span class='date'><span class='date-month'>Oct</span> <span class='date-day'>2</span><span class='date-suffix'>nd</span>, <span class='date-year'>2013</span></span> <span class='time'>3:19 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p><a href="http://en.wikipedia.org/wiki/Horner's_method">Horner&rsquo;s method</a></p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2013/09/30/updating-forked-repo/">Updating Forked Repo</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2013-09-30T13:16:00+09:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>30</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>1:16 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p><a href="http://stackoverflow.com/questions/7244321/how-to-update-github-forked-repository">How to update github forked repository</a></p>
-
-<pre><code>git remote add upstream git://github.com/whoever/whatever.git
-
-# Fetch all the branches of that remote into remote-tracking branches,
-# such as upstream/master
-git fetch upstream
-
-# Make sure that you're on your master branch:
-git checkout master
-
-# Rewrite your master branch so that any commits of yours that
-# aren't already in upstream/master are replayed on top of that
-# other branch:
-git rebase upstream/master
-
-git push -f origin master
-</code></pre>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2013/09/27/naive-bayesian-classifier/">Naive Bayesian Classifier</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2013-09-27T16:29:00+09:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>27</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>4:29 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><h4>Conditional Probability</h4>
-
-<p>일반적인 조건부 확률 예제를 들어본다.</p>
-
-<ol>
-<li>주머니에 두개의 동전이 들어있다.</li>
-<li>여기서 동전을 하나 꺼내 동전 던지기를 한다.</li>
-<li>단 한개는 평범한 동전. 한개는 조작되어서 던지면 무조건 Head 가 나오는 동전.</li>
-<li>주머니에서 동전을 하나 꺼내어 던졌더니 Head 가 나왔을때,</li>
-<li>평범한 동전을 꺼냈을 확률은?</li>
-</ol>
-
-
-<p>결과 트리를 그려보면,</p>
-
-<ol>
-<li>일단계 outcome 은 평범동전 / 조작동전</li>
-<li>이단계 outcome 은 H / T / H / H</li>
-</ol>
-
-
-<p>P(평범|H) = one H / three H = 1/3 = P(평범 and H) / P(H) = (&frac14;) / (&frac34;)</p>
-
-<h4>검색 키워드에 따라 결과 페이지에 광고를 집어 넣기</h4>
-
-<p>검색 엔진에 들어오는 쿼리를</p>
-
-<ul>
-<li>informational query</li>
-<li>transactional query</li>
-</ul>
-
-
-<p>2 가지로 구분할 수 있다고 하자.</p>
-
-<p><code>transactional query</code> 라고 판단되면 광고를 옆에 표시해주기로 하자.</p>
-
-<p>쉬운 방법은 매 query 마다 과거 기록을 검색해보면 된다.</p>
-
-<p><code>cheap flowers</code> 라고 유저가 치면 <code>cheap flowers</code> 를 과거 DB 에서 검색해서,</p>
-
-<ol>
-<li>구매관련 링크로 튀었는지 (유저가 클릭)</li>
-<li>정보성 링크로 튀었는지</li>
-</ol>
-
-
-<p>검색한 후에, 구매관련 링크로 튄 경우가 많았다면 꽃가게 광고를 옆에 표시해준다.
-그런데 이 방법은 response 시간도 오래 걸리고 부하가 심해서 feasible 하지 않다.</p>
-
-<p><code>cheap flowers</code>, <code>red flowers</code>, <code>gift flowers</code> 만 놓고 봐도,</p>
-
-<p><code>cheap flowers</code> 는 transactional query 일 것이고 <code>red flowers</code> 는 informational query 일 듯.</p>
-
-<p>조건부 확률을 써서 문제를 정의해보면, P(구매링크를 클릭| <code>cheap flowers</code> 를 검색) 의 확률이다.</p>
-
-<ol>
-<li>우리 DB 에 10 여년간의 수많은 검색 -> 클릭 데이터가 있다.</li>
-<li>정보성 블로그 링크인지 스폰서 광고 링크인지 link property 에 담겨져 있다. (링크 등록시)</li>
-</ol>
-
-
-<h4>Naive Bayesian Classifier</h4>
-
-<p>keywords: flower, red, gift, cheap</p>
-
-<ul>
-<li>should ads be shown or not?</li>
-<li>are you a surfer or a shopper?</li>
-</ul>
-
-
-<p>machine learning is all about learning from past data.</p>
-
-<ul>
-<li>past behavior of many many searchers using these keywords</li>
-</ul>
-
-
-<p>전체 n 개의 query instance 가 있었다고 하자. sample set.</p>
-
-<p>red 라는 단어를 query 한 경우가 r 케이스.</p>
-
-<p>구매로 연결된 query 는 k 케이스.</p>
-
-<p>p(R and B) = i 케이스.</p>
-
-<p>라고 하면.</p>
-
-<p>red 라는 단어를 query 했을 경우 구매 이벤트가 일어날 조건부 확률 p(B|R) = i/r</p>
-
-<p>Red / Cheap 이라는 2 개의 단어의 경우로 넘어가자.</p>
-
-<p>&ldquo;naive&rdquo; Bayesian classifier:</p>
-
-<p>Assumption: All the futures that one uses to learn about historical data are
-independent for a particular choice of the behavior one is trying to learn.</p>
-
-<p>i.e. if one is trying to predict whether a given user is shopping or just
-surfing using the query words that they use to search. We assume that the
-words themselves are all independent and equally likely of occur independent of
-what what other words are used in the query.</p>
-
-<p>Assumption - R and C are independent given B.</p>
-
-<p>P(B|R,C) * P(R,C) = P(R,C|B) * P(B) (Bayes rule)
-= P(R|C,B) * P(C|B) * P(B) (Bayes rule)
-= P(R|B) * P(C|B) &amp; P(B) (independence)</p>
-
-<p>so, given values r and c for R and C</p>
-
-<p>compute:</p>
-
-<p>p(r|B=y)<em>p(c|B=y)</em>p(B=y) / p(r|B=n)<em>p(c|B=n)</em>p(B=n)</p>
-
-<p>choose B=y if this is > alpha (usually 1), and B=n otherwise</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/19">&larr; Older</a>
@@ -865,23 +803,23 @@ what what other words are used in the query.</p>
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/06/14/the-poisoned-nul-byte/">The Poisoned NUL Byte</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/06/14/plaidctf-ctf-2015-plaiddb/">PlaidCTF CTF 2015: PlaidDB</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/06/14/glibc-adventures-the-forgotten-chunks/">Glibc Adventures: The Forgotten Chunks</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/06/14/hitcon-ctf-2014-unexploitable-heap-overflow/">Hitcon Ctf 2014 Unexploitable Heap Overflow</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/06/13/poison-null-byte/">Poison NULL Byte</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/06/13/control-flow-enforcement-technology-preview/">Control-flow Enforcement Technology Preview</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/06/13/cve-2016-2468/">CVE-2016-2468</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/05/03/security-analysis-of-emerging-smart-home-applications/">Security Analysis of Emerging Smart Home Applications</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/04/26/rsa-sample-number/">RSA Sample Number</a>
       </li>
     
   </ul>

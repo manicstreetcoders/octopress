@@ -9,7 +9,9 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="hi. i&rsquo;m naveen. 에서 필요한 bookmarklets 를 발견했다. 위 blog 에는 del.icio.us 버전이 적혀있는데 javascript:(function(){l=location.href;t=document.title;if(!t) t = &hellip;">
+  <meta name="description" content="Hash-based message authentication code
+Dr. Dobb&rsquo;s Journal: The HMAC Algorithm
+SHA-1 HMAC: Hash-based message authentication code Data &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -65,6 +67,772 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/12/18/hmac-sha1-http-authorization-and-oauth/">HMAC, SHA1, HTTP Authorization and, OAuth</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2012-12-18T10:05:00+09:00'><span class='date'><span class='date-month'>Dec</span> <span class='date-day'>18</span><span class='date-suffix'>th</span>, <span class='date-year'>2012</span></span> <span class='time'>10:05 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><ul>
+<li><a href="http://en.wikipedia.org/wiki/Hash-based_message_authentication_code">Hash-based message authentication code</a></li>
+<li><a href="http://www.drdobbs.com/security/the-hmac-algorithm/184410908">Dr. Dobb&rsquo;s Journal: The HMAC Algorithm</a></li>
+<li><a href="http://en.wikipedia.org/wiki/SHA-1">SHA-1</a></li>
+</ul>
+
+
+<p>HMAC: Hash-based message authentication code</p>
+
+<ul>
+<li>Data integrity</li>
+<li>message sender 에 대한 authenticity 를 동시에 검증할 수 있다.</li>
+<li>핵심은 shared secret key 가 있다는 것</li>
+</ul>
+
+
+<p>MD5 나 SHA1 등의 cryptographic hash function 을 사용할 수 있다.
+HMAC-MD5 또는 HMAC-SHA1 등의 함수를 조합해낼 수 있다.</p>
+
+<p>HMAC-SHA1 알고리즘의 콤포넌트들을 설명하면,</p>
+
+<p>key 가 64 bytes (== 512 bits) 보다 크면 SHA1 을 돌려서 digest 해서 줄인다.</p>
+
+<p>SHA1 digest size 는 160 bit 니까, 이제 key size 는 무조건 64 bytes 보다 작다.</p>
+
+<p>그 다음에 뒤를 0 으로 패딩한다.</p>
+
+<p>그 다음에 이 (패딩된) key 를 가지고 inner pad, outer pad 를 만든다.</p>
+
+<ul>
+<li>inner pad = 64 bytes 각각의 byte 와 0x36 간에 XOR.</li>
+<li>outer pad = 64 bytes 각각의 byte 와 0x5c 간에 XOR.</li>
+</ul>
+
+
+<p>이제 inner pad + message 를 붙여서, SHA1 을 돌리고 나온 digest 를 가지고.</p>
+
+<p>outer pad + digest 를 붙여서 또 SHA1 을 돌린다.</p>
+
+<p>그럼 나온 최종 digest 160 bits. 이게 HMAC-SHA1 의 결과값이다.</p>
+
+<p>Dr. Dobb&rsquo;s Journal 에 나온 hmac_md5()</p>
+
+<pre><code>/* Function: hmac_md5 */
+void
+hmac_md5(text, text_len, key, key_len, digest)
+unsigned char* text; /* pointer to data stream */
+int text_len; /* length of data stream */
+unsigned char* key; /* pointer to authentication key */
+int key_len; /* length of authentication key */
+caddr_t digest; /* caller digest to be filled in */
+{
+     MD5_CTX context;
+     unsigned char k_ipad[65]; /* inner padding - key XORd with ipad */
+     unsigned char k_opad[65]; /* outer padding - key XORd with opad */
+     unsigned char tk[16];
+     int i;
+     /* if key is longer than 64 bytes reset it to key=MD5(key) */
+     if (key_len &gt; 64) {
+         MD5_CTX      tctx;
+         MD5Init(&amp;tctx);
+         MD5Update(&amp;tctx, key, key_len);
+         MD5Final(tk, &amp;tctx);
+
+         key = tk;
+         key_len = 16;
+     }
+     /* the HMAC_MD5 transform looks like:
+      * MD5(K XOR opad, MD5(K XOR ipad, text))
+      * where K is an n byte key
+      * ipad is the byte 0x36 repeated 64 times
+      * opad is the byte 0x5c repeated 64 times
+      * and text is the data being protected
+      */
+     /* start out by storing key in pads */
+     bzero( k_ipad, sizeof k_ipad);
+     bzero( k_opad, sizeof k_opad);
+     bcopy( key, k_ipad, key_len);
+     bcopy( key, k_opad, key_len);
+
+     /* XOR key with ipad and opad values */
+     for (i=0; i&lt;64; i++) {
+             k_ipad[i] ^= 0x36;
+             k_opad[i] ^= 0x5c;
+     }
+     /* perform inner MD5 */
+     MD5Init(&amp;context);               /* init context for 1st pass */
+     MD5Update(&amp;context, k_ipad, 64)      /* start with inner pad */
+     MD5Update(&amp;context, text, text_len); /* then text of datagram */
+     MD5Final(digest, &amp;context);          /* finish up 1st pass */
+     /* perform outer MD5 */
+     MD5Init(&amp;context);               /* init context for 2nd pass */
+     MD5Update(&amp;context, k_opad, 64); /* start with outer pad */
+     MD5Update(&amp;context, digest, 16); /* then results of 1st hash */
+     MD5Final(digest, &amp;context);      /* finish up 2nd pass */
+}
+
+key =         0x0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b
+key_len =     16 bytes
+data =        "Hi There"
+data_len =    8  bytes
+digest =      0x9294727a3638bb1c13f48ef8158bfc9d
+
+key =         "Jefe"
+data =        "what do ya want for nothing?"
+data_len =    28 bytes
+digest =      0x750c783e6ab0b503eaa86e310a5db738
+key =         0xAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+key_len       16 bytes
+data =        0xDDDDDDDDDDDDDDDDDDDD...
+              ..DDDDDDDDDDDDDDDDDDDD...
+              ..DDDDDDDDDDDDDDDDDDDD...
+              ..DDDDDDDDDDDDDDDDDDDD...
+              ..DDDDDDDDDDDDDDDDDDDD
+data_len =    50 bytes
+digest =      0x56be34521d144c88dbb8c733f0e8b3f6
+</code></pre>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/12/14/simple-introduction-to-oauth/">Simple Introduction to OAuth</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2012-12-14T10:34:00+09:00'><span class='date'><span class='date-month'>Dec</span> <span class='date-day'>14</span><span class='date-suffix'>th</span>, <span class='date-year'>2012</span></span> <span class='time'>10:34 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h3>OAuth: user, client, and server</h3>
+
+<p><a href="http://hueniverse.com">Eran Hammer</a> 가 OAuth 2.0 을 떠난다고 한다. Web 이 아니라 Enterprise 의 요구에 끌려가면서 복잡해지고 거대해지고 등등의 사퇴의 변을 블로그에 올렸다.</p>
+
+<ul>
+<li><p><a href="http://hueniverse.com">Eran Hammer&rsquo;s blog</a> 에 OAuth 1.0 에 대한 좋은 글들이 많다.</p></li>
+<li><p>Heroku 에서 일하는 Schneems 의 <a href="http://schneems.com/post/23164666348/oauth-a-tale-of-two-servers">OAuth: A Tale of Two Servers</a> 를 읽고 정리해본다.</p></li>
+</ul>
+
+
+<p>우선 이 글에 나오는 Facebook 이나 instagram 은 이해를 돕기위한 예일뿐, 그들이 이런 프로토콜이나 flow 나 URL 을 사용한다는 것은 절대 아님.</p>
+
+<ul>
+<li>리소스를 보관하고 있는 서버 (i.e. Facebook 의 Social Graph)</li>
+<li>OAuth Client (i.e. Facebook 의 Social Graph 를 import 하려는 instagram 서버)</li>
+</ul>
+
+
+<p>우선 OAuth Client (i.e. instagram) 를 OAuth Provider (i.e. Facebook) 에
+등록해야한다.</p>
+
+<p>예를 들어 instagram 개발자는 Facebook 개발자 페이지에 가서</p>
+
+<pre><code>client_id=instagram
+</code></pre>
+
+<p>를 등록하고</p>
+
+<pre><code>client_secret=bar
+</code></pre>
+
+<p>를 발급받는다.</p>
+
+<p>실제 유저가 instagram 을 사용하는 경우를 상상해보자.</p>
+
+<p>instagram 에서</p>
+
+<pre><code>GET facebook.com/oauth/authorize? 
+client_id=instagram
+callback=instagram.com/oauth_accept
+</code></pre>
+
+<p>를 facebook.com 에 쏜다.</p>
+
+<p>facebook 은 이제 유저한테서 허가를 받아야겠다고 생각한다.</p>
+
+<p>facebook 은 instagram 이 유저 XXX 의 어카운트를 접근하려고 한다&hellip;
+허가해줄거냐 말거냐 물어보는 화면을 출력.</p>
+
+<p>유저가 YES 하면 facebook 은</p>
+
+<pre><code>GET instagram.com/oauth_accept?
+code=foobahz
+</code></pre>
+
+<p>를 쏜다. 유저의 허락을 받았기에 <code>code=foobahz</code> 를 쏴주는 것이다.</p>
+
+<p>이제 instagram 은 다음을 facebook.com 에 쏘고, access_token 을 받는다.
+3 가지 정보를 같이 보냄으로써 유저의 허락도 받았고, legitimate 한 instagram 프로그램이라는 것을 입증하는 것이다.</p>
+
+<pre><code>POST facebook.com/oauth/access_token
+code=foobahz
+client_id=instgram
+client_secret=bar
+
+Result:
+
+{ 'access_token': 'supersecret' }
+</code></pre>
+
+<p>이제 access_token 을 받았으니 사용자의 Social Graph 를 요청한다던가 하는 리퀘스트를 access_token 과 같이 보낼 수 있다. Facebook 은 이 access_token 이 authorized 된 것이고 자기가 발급해준 것이라는 것을 확인할 수 있기때문에, instagram 의 요청을 받아들인다.</p>
+
+<pre><code>GET facebook.com/user/me/friends
+access_token=supersecret
+</code></pre>
+
+<h3>OAuth Provider</h3>
+
+<ul>
+<li><a href="http://api.babo.com/oauth/request_token">http://api.babo.com/oauth/request_token</a></li>
+<li><a href="http://api.babo.com/oauth/authorize">http://api.babo.com/oauth/authorize</a></li>
+<li><a href="http://api.babo.com/oauth/access_token">http://api.babo.com/oauth/access_token</a></li>
+</ul>
+
+
+<p>Further readings:</p>
+
+<ul>
+<li><a href="http://pydanny.com/the-sorry-state-of-python-oauth-providers.html">The sorry state of Python OAuth providers</a></li>
+<li><a href="http://www.apigee.com">Apigee homepage</a></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/12/01/partition-function-in-quicksort/">Partition Function in Quicksort</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2012-12-01T21:18:00+09:00'><span class='date'><span class='date-month'>Dec</span> <span class='date-day'>1</span><span class='date-suffix'>st</span>, <span class='date-year'>2012</span></span> <span class='time'>9:18 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h3>Quicksort</h3>
+
+<p>Pseudo-code 로 Quicksort 를 기술해보자.</p>
+
+<pre><code>def qsort(a):
+    if len(a) &lt;= 1:
+        return a
+    pivot = a[0]
+    less = []
+    greater = []
+
+    for i in range(1,len(a)):
+        if a[i] &lt; pivot:
+            less.append(a[i])
+        else
+            greater.append(a[i])
+
+    return qsort(less) + [ pivot ] + qsort(greater)
+</code></pre>
+
+<p>Python 으로 구현하니까 너무 간단한데, C 나 Java 로 구현할때는 메모리에 신경을 써야 한다.
+별도의 메모리를 쓰지 않으면서, less / greater 로 파티셔닝하는 함수를 구현하는 것이 좀 까다로운데&hellip;</p>
+
+<p>Sedgewick 의 알고리즘 책에 나온 파티셔닝 함수가 있다. 근데 이 함수에 골때린 점이 있다.
+__Pivot 과 같은 값들이 여러개 있을 경우, left list / right list 양쪽으로 다 갈 수 있다는 점.
+다만 recursion 을 거듭하면서, 양쪽에 흩어져 있는 (Pivot 과) 동일 값들이 pivot 쪽으로 모이게 되는 것이다.</p>
+
+<pre><code>int _partition(int a[],int lo,int hi) {
+    int pivot;
+    int i,j;
+    pivot = a[lo];
+    i = lo; j = hi+1;
+    while(1) {
+        while (a[++i] &lt; pivot) if (i &gt;= hi) break;
+        while (a[--j] &gt; pivot) if (j &lt;= lo) break;
+        if (i&gt;=j) break;
+        swap(&amp;a[i],&amp;a[j]);
+    }
+    swap(&amp;a[lo],&amp;a[j]);
+    return j;
+}
+</code></pre>
+
+<p>좀 더 직관적인 파티션 함수</p>
+
+<pre><code>int __partition(int a[],int lo,int hi) {
+    int pivot;
+    int i,j;
+    pivot = a[lo];
+    i=j=lo;
+    for (++j;j&lt;=hi;j++) {
+        if (a[j] &lt; pivot) {
+            i++;
+            swap(a,i,j);
+        }
+    }
+    swap(a,lo,i);
+    return i;
+}
+void __q(int a[],int lo,int hi) {
+    int j;
+    if (hi-lo&lt;=0) return;
+    j = __partition(a,lo,hi);
+    __q(a,lo,j-1);
+    __q(a,j+1,hi);
+}
+</code></pre>
+
+<h3>Counting inversions by piggybacking mergesort</h3>
+
+<p>곁다리로, Mergesort 의 응용으로 재미난 것이 있는데.
+Sort 가 되지 않은 pair 의 갯수를 찾아내는 알고리즘.
+즉 inversion pair 를 찾는 알고리즘.
+Mergesort 를 piggybacking 해서 카운팅함.</p>
+
+<p>사람들이 1 부터 n 까지 랭킹을 매긴다고 했을때,
+Person A 와 Person B 가 각각 매긴 랭킹이 얼마나 유사한가를 측정하는 알고리즘도 응용해서 만들 수 있음.</p>
+
+<p>Recommendation 에서 쓰이는 collaborative filtering.</p>
+
+<h3>Binary Heap</h3>
+
+<p>Binary Heap 으로 Minimum priority queue 를 구현해보았다.</p>
+
+<pre><code>#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;string.h&gt;
+
+typedef struct _heap {
+    int heap[1024];
+    int N;
+} heap;
+
+/* heap index starts from 1 */
+int parent(int idx) { return idx/2; }
+int left(heap * p_heap, int idx) { return idx*2 &lt;= p_heap-&gt;N ? idx*2 : 0; }
+int right(heap * p_heap, int idx) { return idx*2+1 &lt;= p_heap-&gt;N ? idx*2+1 : 0; }
+swap(int a[],int i,int j) { int t = a[i]; a[i] = a[j]; a[j] = t; }
+bubble_up(heap * p_heap) {
+    int i = p_heap-&gt;N;
+
+    while (i &gt; 0 &amp;&amp; parent(i) &gt; 0) {
+        if (p_heap-&gt;heap[i] &lt; p_heap-&gt;heap[ parent(i) ] ) {
+            swap(p_heap-&gt;heap, i, parent(i));
+            i = parent(i);
+        } else
+            break;
+    }
+}
+sink(heap * p_heap) {
+    int i = 1;
+    int l,r;
+    int * a = p_heap-&gt;heap;
+
+    while (i &lt; p_heap-&gt;N) {
+        l = left(p_heap, i);
+        r = right(p_heap, i);
+        if (a[i] &gt; a[l]) {
+            if (a[l] &gt; a[r]) {
+                swap(a, i, r);
+                i = r;
+            } else {
+                swap(a, i, l);
+                i = l;
+            }
+        } else if (a[i] &gt; a[r]) {
+            if (a[r] &gt; a[l]) {
+                swap(a, i, l);
+                i = l;
+            } else {
+                swap(a, i, r);
+                i = r;
+            }
+        } else
+            break;
+    }
+}
+heap_init(heap * p_heap) {
+    p_heap-&gt;N = 0;
+    p_heap-&gt;heap[0] = (0xFFFFFFFF &lt;&lt; 1 &gt;&gt; 1);
+}
+heap_add(heap * p_heap, int x) {
+    p_heap-&gt;heap[ ++p_heap-&gt;N ] = x;
+    bubble_up(p_heap);
+}
+int heap_remove(heap * p_heap) {
+    int min = p_heap-&gt;heap[1];
+    int end = p_heap-&gt;heap[ p_heap-&gt;N ];
+    p_heap-&gt;heap[1] = end;
+    p_heap-&gt;N--;
+    sink(p_heap);
+
+    return min;
+}
+heap_isempty(heap * p_heap) { return p_heap-&gt;N == 0; }
+heap_heapify(heap * p_heap, int a[], int N) {
+    int i;
+    heap_init(p_heap);
+    for (i = 0;i &lt; N;i++)
+        heap_add(p_heap, a[i]);
+}
+void _d(int a[],int N) {
+    int i;
+    for (i=0;i&lt;N;i++) printf("%d ", a[i]);
+    printf("\n");
+}
+main()
+{
+    int a[]={ 123, 1, 0, -4, 45, 38, 24, 99, 88, 43, 23, 12, 9, 8, 7, 46, 77 };
+    int N = sizeof a / sizeof(int);
+    heap h;
+
+    _d(a,N);
+    heap_heapify(&amp;h, a, N);
+    while (!heap_isempty(&amp;h)) printf("%d ", heap_remove(&amp;h));
+    printf("\n");
+}
+</code></pre>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/10/18/300ms-delay/">300ms Delay</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2012-10-18T23:05:00+09:00'><span class='date'><span class='date-month'>Oct</span> <span class='date-day'>18</span><span class='date-suffix'>th</span>, <span class='date-year'>2012</span></span> <span class='time'>11:05 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>UIWebView 에서 onclick event 를 잡을때, 터치 후 event 발사까지 300ms 정도의 딜레이가 있다.
+래깅이 느껴지고, 손가락이 오그라든다.</p>
+
+<p>그 딜레이를 없애고 최대한 반응 속도를 올리기 위한 방법이 있다.</p>
+
+<p>아래의 아티클들에 소개되어 있는데,</p>
+
+<ul>
+<li><a href="http://labs.ft.com/articles/ft-fastclick">FT Fastclick</a></li>
+<li><a href="http://labs.ft.com/2011/08/fastclick-native-like-tapping-for-touch-apps/">FastClick: native-like tapping for touch apps</a></li>
+<li><a href="http://labs.ft.com/2012/08/fastclick-redux/">FastClick redux</a></li>
+<li><a href="http://github.com/ftlabs/fastclick">ftlabs/fastclick</a></li>
+<li><a href="http://github.com/dave1010/jquery-fast-click">dave1010/jquery-fast-click</a></li>
+</ul>
+
+
+<p>번역 &amp; 정리해본다.</p>
+
+<p>모바일 브라우저에서 다음과 같은 페이지를 로드했을 경우</p>
+
+<pre><code>&lt;button onclick='signup()'&gt;Sign Up!&lt;/button&gt;
+</code></pre>
+
+<p>유저가 button 을 누르고, 브라우저가 click event 를 쏘기까지 약 300ms 의 딜레이가 있다.
+모바일 브라우저가 이런 딜레이를 두는 이유는 더블탭을 감지하기 위해서이다.
+이 딜레이를 없앨 수 없을까?</p>
+
+<p>FT Labs 에서 제작한 FT FastClick 에서 쓴 방식은 TouchEnd event 가 잡혔을때, click event 를 쏴주는 식이다.</p>
+
+<p>고려해야 할 상황은 (<a href="http://code.google.com/mobile/articles/fast_buttons.html">Creating Fast Button for Mobile Web Applications</a>)</p>
+
+<ol>
+<li>딴데를 터치한 다음에 버튼 위로 손을 끌고 와서 놔버려서 button 에 touchend 가 뜬 경우 -> click event 를 쏘면 안됨.</li>
+<li>버튼을 터치하고 화면을 드래그한다음에 손을 놔버려서 button 에 touchend 가 뜬 경우 -> 버튼을 누를 의도였다기보다는 화면을 스크롤하고 싶었던 것. 그래서 click event 를 쏘면 안됨.</li>
+</ol>
+
+
+<h3>FT Fastclick</h3>
+
+<p><a href="http://github.com/ftlabs/fastclick">ftlabs/fastclick</a> 의 사용법은.</p>
+
+<pre><code>&lt;script type='application/javascript' src='/path/to/fastclick.js'&gt;&lt;/script&gt;
+
+window.addEventListener('load'), function() {
+  new FastClick(document.body);
+}, false);
+</code></pre>
+
+<p>으로 간단하다. 사용해보니 잘 동작한다. UIWebView 에서 터치가 native app 처럼 빠르게 인식된다. 하지만 여기에 만족할 수 없었다. 소스를 디벼야 직성이 풀릴 듯 했다.</p>
+
+<p>그래서 <a href="http://labs.ft.com/wp-content/uploads/2011/08/fastclick.js">FastClick() 소스</a> 를 디비기 시작했다.</p>
+
+<pre><code>// Determine whether touch handling is supported
+var touchSupport = 'ontouchstart' in window;
+</code></pre>
+
+<p><em>ontouchstart</em> 가 있으면 touch 를 지원하는 디바이스로 판단.</p>
+
+<pre><code>// Set up event handlers as required
+if (touchSupport) {
+  layer.addEventListener('touchstart', onTouchStart, true);
+  layer.addEventListener('touchmove', onTouchMove, true);
+  layer.addEventListener('touchend', onTouchEnd, true);
+  layer.addEventListener('touchcancel', onTouchCancel, true);
+}
+layer.addEventListener('click', onClick, true);
+</code></pre>
+
+<p>addEventListener() 를 통해서 touchstart / touchmove / touchend / touchcancel 에 listener 를 등록한다.</p>
+
+<p>addEventListener() 의 문법은</p>
+
+<pre><code>target.addEventListener(type, listener[, useCapture]);
+</code></pre>
+
+<p>여기서 <em>useCapture</em> 는 무얼까?</p>
+
+<blockquote><p>If true, useCapture indicates that the user wishes to initiate capture. After initiating capture, all events of the specified type will be dispatched to the registered listener before being dispatched to any EventTarget beneath it in the DOM tree. Events which are bubbling upward through the tree will not trigger a listener designated to use capture.</p></blockquote>
+
+<p>capture phase 는 <em>DefaultView</em> -> <em>Document</em> -> <em><html></em> -> &hellip; 해서 <em>target</em> 까지 내려오는 구간. bubbling phase 는 <em>target</em> 에서 다시 위로 올라가는 구간인데,
+<em>useCapture</em> 를 쓰면, <em>the capture and target phases</em> 에만 event listener 를 붙이는 것이다. 그리고, 하나의 타겟에 여러개의 event listener 들이 붙을 수 있음.</p>
+
+<p>실험을 해보자.  useCapture 를 <em>true</em> 로 세팅하면, DOM tree 의 child node 한테 가는 이벤트를 먼저 잡는 것을 볼 수 있다.</p>
+
+<p>Parent node 에 listener 를 붙이고, <em>useCapture = true</em> 로 listener 를 붙이고,
+child node 에는 <em>useCapture = false</em> 로 listener 를 붙인다.
+그리고, parent 쪽 listener 에서는 stopPropagation() 으로 propagation 을 끊는다.
+<em>two</em> 를 클릭해도, parent node 에 붙은 listener 가 control 을 가져가며,
+event propagation 을 stop 해버리므로 <em>two</em> 에 붙은 listner 는 수행될 기회를 가지지 못한다. 그래서 <em>three</em> 가 아닌 <em>four</em> 로 변해버린다.</p>
+
+<p>jsfiddle 에서 실험해보자.</p>
+
+<iframe style="width: 100%; height: 300px" src="http://jsfiddle.net/zomojj/mtd8d/1/embedded/" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
+
+
+<p>아무리 클릭해도 <em>three</em> 는 나오지 않고 <em>four</em> 만 나온다. <em>useCapture</em> 의 effect 를 알 수 있다.</p>
+
+<p>FT FastClick 코드로 다시 돌아가면, touchstart, touchend, touchmove, touchcancel 에 listener 를 붙이고, click 에도 listener 를 붙인다.
+그리고 이미 onclick 핸들러가 있었다면, listener 로 전환시켜서 나중에 불리도록 조치한다. 기존의 onclick 핸들러는 리셋.</p>
+
+<pre><code>// If a handler is already declared in the element's onclick attribute, it will be fired before
+// FastClick's onClick handler. Fix this by pulling out the user-defined handler function and
+// adding it as listener.
+if (layer.onclick instanceof Function) {
+  layer.addEventListener('click', layer.onclick, false);
+  layer.onclick = '';
+}
+</code></pre>
+
+<h3>Event Canceling</h3>
+
+<p>DOM event 를 cancel 하는데, 3 가지 method 가 있는데,</p>
+
+<ul>
+<li>preventDefault()</li>
+<li>stopPropagation()</li>
+<li>stopImmediatePropagation()</li>
+</ul>
+
+
+<p>우선 preventDefault() 부터 보면,</p>
+
+<blockquote><p>preventDefault()</p>
+
+<p>If an event is cancelable, the preventDefault method is used to signify that the event is to be canceled, meaning any default action normally taken by the implementation as a result of the event will not occur. If, during any stage of event flow, the preventDefault method is called the event is canceled. Any default action associated with the event will not occur. Calling this method for a non-cancelable event has no effect. Once preventDefault has been called it will remain in effect throughout the remainder of the event&rsquo;s propagation. This method may be used during any stage of event flow.</p></blockquote>
+
+<p>예제를 해봤다. <em>checkbox 에 클릭을 해도 check 가 되지 않는다!</em></p>
+
+<pre><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+&lt;title&gt;DOM Event Example&lt;/title&gt; 
+&lt;script&gt;
+// Function to change the content of t2
+function stopDefAction(evt) {
+    evt.preventDefault();
+}  
+// Function to add event listener to t
+function load() { 
+  document.getElementById('my-checkbox').addEventListener(
+    'click', stopDefAction, false
+  );
+} 
+
+document.addEventListener("DOMContentLoaded", load, false);
+&lt;/script&gt;
+
+&lt;/head&gt;
+&lt;body&gt;
+
+&lt;p&gt;Please click on the checkbox control.&lt;/p&gt;
+
+&lt;form&gt;
+    &lt;input type="checkbox" id="my-checkbox" /&gt;
+    &lt;label for="my-checkbox"&gt;Checkbox&lt;/label&gt;
+&lt;/form&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+
+<p>HTML 섹션을 클릭해서 보도록.</p>
+
+<iframe style="width: 100%; height: 300px" src="http://jsfiddle.net/zomojj/b2BPD/3/embedded/" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
+
+
+<p>그럼 다음은 stopPropagation().</p>
+
+<blockquote><p>stopPropagation()</p>
+
+<p>Prevents all other event listeners from being triggered, excluding any remaining candiate event listeners. Once it has been called, further calls to this method have no additional effect.</p></blockquote>
+
+<p>그럼 preventDefault() 와 stopPropagation() 의 차이는 무엇일까 궁금해졌다.</p>
+
+<p>간단히 정리하면, preventDefault() 는 event 에 대한 default functionality 가 일어나는 것을 막는다. 하지만 event 는 propagate 된다.</p>
+
+<p>반대로 stopPropagation() 은 default functionality 는 일어나지만, parent 로 propagate 되지는 않는다.</p>
+
+<blockquote><p><a href="http://stackoverflow.com/questions/5963669/whats-the-difference-between-event-stoppropagation-and-event-preventdefault">What&rsquo;s the difference between event.stopPropagation and event.preventDefault?</a></p>
+
+<p>stopPropagation stops the event from bubbling up the event chain.</p>
+
+<p>preventDefault prevents the default action the browser makes on that event.</p></blockquote>
+
+<pre><code> &lt;!DOCTYPE html&gt;
+ &lt;html&gt;
+ &lt;head&gt;
+ &lt;script type="application/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.8.2/jquery.min.js"&gt;&lt;/script&gt;
+ &lt;title&gt;DOM Event Example&lt;/title&gt;  
+ &lt;/head&gt;
+ &lt;body&gt;
+ &lt;div id="foo"&gt;
+   &lt;button id="but" /&gt;
+ &lt;/div&gt;   
+ &lt;script&gt;
+ $("#foo").click( function () { 
+   console.log("#foo click")
+ });
+
+ $("#but").click( function (ev) {
+   console.log("#but click");
+   ev.stopPropagation(); 
+ })
+ &lt;/script&gt;
+ &lt;/body&gt;
+ &lt;/html&gt;
+</code></pre>
+
+<p>위의 예제에서 보면, <code>ev.stopPropagation()</code> 을 하면 console 에</p>
+
+<pre><code> #but click 
+</code></pre>
+
+<p>만 나온다.</p>
+
+<p>하지만 <code>//ev.stopPropagation()</code> 로 comment-out 하면 console 에</p>
+
+<pre><code> #but click
+ #foo click
+</code></pre>
+
+<p>이라고 나온다. parent node 로 event 가 propagate 된 것이다.</p>
+
+<p>그럼 stopPropagation() 과 stopImmediatePropagation() 의 차이는 무엇일까?</p>
+
+<p><a href="http://stackoverflow.com/questions/5299740/jquery-stoppropagation-vs-stopimmediatepropagation">jquery: stopPropagation vs stopImmediatePropagation</a> 에 설명이 되어 있다.</p>
+
+<p>우선 <a href="http://jsfiddle.net/syT6K/">jsfiddle 예제</a> 를 보자.</p>
+
+<h3>Exceptions thrown inside event listener</h3>
+
+<blockquote><p>Exceptions thrown inside event listeners must not stop the propagation of the event or affect the propagation path. The exception itself must not propogate outside the scope of the event handler.</p></blockquote>
+
+<pre><code>var e = document.createEvent("Event");
+e.initEvent("myevent", false, false);
+var target = document.createElement("div");
+target.addEventListener("myevent", function () {
+   throw "Error";
+});
+target.dispatchEvent(e); // Causes the event listener to throw an exception...
+// The previously thrown exception doesn't affect the code that follows:
+console.log("Exceptions? No problem");
+</code></pre>
+
+<p>실행해보면 &ldquo;Exceptions? No problem&rdquo; 이 출력된다. event listener 에서 던진 &ldquo;Error&rdquo; 가 parent scope 로 올라오지 않는다는 이야기.</p>
+
+<h3>Further works:</h3>
+
+<ol>
+<li>DOM Level 2 Events Spec 과 DOM Level 3 Events Spec 를 정독해봐야겠다.</li>
+<li>DOM Event Flow 와 addEventListener(), preventDefault(), stopPropagation(), stopImmediatePropagation() 부분을 정독해야겠다.</li>
+<li>Touch event 를 tracking 해서 drawing 을 하는 예제를 만들어 iPad 로 테스트해봐야겠다.</li>
+<li>FastClick.js 의 line-by-line 분석.</li>
+</ol>
+
+
+<h3>Further readings:</h3>
+
+<ul>
+<li><a href="https://developer.mozilla.org/en-US/docs/DOM/element.addEventListener">MDN: element.addEventListener</a></li>
+<li><a href="http://www.w3.org/TR/DOM-Level-3-Events/#event-flow">Event dispatch and DOM event flow</a></li>
+<li><a href="https://developer.mozilla.org/en-US/docs/DOM/Touch_events#Example">Touch event example</a></li>
+<li><a href="http://davidwalsh.name/javascript-events">David Walsh&rsquo;s blog</a></li>
+<li><a href="http://blog.bittersweetryan.com/2012/07/playing-around-with-javascripts.html">Playing Around With JavaScript&rsquo;s stopPropagation and preventDefault Methods </a></li>
+<li><a href="http://dev-tricks.com/event-preventdefault-and-event-stoppropagation-and-event-stopimmediatepropagation/">Quick Tips:event.preventDefault() and event.stopPropagation and event.stopImmediatePropagation</a></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1200,367 +1968,6 @@ $ gem install rails; rbenv rehash
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2012/06/09/the-thought-patterns-of-success/">The Thought-Patterns of Success</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2012-06-09T18:47:00+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>9</span><span class='date-suffix'>th</span>, <span class='date-year'>2012</span></span> <span class='time'>6:47 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>HBR 블로그에서
-<a href="http://blogs.hbr.org/cs/2012/04/the_thought-patterns_of_succes.html">The Thought-Patterns of Success</a>
-라는 글을 읽게 되었다.</p>
-
-<p>일을 안정되게 하는데 도움이 된다. 시간이 나면 차차 번역해봐야겠다.</p>
-
-<p><br \></p>
-
-<h3>Evaluation of Worth</h3>
-
-
-<h4>Helpful</h4>
-
-
-<ul>
-<li>내 존재 자체에 가치가 있다. 내가 하는 일때문에 가치있는 것이 아니다.
-나는 세상에 하나밖에 없는 존재이며, 수입이나 성취나 가진 것과는 관계없이
-나만의 특별한 소명을 가지고 있다.</li>
-<li>완벽함이란 것은 현실 세계에는 존재할 수 없는 내 마음이 만들어낸 허상이며 이상적이고 추상적인 개념일뿐이다.
-불완전함도 성공이라고 평가할 수 있도록 내 마음의 기준을 바꾸어나가도록 해야 한다.</li>
-<li>살면서 겪는 모든 일에서 배울 수 있다. 매일매일 나는 최선을 다한다. 실수를 저지르면 고친다.
-다음을 위해서 배워둔다. 과거는 미래를 위한 든든한 발판이다.</li>
-</ul>
-
-
-<h4>Harmful</h4>
-
-
-<ul>
-<li>I am important and of value because of what I achieve, produce or have.
-Therefore if I stop achieving, producing or having, my life no longer has value, meaning or purpose.</li>
-<li>Perfect is the only option. Less than perfect is failure.</li>
-<li>I am only as good as my last _____________.
-If I stop or rest or don&rsquo;t perform to the same or better level in the future, I will lose everything.</li>
-</ul>
-
-
-<h3>Sense of Over-Responsibility</h3>
-
-
-<h4>Helpful</h4>
-
-
-<ul>
-<li>일이란 계획대로 되는 법이 거의 없다. 그리고 모든 사람이 만족해할만한 식으로 흘러가지도 않는다.
-내가 책임질 수 있는 부분까지는 내가 책임지지만, 내가 어찌할 수 없는 부분은 책임도 어쩔 수가 없다.
-예측할 수 없었던 상황이나 다른이들의 감정적인 부분들은 내가 어찌할 수 없는 부분들이다.</li>
-<li>There will always be more work to do. By choosing to rest at reasonable intervals, I increase my productivity, accomplish more, enjoy life and stop feeling resentful toward others who take breaks.</li>
-<li>It&rsquo;s good for me to be considerate of others' needs, but I also have a legitimate need for proper self-care. When I take time to nurture my physical, mental, emotional and spiritual health, I have a greater capacity to truly connect with and support others.</li>
-</ul>
-
-
-<h4>Harmful</h4>
-
-
-<ul>
-<li>If everything doesn&rsquo;t go according to plan and make everyone happy, it&rsquo;s my fault. I should have planned more, done more, been more.</li>
-<li>I can only rest without guilt once all the work is done. If I stop any sooner, I am lazy, selfish and irresponsible.</li>
-<li>My needs are the lowest priority. I will only get enough sleep, eat well, exercise and do activities I enjoy once everyone else has their needs — and most of their wants — met.</li>
-</ul>
-
-
-<h3>Insecurity in Relationships</h3>
-
-
-<h4>Helpful</h4>
-
-
-<ul>
-<li>I can choose to not allow my perception of other people&rsquo;s opinions of me dictate my opinion of myself. I am free to live as I please and make the choices that are right for me.</li>
-<li>It may not be easy for me at first, but I can learn how to form and maintain better relationships. I may not always meet everyone&rsquo;s expectations, but I have a better chance of success when I make a good effort.</li>
-<li>I can choose to stay in a place of security and isolation, or I can choose to open my life up to others. I may experience some loss of control, but ultimately I create the possibility of great joy in true relationship with others.</li>
-</ul>
-
-
-<h4>Harmful</h4>
-
-
-<ul>
-<li>Everyone is watching and evaluating me. If I don&rsquo;t appear to meet their standards for outward success, they will think badly of me.</li>
-<li>I&rsquo;m bad at forming and maintaining relationships. I can never make my friends and family happy so why should I try to have a life outside of work?</li>
-<li>I feel in control at work because certain actions predictably produce specific results. It&rsquo;s too much of a risk to venture into areas where I don&rsquo;t always know what to do, and I can&rsquo;t count on other people&rsquo;s response to my actions.</li>
-</ul>
-
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2012/06/07/business-of-apis/">Business of APIs</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2012-06-07T17:15:00+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>7</span><span class='date-suffix'>th</span>, <span class='date-year'>2012</span></span> <span class='time'>5:15 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p><a href="http://www.amazon.com/Business-of-APIs-ebook/dp/B0055MJG7G/ref=sr_1_1?ie=UTF8&amp;qid=1339305654&amp;sr=8-1&amp;keywords=business+of+apis">Business of APIs</a>
-라는 책을 읽었다. 그 중에서 재미있었던 구절들을 적어놓고 싶다.</p>
-
-<p>API 를 제공해서 성공을 거두었던 서비스의 예로 Flickr 를 들고 있는데,
-사진을 블로그등에서 볼 수 있게 해주는 API 를 공개해서 큰 인기를 얻게 되었다고 한다.</p>
-
-<p>Flickr 의 공동창업자인 Caterina Fake 의 이야기.</p>
-
-<p>Fake 는 전통적은 Business Development 를 이렇게 묘사한다 - 옷을 차려입고,
-파워포인트 자료를 공들여 작성하고, 회의실에서 식어버린 커피를
-마시며 &lsquo;시너지'의 동의어를 찾느라 사전을 뒤적이고&hellip;</p>
-
-<p>API 가 이런 오버헤드를 없애는데 도움이 된다고.</p>
-
-<blockquote><p>Fake describes the traditional sorts of business development processes -
-&ldquo;spending a lot of money on dry cleaning, animating your
-PowerPoint, drinking stale coffee in windowless conference rooms and
-scouring the thesaurus looking for synonyms for &lsquo;synergy&rsquo;.
-Not to mention trying to get hopelessly overbooked people to return your email.
-And then after the deal was done, squabbling over who dealt with the
-customer service.&rdquo;
-An API, she contends, can help companies bypass this.</p></blockquote>
-
-<hr />
-
-<p>예전에는 컴퓨터를 주문하고, 아무리 빨라도 하루이틀 기다리고, 컴퓨터가 도착하면 데이터센터에 설치하고,
-이래야 했다면.</p>
-
-<p>이제는 AWS 에 Linux Box 를 만들어서 부팅시키고, 필요한 S/W 를 깔고, 계산할 태스크들을
-던져주고, 계산이 끝나면 Linux Box 를 없애버리는 것을 API 몇 개 가지고 할 수 있다.</p>
-
-<p>소비자나 개발자에게 큰 도움이 되지만, 서비스 자체도 이제는 API 를 제공하지 않으면 성공할 수 없는 세상이다.</p>
-
-<p>YouTube 가 웹에서 ubiquitous 한 동영상 플레이어가 되는데 \&lt;EMBED> API 의 기여가 컸다고 생각한다.</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2012/05/21/the-pc-market-is-in-decline/">The PC Market Is in Decline</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2012-05-21T11:09:00+09:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>21</span><span class='date-suffix'>st</span>, <span class='date-year'>2012</span></span> <span class='time'>11:09 am</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>@asymco 의 <a href="http://www.asymco.com/2012/05/19/an-interview-with-chris-brennan-for-macuser-magazine-uk/">An interview with Chris Brennan for MacUser magazine UK</a></p>
-
-<p>는 훌륭한 인터뷰인데, 왜냐면</p>
-
-<p>인터뷰어가 좋은 질문을 했고, @asymco 가 좋은 대답을 했기 때문이다.</p>
-
-<p><br />
-Q: iPhone 은 이제 팔릴만큼 팔린 것인지?</p>
-
-<blockquote><p>Is the iPhone anywhere near saturation? Can Apple continue to shift iPhones in ever increasing numbers or is a sales plateau realistically on the horizon?</p></blockquote>
-
-<p>Q: 지금 PC 마켓은 decline 하고 있지만, Mac 판매는 성장하고 있는데, 언제까지 이럴 수 있을지?</p>
-
-<blockquote><p>Can the Mac also continue to outperform the rest of the PC market for long?</p></blockquote>
-
-<p>Q: 애플 제품의 기록적인 성장은 이제 끝날때가 된 것 아닌가? 비싼 애플 제품을 사줄 돈 잘버는 고객층이 남아있는가?</p>
-
-<blockquote><p>Finally, this exponential growth of Apple products has to end some time soon doesn’t it? How many high-income buyers for expensive products can there be left for Apple to target?</p></blockquote>
-
-<p>이것이 질문이고, @asymco 의 답변에 통찰이 넘친다.</p>
-
-<p><a href="http://www.asymco.com/2012/05/19/an-interview-with-chris-brennan-for-macuser-magazine-uk/">인터뷰 전문</a></p>
-
-<h2><br /></h2>
-
-<p><br />
-그리고 PC 제조 마켓은 10 년 뒤에는
-이제 메인프레임처럼 아무도 신경쓰지 않는 마켓이 되리라는 예상.
-개발 리소스는 모두 모바일이나 웹으로 이동.
-PC 전용 S/W 개발에는 심각한 자본이 투하되고 있지 않음.</p>
-
-<p><br />
-그렇기 때문에 &ldquo;점유율이 5% 라서 개발자를 끌어올 수 없다던가 있다던가&rdquo;
-- 맥이 예전에 겪었고 애플이 예전에 고민했던 -
-이런 논의 자체가 의미가 없게 되었음.</p>
-
-<p><br />
-S/W 가 없으니, 기계외에 추가되는 Value 가 없음. Commodity 가 되버림.</p>
-
-<blockquote><p>Applications for PCs are not an area of investment for any significant pool of capital. Development has moved almost entirely into mobile or web. Therefore, as the PC is now a commodity product, the best performers are those who can capture a larger margin. Those margins should be subsequently be invested in new platforms. PC vendors who neither capture margin, nor invest in new platforms are strategically insolvent.</p></blockquote>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2012/05/19/consumer-startups-without-revenue-are-products/">Consumer Startups Without Revenue Are Products, Not Businesses</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2012-05-19T18:06:00+09:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>19</span><span class='date-suffix'>th</span>, <span class='date-year'>2012</span></span> <span class='time'>6:06 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>@gregorysean 은 <a href="http://expletiveinserted.com/2012/05/17/consumer-startups-without-revenue-are-products-not-businesses/">Consumer Startups without Revenue are Products, not Businesses</a> 에서</p>
-
-<p>수익 모델이 없는 프로덕트를 개발하는 개발사의 여러가지 딜레마에 대해서 이야기한다.</p>
-
-<h3>In the Beginning</h3>
-
-<blockquote><p>Early in the life of a social product like Twitter or Tumblr, there are no ads. The product is conceived without advertising in mind, but rather with a very well intentioned focus on user experience.</p></blockquote>
-
-<p>개발 초창기에 UX 에 치중하는 이유는,</p>
-
-<ul>
-<li><p>사용자 가치에만 집중하는 비전 (i.e. 자신의 문제 해결를 해결하려 프로덕트 개발 시작했기 때문에, AD 에 신경쓸 여유도 없고 필요성이 느껴지지도 않고)</p></li>
-<li><p>초창기에는 AD 에 신경을 쓰면서 리소스를 분산시킬 이유가 없고 (백만단위의 AD impression 이나 백만단위의 UV 는 되어야 광고주들도 신경을 쓰니까 어차피 초기에는 AD 를 돌릴 수도 없고)</p></li>
-<li><p>SNS 같은 경우 UX 에만 신경쓰는 경쟁자가 많기 때문에, UX 에만 신경쓰기도 벅차</p></li>
-</ul>
-
-
-<p><br /></p>
-
-<h3>We Can Introduce Ads Later. Right?</h3>
-
-<blockquote><p>Maybe not. In the delicate cocktail that makes a great user experience, advertising is a powerful, overbearing ingredient. Adding it to the mix after the fact is almost impossible to do without changing the flavor to something completely different. And probably not very palatable.</p></blockquote>
-
-<p>UX 라는 섬세한 칵테일에, AD 는 너무나 강한 재료라서, 이것을 섞는 순간 전혀 다른 맛으로 바뀌게 된다. 맛이 없어질 가능성이 크다.</p>
-
-<p><br /></p>
-
-<blockquote><p>Even if the new ad supported product isn’t awful, it is not the same product that users grew to love. To them the addition of ads feels exactly like the bait and switch that it actually is. At best, the ads are an annoyance that devalues the product. At worst, they are a sign of that the makers of their beloved product are “selling out” and have lost their way.</p></blockquote>
-
-<p>AD 탑재 후 유저들이 &ldquo;돈에 팔렸다!&rdquo; 라고 할지도 몰라.</p>
-
-<p><br /></p>
-
-<blockquote><p>This seems obvious, so why are good product people, who are in other respects thoughtful about the minutia of user experience, so naive about this aspect of their product’s design? The answer is that they never considered it. And this wasn’t an oversight. It was intentional. Advisors and investors encouraged company leaders to delay thinking about monetization. The high order bit, in fact, the only bit that matters, is to grow the number of users and their level of engagement as quickly as possible.</p></blockquote>
-
-<p>투자자들도 수익모델 탑재는 나중에 하고 유저 베이스를 키울 것을 주문하고,
-그런 이유로 개발자들도 UX 에만 신경쓰다보니, 결국 성공한다고 해도,</p>
-
-<p><br /></p>
-
-<blockquote><p>The result if the company is successful? A product that wasn’t designed to generate advertising revenue, and a company that doesn’t have any advertising DNA.</p></blockquote>
-
-<p>이렇게 계속 달리다보면, AD 탑재 불가인 제품과 AD DNA 가 없는 회사가 만들어진다. 짜잔!</p>
-
-<p><br /></p>
-
-<h3>The Ads are a Lie</h3>
-
-<blockquote><p>The startup got to this point because the focus was never on building a real business with profitable products. After all, the product that matters to early stage investors is not the one the startup is selling, it is the startup itself. History tells them that with enough traction from users, one can sell a business without a single cent of revenue for $1 billion dollars.</p></blockquote>
-
-<p>회사가 이런 길을 따라서 쭉 가다가 성공(?)해버리면,
-&ldquo;수익이 나는 프로덕트를 가진 진짜 비즈니스"와는 거리가 먼 곳에 와있게 된다.</p>
-
-<p>투자자에게도 스타트업이 파는 것이 중요한 것이 아니라, 이 정도까지 온 회사 자체가
-중요. i.e. 1 달라의 매출도 없이 1 조에 팔리는 예가 있다보니.</p>
-
-<p><br /></p>
-
-<blockquote><p>When the investors say “the business model can come later”, they are adding “after the exit” in mental parentheses. These days that exit most often comes in the form of an acquisition. The acquirer might want the technology, the users or just to eliminate an upstart competitor. Post acquisition, they will set about integrating the new products into their own business model, whatever that may be. All is well.</p></blockquote>
-
-<p>투자자들이 &ldquo;비즈니스 모델은 나중에 붙여도 되고&rdquo; 라고 말할 때, &ldquo;나중에&rdquo; 는
-exit 이후를 말함. 사간 회사가 알아서 붙여서 moneitize 하던가. 이 정도의 마인드.</p>
-
-<p><br /></p>
-
-<h3>The Incumbents Win</h3>
-
-<blockquote><p>These whacky incentives create an environment where many startups really aren’t working towards profitability, but rather towards an acquisition exit. They are building experiences, not businesses. And since they don’t have the shackles of P&amp;L reality, they can do things that make it hard for businesses with real goals of profitability to compete.</p></blockquote>
-
-<p>Acquisition exit 을 보고 달리기 때문에, P&amp;L reality 를 볼 필요가 없이,
-P&amp;L 을 염두에 두고, 이익을 목적으로 비즈니스를 하는 진짜 회사들 입장에서
-경쟁하기 힘든 일들을 할 수가 있어.</p>
-
-<p>비즈니스를 만들 필요가 없고, (유저) 경험만 만들면 되는.</p>
-
-<p><br /></p>
-
-<blockquote><p>In fact, large companies are also where many unsuccessful consumer startups go to die, via the acqui-hire. Typically these are startups that built innovative products, got some impressive user traction, but didn’t get to the nice fat acquisition before they peaked and started the decline. In this case, the acquirer gets a waning user base and some proven product talent at a bargain basement price. The founders save face. The investors get something rather than nothing. Everybody makes out ok, except… the customers.</p></blockquote>
-
-<p>그저그런 시나리오</p>
-
-<p>혁신적인 프로덕트를 만들고, 인상적인 UV 를 만들고, 하지만 peak 를 칠 때까지
-빵빵한 인수 제안을 받지 못하고, 그리고 기울기 시작한다.</p>
-
-<p>대기업이 유저 베이스와 인력을 헐값에 인수하고, 창업자는 간신히 면을 세우고,
-투자자는 아예 없는 것보다는 나은 정도를 건지고.</p>
-
-<h2><br /></h2>
-
-<p><br />
-매출이 없는 제품을 주구장창 개발하는 것. 회사라고 보기도 뭐하고, 사업이라고 보기도 뭐하고. 프로덕트 개발 조직 정도로 보는 것이 좋을 듯.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/23">&larr; Older</a>
@@ -1578,23 +1985,23 @@ P&amp;L 을 염두에 두고, 이익을 목적으로 비즈니스를 하는 진�
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/06/14/the-poisoned-nul-byte/">The Poisoned NUL Byte</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/06/14/plaidctf-ctf-2015-plaiddb/">PlaidCTF CTF 2015: PlaidDB</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/06/14/glibc-adventures-the-forgotten-chunks/">Glibc Adventures: The Forgotten Chunks</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/06/14/hitcon-ctf-2014-unexploitable-heap-overflow/">Hitcon Ctf 2014 Unexploitable Heap Overflow</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/06/13/poison-null-byte/">Poison NULL Byte</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/06/13/control-flow-enforcement-technology-preview/">Control-flow Enforcement Technology Preview</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/06/13/cve-2016-2468/">CVE-2016-2468</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/05/03/security-analysis-of-emerging-smart-home-applications/">Security Analysis of Emerging Smart Home Applications</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/04/26/rsa-sample-number/">RSA Sample Number</a>
       </li>
     
   </ul>

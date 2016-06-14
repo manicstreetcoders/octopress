@@ -9,9 +9,8 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="
-Codenomicon 의 Fuzzing Bluetooth: Crash-Testing Bluetooth-Enabled Devices
-Outsmart Bluetooth Smart, Mike Ryan, CanSecWest 2014 ">
+  <meta name="description" content="Ralph-Philipp Weinmann 의 Baseband Attacks: Remote Exploitation of Memory Corruptions in Celluar Protocol Stacks 를 정리한다.
+">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -67,6 +66,147 @@ Outsmart Bluetooth Smart, Mike Ryan, CanSecWest 2014 ">
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/08/20/cellular-exploitation/">Cellular Exploitation</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-08-20T11:04:36+09:00'><span class='date'><span class='date-month'>Aug</span> <span class='date-day'>20</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>11:04 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Ralph-Philipp Weinmann 의 <a href="https://www.usenix.org/system/files/conference/woot12/woot12-final24.pdf">Baseband Attacks: Remote Exploitation of Memory Corruptions in Celluar Protocol Stacks</a> 를 정리한다.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/08/20/talking-to-the-modem-with-at-commands/">Talking to the Modem With at Commands</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-08-20T10:58:54+09:00'><span class='date'><span class='date-month'>Aug</span> <span class='date-day'>20</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>10:58 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><a href="http://forum.xda-developers.com/galaxy-s2/help/how-to-talk-to-modem-commands-t1471241">Galaxy S II / How to talk to the Modem with AT commands</a></p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/08/18/arm-exploitation-with-qemu/">ARM Exploitation With QEMU</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-08-18T11:41:27+09:00'><span class='date'><span class='date-month'>Aug</span> <span class='date-day'>18</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>11:41 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Stephen A. Ridley 의 30th Chaos Communication Congress 에서의 발표 <a href="http://www.youtube.com/watch?v=frUvlhO8o8A">Hardware Attacks, Advanced ARM Exploitation, and Android Hacking</a></p>
+
+<h4>ARM Basic Stack Overflows</h4>
+
+<h4>ARM Stack Overflows with Return-To-LibC</h4>
+
+<h4>ARM Stack Overflows with &ldquo;No Execute Stack&rdquo;</h4>
+
+<h4>ARM Heap Overflows</h4>
+
+<h4>ARM Heap Overflows with &ldquo;No Execute&rdquo; protection</h4>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/08/18/code-reuse-techiniques/">Code-Reuse Techiniques</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-08-18T11:37:40+09:00'><span class='date'><span class='date-month'>Aug</span> <span class='date-day'>18</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>11:37 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Dino A. Dai Zovi 의 Memory Corruption, Exploitation, and You 를 읽다가 정리해본다.</p>
+
+<p><a href="http://trailofbits.files.wordpress.com/2010/11/owasp_201011.pdf">Memory Corruption, Exploitation, and You</a></p>
+
+<ul>
+<li>Return-To-Libc (Solar Designer, 1997) - Return into functions in Libc</li>
+<li>Borrowed Code Chunks (Krahmer, 2005) - Link returns to single-instructions</li>
+<li>Return-oriented Programming (Shacham, 2007) - Turing complete w/ compiler for C-like language</li>
+</ul>
+
+
+<h4>Return-To-Libc</h4>
+
+<h4>Borrowed Code Chunks</h4>
+
+<h4>Return-oriented Programming</h4>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -401,377 +541,6 @@ sendBroadcast(fixedIntent2, "a.special.permission");
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/07/21/intercepting-and-decrypting-ssl-communications-between-android-phone-and-3rd-party-server/">Intercepting and Decrypting SSL Communications Between Android Phone and 3rd Party Server</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2014-07-21T12:39:58+09:00'><span class='date'><span class='date-month'>Jul</span> <span class='date-day'>21</span><span class='date-suffix'>st</span>, <span class='date-year'>2014</span></span> <span class='time'>12:39 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>안드로이드 HTTPS 트래픽 디버깅 하는 방법은 <a href="http://www.myhowto.org/java/81-intercepting-and-decrypting-ssl-communications-between-android-phone-and-3rd-party-server/">Intercepting and decrypting SSL communications between Android phone and 3rd party server</a> 을 참조한다.</p>
-
-<p>안드로이드에 임의의 CA certificate 을 system 으로 인스톨하는 방법은 <a href="http://wiki.pcprobleemloos.nl/android/cacert">Installing CAcert certificates on Android as &lsquo;system&rsquo; credentials without lockscreen - instructions</a> 을 참조한다.</p>
-
-<p>DigitalOcean 에서 <a href="https://www.digitalocean.com/community/tutorials/how-to-setup-your-own-vpn-with-pptp">How To Setup Your Own VPN With PPTP</a> 를 참조해 VPN 서버를 설치한다.</p>
-
-<p>전체적으로는 <a href="https://github.com/blukat29/blukat-config/issues/4">blukat29/PPTP VPN Server</a> 를 참조한다.</p>
-
-<pre><code>$ echo 1 &gt; /proc/sys/net/ipv4/ip_forward
-$ iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
-$ iptables -t nat -A PREROUTING -i ppp0 -p tcp --dport 443 -j REDIRECT --to-port 4443
-
-# Generate CA key
-$ openssl genrsa -des3 -out ca.key 4096
-
-# Generate CA cert
-$ openssl req -new -x509 -days 365 -key ca.key -out ca.crt
-
-# Generate server key
-$ openssl genrsa -des3 -out server.key 4096
-
-# Generate server cert signing request
-$ openssl req -new -key server.key -out server.csr
-
-# Sign server's cert using CA's key
-$ openssl x509 -req -days 365 -in server.csr -CA ca.crt -CAkey ca.key -set_serial 01 -out server.crt
-
-# Get the hash of the ca.crt certificate:
-$ openssl x509 -inform PEM -subject_hash_old -in ca.crt | head -1  
-5ed36f99
-$ mount -o remount,rw /system
-$ cp /data/local/tmp/5ed36f99.0 /system/etc/security/cacerts/
-$ chmod 644 /system/etc/security/cacerts/*
-
-$ cat go.sh
-socat -v OPENSSL-LISTEN:4443,reuseaddr,verify=0,cert=./server.crt,key=./server.key,cafile=./ca.crt,debug,fork EXEC:./babo.sh
-$ cat babo.sh
-openssl s_client -CAfile /etc/ssl/certs/ca-certificates.crt -quiet -connect api.babo.com:443
-$ go.sh
-
-ext% /usr/libexec/java_home
-/Library/Java/JavaVirtualMachines/jdk1.7.0_25.jdk/Contents/Home
-</code></pre>
-
-<ul>
-<li>OpenSSL</li>
-<li>SoCat (<a href="http://www.dest-unreach.org/socat">http://www.dest-unreach.org/socat</a>)</li>
-<li>Bouncy Castle library (<a href="http://bouncycastle.org/download/bcprov-jdk16-141.jar">http://bouncycastle.org/download/bcprov-jdk16-141.jar</a>) - place this JAR file into your &hellip;/jre/lib/ext directory</li>
-<li>Charles Proxy</li>
-<li><a href="http://mitmproxy.org">MITMProxy</a></li>
-<li><code>emulator -avd [name of the avd] -http-proxy 127.0.0.1:8080</code></li>
-</ul>
-
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/07/14/sms-pdu/">SMS PDU</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2014-07-14T12:09:41+09:00'><span class='date'><span class='date-month'>Jul</span> <span class='date-day'>14</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>12:09 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><h3>Terminology</h3>
-
-<ul>
-<li>IMSI: Internation Mobile Subscriber Identity</li>
-<li>MIN: Mobile Identify Number</li>
-<li>MDN: Mobile Directory Number</li>
-</ul>
-
-
-<p>MIN 은 원래 북미의 이동전화 단말기를 식별하기 위한 것이었는데,
-10 자리 MIN 이 국제 로밍을 위한 정보를 포함할 수 없어서
-IMSI 가 만들어짐.
-GSM 에서는 IMSI 를 사용. MCC + MNC + MSIN = IMSI.</p>
-
-<ul>
-<li>MCC: Mobile Country Code. 3 자리. ITU(TSB) 에서 할당.</li>
-<li>MNC: Mobile Network Code. 2~3 자리.</li>
-<li>MSIN: Mobile Subscriber Identification Number.</li>
-</ul>
-
-
-<p>MCC + MNC 로 이동전화 가입자의 홈 네트웍을 전 세계 어느 망에서든지 유일하게 식별 가능하다.</p>
-
-<ul>
-<li>MSISDN: Mobile Station International ISDN Number. GSM 표준에서 IS-41 표준의 MDN 역할을 한다.</li>
-</ul>
-
-
-<h3>3gpp PDU Format</h3>
-
-<h3>Resources</h3>
-
-<ul>
-<li><a href="http://dragonheart.tistory.com/4">너른공간</a></li>
-<li><a href="http://knight76.tistory.com/entry/%ED%86%B5%EC%8B%A0-%EC%9A%A9%EC%96%B4-min-mdn">통신 용어 - min, mdn, imsi, imei, msisdn</a></li>
-<li><a href="http://www.qtc.jp/3GPP/Specs/23040-681.pdf">3gpp SMS spec</a></li>
-<li><a href="http://www.3gpp2.org/public_html/specs/N.S0005-0_v1.0.pdf">3gpp Cellular Radiotelecommunications Intersystem Operations</a></li>
-<li><a href="https://www.blackhat.com/presentations/bh-usa-09/MILLER/BHUSA09-Miller-FuzzingPhone-PAPER.pdf">Charlie Miller&rsquo;s Fuzzing the Phone in your Phone</a></li>
-<li><a href="https://www.usenix.org/legacy/event/woot09/tech/full_papers/mulliner.pdf">Injecting SMS Messages into Smart Phones for Security Analysis</a></li>
-<li><a href="http://m2msupport.net/m2msupport/verizon-wireless-m2m-modules-certification/">Verizon M2M</a></li>
-<li><a href="http://www.smartposition.nl/resources/sms_pdu.html#PDU">SMS PDU Format</a></li>
-<li><a href="http://stackoverflow.com/questions/11182650/cdma-pdu-parsing-on-android">CDMA PDU parsing on Android</a></li>
-</ul>
-
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/06/23/beast-attack/">BEAST Attack</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2014-06-23T18:29:07+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>23</span><span class='date-suffix'>rd</span>, <span class='date-year'>2014</span></span> <span class='time'>6:29 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p><a href="http://crypto.stackexchange.com/questions/1078/how-can-cipher-block-chaining-cbc-in-ssl-be-attacked">How can Cipher Block Chaining (CBC) in SSL be attacked?</a></p>
-
-<ul>
-<li><a href="https://www.isecpartners.com/media/106031/ssl_attacks_survey.pdf">Attacks on SSL: A Comprehensive Study of BEAST, CRIME, TIME, BREACH, LUCKY 13 &amp; RC4 Biases</a></li>
-</ul>
-
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/06/23/openssl-changecipherspec-vulnerability-cve-2014-0224/">OpenSSL: ChangeCipherSpec Vulnerability (CVE-2014-0224)</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2014-06-23T09:23:27+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>23</span><span class='date-suffix'>rd</span>, <span class='date-year'>2014</span></span> <span class='time'>9:23 am</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><h4>Original Post</h4>
-
-<p>Original post 는 다음과 같다. 발견자는 Masashi Kikuchi 씨.</p>
-
-<p><a href="http://ccsinjection.lepidum.co.jp/blog/2014-06-05/CCS-Injection-en/index.html">How I discovered CCS Injection Vulnerability (CVE-2014-0224)</a></p>
-
-<p>ChangeCipherSpec 이라는 메시지는 정해진 스텝에서만 주고받아야 하는데, 서버가 막 받아주는 것이 문제.</p>
-
-<p>ChangeCipherSepc 은 무얼까? 세션키에 기반한 symmetric encryption 모드로 전환하자는 신호. Pre-master secret 을 교환하고나서 이제 session key 를 계산해서 symmetric encryption 모드로 가자! 라는 신호. 기술적으로는 1 바이트 메시지. 페이로드는 0x01.</p>
-
-<pre><code>In a correct handshake, the client and the server exchange messages 
-in the order as depicted in this figure. 
-(See RFC5246 The Transport Layer Security (TLS) Protocol Version 1.2 §7.3)。
-
-ChangeCipherSpec MUST be sent at these positions in the handshake. 
-OpenSSL sends CCS in exact timing itself. 
-However, it accepts CCS at other timings when receiving. 
-Attackers can exploit this behavior so that they can decrypt and/or 
-modify data in the communication channel.
-</code></pre>
-
-<p>Full handshake 의 예를 들면, ClientHello, ServerHello, ClientKeyExchange 가 되고, ChangeCipherSpec 이 들어가야한다.</p>
-
-<p>발견자에 따르면, TLS IETF draft 에 있는 다음 문장이 취약점을 만든 이유라고.</p>
-
-<pre><code>Note:          To help avoid pipeline stalls, ChangeCipherSpec is
-               an independent SSL Protocol content type, and is not
-               actually an SSL handshake message.
-</code></pre>
-
-<p>handshake message 타입이 아니라 독립적인 프로토콜 타입으로 되어있는데, 그 이유는</p>
-
-<p><a href="http://security.stackexchange.com/questions/24755/why-is-change-cipher-spec-an-independent-protocol-content-type-and-not-part-of-h">Why is change cipher spec an independent protocol content type and not part of Handshake Messages?</a></p>
-
-<h4>PoC</h4>
-
-<p><a href="https://github.com/rapid7/metasploit-framework/blob/master/modules/auxiliary/scanner/ssl/openssl_ccs.rb">Metasploit openssl_ccs.rb module</a> 을 보면,</p>
-
-<p><code>Client_Hello</code> 를 보내고, <code>Server_Hello</code> 를 받아준 다음에 바로 CCS (0x01) 을 보낸다. 만약 Alert 이 뜨지 않으면 vulnerable 하다고 본다.</p>
-
-<pre><code>def ccs_injection
-  connect_result = establish_connect
-  return if connect_result.nil?
-
-  vprint_status("#{peer} - Sending CCS...")
-  sock.put(ccs)
-  alert = sock.get_once(-1, response_timeout)
-  if alert.blank?
-    print_good("#{peer} - No alert after invalid CSS message, probably vulnerable")
-    report
-  elsif alert.unpack("C").first == ALERT_RECORD_TYPE
-    vprint_error("#{peer} - Alert record as response to the invalid CCS Message, probably not vulnerable")
-  elsif alert
-    vprint_warning("#{peer} - Unexpected response.")
-  end
-end
-
-def establish_connect
-  connect
-
-  vprint_status("#{peer} - Sending Client Hello...")
-  sock.put(client_hello)
-  server_hello = sock.get(response_timeout)
-
-  unless server_hello
-    vprint_error("#{peer} - No Server Hello after #{response_timeout} seconds...")
-    disconnect
-    return nil
-  end
-
-  unless server_hello.unpack("C").first == HANDSHAKE_RECORD_TYPE
-    vprint_error("#{peer} - Server Hello Not Found")
-    return nil
-  end
-
-  true
-end
-</code></pre>
-
-<h4>Code</h4>
-
-<p>실제 코드를 분석한 블로그를 보면</p>
-
-<p><a href="https://www.imperialviolet.org/2014/06/05/earlyccs.html">Early ChangeCipherSpec Attack (05 Jun 2014)</a></p>
-
-<p>ServerHello 이후에 CCS 가 inject 되면, 취약한 키가 생성되는게 핵심.
-추후에 CCS 가 더 inject 되더라도 한번 생성된 키는 고정되버리는 것도 문제.</p>
-
-<pre><code>If a ChangeCipherSpec message is injected into the connection after the ServerHello, 
-but before the master secret has been generated, 
-then ssl3_do_change_cipher_spec will generate the keys (2) and 
-the expected Finished hash (3) for the handshake with an empty master secret. 
-This means that both are based only on public information. 
-Additionally, the keys will be latched because of the check at (1) - 
-further ChangeCipherSpec messages will regenerate the expected Finished hash, but not the keys.
-</code></pre>
-
-<p>코드를 보면,</p>
-
-<pre><code>int ssl3_do_change_cipher_spec(SSL *s)
-        {
-        int i;
-        const char *sender;
-        int slen;
-
-        if (s-&gt;state &amp; SSL_ST_ACCEPT)
-                i=SSL3_CHANGE_CIPHER_SERVER_READ;
-        else
-                i=SSL3_CHANGE_CIPHER_CLIENT_READ;
-
-        if (s-&gt;s3-&gt;tmp.key_block == NULL) &lt;---- 1
-                {
-                if (s-&gt;session == NULL)
-                        {
-                        /* might happen if dtls1_read_bytes() calls this */
-                        SSLerr(SSL_F_SSL3_DO_CHANGE_CIPHER_SPEC,SSL_R_CCS_RECEIVED_EARLY);
-                        return (0);
-                        }
-
-                s-&gt;session-&gt;cipher=s-&gt;s3-&gt;tmp.new_cipher;
-                if (!s-&gt;method-&gt;ssl3_enc-&gt;setup_key_block(s)) return(0); &lt;---- 2
-                }
-
-        if (!s-&gt;method-&gt;ssl3_enc-&gt;change_cipher_state(s,i))
-                return(0);
-
-        /* we have to record the message digest at
-         * this point so we can get it before we read
-         * the finished message */
-        if (s-&gt;state &amp; SSL_ST_CONNECT)
-                {
-                sender=s-&gt;method-&gt;ssl3_enc-&gt;server_finished_label;
-                slen=s-&gt;method-&gt;ssl3_enc-&gt;server_finished_label_len;
-                }
-        else
-                {
-                sender=s-&gt;method-&gt;ssl3_enc-&gt;client_finished_label;
-                slen=s-&gt;method-&gt;ssl3_enc-&gt;client_finished_label_len;
-                }
-
-        i = s-&gt;method-&gt;ssl3_enc-&gt;final_finish_mac(s,
-                sender,slen,s-&gt;s3-&gt;tmp.peer_finish_md); &lt;---- 3
-        if (i == 0)
-                {
-                SSLerr(SSL_F_SSL3_DO_CHANGE_CIPHER_SPEC, ERR_R_INTERNAL_ERROR);
-                return 0;
-                }
-        s-&gt;s3-&gt;tmp.peer_finish_md_len = i;
-
-        return(1);
-        }
-</code></pre>
-
-<h4>MitM</h4>
-
-<p>이 버그를 가지고 Man-in-the-Middle 을 하는 시나리오를 생각해보자.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/15">&larr; Older</a>
@@ -789,23 +558,23 @@ further ChangeCipherSpec messages will regenerate the expected Finished hash, bu
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/06/14/the-poisoned-nul-byte/">The Poisoned NUL Byte</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/06/14/plaidctf-ctf-2015-plaiddb/">PlaidCTF CTF 2015: PlaidDB</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/06/14/glibc-adventures-the-forgotten-chunks/">Glibc Adventures: The Forgotten Chunks</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/06/14/hitcon-ctf-2014-unexploitable-heap-overflow/">Hitcon Ctf 2014 Unexploitable Heap Overflow</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/06/13/poison-null-byte/">Poison NULL Byte</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/06/13/control-flow-enforcement-technology-preview/">Control-flow Enforcement Technology Preview</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/06/13/cve-2016-2468/">CVE-2016-2468</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/05/03/security-analysis-of-emerging-smart-home-applications/">Security Analysis of Emerging Smart Home Applications</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/04/26/rsa-sample-number/">RSA Sample Number</a>
       </li>
     
   </ul>

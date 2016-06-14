@@ -9,8 +9,7 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="Google 이 nogotofail 와 firing-range 라는 프로젝을 오픈소스했다. nogotofail
-firing-range ">
+  <meta name="description" content="Ralf-Philipp Weinmann 의 Baseband Attacks: Remote Exploitation of Memory Corruptions in Cellular Protocol Stacks 을 읽고 정리한다. 참고가 될 만한 다른 글들 Random &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -66,6 +65,554 @@ firing-range ">
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/03/04/baseband-attacks-remote-exploitation-of-memory-corruptions-in-cellular-protocol-stacks/">Baseband Attacks: Remote Exploitation of Memory Corruptions in Cellular Protocol Stacks</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-03-04T11:13:38+09:00'><span class='date'><span class='date-month'>Mar</span> <span class='date-day'>4</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>11:13 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Ralf-Philipp Weinmann 의 <a href="https://www.usenix.org/system/files/conference/woot12/woot12-final24.pdf">Baseband Attacks: Remote Exploitation of Memory Corruptions in Cellular Protocol Stacks</a> 을 읽고 정리한다.</p>
+
+<p>참고가 될 만한 다른 글들</p>
+
+<ul>
+<li><a href="http://www.mulliner.org/security/feed/random_tales_mobile_hacker.pdf">Random tales from a mobile phone hacker, Collin Mulliner, CanSecWest 2010</a></li>
+<li><a href="https://www.usenix.org/legacy/events/sec11/tech/full_papers/Mulliner.pdf">SMS of Death: from analyzing to attacking mobile phones on a large scale</a></li>
+<li><a href="http://www.mulliner.org/security/sms/feed/smsfuzz_26c3.pdf">Fuzzing the phone in your phone</a></li>
+<li><a href="http://www.crisalis-project.eu/sites/crisalis-project.eu/files/crisalis_deliverable-D5.3.pdf">D5.3 Report on automated vulnerability discovery techniques</a></li>
+<li><a href="http://berlin.ccc.de/~tobias/31c3-ss7-locate-track-manipulate.pdf">SS7: Locate. Track. Manipulate.</a></li>
+<li><a href="http://www.tu-berlin.de/fileadmin/fg214/Papers/femto_ndss12.pdf">Weaponizing Femtocells: The Effect of Rogue Devices on Mobile Telecommunication</a></li>
+</ul>
+
+
+<h4>Attack Scenario</h4>
+
+<ul>
+<li>타겟이 되는 MS 근처에 BTS (Base Transceiver Station) 을 설치한다.</li>
+<li>BTS 는 강한 signal 강도로 network 가 avail 하다고 계속 때린다.</li>
+<li>MS 가 가짜 BTS 에 연결된다.</li>
+</ul>
+
+
+<h4>GSM</h4>
+
+<ul>
+<li>3G Baseband 칩/스택을 파는 회사는 Qualcomm, Intel (formerly Infineon), Broadcom, Texas Instruments, ST-Ericsson, Renesas (formerly Nokia), Marvell, MediaTek, NVidia (formerly Icera), VIA Telecom, Spreadtrum, Samsung 정도</li>
+</ul>
+
+
+<h4>Previous Works</h4>
+
+<ul>
+<li>AT command fuzzing</li>
+<li>SMS 로 DoS 공격 - Mulliner, Golde &amp; Seifert</li>
+<li>SMS 로 RCE - BlackHat 2009 Miller &amp; Mulliner</li>
+</ul>
+
+
+<h4>GSM 스택</h4>
+
+<h4>Reverse-Engineering of the Firmware</h4>
+
+<ul>
+<li>GSM 스택 소스는 라이센스를 받아야 얻을 수 있다.</li>
+<li>Vitelcom TSM30 프로젝트 소스코드가 공개된 적이 있는데, 거기 Condat GSM 스택 소스가 있었다.</li>
+<li>iPhone 4 용 업데이트 이미지에서 a full baseband binary blob 을 unpack 한후에 IDA Pro 와 BinDiff 를 이용해 분석.</li>
+<li>unltrasn0w -</li>
+<li>wiki -</li>
+</ul>
+
+
+<h4>Classification of bugs found</h4>
+
+<ul>
+<li>Insufficient length checks</li>
+<li>Object/structure lifecycle issues</li>
+<li>Integer Overflows/underflows</li>
+<li>Memory information leaks</li>
+</ul>
+
+
+<h4>Examples of exploitable bugs found</h4>
+
+<ul>
+<li>Sending a longer TMSI (e.g. 128 bytes) caused the baseband stack of iPhones with Intel/Comneon to crash</li>
+<li>For authentication, the base station transmits a challenge to the handset. In GSM, this challenge is a 16 byte value called RAND. For UMTS, a so-called AUTN challenge is used - which is encoded as a variable length in IE, but in fact is specified to also be 16 bytes long.</li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/03/03/bellman-ford-algorithm/">Bellman-Ford Algorithm</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-03-03T21:26:51+09:00'><span class='date'><span class='date-month'>Mar</span> <span class='date-day'>3</span><span class='date-suffix'>rd</span>, <span class='date-year'>2015</span></span> <span class='time'>9:26 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Bellman-Ford 알고리즘에서 negative edge 체크가 빠진 버전.</p>
+
+<p>파이썬으로 만들어봤다.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>class Vertex:
+</span><span class='line'>    def __init__(self,n):
+</span><span class='line'>        self.number = n
+</span><span class='line'>        self.adj = []
+</span><span class='line'>        self.d = float('inf')
+</span><span class='line'>
+</span><span class='line'>    def addNeighbor(self,v,weight):
+</span><span class='line'>        self.adj.append( (v,weight) )
+</span><span class='line'>
+</span><span class='line'>    def p(self):
+</span><span class='line'>        print("Vertex %d, depth %f -&gt;" % (self.number,self.d)),
+</span><span class='line'>        for (v,weight) in self.adj:
+</span><span class='line'>            print("%d:%d " % (v.number,weight)),
+</span><span class='line'>        print
+</span><span class='line'>
+</span><span class='line'>def relax(v):
+</span><span class='line'>    for i in v:
+</span><span class='line'>        for (nv,weight) in i.adj:
+</span><span class='line'>            if i.d == float('inf'):
+</span><span class='line'>                print "skip..."
+</span><span class='line'>                continue
+</span><span class='line'>            if (i.d + weight &lt; nv.d):
+</span><span class='line'>                print "relaxing vertex %d" % (nv.number)
+</span><span class='line'>                nv.d = i.d + weight
+</span><span class='line'>    return
+</span><span class='line'>
+</span><span class='line'>if __name__ == "__main__":
+</span><span class='line'>    v = []
+</span><span class='line'>    for i in range(0,10):
+</span><span class='line'>        v.append(Vertex(i))
+</span><span class='line'>
+</span><span class='line'>    v[9].addNeighbor(v[8],5)
+</span><span class='line'>    v[8].addNeighbor(v[7],5)
+</span><span class='line'>    v[7].addNeighbor(v[6],5)
+</span><span class='line'>    v[6].addNeighbor(v[5],5)
+</span><span class='line'>    v[5].addNeighbor(v[4],5)
+</span><span class='line'>    v[4].addNeighbor(v[3],5)
+</span><span class='line'>    v[3].addNeighbor(v[2],5)
+</span><span class='line'>    v[2].addNeighbor(v[1],5)
+</span><span class='line'>    v[1].addNeighbor(v[0],5)
+</span><span class='line'>
+</span><span class='line'>    v[7].addNeighbor(v[2],5)
+</span><span class='line'>
+</span><span class='line'>    v[9].d = 0
+</span><span class='line'>
+</span><span class='line'>    for i in v:
+</span><span class='line'>        i.p()
+</span><span class='line'>
+</span><span class='line'>    count = 0
+</span><span class='line'>    for i in range(0,10-1):
+</span><span class='line'>        count += 1
+</span><span class='line'>        relax(v)
+</span><span class='line'>
+</span><span class='line'>    print "performed relaxing operation %d times." % (count)
+</span><span class='line'>
+</span><span class='line'>    for i in v:
+</span><span class='line'>        i.p()</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/12/13/atomic-xchg/">Atomic XCHG</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-12-13T08:08:28+09:00'><span class='date'><span class='date-month'>Dec</span> <span class='date-day'>13</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>8:08 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><code>lock xchg</code> 인스트럭션을 이용해서, 유저스페이스에서 mutex 를 만들어보았다.</p>
+
+<h4>Atomic XCHG</h4>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="cp">#include &lt;stdio.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;pthread.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;stdlib.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;string.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;time.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;unistd.h&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kt">pthread_t</span> <span class="n">t1</span><span class="p">,</span><span class="n">t2</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kt">int</span> <span class="n">babo</span><span class="p">;</span>
+</span><span class='line'><span class="kt">int</span> <span class="n">tmp</span><span class="p">;</span>
+</span><span class='line'><span class="kt">int</span> <span class="n">lock</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kt">int</span> <span class="nf">xchg</span><span class="p">(</span><span class="kt">int</span> <span class="o">*</span><span class="n">m</span><span class="p">,</span><span class="kt">int</span> <span class="n">inval</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="k">register</span> <span class="kt">int</span> <span class="n">val</span> <span class="o">=</span> <span class="n">inval</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">__asm__</span> <span class="n">__volatile__</span> <span class="p">(</span> <span class="s">&quot;lock xchg %1,%0&quot;</span> <span class="o">:</span> <span class="s">&quot;=m&quot;</span> <span class="p">(</span><span class="o">*</span><span class="n">m</span><span class="p">),</span> <span class="s">&quot;=r&quot;</span> <span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="o">:</span> <span class="s">&quot;1&quot;</span> <span class="p">(</span><span class="n">inval</span><span class="p">)</span> <span class="p">);</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">val</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">static</span> <span class="kt">void</span> <span class="o">*</span><span class="nf">thread_p</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="n">arg</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="kt">int</span> <span class="n">loops</span> <span class="o">=</span> <span class="mi">100000</span><span class="p">;</span>
+</span><span class='line'>    <span class="kt">int</span> <span class="n">i</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">struct</span> <span class="n">timespec</span> <span class="n">time1</span><span class="p">,</span><span class="n">time2</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">time1</span><span class="p">.</span><span class="n">tv_sec</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">time1</span><span class="p">.</span><span class="n">tv_nsec</span> <span class="o">=</span> <span class="mi">1000000</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">for</span> <span class="p">(</span><span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;</span><span class="n">loops</span><span class="p">;</span><span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="k">while</span> <span class="p">(</span><span class="n">xchg</span><span class="p">(</span><span class="o">&amp;</span><span class="n">lock</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+</span><span class='line'>            <span class="n">nanosleep</span><span class="p">(</span><span class="o">&amp;</span><span class="n">time1</span><span class="p">,</span><span class="o">&amp;</span><span class="n">time2</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">tmp</span> <span class="o">=</span> <span class="n">babo</span><span class="p">;</span>
+</span><span class='line'>        <span class="n">tmp</span><span class="o">++</span><span class="p">;</span>
+</span><span class='line'>        <span class="n">babo</span> <span class="o">=</span> <span class="n">tmp</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">lock</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="k">return</span> <span class="nb">NULL</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">ac</span><span class="p">,</span><span class="kt">char</span> <span class="o">**</span><span class="n">av</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="n">pthread_create</span><span class="p">(</span><span class="o">&amp;</span><span class="n">t1</span><span class="p">,</span><span class="nb">NULL</span><span class="p">,</span><span class="n">thread_p</span><span class="p">,</span><span class="nb">NULL</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">pthread_create</span><span class="p">(</span><span class="o">&amp;</span><span class="n">t2</span><span class="p">,</span><span class="nb">NULL</span><span class="p">,</span><span class="n">thread_p</span><span class="p">,</span><span class="nb">NULL</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">pthread_join</span><span class="p">(</span><span class="n">t1</span><span class="p">,</span><span class="nb">NULL</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">pthread_join</span><span class="p">(</span><span class="n">t2</span><span class="p">,</span><span class="nb">NULL</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;babo = %d</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">babo</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>컴파일해서 실행해보았다.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='sh'><span class='line'><span class="nv">$ </span>gcc atomic.c -o atomic -lpthread
+</span><span class='line'><span class="nv">$ </span>./atomic
+</span><span class='line'><span class="nv">babo</span> <span class="o">=</span> 200000
+</span><span class='line'><span class="err">$</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>while (xchg(&amp;lock,1) == 1) nanosleep(&amp;time1,&amp;time2);</code> 으로 lock 을 acquire 하고, <code>lock = 0;</code> 으로 lock 을 free 한다. <code>futex_lock_pi()</code> 도 비슷하게, user space 에서 lock 을 해제할 수 있었던 버그가 이제는 패치되었다.</p>
+
+<p>mutex 가 걸린 것처럼 동작했다. 100000 + 100000 = 200000</p>
+
+<h4>참고</h4>
+
+<ul>
+<li><a href="http://www.mohawksoft.org/?q=node/78">Atomic operations on the x86 processors</a></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/12/01/linux-kernel-linked-list/">Linux Kernel - Linked List</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-12-01T07:36:02+09:00'><span class='date'><span class='date-month'>Dec</span> <span class='date-day'>1</span><span class='date-suffix'>st</span>, <span class='date-year'>2014</span></span> <span class='time'>7:36 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h3>Linked List</h3>
+
+<p><code>linux/list.h</code> 에 구현되어 있다. static inline 으로 헤더 화일에 짧게 구현되어있다.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="k">struct</span> <span class="n">list_head</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">struct</span> <span class="n">list_head</span> <span class="o">*</span><span class="n">prev</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">struct</span> <span class="n">list_head</span> <span class="o">*</span><span class="n">next</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">static</span> <span class="kr">inline</span> <span class="kt">void</span> <span class="n">INIT_LIST_HEAD</span><span class="p">(</span><span class="k">struct</span> <span class="n">list_head</span> <span class="o">*</span><span class="n">list</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="n">list</span><span class="o">-&gt;</span><span class="n">prev</span> <span class="o">=</span> <span class="n">list</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">list</span><span class="o">-&gt;</span><span class="n">next</span> <span class="o">=</span> <span class="n">list</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">struct</span> <span class="n">cat</span> <span class="p">{</span>
+</span><span class='line'>    <span class="kt">char</span> <span class="o">*</span><span class="n">name</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">struct</span> <span class="n">list_head</span> <span class="n">list</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kt">int</span> <span class="n">main</span><span class="p">()</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="k">struct</span> <span class="n">cat</span> <span class="n">babo</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">INIT_LIST_HEAD</span><span class="p">(</span><span class="o">&amp;</span><span class="n">babo</span><span class="p">.</span><span class="n">list</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">babo</span><span class="p">.</span><span class="n">name</span> <span class="o">=</span> <span class="s">&quot;kakaka&quot;</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>구조체에 <code>struct list_head</code> 를 넣는 것으로 doubliy-linked list 를 만들 수 있다.</p>
+
+<h4>container_of()</h4>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="cp">#define container_of(ptr,type,member) \</span>
+</span><span class='line'><span class="cp">    ((type*)((char*)(const typeof(((type*)0)-&gt;member)*)ptr-offsetof(type,member)))</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">...</span>
+</span><span class='line'><span class="k">struct</span> <span class="n">dog</span> <span class="p">{</span>
+</span><span class='line'>    <span class="kt">char</span> <span class="o">*</span><span class="n">name</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">struct</span> <span class="n">list_head</span> <span class="n">list</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="p">...</span>
+</span><span class='line'><span class="k">struct</span> <span class="n">list_head</span> <span class="o">*</span><span class="n">list_p</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">dog</span><span class="p">.</span><span class="n">list</span><span class="p">;</span>
+</span><span class='line'><span class="p">...</span>
+</span><span class='line'><span class="k">struct</span> <span class="n">dog</span> <span class="o">*</span><span class="n">p</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">p</span> <span class="o">=</span> <span class="n">container_of</span><span class="p">(</span><span class="n">list_p</span><span class="p">,</span> <span class="k">struct</span> <span class="n">dog</span><span class="p">,</span> <span class="n">list</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>list_head 포인터</code> 에서 <code>스트럭쳐에서의 오프셋</code> 만큼 뒤로 가는 매크로. 그만큼 뒤로 가면, 스트럭쳐의 시작 위치가 나온다.</p>
+
+<h4>LIST_HEAD_INIT()</h4>
+
+<p>node 를 초기화하기 위해 2 가지 함수가 제공되는데, 매크로 버전과 inline 함수 버전이 있다.</p>
+
+<h3>Priority List</h3>
+
+<p>우선순위를 가진 sorted list. 2 개의 linked list 로 구현되어있다. sorted list 이기 때문에, tail 에 붙인다는 개념보다는 head 에 붙인다는 식이다.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="k">struct</span> <span class="n">plist_head</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">struct</span> <span class="n">list_head</span> <span class="n">node_list</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">struct</span> <span class="n">plist_node</span> <span class="p">{</span>
+</span><span class='line'>    <span class="kt">int</span> <span class="n">prio</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">struct</span> <span class="n">list_head</span> <span class="n">prio_list</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">struct</span> <span class="n">list_head</span> <span class="n">node_list</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -2092,131 +2639,6 @@ $ adb shell
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/11/11/rop-add/">ROP Add</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2014-11-11T12:29:53+09:00'><span class='date'><span class='date-month'>Nov</span> <span class='date-day'>11</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>12:29 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content">
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/11/11/pic-bindshell/">PIC_Bindshell</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2014-11-11T11:58:52+09:00'><span class='date'><span class='date-month'>Nov</span> <span class='date-day'>11</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>11:58 am</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>@mattifestation 의 <a href="https://github.com/mattifestation/PIC_Bindshell">PIC_Bindshell</a> 을 분석한다.</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/11/11/the-heartbleed-test/">The Heartbleed Test</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2014-11-11T11:53:41+09:00'><span class='date'><span class='date-month'>Nov</span> <span class='date-day'>11</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>11:53 am</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p><a href="https://filippo.io/the-heartbleed-test-at-owasp-slash-nyu-poly/">The Heartbleed Test @ OWASP / NYU Poly</a></p>
-
-<p>를 보고 정리한다.</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/11/10/linux-x86-64-shellcode-9/">Linux X86_64 Shellcode 9</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2014-11-10T23:10:59+09:00'><span class='date'><span class='date-month'>Nov</span> <span class='date-day'>10</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>11:10 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><h4>rop</h4>
-
-<h4>참고</h4>
-
-<ul>
-<li><a href="">Return-oriented Programming: Exploitation without Code Injection, Erik Buchanan, Ryan Roemer, Stefan Savage, Hovav Shacham, UCSD, Black Hat 2008</a></li>
-</ul>
-
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/12">&larr; Older</a>
@@ -2234,23 +2656,23 @@ $ adb shell
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/06/14/the-poisoned-nul-byte/">The Poisoned NUL Byte</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/06/14/plaidctf-ctf-2015-plaiddb/">PlaidCTF CTF 2015: PlaidDB</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/06/14/glibc-adventures-the-forgotten-chunks/">Glibc Adventures: The Forgotten Chunks</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/06/14/hitcon-ctf-2014-unexploitable-heap-overflow/">Hitcon Ctf 2014 Unexploitable Heap Overflow</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/06/13/poison-null-byte/">Poison NULL Byte</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/06/13/control-flow-enforcement-technology-preview/">Control-flow Enforcement Technology Preview</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/06/13/cve-2016-2468/">CVE-2016-2468</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/05/03/security-analysis-of-emerging-smart-home-applications/">Security Analysis of Emerging Smart Home Applications</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/04/26/rsa-sample-number/">RSA Sample Number</a>
       </li>
     
   </ul>

@@ -9,8 +9,8 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="Raymond Chen 의 블로그 중에서 재미난 것을 찾았다. [Why do Windows functions all begin with a pointless MOV EDI, EDI instruction?]
-(http://blogs.msdn.com/b/ &hellip;">
+  <meta name="description" content="Polling, Long Polling, Push, SSE, WebSocket 의 정확한 차이점을 알 필요가 생겼다. Polling AJAX 로 HTTP query 를 주기적으로 날리는 식이다. AJAX 와 다른 특별한 기술이라고 하기는 그렇다.
+새로운 Data 가 &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -66,6 +66,391 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/10/09/server-sent-events/">Server Sent Events</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-10-09T09:52:00+09:00'><span class='date'><span class='date-month'>Oct</span> <span class='date-day'>9</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>9:52 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Polling, Long Polling, Push, SSE, WebSocket 의 정확한 차이점을 알 필요가 생겼다.</p>
+
+<h3>Polling</h3>
+
+<p>AJAX 로 HTTP query 를 주기적으로 날리는 식이다. AJAX 와 다른 특별한 기술이라고 하기는 그렇다.
+새로운 Data 가 없을 경우 헛 쿼리를 하게되니, bandwidth 낭비가 된다.</p>
+
+<h3>Long Polling (Hanging GET/COMET)</h3>
+
+<p>보낼 데이타가 없으면, 서버가 HTTP request 를 잡고 있다가, data 가 available 할 때,
+HTTP response 를 보내준다. 서버가 잡고 있기 때문에 Hanging GET 이라고도 칭한다.</p>
+
+<p><a href="http://infrequently.org/2006/03/comet-low-latency-data-for-the-browser/">Alex Russel 의 블로그를 참조</a></p>
+
+<h3>Server Sent Events</h3>
+
+<p><a href="https://developer.mozilla.org/en-US/docs/Server-sent_events/Using_server-sent_events">Mozilla Developer Network</a> 를 보면 SSE 에 대한 좋은 예제가 있다.</p>
+
+<p>서버에서 MIME Type <code>text/event-stream</code> 으로, 내용은 JSON 으로 보내되, <code>event:</code>, <code>data:</code> 로 구분해서 보내고, 클라이언트에서는 <code>EventSource</code> 인터페이스를 사용한다. 보다 자세한 설명은 <a href="http://www.html5rocks.com/en/tutorials/eventsource/basics/">HTML5Rocks</a>로.</p>
+
+<p>sse.html</p>
+
+<pre><code>&lt;html&gt;
+&lt;head&gt;&lt;/head&gt;
+&lt;body&gt; 
+    &lt;ul id="evt"&gt;
+    &lt;/ul&gt;
+&lt;script&gt;
+    var source = new EventSource("sse.php");
+    source.addEventListener("ping", function(e) {
+        var elem = document.createElement("li");
+        var obj = JSON.parse(e.data);
+        elem.innerHTML = "ping at " + obj.time;
+        document.getElementById("evt").appendChild(elem);
+    }, false);
+&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+
+<p>sse.php</p>
+
+<pre><code>&lt;?php
+date_default_timezone_set("Asia/Seoul");
+header("Content-Type: text/event-stream\n\n");
+
+while (1) {
+    echo "event: ping\n";
+    $curDate = date(DATE_RFC2822);
+    echo 'data: {"time": "'. $curDate . '"}';
+    echo "\n\n";
+    ob_flush();
+    flush();
+    $r = rand(1,3)
+    sleep($r);
+}
+?&gt;
+</code></pre>
+
+<p>브라우저에서 접속해보면,</p>
+
+<p><img src="/images/ssedemo.png"></p>
+
+<p><a href="http://www.html5rocks.com/en/tutorials/eventsource/basics/">HTML5Rocks</a> 의 nodejs 예제.</p>
+
+<pre><code>var http = require('http');
+var sys = require('sys');
+var fs = require('fs');
+
+http.createServer(function(req,res) {
+    if (req.headers.accept &amp;&amp; req.headers.accept == 'text/event-stream') {
+        if (req.url == '/events') {
+            sendSSE(req,res);
+        } else {
+            res.writeHead(404);
+            res.end();
+        }
+    } else {
+        res.writeHead(200, { 'Content-Type': 'text/html' });
+        res.write(fs.readFileSync(__dirname+'/sse.html'));
+        res.end();
+    }
+}).listen(8000);
+
+function sendSSE(req,res) {
+    res.writeHead(200, {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive'
+    });
+    var id = (new Date()).toLocaleTimeString();
+    setInterval(function() { 
+        constructSSE(res, id, (new Date()).toLocaleTimeString() );
+    }, 5000);
+    constructSSE(res, id, (new Date()).toLocaleTimeString() );
+}
+
+function constructSSE(res, id, data) {
+    res.write('event: ping' + '\n');
+    //res.write('id: ' + id + '\n');
+    res.write('data: ' + '{ "time": "' + data + '"}' + '\n\n');
+}
+</code></pre>
+
+<p>sse.html</p>
+
+<pre><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;&lt;/head&gt;
+&lt;body&gt;
+    &lt;ul id="evt"&gt;
+    &lt;/ul&gt;
+    &lt;script&gt;
+        var source = new EventSource('/events');
+        source.addEventListener("ping", function(e) {
+            var elem = document.createElement("li");
+            var obj = JSON.parse(e.data);
+            elem.innerHTML = "ping at " + obj.time;
+            document.getElementById("evt").appendChild(elem);
+        }, false);
+    &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+
+<p>HTTP connection 을 유지하면서, 서버가 random 딜레이를 두고 event 를 쏴주는데,
+브라우저가 이벤트를 처리하게 된다.</p>
+
+<p><a href="http://stackoverflow.com/questions/5195452/websockets-vs-server-sent-events-eventsource">WebSocket 과 SSE 간에 큰 차이점</a>은 다음과 같다.</p>
+
+<ol>
+<li>WebSocket 은 Full-Duplex 채널 v.s. SSE 는 Server -> Browser</li>
+<li>SSE 는 HTTP 로 구현</li>
+<li>Internet Explorer 는 SSE 를 지원하지 않음</li>
+</ol>
+
+
+<p>WebSocket 이나 SSE 는 브라우저 호환성때문에, 현실에서는 (i.e. Facebook) long polling 을 주로 사용하는 모양이다.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/10/02/horners-method/">Horner's Method</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-10-02T15:19:00+09:00'><span class='date'><span class='date-month'>Oct</span> <span class='date-day'>2</span><span class='date-suffix'>nd</span>, <span class='date-year'>2013</span></span> <span class='time'>3:19 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><a href="http://en.wikipedia.org/wiki/Horner's_method">Horner&rsquo;s method</a></p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/09/30/updating-forked-repo/">Updating Forked Repo</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-09-30T13:16:00+09:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>30</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>1:16 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><a href="http://stackoverflow.com/questions/7244321/how-to-update-github-forked-repository">How to update github forked repository</a></p>
+
+<pre><code>git remote add upstream git://github.com/whoever/whatever.git
+
+# Fetch all the branches of that remote into remote-tracking branches,
+# such as upstream/master
+git fetch upstream
+
+# Make sure that you're on your master branch:
+git checkout master
+
+# Rewrite your master branch so that any commits of yours that
+# aren't already in upstream/master are replayed on top of that
+# other branch:
+git rebase upstream/master
+
+git push -f origin master
+</code></pre>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/09/27/naive-bayesian-classifier/">Naive Bayesian Classifier</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-09-27T16:29:00+09:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>27</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>4:29 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h4>Conditional Probability</h4>
+
+<p>일반적인 조건부 확률 예제를 들어본다.</p>
+
+<ol>
+<li>주머니에 두개의 동전이 들어있다.</li>
+<li>여기서 동전을 하나 꺼내 동전 던지기를 한다.</li>
+<li>단 한개는 평범한 동전. 한개는 조작되어서 던지면 무조건 Head 가 나오는 동전.</li>
+<li>주머니에서 동전을 하나 꺼내어 던졌더니 Head 가 나왔을때,</li>
+<li>평범한 동전을 꺼냈을 확률은?</li>
+</ol>
+
+
+<p>결과 트리를 그려보면,</p>
+
+<ol>
+<li>일단계 outcome 은 평범동전 / 조작동전</li>
+<li>이단계 outcome 은 H / T / H / H</li>
+</ol>
+
+
+<p>P(평범|H) = one H / three H = 1/3 = P(평범 and H) / P(H) = (&frac14;) / (&frac34;)</p>
+
+<h4>검색 키워드에 따라 결과 페이지에 광고를 집어 넣기</h4>
+
+<p>검색 엔진에 들어오는 쿼리를</p>
+
+<ul>
+<li>informational query</li>
+<li>transactional query</li>
+</ul>
+
+
+<p>2 가지로 구분할 수 있다고 하자.</p>
+
+<p><code>transactional query</code> 라고 판단되면 광고를 옆에 표시해주기로 하자.</p>
+
+<p>쉬운 방법은 매 query 마다 과거 기록을 검색해보면 된다.</p>
+
+<p><code>cheap flowers</code> 라고 유저가 치면 <code>cheap flowers</code> 를 과거 DB 에서 검색해서,</p>
+
+<ol>
+<li>구매관련 링크로 튀었는지 (유저가 클릭)</li>
+<li>정보성 링크로 튀었는지</li>
+</ol>
+
+
+<p>검색한 후에, 구매관련 링크로 튄 경우가 많았다면 꽃가게 광고를 옆에 표시해준다.
+그런데 이 방법은 response 시간도 오래 걸리고 부하가 심해서 feasible 하지 않다.</p>
+
+<p><code>cheap flowers</code>, <code>red flowers</code>, <code>gift flowers</code> 만 놓고 봐도,</p>
+
+<p><code>cheap flowers</code> 는 transactional query 일 것이고 <code>red flowers</code> 는 informational query 일 듯.</p>
+
+<p>조건부 확률을 써서 문제를 정의해보면, P(구매링크를 클릭| <code>cheap flowers</code> 를 검색) 의 확률이다.</p>
+
+<ol>
+<li>우리 DB 에 10 여년간의 수많은 검색 -> 클릭 데이터가 있다.</li>
+<li>정보성 블로그 링크인지 스폰서 광고 링크인지 link property 에 담겨져 있다. (링크 등록시)</li>
+</ol>
+
+
+<h4>Naive Bayesian Classifier</h4>
+
+<p>keywords: flower, red, gift, cheap</p>
+
+<ul>
+<li>should ads be shown or not?</li>
+<li>are you a surfer or a shopper?</li>
+</ul>
+
+
+<p>machine learning is all about learning from past data.</p>
+
+<ul>
+<li>past behavior of many many searchers using these keywords</li>
+</ul>
+
+
+<p>전체 n 개의 query instance 가 있었다고 하자. sample set.</p>
+
+<p>red 라는 단어를 query 한 경우가 r 케이스.</p>
+
+<p>구매로 연결된 query 는 k 케이스.</p>
+
+<p>p(R and B) = i 케이스.</p>
+
+<p>라고 하면.</p>
+
+<p>red 라는 단어를 query 했을 경우 구매 이벤트가 일어날 조건부 확률 p(B|R) = i/r</p>
+
+<p>Red / Cheap 이라는 2 개의 단어의 경우로 넘어가자.</p>
+
+<p>&ldquo;naive&rdquo; Bayesian classifier:</p>
+
+<p>Assumption: All the futures that one uses to learn about historical data are
+independent for a particular choice of the behavior one is trying to learn.</p>
+
+<p>i.e. if one is trying to predict whether a given user is shopping or just
+surfing using the query words that they use to search. We assume that the
+words themselves are all independent and equally likely of occur independent of
+what what other words are used in the query.</p>
+
+<p>Assumption - R and C are independent given B.</p>
+
+<p>P(B|R,C) * P(R,C) = P(R,C|B) * P(B) (Bayes rule)
+= P(R|C,B) * P(C|B) * P(B) (Bayes rule)
+= P(R|B) * P(C|B) &amp; P(B) (independence)</p>
+
+<p>so, given values r and c for R and C</p>
+
+<p>compute:</p>
+
+<p>p(r|B=y)<em>p(c|B=y)</em>p(B=y) / p(r|B=n)<em>p(c|B=n)</em>p(B=n)</p>
+
+<p>choose B=y if this is > alpha (usually 1), and B=n otherwise</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -929,447 +1314,6 @@ console.log(sum);
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2013/09/10/adsense-inverse-search/">AdSense: Inverse Search</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2013-09-10T18:08:00+09:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>10</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>6:08 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>search 는 주어진 키워드와 가장 relevant 한 document 를 찾아 사용자에게 제시한다.
-AdSense 는 역으로 주어진 document 에 대해, 가장 relevant 한 키워드를 찾아내, 그 키워드에
-비딩한 광고를 실어주어야 한다.</p>
-
-<h3>TF-IDF</h3>
-
-<ul>
-<li>rarer words make better keywords</li>
-</ul>
-
-
-<p>IDF = inverse document frequency of word w = log_2 (N/N_w)</p>
-
-<p>(N total documents, with N_w containing w)</p>
-
-<ul>
-<li>more frequent words make better keywords</li>
-</ul>
-
-
-<p>TF (Term Frequency) = frequency of w in document d</p>
-
-<p>TF-IDF (w) = Term Frequency (w) * Inverse Document Frequency (w)</p>
-
-<p>&lsquo;the&rsquo; 처럼 의미없는 말이 문서에 자주 반복되어봐야 별 가치 없으니,
-어느정도 rarer 한 단어가 어느 정도 자주나오는가? 라는 의미로 보면 될 것.</p>
-
-<p><a href="http://comminfo.rutgers.edu/~muresan/IR/Docs/Articles/ipmAizawa2003.pdf">&ldquo;An information-theoretic perspective of TF-IDF measures&rdquo;, Kiko Aizawa, Journal of Information Processing and Management, Vol. 39 (1), 2003</a></p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2013/09/09/mapreduce-simplified-data-processing-on-large-clusters/">MapReduce: Simplified Data Processing on Large Clusters</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2013-09-09T17:19:00+09:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>9</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>5:19 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Jeff Dean and Sanjay Ghemawat 의 논문 &ldquo;MapReduce: Simplified Data Processing on Large Clusters&rdquo; 를 읽고 있다.</p>
-
-<p>LISP-like 언어들의 Map(), Reduce() 함수가 MapReduce 의 시작이었다.</p>
-
-<h3>Problems</h3>
-
-<p>Map/Reduce 로 풀 수 있는 문제들을 제시한다. Scalable 하게 풀 수 있는 문제들.</p>
-
-<ul>
-<li>Distributed Grep - 패턴이 매치하면 그 라인을 emit.
-reduce 함수가 중간 데이터를 아웃풋에 출력.</li>
-<li>Count of URL Access Frequency - HTTP request log 를 프로세스해서 &lt;URL,1> 을 emit.
-reduce 함수가 같은 URL 에 대해서 값들을 summation. &lt;URL, total count> 를 emit.</li>
-<li>Reverse Web-Link Graph</li>
-<li>Term-Vector per Host</li>
-<li>Inverted Index</li>
-<li>Distributed Sort</li>
-</ul>
-
-
-<h3>Map() / Reduce()</h3>
-
-<p>JavaScript, Ruby, Python 으로 map() / reduce() 예제를 만들어본다.</p>
-
-<p>JavaScript</p>
-
-<pre><code>// map.js
-function map(fn, a) {
-    for (var i = 0; i &lt; a.length; i++) 
-        a[i] = fn(a[i]);
-}
-
-var x = [1,2,3,4,5];
-
-map( function(n) { return n*2; }, x);
-map( function(n) { process.stdout.write(n.toString()+'\n'); return n; }, x);
-
-code% node map.js
-2
-4
-6
-8
-10
-
-// mapreduce.js
-function map(fn, a) {
-    for (var i = 0; i &lt; a.length; i++) 
-        a[i] = fn(a[i]);
-}
-
-function reduce(apply, array, initial_value) {
-    var prev = initial_value;
-    for (var i = 0; i &lt; array.length; i++)
-        prev = apply(prev, array[i]);
-    return prev;        
-}
-
-var x = [1,2,3,4,5];
-
-map( function(n) { return n*2; }, x);
-process.stdout.write( 
-    reduce( function(x,y) { return x+y; }, x, 0 ).toString() + '\n' );
-
-code% node map.js
-30
-</code></pre>
-
-<p>Ruby 의 경우 map(), reduce() 가 있는데,</p>
-
-<pre><code>1.9.3-p448 :001 &gt; (1..10).map { |n| n*2 }
- =&gt; [2, 4, 6, 8, 10, 12, 14, 16, 18, 20]
-1.9.3-p448 :002 &gt; (1..10).reduce(0) { |prev,n| prev + n }
- =&gt; 55
-1.9.3-p448 :003 &gt; (1..10).reduce(0) { |prev,n| prev = prev + n }
- =&gt; 55
-1.9.3-p448 :004 &gt;
-</code></pre>
-
-<p>reduce() 의 의미는, list 의 아이템을 하나의 value 로 축약해내는 것.</p>
-
-<p>축약 과정은 ( 전의 값, list 의 아이템 ) 에 apply function 을 적용하여 새로운 값을
-계속해서 만들어나가는 것.</p>
-
-<p>요약하면 Apply funciton 으로 어레이를 단계별로 처리해나가서 하나의 값으로 증류해내는 것.</p>
-
-<p>이제 ruby 의 map(), reduce() 를 구현해서 monkey patching 으로 붙여보자.</p>
-
-<p>Python 의 경우에도 map(), reduce() 함수가 있는데,</p>
-
-<pre><code>Python 2.7.2 (default, Oct 11 2012, 20:14:37)
-[GCC 4.2.1 Compatible Apple Clang 4.0 (tags/Apple/clang-418.0.60)] on darwin
-Type "help", "copyright", "credits" or "license" for more information.
-&gt;&gt;&gt; a = [ 1,2,3,4,5 ]
-&gt;&gt;&gt; map ( lambda x: x* 2, a )
-[2, 4, 6, 8, 10]
-&gt;&gt;&gt; reduce( lambda x,y: x+y, a)
-15
-</code></pre>
-
-<h3>Word Count Example</h3>
-
-<p>Map-Reduce v.s. shared-memory, low-level message passing</p>
-
-<p>Web 에서 crawling 한 document 를 가지고 word count 을 map-reduce 로 기술해본다.</p>
-
-<p>Input: 도큐먼트와 content (d_k, &lsquo;w_1 &hellip; w_n&rsquo;)
-Output: (w_k, word-count-toal)</p>
-
-<ul>
-<li>mapper: (d_k, &lsquo;w1 &hellip; w_n&rsquo;) -> emits -> [ (w_i,c_i) ]</li>
-<li>reducer:  (w_i, [c_i]) -> (w_i, sum of all c_i)</li>
-</ul>
-
-
-<p>문서는 여러개의 mapper 에 분배된다.
-mapper 는 문서를 받아서 (key,value) 를 뱉어낸다.
-그 문서에 있는 단어와 단어의 카운트. combine 을 할수도 안할수도 있다.</p>
-
-<pre><code>('abc', 4)
-('cat', 2)
-('abc', 8)
-('dog', 1)
-('gun', 7)
-('dog', 2)
-...
-</code></pre>
-
-<p>word count 예제에서는
-reducer 는 mapper 들이 생성한 (key, value) 에 sum function 을 가지고 reduce 한다.
-(&lsquo;abc&rsquo;, &hellip;) 는 1st reducer 로 가고, (&lsquo;cat&rsquo;, &hellip;) 는 2nd reducer 로 가고&hellip;</p>
-
-<p>octo.py 를 가지고 map-reduce 를 간단하게 실습해본다.</p>
-
-<h4>wc.py</h4>
-
-<pre><code>import glob
-
-files = glob.glob('*.txt')
-
-def fbuf(fname):
-    f = open(fname)
-    try:
-        return f.read()
-    finally:
-        f.close()
-
-source = dict( (fname, fbuf(fname)) for fname in files)
-
-f = open('outfile','w')
-
-def final(k,v):
-    print k,v
-    f.write( str( (k,v) ) )
-
-def mapfn(k,v):
-    for line in v.splitlines():
-        for word in line.split():
-            yield word.lower(), 1
-
-def reducefn(k,v):
-    return k,len(v)
-</code></pre>
-
-<p>octo.py server 가 file contents 를 mapper 에게 분배하고,
-mapper 는 (word, 1) 을 emit 한다.
-reducer 는 ( &lsquo;alice&rsquo; , [1,1,1,1,1,1,1,1] ) 를 reduce 한다.</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2013/09/09/making-of-an-exploit-kit/">Making of an Exploit Kit</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2013-09-09T15:26:00+09:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>9</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>3:26 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Drive-by-download 공격을 수행하는 Exploit Kit 을 만들고 있다.</p>
-
-<p>중국산 EK 들이 쓰는 CVE 들과 한국에 유독 많은 ActiveX 컨트롤들의 취약점을 활용할 예정.</p>
-
-<p>Browser Fingerprinting 을 통해 적절한 Exploit 으로 대응한다.</p>
-
-<p>몇가지 아이디어와 루틴들을 실험하기 위해 실험용 웹사이트를 셋업했다.</p>
-
-<p>Browser 의 종류나 설치된 플러그인들의 버전은 deployJava.js, swfobject.js, PluginDetect.js 등을 활용하면,</p>
-
-<p>거의 정확하게 판정이 가능하다. 즉 취약한 버전의 Java Runtime 이 있는지, 취약한 버전의 Flash Player 가 있는지를 거의 정확하게 판별할 수 있다는 것.</p>
-
-<p>Applet 을 활용하면, virtual machine 인지를 확인도 가능한 듯 하다.</p>
-
-<p>난독화는 나중에 하기로 했다.</p>
-
-<p><a href="http://zomo.herokuapp.com/blog/2013/06/01/javascript-obfuscation-patterns/">JavaScript Obfuscation Patterns</a> 에 있는 패턴 뿐만 아니라, parsing tree 를 만들어서 obfuscate 하는 툴도 만들기로 했다.</p>
-
-<p>들어오는 Traffic 의 10% 정도를 감염시킬 수 있으면, 꽤 준수하지 않을까 생각하고 있다.</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2013/09/08/ll-and-lr-parsing/">LL and LR Parsing</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2013-09-08T20:17:00+09:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>8</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>8:17 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p><a href="http://blog.reverberate.org/2013/07/ll-and-lr-parsing-demystified.html">LL and LR parsing demystified</a> 을 보고.</p>
-
-<p>저자의 point 는 LL 과 LR 의 차이는 traversal 이라는 것.</p>
-
-<p>파서는 traversal 이라는 인사이트를 제시한다.</p>
-
-<p>blog 에 나온 postfix calculator</p>
-
-<pre><code>ops = {
-    '+': (lambda a,b: a+b),
-    '-': (lambda a,b: a-b),
-    '*': (lambda a,b: a*b)
-}
-
-def eval(tokens):
-    stack = []
-
-    for tk in tokens:
-        if (tk in ops):
-            a2 = stack.pop()
-            a1 = stack.pop()
-            stack.append(ops[tk](a1,a2))
-        else:
-            stack.append(int(tk))
-    return stack.pop()
-
-if __name__ == "__main__":
-    print eval("7 2 3 * +".split())
-</code></pre>
-
-<p>blog 에서 말한 infix -> postfix 변환하기.</p>
-
-<p>tree building 없이 stack 만 가지고 Prefix 에서 Postfix 로 변환해본다.</p>
-
-<pre><code>ops = { 
-    "+": "plus", 
-    "-": "minus",
-    "*": "mutiply"
-    }
-
-class Visit:
-    tokens = []
-    index = 0
-    stack = []
-    rev_polish = []
-
-    def __init__(self, expr):
-        self.tokens = expr.split()
-        self.index = 0
-
-    def visit(self):
-        if (self.tokens[self.index] in ops):
-            self.stack.append(self.tokens[self.index])
-            self.index += 1
-            self.visit() 
-            self.visit()
-            self.rev_polish.append(self.stack.pop())
-        else:
-            self.rev_polish.append(self.tokens[self.index])
-            self.index += 1
-
-if __name__ == "__main__":
-    visit = Visit("* + 1 2 3")
-    visit.visit()
-    print visit.rev_polish
-
-code% python polish.py
-['1', '2', '+', '3', '*']
-</code></pre>
-
-<p>그 다음에 Infix parsing 트리를 만들어봐야겠다.</p>
-
-<p>일단 문법은 NUMBER + NUMBER 형태만 지원.</p>
-
-<pre><code>class Lexer:
-    token = []
-    index = 0
-
-    def __init__(self, exp):
-        self.token = exp.split()
-        self.lookahead = self.nextToken()
-
-    def nextToken(self):
-        if self.index &lt; len(self.token):
-            tk = self.token[self.index]
-            self.index += 1
-            return tk
-        else:
-            return ""
-    def consume(self):
-        self.lookahead = self.nextToken()
-
-class Parser:
-    def __init__(self, lexer):
-        self.lexer = lexer
-    def expr(self):
-        self.match_number()
-        self.match_op()
-        self.match_number()
-    def match_number(self):
-        print "NUMBER %d" % (int(lexer.lookahead))
-        self.lexer.consume()
-    def match_op(self):
-        print "OP %s" % (lexer.lookahead)
-        self.lexer.consume()
-
-if __name__ == "__main__":
-    lexer = Lexer("1 + 2")
-    parser = Parser(lexer)
-    parser.expr()
-
-blog% python expr.py
-NUMBER 1
-OP +
-NUMBER 2
-</code></pre>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/20">&larr; Older</a>
@@ -1387,23 +1331,23 @@ NUMBER 2
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/06/14/the-poisoned-nul-byte/">The Poisoned NUL Byte</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/06/14/plaidctf-ctf-2015-plaiddb/">PlaidCTF CTF 2015: PlaidDB</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/06/14/glibc-adventures-the-forgotten-chunks/">Glibc Adventures: The Forgotten Chunks</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/06/14/hitcon-ctf-2014-unexploitable-heap-overflow/">Hitcon Ctf 2014 Unexploitable Heap Overflow</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/06/13/poison-null-byte/">Poison NULL Byte</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/06/13/control-flow-enforcement-technology-preview/">Control-flow Enforcement Technology Preview</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/06/13/cve-2016-2468/">CVE-2016-2468</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/05/03/security-analysis-of-emerging-smart-home-applications/">Security Analysis of Emerging Smart Home Applications</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/04/26/rsa-sample-number/">RSA Sample Number</a>
       </li>
     
   </ul>

