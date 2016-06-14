@@ -4,7 +4,7 @@
   <title><![CDATA[KC's blog]]></title>
   <link href="http://zomo.heroku.com/atom.xml" rel="self"/>
   <link href="http://zomo.heroku.com/"/>
-  <updated>2016-06-14T09:05:37+09:00</updated>
+  <updated>2016-06-14T09:09:52+09:00</updated>
   <id>http://zomo.heroku.com/</id>
   <author>
     <name><![CDATA[KC]]></name>
@@ -131,7 +131,7 @@
 
 <ul>
 <li><p>그럼 <code>a|b1|b2|(free)|c</code> 로 앨록된 상황이다. 여전히 c.prev 는 잘못되어있다.</p></li>
-<li><p>여기서 <code>free(b1); free(c);</code> 를 해준다음에 꽤 큰 사이즈를 앨록 요청하면, 상식적으로 <code>c</code> 다음에 앨록되어야 하나, 메모리 매니저는 <code>b == b1</code> 자리에 앨록한다. <code>d</code> 와 b2` 가 overlapping 되는 셈.</p></li>
+<li><p>여기서 <code>free(b1); free(c);</code> 를 해준다음에 꽤 큰 사이즈를 <code>d</code> 로 앨록 요청하면, 상식적으로 <code>b2</code> 다음에 존재하던 free chunk 부터 앨록되어야 하나, 메모리 매니저는 <code>b == b1</code> 자리에 앨록한다. <code>d</code> 와 b2` 가 overlapping 되는 셈.</p></li>
 <li><p>이제 <code>d</code> 에다가 쓰인 데이터는 <code>b2</code> 가 가리키는 메모리를 를 corrupt 시킨다.</p></li>
 <li><p>교훈은, malloc 에서 경계를 넘어가서, 1 바이트만 NULL 로 overwrite 되어도 메모리 커럽션이 일어날 수 있다는 것.</p></li>
 </ul>
