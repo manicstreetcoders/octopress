@@ -9,8 +9,7 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="
-">
+  <meta name="description" content="Fermin J. Serna 의 The info leak era on software exploitation 를 읽고 정리해본다. 참고: Modeling the exploitation and mitigation of memory safety &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -66,6 +65,43 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/11/11/the-info-leak-era-on-software-exploitation/">The Info Leak Era on Software Exploitation</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-11-11T12:34:16+09:00'><span class='date'><span class='date-month'>Nov</span> <span class='date-day'>11</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>12:34 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Fermin J. Serna 의 <a href="http://media.blackhat.com/bh-us-12/Briefings/Serna/BH_US_12_Serna_Leak_Era_Slides.pdf">The info leak era on software exploitation</a> 를 읽고 정리해본다.</p>
+
+<p>참고:</p>
+
+<ul>
+<li>Modeling the exploitation and mitigation of memory safety vulnerabilities, Breakpoint 2012, Matt Miller</li>
+<li><a href="http://zhodiac.hispahack.com/my-stuff/security/SummerCon_2012_CVE-2012-0769.pdf">The case of the perfect info leak</a></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -632,67 +668,6 @@ $
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/11/10/linux-x86-64-shellcode-3/">Linux X86_64 Shellcode 3</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2014-11-10T01:41:33+09:00'><span class='date'><span class='date-month'>Nov</span> <span class='date-day'>10</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>1:41 am</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>이번에는 계산해서 <code>return address</code> 를 덮어쓰는 것이 아니라, 80 바이트정도로 스택 프레임을 밀어본다. 그래도 동작한다.</p>
-
-<pre><code>char *_shellcode = ""
-    "\x48\x31\xd2"
-    "\x48\xbb\x2f\x2f\x62\x69\x6e\x2f\x73\x68"
-    "\x48\xc1\xeb\x08"
-    "\x53"
-    "\x48\x89\xe7"
-    "\x48\x31\xc0"
-    "\x50"
-    "\x57"
-    "\x48\x89\xe6"
-    "\xb0\x3b"
-    "\x0f\x05" ;
-
-char *_shells[10];
-
-void explode() {
-    long *ret;
-    memcpy(&amp;ret,_shells,8*10);
-}
-
-main()
-{
-    int i;
-    for (i=0;i&lt;10;i++) _shells[i]=_shellcode;
-    explode();
-}
-
-z@ubuntu:~/shells% gcc s3.c -o s3
-z@ubuntu:~/shells% ./s3
-$ 
-</code></pre>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/13">&larr; Older</a>
@@ -710,6 +685,10 @@ $
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/06/17/cve-2016-0728/">CVE-2016-0728</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/06/14/the-poisoned-nul-byte/">The Poisoned NUL Byte</a>
       </li>
     
@@ -723,10 +702,6 @@ $
     
       <li class="post">
         <a href="/blog/2016/06/14/glibc-adventures-the-forgotten-chunks/">Glibc Adventures: The Forgotten Chunks</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/06/13/poison-null-byte/">Poison NULL Byte</a>
       </li>
     
   </ul>
