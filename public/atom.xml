@@ -4,7 +4,7 @@
   <title><![CDATA[KC's blog]]></title>
   <link href="http://zomo.heroku.com/atom.xml" rel="self"/>
   <link href="http://zomo.heroku.com/"/>
-  <updated>2016-06-20T14:35:53+09:00</updated>
+  <updated>2016-06-20T16:15:38+09:00</updated>
   <id>http://zomo.heroku.com/</id>
   <author>
     <name><![CDATA[KC]]></name>
@@ -12,6 +12,23 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[iPhone Security]]></title>
+    <link href="http://zomo.heroku.com/blog/2016/06/20/iphone-security/"/>
+    <updated>2016-06-20T16:11:04+09:00</updated>
+    <id>http://zomo.heroku.com/blog/2016/06/20/iphone-security</id>
+    <content type="html"><![CDATA[<ul>
+<li><a href="http://esec-lab.sogeti.com/static/publications/11-hitbamsterdam-iphonedataprotection.pdf">Sogeti</a></li>
+<li>Matthew Green&rsquo;s Crypto Engineering Blog</li>
+<li>darthnull.org&rsquo;s Blog</li>
+<li><a href="http://darthnull.org/media/presentations/2016-BSidesROC-iOSCrypto.pdf">darthnull&rsquo;s BSides talk</a></li>
+</ul>
+
+
+<p>iOS encryption 을 읽어봐야겠다.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[CVE-2016-0728]]></title>
@@ -1484,19 +1501,6 @@ OpenSSL 버그때문에, 서버 설정에 상관없이, 강제로 SSLv2 로 네�
 <p>관련된 코드를 저자가 <a href="https://github.com/laginimaineb/Alohamora">github</a> 에 공개하였다.</p>
 
 <p><code>build_shellcode.sh</code> 를 보았다. <code>shellcode.S</code> 를 arm-eabi-gcc 를 이용해서 어셈블, 링킹하고 arm-eabi-objcopy 를 통해서 elf -> raw binary 로 변환한다.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[The Dependency of Android SDK]]></title>
-    <link href="http://zomo.heroku.com/blog/2016/02/07/the-dependency-of-android-sdk/"/>
-    <updated>2016-02-07T14:44:35+09:00</updated>
-    <id>http://zomo.heroku.com/blog/2016/02/07/the-dependency-of-android-sdk</id>
-    <content type="html"><![CDATA[<p><a href="http://stackoverflow.com/questions/23182765/how-to-install-ia32-libs-in-ubuntu-14-04-lts-trusty-tahr">14.04 에서 Android SDK 디펜던시 문제</a></p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>$ sudo apt-get install -y libc6-i386 lib32stdc++6 lib32gcc1 lib32ncurses5 lib32z1</span></code></pre></td></tr></table></div></figure>
-
 ]]></content>
   </entry>
   

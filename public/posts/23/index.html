@@ -9,8 +9,12 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content=".bashrc 라던가 .vimrc 라던가 이런 dotfiles 들이 너덜너덜해져서 정리를 시작했는데, 이런 일들은 한번 시작하면 대책없이 커지기 시작한다.
-꽤 오랜 시간 들여서 정리를 했는데, 앞으로 해야할 일들이 더 많아졌다. 2012/10/27 github 에 &hellip;">
+  <meta name="description" content="코딩에서 손을 놓고 사업과 매니징만 한지 8년이 지났었다.
+내 손으로 할 수 있는 일이 점점 없어지자 갑갑해졌다.
+머리속에 떠오르는 아이디어들은 어디서인가 읽은 듯한 느낌이 드는 신선하지
+않은 것들.
+새로운 아이디어를 가지기 위해서는,
+Hands-on &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -66,6 +70,537 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/09/05/rails-is-hard/">Rails Is Hard</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2012-09-05T10:55:00+09:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>5</span><span class='date-suffix'>th</span>, <span class='date-year'>2012</span></span> <span class='time'>10:55 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>코딩에서 손을 놓고 사업과 매니징만 한지 8년이 지났었다.
+내 손으로 할 수 있는 일이 점점 없어지자 갑갑해졌다.
+머리속에 떠오르는 아이디어들은 어디서인가 읽은 듯한 느낌이 드는 신선하지
+않은 것들.
+새로운 아이디어를 가지기 위해서는,
+Hands-on Experience 가 필요하다는 생각이 들었다.
+LEGO 블럭을 가지고 꾸준히 놀아봐야, 손이 가는대로 뭔가를 만들 수 있지 않을까?
+블럭으로 자동차를 만들다가 소방차를 만들고, 비행기를 만들다가 공항을 만드는 것같은 느낌으로.</p>
+
+<p>이 정도의 생각으로 몇 개월동안 아래의 기술들을 사용해서 뭔가를 만들어보려고 노력했다.</p>
+
+<p>그리고 이제는 프로토타입 정도는 혼자 만들 수 있게 되었다. 좀 욕심내면 Parse.com 의 프로토타입 정도는 혼자 만들 수 있겠다 싶다. :-)</p>
+
+<p>아 그런데, 요즘의 웹 개발은 너무 복잡하다.
+물론 대부분의 기술이 Open Source 인 덕분에, 커뮤니티도 활성화되어 있고,
+참고할만한 리소스들도 많이 있다.
+클라우드 서비스들이 많아서 돈도 얼마 들지 않는다.
+그 덕택에 감각이 있는 개발자라면 그럭저럭 쉽게 배워 뭔가를 만들어 낼 수 있기는
+하겠지만, 마스터하기는 쉽지 않다. 배워야 할 것들이 너무 많고, 새로운 것들이 계속해서 쏟아져 나오고 있다. 책들이 소프트웨어의 버전업을 따라가지 못하는 상황이다.</p>
+
+<p>이러쿵저러쿵했지만, 그래도 다양한 기술들이 각자 발전해나가면서 멋진 세상이 만들어지고 있다.</p>
+
+<p>예를 들면, 지금 이 시간에도 아마존 EC2 (도쿄) 와 Heroku (버지니아) 와
+Linode (도쿄) 의 데이터센터에서 내가 만든 뭔가가 돌아가고 있다.
+유지하는데 큰 비용이 필요치 않다.
+10 년전에는 생각도 할 수 없었던 일이 벌어지고 있다.
+(그리고 한국에는 실체가 아무것도 없다는 점이 웬지 근사하다.
+케이맨 군도에 설립한 페이퍼 컴패니같은 느낌이랄까)
+클라우드와 모바일, 트위터가 이런 변화를 만들어내고 있다고 생각한다.</p>
+
+<p>다시 주제로 돌아와서,
+<a href="http://vimeo.com/5362441">A blog in 15 minutes with Ruby on Rails</a>
+에서는 Rails 를 쓰면 블로그를 15 분만에 개발할 수 있다고 이야기한다.
+하지만 Rails 를 제대로 쓸려면,
+&ldquo;Rails 가 어떻게 대신 해주는지, Rails 가 미리 가정하고 해버리는 것들은 무엇인지&rdquo; 를 알아야 한다. 이러다가 HTTP 프로토콜보다 훨씬 더 복잡한 Routing 이나 Controller, Rack 인터페이스 소스를 뒤져야 하는 상황까지 가면, 배보다 배꼽이 더 커진 건 아닌지 자문하게 된다.</p>
+
+<p>또한 RoR 은 많은 dependencies 를 가지고 있다. <a href="http://www.readysetrails.com/index.php/181/this-is-why-learning-rails-is-hard/">Ruby on Rails Has Many Dependencies</a></p>
+
+<p>마지막으로 Yehuda Katz 의 강의 <a href="http://youtu.be/2Ex8EEv-WPs">Why Rails is Hard (Railsberry 2012)</a></p>
+
+<p><br \></p>
+
+<h2>하다보니까 익혀야 할 기술들 - Whoa!</h2>
+
+
+<h3>Basic Web Concepts</h3>
+
+
+<ul>
+<li>HTTP</li>
+<li>DOM</li>
+<li>HTML5</li>
+<li>CSS3</li>
+</ul>
+
+
+<h3>Languages, Mark-up Languages & Data Exchange Formats</h3>
+
+
+<ul>
+<li>Ruby</li>
+<li>JavaScript</li>
+<li>CoffeeScript</li>
+<li>Sass</li>
+<li>Less</li>
+<li>ERB</li>
+<li>YAML</li>
+<li>HAML</li>
+<li>Markdown</li>
+<li>JSON</li>
+<li>Jade (Node.js template engine)</li>
+</ul>
+
+
+<h3>Databases, Web Servers, Caches & Proxies</h3>
+
+
+<ul>
+<li>Unicorn</li>
+<li><a href="http://code.macournoyer.com/thin/">Thin</a></li>
+<li>Nginx</li>
+<li>PostgreSQL</li>
+<li>Londiste for master/slave replication.</li>
+<li><a href="https://github.com/greg2ndQuadrant/repmgr">repmgr</a></li>
+<li>MySQL</li>
+<li>Redis</li>
+<li>Memcached</li>
+<li>MemcacheDB</li>
+<li>HAproxy</li>
+<li>Varnish</li>
+<li>statsd</li>
+<li>Dogslow</li>
+<li>Solr for searching</li>
+</ul>
+
+
+<h3>Performance Monitoring Tools</h3>
+
+
+<ul>
+<li>Monit</li>
+<li>New Relic</li>
+<li>Site24x7</li>
+<li>Pingdom</li>
+</ul>
+
+
+<h3>Deployments & Configuration Managements</h3>
+
+
+<ul>
+<li>Capistrano</li>
+<li>Rubber</li>
+<li>Puppet</li>
+<li>Chef</li>
+<li>Asgard by NetFlix</li>
+<li>Rubber for EC2</li>
+</ul>
+
+
+<h3>OS Administrations</h3>
+
+
+<ul>
+<li>Ubuntu</li>
+<li>OS X</li>
+</ul>
+
+
+<h3>Installers & Managers</h3>
+
+
+<ul>
+<li>Homebrew</li>
+<li>rbenv</li>
+<li>rvm</li>
+<li>Bundler</li>
+<li><a href="http://rubygems.org">RubyGems</a></li>
+<li><a href="https://npmjs.org">npm</a></li>
+<li><a href="https://github.com/twitter/bower">Twitter Bower</a></li>
+</ul>
+
+
+<h3>Cloud Platforms, VPS, PaaS, SaaS</h3>
+
+
+<ul>
+<li>Amazon EC2, S3, Route 53, CloudFront, RDS</li>
+<li>Heroku</li>
+<li>Uhuru AppCloud</li>
+<li>Engine Yard</li>
+<li>Joyent</li>
+<li>Google AppEngine</li>
+<li>Linode (VPS)</li>
+<li>Brightbox</li>
+<li>Parse.com (A backend for iOS &amp; Android Apps)</li>
+<li>Fastly.com (CDN)</li>
+<li>CoudFlare (CDN)</li>
+<li><a href="http://cdnjs.com">cdnjs</a> for JS hosting</li>
+<li><a href="http://phpfog.com">phpfog</a> for PHP hosting</li>
+<li><a href="http://nodejitsu.com">nodejitsu</a> for Node.js hosting</li>
+<li><a href="http://sendgrid.com">SendGrid</a> for E-mail delivery</li>
+<li><a href="https://vimeo.com/46745200">Zemanta</a> for Social Linking</li>
+<li><a href="http://www.directededge.com">DirectedEdge</a> for Recommendation (Amazon-like)</li>
+<li><a href="http://www.paygate.net">PayGate</a> for Payment (Korea)</li>
+<li><a href="http://www.twilio.com">Twilio</a> for SMS &amp; VOIP</li>
+</ul>
+
+
+<h3>Tools</h3>
+
+
+<ul>
+<li>git</li>
+<li>GitHub</li>
+<li>ssh</li>
+<li>Mercurial SCM</li>
+<li>Project Hosting by Google Code</li>
+<li>Codeplane</li>
+</ul>
+
+
+<h3>Rails & The Asset Pipeline</h3>
+
+
+<ul>
+<li>MVC</li>
+<li>ORM</li>
+<li>TDD</li>
+<li>REST</li>
+<li>Routing</li>
+<li>CLI i.e. rake, rails</li>
+<li>REPL i.e. rails console, rails dbconsle, irb</li>
+<li>Sprockets &amp; <a href="https://github.com/ndbroadbent/turbo-sprockets-rails3">Turbo Sprockets</a></li>
+</ul>
+
+
+<h3>Testing Driven Development</h3>
+
+
+<ul>
+<li>RSpec</li>
+<li>Cucumber</li>
+</ul>
+
+
+<h3>JavaScript Frameworks, AMDs, Templates, & Libraries</h3>
+
+
+<ul>
+<li>AJAX</li>
+<li>jQuery &amp; jQuery UI</li>
+<li>MooTools</li>
+<li>Backbone.js</li>
+<li>PhantomJS</li>
+<li>Ember.js</li>
+<li>YUI3</li>
+<li>Socket.IO</li>
+<li>RequireJS - a JavaScript file and module loader.</li>
+<li>Underscore.js - a templating library</li>
+<li>Prototype.js</li>
+<li><a href="http://yeoman.io">Yeoman.io</a></li>
+<li><a href="http://expressjs.com">expressjs</a></li>
+<li><a href="https://github.com/janl/mustache.js/">mustache.js</a> - a templating library</li>
+<li>CommonJS</li>
+<li>Async - a utility module for working with asynchronous JavaScript.</li>
+</ul>
+
+
+<h3>JavaScript Tools</h3>
+
+
+<ul>
+<li>JSLint</li>
+<li>jsfiddle.net</li>
+</ul>
+
+
+<h3>CSS Frameworks & CSS Hacks</h3>
+
+
+<ul>
+<li>960Grid.gs</li>
+<li>Normalize.css</li>
+<li>Reset.css</li>
+<li>Modernizr.css</li>
+<li>HTML5 Boilerplate</li>
+<li>Bootstrap</li>
+<li>Zurb Foundation</li>
+<li><a href="https://github.com/markdotto/Preboot.less">Preboot.less</a></li>
+<li>Compass</li>
+</ul>
+
+
+<h3>Mobile</h3>
+
+<ul>
+<li>popapp.in</li>
+<li>Adobe PhoneGap Build</li>
+<li>Sencha</li>
+</ul>
+
+
+<h3>Audio/Video</h3>
+
+
+<ul>
+<li><a href="http://www.jplayer.org">jPlayer</a></li>
+<li><a href="http://mediaelementjs.com">MediaElement.js</a></li>
+</ul>
+
+
+<h3>Editor that can be used in web pages</h3>
+
+
+<ul>
+<li><a href="http://code.google.com/p/pagedown/">pagedown</a></li>
+<li><a href="http://ckeditor.com">CKEditor</a></li>
+</ul>
+
+
+<h3>Map API</h3>
+
+
+<ul>
+<li><a href="https://github.com/HPNeo/gmaps">GMaps.js</a></li>
+<li><a href="http://mapbox.com">MapBox</a></li>
+<li>OpenStreetMap</li>
+<li>Skyhook</li>
+</ul>
+
+
+<h3>Comment Add-ons</h3>
+
+
+<ul>
+<li>Disqus</li>
+<li>Facebook comments</li>
+</ul>
+
+
+<h3>Editors, IDEs, Terminals & Screen Multiplexers</h3>
+
+
+<ul>
+<li>vim, spf13-vim, <a href="https://github.com/factorylabs/vimfiles">F/ Vim</a></li>
+<li>TextMate &amp; Bundles (i.e. CoffeeScript bundle by jashkenas)</li>
+<li>Sublime Text 2</li>
+<li>Zen Coding</li>
+<li>screen</li>
+<li>tmux</li>
+<li>iTerm2</li>
+<li>WebStorm</li>
+</ul>
+
+
+<h3>Builders</h3>
+
+
+<ul>
+<li>CodeKit</li>
+<li>brunch.io</li>
+<li><a href="http://gruntjs.com">gruntjs</a></li>
+<li>LiveReload(<a href="http://www.youtube.com/watch?feature=player_embedded&amp;v=EZ8vy_cNMVQ">Walkthrough</a>)</li>
+</ul>
+
+
+<h3>Analytics & Conversion Optimizations</h3>
+
+
+<ul>
+<li>Google Analytics</li>
+<li>Woopra</li>
+<li>KISSmetric</li>
+<li>MixPanel</li>
+</ul>
+
+
+<h3>Speed Optimizations</h3>
+
+
+<ul>
+<li>yslow</li>
+<li>PageSpeed</li>
+<li><a href="http://www.igvita.com/2012/08/28/web-performance-power-tool-http-archive-har/">HTTP Archive(HAR)</a></li>
+</ul>
+
+
+<h3>Ad</h3>
+
+
+<ul>
+<li>Admob</li>
+</ul>
+
+
+<h3>CMS, Blog Engines, Static Website Generators, & Web builders</h3>
+
+
+<ul>
+<li>XpressEngine</li>
+<li>GnuBoard</li>
+<li>Refinery CMS</li>
+<li>WordPress</li>
+<li>Drupal</li>
+<li>Octopress</li>
+<li><a href="https://github.com/jipiboily/monologue">Monologue</a></li>
+<li><a href="http://textpress.shameerc.com/">TextPress</a></li>
+<li><a href="www.wix.com">wix</a></li>
+<li><a href="http://www.getpantheon.com">Pantheon</a> (for Drupal)</li>
+<li><a href="https://github.com/koenbok/Cactus">Cactus</a></li>
+<li><a href="https://github.com/mojombo/jekyll">Jekyll</a></li>
+</ul>
+
+
+<h3>Crowdsourcing platforms</h3>
+
+
+<ul>
+<li><a href="http://www.cloudspokes.com">CloudSpokes</a></li>
+<li><a href="http://www.crowdspring.com">crowdSPRING</a></li>
+<li><a href="http://99designs.com">99designs</a></li>
+<li><a href="http://www.brandcrowd.com">BrandCrowd</a></li>
+<li><a href="http://www.logogala.com">LOGOGALA</a></li>
+<li><a href="http://wslogos.com">WS LOGOS</a></li>
+<li><a href="http://logopond.com">logopond</a></li>
+<li><a href="http://designnlogo.com">DesignNLogo</a></li>
+<li><a href="http://www.hiretheworld.com">HIRE the WORLD</a></li>
+<li><a href="http://sortfolio.com">Sortfolio</a></li>
+</ul>
+
+
+<h3>Project Management & Issue Tracking</h3>
+
+
+<ul>
+<li>Basecamp</li>
+<li>Asana</li>
+<li>HipChat</li>
+<li><a href="http://lighthouseapp.com">Lighthouse</a> (Issue tracking)</li>
+<li><a href="http://www.pivotaltracker.com/">Pivotal Tracker</a></li>
+<li>Trello</li>
+</ul>
+
+
+<h3>Online Learning</h3>
+
+
+<ul>
+<li>RailsCasts</li>
+<li>Udacity</li>
+<li>Coursera</li>
+<li>Khan Academy</li>
+<li>Udemy</li>
+<li>MIT OCW</li>
+<li>iTunes-U Stanford</li>
+<li>Vimcasts</li>
+<li>Rails Lab</li>
+<li>Codecademy</li>
+<li><a href="http://tutsplus.com">tuts+</a></li>
+</ul>
+
+
+<h3>Blogs</h3>
+
+
+<ul>
+<li><a href="http://tomayko.com">Ryan Tomakyo</a></li>
+<li><a href="http://igvita.com">Ilya Grigorik</a></li>
+<li><a href="http://paulirish.com">Paul Irish</a></li>
+<li><a href="http://patshaughnessy.net">Pat Shaughnessy</a></li>
+<li><a href="http://addyosmani.com/blog">Addy Osmani</a></li>
+<li><a href="http://johndyer.name">John Dyer</a></li>
+<li><a href="http://adam.heroku.com">Adam Wiggins</a></li>
+<li><a href="http://worrydream.com">Bret Victor</a></li>
+<li><a href="http://antirez.com">Salvatore Sanfilippo aka antirez</a></li>
+<li><a href="http://weblog.jamisbuck.org">Jamis Buck</a></li>
+<li><a href="http://m.onkey.org">Pratik Naik</a></li>
+<li><a href="http://devblog.avdi.org">Virtuous Code</a></li>
+<li><a href="http://davidwalsh.name/">David Walsh</a></li>
+<li><a href="http://www.robbyonrails.com">Robby on Rails</a></li>
+<li><a href="http://tech.karbassi.com/">Mind Mining Medium</a></li>
+<li><a href="http://eigenjoy.com/">Eigenjoy </a> (for Big-data, ruby)</li>
+<li><a href="http://blog.headius.com/">Headius</a></li>
+</ul>
+
+
+<h3>Conferences</h3>
+
+
+<ul>
+<li><a href="http://confreaks.com/events/railsconf2012">RailsConf 2012</a></li>
+<li><a href="http://confreaks.com/events/jqcon2012">jQuery Conference San Francisco 2012</a></li>
+</ul>
+
+
+<h3>Books</h3>
+
+<ul>
+<li>How Google Tests Software - James Whittaker, Jason Arbon, &amp; Jeff Carollo</li>
+<li>Running Lean, Iterate from Plan A to a Plan That Works - Ash Maurya</li>
+<li>Elemental Design Patterns - Jason M. Smith</li>
+<li>Elements of Programming - Stepanov and Smith</li>
+<li>iOS Programming, The Big Nerd Ranch Guide, 3rd Ed. - Joe Conway &amp; AAron Hillegass</li>
+<li>HTML5 Developer&rsquo;s Cookbook - Chuck Hudson and Tom Leadbetter</li>
+<li>Specification by Example - Gojko Adzic</li>
+</ul>
+
+
+<h4>JavaScript</h4>
+
+<ul>
+<li><a href="http://eloquentjavascript.net">Eloquent JavaScript</a></li>
+<li><a href="http://bonsaiden.github.com/JavaScript-Garden/">JavaScript Garden</a></li>
+<li>[JavaScript Patterns]</li>
+<li>[JavaScript The Definitive Guide]</li>
+<li>[Maintainable JavaScript]</li>
+<li>[Principles Of Writing Idiomatic JavaScript]</li>
+<li>[JavaScript: The Good Parts]</li>
+</ul>
+
+
+<h4>Rails</h4>
+
+<ul>
+<li>[Ruby on Rails 3 Tutorial]</li>
+<li>[Agile Web Development with Rails]</li>
+<li>[The Rails 3 Way]</li>
+<li>[Rails Recipe]</li>
+</ul>
+
+
+<h3>Etc</h3>
+
+
+<ul>
+<li>Adobe Shadow</li>
+<li>MAMP</li>
+<li><a href="http://testflightapp.com">TestFlight</a> (for Distributing iOS Beta App)</li>
+<li><a href="http://builtwith.com">BuiltWith.com</a></li>
+<li><a href="http://whoishostingthis.com">WhoIsHostingThis?</a></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1038,86 +1573,6 @@ interact with its forms, to pre-fill all the information you want.</p></blockquo
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2012/05/12/hackers-who-sell-spies-the-tools-to-crack/">Hackers Who Sell Spies the Tools to Crack</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2012-05-12T19:26:00+09:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>12</span><span class='date-suffix'>th</span>, <span class='date-year'>2012</span></span> <span class='time'>7:26 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Forbes 에 실린 기사 <a href="http://www.forbes.com/sites/andygreenberg/2012/03/21/meet-the-hackers-who-sell-spies-the-tools-to-crack-your-pc-and-get-paid-six-figure-fees/">Meet The Hackers Who Sell Spies The Tools To Crack Your PC (And Get Paid Six-Figure Fees)</a> 는 흥미롭다.</p>
-
-<p>Microsoft Word, Adobe Reader, Google&rsquo;s Android, Apple&rsquo;s iOS, Chrome, Safri,
-Internet Explorer 등을 해킹할 수 있는 해킹킷을 파는 회사에 관한 이야기이다.</p>
-
-<p>회사 이름은 Vupen.</p>
-
-<p>가격이 놀라운데, 연간 회원이 되기 위해서는 $100,000 을 내야하고,
-별도로 각각의 해킹킷마다 돈을 내야 한다. 개별 해킹킷 가격이 $100,000 이상인
-경우도 많은 모양이다.</p>
-
-<blockquote><p>In that shady but legal market for security vulnerabilities,
-a zero-day exploit that might earn a hacker $2,000 or $3,000 from
-a software firm could earn 10 or even 100 times that sum from the spies
-and cops who aim to use it in secret.
-Bekrar won&rsquo;t detail Vupen&rsquo;s exact pricing, but analysts at Frost &amp; Sullivan,
-which named Vupen the 2011 Entrepreneurial Company of the Year in
-vulnerability research, say that Vupen&rsquo;s clients pay around $100,000
-annually for a subscription plan,
-which gives them the privilege of shopping for Vupen&rsquo;s techniques.
-Those intrusion methods - include attacks on software such as
-Microsoft Word, Adobe Reader, Google&rsquo;s Android, Apple&rsquo;s iOS operating systems
-and many more.</p></blockquote>
-
-<p>&ldquo;현대의 죽음의 상인&rdquo; 이라던가 &ldquo;사이버 전쟁의 총알을 판다&rdquo; 라고
-비난하는 사람들도 있다.</p>
-
-<blockquote><p>Chris Soghoian, a privacy activist and fellow at the
-Open Society Foundations, calls Vupen a &ldquo;modern-day merchant of death,&rdquo;
-selling &ldquo;the bullets for cyberwar.&rdquo;</p></blockquote>
-
-<p>High-end 해킹 킷을 중개하는 거래상도 있는 모양이다.</p>
-
-<blockquote><p>One person who will share those sales numbers is a South African hacker
-who goes by the name &ldquo;the Grugq&rdquo; and lives in Bangkok.
-For just over a year the Grugq has been supplementing his salary as a
-security researcher by acting as a broker for high-end exploits,
-connecting his hacker friends with buyers among his government contacts.</p></blockquote>
-
-<h2><br /></h2>
-
-<p><br />
-Vupen 이 공개한 비디오이다. <a href="http://www.youtube.com/watch?v=c8cQ0yU89sk&amp;feature=player_embedded">VUPEN Pwned Google Chrome</a> 에서
-브라우저의 Sandbox 를 바이패스하는 것을 볼 수 있다.</p>
-
-<p>집권당이 해커를 고용해 정부기관을 테러하는 세상이다.</p>
-
-<p>Gmail 의 메일 내용만 해킹해도 큰 돈을 벌 수 있는 기회는 많을 것이다.</p>
-
-<p>이런 해킹 킷에 대한 수요가 얼마나 많을지 짐작이 간다.</p>
-
-<p>William Gibson 이 그린 세상이 지금 여기에 있다.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/24">&larr; Older</a>
@@ -1135,6 +1590,10 @@ Vupen 이 공개한 비디오이다. <a href="http://www.youtube.com/watch?v=c8c
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/06/20/iphone-security/">iPhone Security</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/06/17/cve-2016-0728/">CVE-2016-0728</a>
       </li>
     
@@ -1148,10 +1607,6 @@ Vupen 이 공개한 비디오이다. <a href="http://www.youtube.com/watch?v=c8c
     
       <li class="post">
         <a href="/blog/2016/06/14/hitcon-ctf-2014-unexploitable-heap-overflow/">HITCON CTF 2014 'Unexploitable' Heap Overflow</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/06/14/glibc-adventures-the-forgotten-chunks/">Glibc Adventures: The Forgotten Chunks</a>
       </li>
     
   </ul>

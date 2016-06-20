@@ -9,18 +9,7 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="Android reversing tools: jd-gui
-Procyon
-JAD
-jadx
-CFR
-JEB Decompiler (Native Dalvik decompiler)
-IDA 6.1
-dex2jar
-smali/baksmali
-apktool
-signapk
-ded &hellip;">
+  <meta name="description" content="Google V8 을 Ubuntu 12.04 LTS 에서 컴파일해보았다. x64 로 컴파일하는데 에러가 나고 삽질 연속. MBA 11 하즈웰에서 VMware Fusion 으로 버추얼 머신을 돌리고 거기서 컴파일하는데 컴파일이 하세월이다. 안드로이드 컴파일은 MBPr &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -76,6 +65,47 @@ ded &hellip;">
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/02/10/building-pyv8-from-scratch/">Building PyV8 From Scratch</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-02-10T21:53:00+09:00'><span class='date'><span class='date-month'>Feb</span> <span class='date-day'>10</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>9:53 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Google V8 을 Ubuntu 12.04 LTS 에서 컴파일해보았다. x64 로 컴파일하는데 에러가 나고 삽질 연속. MBA 11 하즈웰에서 VMware Fusion 으로 버추얼 머신을 돌리고 거기서 컴파일하는데 컴파일이 하세월이다. 안드로이드 컴파일은 MBPr 에서 해야겠다.</p>
+
+<p>PyV8 빌드가 최종 목표고, boost 빌드 -> V8 빌드 -> PyV8 빌드의 순서로 가본다.</p>
+
+<p>V8 Build</p>
+
+<ul>
+<li><code>export V8_HOME=/blah/blah/v8</code> 로 환경변수를 잡아주고.</li>
+<li><code>werror=no</code> 로 워닝 폭탄을 제거한다.</li>
+<li>PyV8 과 붙일려고 하는 거라서, -fPIC (Position Independent Code) 로 만들어야한다. <code>export CCFLAGS=-fPIC</code></li>
+<li><code>scons arch=x64</code> 를 했는데 scons 에서 에러가 난다. 찾아보니 GYP 로 가면서 scons 는 deprecate 되었다고. <code>make x64</code> 로 땜빵해보자.</li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1111,150 +1141,6 @@ else
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2013/09/13/drive-by-download-managers-perpective/">Drive-by-Download: Manager's Perpective</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2013-09-13T13:22:00+09:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>13</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>1:22 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Drive-by-Download 를 수행하는 팀을 구성한다면 리쿠루팅은 어떤 뽑아야 하고, 성과 평가는
-어떻게 해야 할까? 하는 관점에서 적어보았다.</p>
-
-<hr />
-
-<h4>Traffic Acquisition Engineer</h4>
-
-<p>트래픽이 많은 사이트를 해킹하여, 웹 페이지에 iframe 태그등을 삽입하여, 악성 웹사이트로 트래픽을 돌려야 한다. <strong>얼마나 많은 Traffic 을 가져오냐가 KPI</strong></p>
-
-<ol>
-<li>TCP/IP, Linux and web frameworks 에 대한 지식</li>
-<li>Linux, Windows, DNS and routing</li>
-<li>Apache, PHP, WordPress, MySQL, Rails and Django.</li>
-<li>웹 해킹 경험</li>
-<li>SQL Injection, XSS</li>
-</ol>
-
-
-<h4>Exploit Engineer</h4>
-
-<p>Browser, Java, Flash 등의 취약점을 찾아내어 쉘코드를 수행시킬 수 있는 수준까지 코드를 개발해야 한다. <strong>Acquired 된 트래픽 대비 몇 % 를 감염시키냐가 KPI. 10~20% 가 업계 표준</strong></p>
-
-<ul>
-<li>x86 Assembly/Disassembly</li>
-<li>Strong knowledge of Windows memory management</li>
-<li>JavaScript / DOM</li>
-<li>알려진 CVE 를 exploit 할 수 있는 코드 작성 능력.</li>
-<li>Browser, ActiveX control Fuzzer 개발 능력</li>
-</ul>
-
-
-<h4>Payload Engineer</h4>
-
-<p>Exploit 가 성공하는 순간 실행될 Payload 들을 개발해야 한다. 실행화일을 다운로드하여 실행한다던가, 다운로드한 수행코드를 기존 프로세스의 메모리에 집어넣어 돌린다던가 하는 등의 다양한 Payload 를 개발해야 한다. Payload 에는 Exploit 에 들어갈 쉘코드와 1st/2nd stage Dropper 가 포함된다. <strong>Anti-virus 나 IDS 에 걸리지 않고 다양한 네트워크 환경 (i.e. proxy) 에서 동작하는 Payload 개발이 KPI</strong></p>
-
-<ul>
-<li>Windows API (Process, Memory, Thread, API Hooking, PE format)</li>
-<li>Visual C++/x86 Assembly</li>
-</ul>
-
-
-<h4>Rootkit Engineer</h4>
-
-<p>제작된 다양한 소프트웨어에 rootkit 기능을 추가한다.</p>
-
-<ul>
-<li>Proficient in Windows SDK &amp; internals</li>
-<li>Experience in writing usermod &amp; kernelmod rootkits</li>
-</ul>
-
-
-<h4>Undetectability Engineer</h4>
-
-<p>JavaScript 난독화, Payload 난독화, 서버 PHP 난독화, 실행화일 난독화를 수행하는 Tool 을 제작하거나 선정한다. 빌드때마다, 3~40 개의 AV 에 직접 테스트하여 탐지되지 않을 것을 보증해야 한다. <strong>Tool 을 거쳐 작전에 투입되는 화일들이 AV 에 걸리지 않는 것이 KPI</strong></p>
-
-<ol>
-<li>JavaScript and x86 assembly 에 대한 지식</li>
-<li>다양한 JavaScript runtime (v8, spidermonkey, rhino) 에 대한 지식</li>
-<li>Lexer / Paser 제작 경험</li>
-<li>ANTLR, BISON 지식이 있으면 플러스</li>
-<li>AV /IDS Evasion 테크닉</li>
-<li>기본적인 암호 지식</li>
-<li>난독화</li>
-</ol>
-
-
-<h4>C&amp;C / Botnet Engineer</h4>
-
-<p>C&amp;C 서버를 제작한다. Massive 한 좀비 클라이언트들을 관리할 수 있는 안정적이고 스케일러블한 서버와 API 를 개발해야 한다.</p>
-
-<ul>
-<li>대용량의 웹 서버 / Socket 서버 프로그래밍</li>
-<li>PHP 프로그래밍</li>
-<li>P2P 프로토콜에 대한 지식</li>
-<li>Twitter 나 DNS 등의 다양한 통신 채널에 대한 API 활용 능력</li>
-</ul>
-
-
-<h4>Remote Administration Tool Engineer</h4>
-
-<p>피해자의 PC 에 설치되어 키스트로크나 화면 감시등을 할 RDP/VnC 와 같은 리모트 툴을 개발해야 한다. Exploit Engineer 와 협력하여 High value target 에 대한 작전을 수행할 때 사용할 툴 개발을 총괄. Spear phishing 에 사용될 무기화된 PDF/DOC 등을 만드는 일도 겸임한다. Rookit Engineer 와 협력하여 개발된 리모트 툴에 rookit 기능을 추가한다.</p>
-
-<ul>
-<li>Windows 프로그래밍에 능숙 (UI 포함)</li>
-</ul>
-
-
-<h4>Monetization Manager</h4>
-
-<p>돈을 버는 것을 총괄하는 일종의 프로덕트 매니저. 엔지니어들을 총괄 관리하여 게임/뱅킹등 버티컬에 특화된 악성 소프트웨어를 제작할 책임이 있다. 메모리에서 정보를 꺼낸다던가, 인증을 우회하여 결제를 일으키는 기술, 광고 사기 기술들을 연구해야 한다. 파밍 사이트 셋업도  Monetization Manager 의 책임이다. <strong>전체 매출을 책임지며, 특히 감염된 PC 대당 매출을 얼마나 끌어올리는가가 KPI</strong></p>
-
-<ul>
-<li>Social Engineering 이 강해야 함</li>
-<li>People skill</li>
-<li>지불 결제, 가상화폐, 아이템 거래, 광고네트워크(i.e. Ad-sense), 상품권 유통, CPC 광고등에 대한 지식과 경험</li>
-<li>PKI, challenge-response, 2 factor / 2 channel 인증에 대한 지식</li>
-<li>통장/mule/courier 관리.</li>
-<li>가상 재화를 현금화 할 수 있는 채널/네트워크 보유</li>
-</ul>
-
-
-<h4>Network Operator</h4>
-
-<p>Traffic Acquisition Engineer 에게 신규로 접수된 호스트들을 전달받아, 공격 체인에 투입될 수백/수천개의 호스트 풀을 관리한다. Google safe-browsing 이나 Microsoft SmartScreen 등의 서비스에 블랙리스팅된 호스트는 체인에서 빼고 신규 호스트를 투입한다. C&amp;C 호스트를 관리하고 C&amp;C 호스트를 NIC/DNS 에 등록/관리하는것도 Network Operator 의 책임이다.</p>
-
-<ul>
-<li>Linux/Windows Administration Skills</li>
-<li>DNS / Nameserver / Hosting 에 대한 경험</li>
-</ul>
-
-
-<hr />
-
-<p>JD 를 만들어 따져보니, 생각보다 다양한 스킬을 가진 사람들이 필요하다.</p>
-
-<p>이런 팀을 운영하려면 인건비 + 경비가 일년에 20 억 정도가 들 듯 하다.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/20">&larr; Older</a>
@@ -1272,6 +1158,10 @@ else
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/06/20/iphone-security/">iPhone Security</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/06/17/cve-2016-0728/">CVE-2016-0728</a>
       </li>
     
@@ -1285,10 +1175,6 @@ else
     
       <li class="post">
         <a href="/blog/2016/06/14/hitcon-ctf-2014-unexploitable-heap-overflow/">HITCON CTF 2014 'Unexploitable' Heap Overflow</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/06/14/glibc-adventures-the-forgotten-chunks/">Glibc Adventures: The Forgotten Chunks</a>
       </li>
     
   </ul>

