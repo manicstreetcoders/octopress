@@ -205,7 +205,7 @@ New b2 content:
 BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
 ```
 
-이번에는 `b.size` 의 `prev_in_use` 가 corrupt 되었을 경우, `b2` 가 corrupt 됨을 알 수 있다.
+이번에는 `b.size` 의 `prev_in_use` 가 corrupt 되었을 경우, `b2` 가 `D` 로 바뀌었는데, malloc 이 overlapping 하게 만들어져서, 다른 메모리에 대한 memset 의 사이드이펙트로 corrupt 됨을 알 수 있다.
 
 ```
 a: 0x1655010

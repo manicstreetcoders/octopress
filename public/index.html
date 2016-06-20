@@ -733,7 +733,7 @@
 </span><span class='line'>BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB</span></code></pre></td></tr></table></div></figure>
 
 
-<p>이번에는 <code>b.size</code> 의 <code>prev_in_use</code> 가 corrupt 되었을 경우, <code>b2</code> 가 corrupt 됨을 알 수 있다.</p>
+<p>이번에는 <code>b.size</code> 의 <code>prev_in_use</code> 가 corrupt 되었을 경우, <code>b2</code> 가 <code>D</code> 로 바뀌었는데, malloc 이 overlapping 하게 만들어져서, 다른 메모리에 대한 memset 의 사이드이펙트로 corrupt 됨을 알 수 있다.</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
