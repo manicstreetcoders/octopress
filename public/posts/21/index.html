@@ -9,7 +9,7 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="EK 가 설치되어 있는 사이트. G마켓 자체 페이지는 아니고, 배송조회하면 연결되는 택배회사의 배송조회 페이지. URL: hxxp://www.yellowcap.co.kr/custom/inquiry_result.asp?INVOICE_NO=81800192001 페이지 &hellip;">
+  <meta name="description" content="Unix shell initialization Shell modes login shell - e.g. when you login from another host, or login at the text console of a local unix machine &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -65,6 +65,56 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/09/03/shell-initialization/">Shell Initialization</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-09-03T23:28:00+09:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>3</span><span class='date-suffix'>rd</span>, <span class='date-year'>2013</span></span> <span class='time'>11:28 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><a href="https://github.com/sstephenson/rbenv/wiki/Unix-shell-initialization">Unix shell initialization</a></p>
+
+<h3>Shell modes</h3>
+
+<ul>
+<li>login shell - e.g. when you login from another host, or login at the text console of a local unix machine</li>
+<li><p>interactive shells - ones connected to a terminal (or pseudo-terminal in the case of, say, a terminal emulator running under a windowing system).</p></li>
+<li><p><code>-l</code>, <code>--login</code></p></li>
+<li><code>-i</code></li>
+</ul>
+
+
+<p>.bashrc in only read by a shell that&rsquo;s both interactive and non-login.</p>
+
+<h3>OS X</h3>
+
+<ul>
+<li>Opening a new Terminal window/tab: .bash_profile</li>
+<li>Logging into a system via SSH: .bash_profile</li>
+<li>Executing a command remotely with ssh or Capistrano: .bashrc</li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1583,136 +1633,6 @@ done
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2013/06/12/tabs/">Tabs</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2013-06-12T11:48:00+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>12</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>11:48 am</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Ted Logan&rsquo;s <a href="http://tedlogan.com/techblog3.html">Secrets of tabs in vim</a> 에서 읽은 내용을 정리.</p>
-
-<p>Vim 에서.</p>
-
-<p>vim 에서 눈에 보이는 indentation 은 &lsquo;\t&rsquo; 와 space 의 조합으로 이루어져 있음.</p>
-
-<p>tabstop 은,
-&lsquo;\t&rsquo; 을 렌더링할 때 기준이 될 hard 한 column grid 의 간격을 결정함.</p>
-
-<p>일반적으로 tabstop 과 softtabstop 을 같게 설정하나,</p>
-
-<p>tabstop 과 softtabstop 의 개념을 설명하기 위해서</p>
-
-<p>굳이 다르게 설정해보겠음.</p>
-
-<p>noexpandtab 기준으로 설명하면,</p>
-
-<p>:set tabstop=4 softtabstop=4 noexpandtab 입력 후
-1[TAB]2[TAB]3[TAB]4 입력.</p>
-
-<p>화면에 이렇게 나타남.</p>
-
-<pre>
-1234567890123456789012345678901234567890
-1   2   3   4
-</pre>
-
-
-<p>[RETURN] 치고, :set tabstop=4 softtabstop=3 noexpandtab 입력 후
-동일하게 1[TAB]2[TAB]3[TAB]4 입력.</p>
-
-<pre>
-1234567890123456789012345678901234567890
-1   2   3   4
-1  2  3  4  5
-</pre>
-
-
-<p>이제 :set list 로 특수문자 표시.</p>
-
-<pre>
-1234567890123456789012345678901234567890$
-1^I2^I3^I4$
-1  2  3^I 4^I5$
-</pre>
-
-
-<p>그럼, 설명 시작.</p>
-
-<p>tabstop=4
-softtabstop=3
-일 경우.</p>
-
-<p>[TAB] 키를 누르면,
-soft 한 tab grid 는 3 column 간격으로 이루어져 있지만,
-hard 한 tab grid 는 4 column 간격으로 이루어져 있기 때문에,
-둘째줄 처음 2,3 는 space 만 가지고 전진했고, 4 는 &lsquo;\t&rsquo; + space 로 전진.</p>
-
-<p>즉 noexpandtab 일 경우, softtabstop 그리드와 (hard)tabstop 그리드가
-틀리니까, vim 이 &lsquo;\t&rsquo; 와 space 조합으로 인덴테이션을 만들어냄.</p>
-
-<p>정리하면 tabstop 는 &lsquo;\t&rsquo; 를 포지셔닝할 그리드를 만들때 사용.
-softtabstop 는 눈에 보이는 그리드.</p>
-
-<p>tabstop != softtabstop 일 경우, &lsquo;\t&rsquo; 만으로 softtabstop 그리드에 인덴트할 수
-없기때문에, space 로 메꿔줌.</p>
-
-<p>그런데, 인덴테이션이 &lsquo;\t&rsquo; + space 로 만들어지면,
-space 파트는 안변하지만 &lsquo;\t&rsquo; 파트는 tabstop 에 따라서 달라짐.</p>
-
-<p>문제는 어떤 인덴트는 space 만으로, 어떤 인덴트는 &lsquo;\t&rsquo; + two spaces 로,
-이런 식으로 중구난방이기 때문에, tabstop 이 달라지면 인덴트가 다 깨짐.</p>
-
-<p>그럼으로 인덴테이션은 &lsquo;\t&rsquo; 이나 space 어느 한가지만으로 만들어지는게 좋음.</p>
-
-<p>softtabstop == tabstop 은 같게 하면 좋음.</p>
-
-<p>당연한 이야기를 어렵게 설명했음.</p>
-
-<p>shiftwidth 는 [TAB] 이 아니라 vim 의 &lt; &lt; / > > 로 reindent 할 때 사용됨.</p>
-
-<p>:set tabstop=8 softtabstop=8 shiftwidth=8 noexpandtab</p>
-
-<p>으로 일치를 시켜주던가.</p>
-
-<p>아니면,</p>
-
-<p>:set softtabstop=4 shiftwidth=4 expandtab</p>
-
-<p>으로 &lsquo;\t&rsquo; 를 space 로 대체하면, tabstop 에 영향받지도 않고 굳이 설정할 필요도 없음.</p>
-
-<p>Ruby 사용자라면,</p>
-
-<p>:set ts=2 sts=2 sw=2 expandtab</p>
-
-<p>이 적절.</p>
-
-<p>Tab 을 눈에 보이게 하는 법.</p>
-
-<pre><code>syntax match Tab /\t/
-hi Tab gui=underline guifg=blue ctermbg=blue
-</code></pre>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/22">&larr; Older</a>
@@ -1730,6 +1650,10 @@ hi Tab gui=underline guifg=blue ctermbg=blue
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/07/02/aes-in-python/">AES in Python</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/06/20/iphone-security/">iPhone Security</a>
       </li>
     
@@ -1743,10 +1667,6 @@ hi Tab gui=underline guifg=blue ctermbg=blue
     
       <li class="post">
         <a href="/blog/2016/06/14/plaidctf-ctf-2015-plaiddb/">PlaidCTF CTF 2015: PlaidDB</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/06/14/hitcon-ctf-2014-unexploitable-heap-overflow/">HITCON CTF 2014 'Unexploitable' Heap Overflow</a>
       </li>
     
   </ul>

@@ -9,8 +9,7 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="Vulnerability in World Largest Video Site Turned Million of Visitors into DDoS Zombies // JS injection in &lt;img&gt; tag enabled by Persistent XSS
-& &hellip;">
+  <meta name="description" content="The mechanism behind Internet Explorer CVE-2014-1776 exploits Matt Oh 의 CVE-2014-1776 분석. Flash 가 heap spraying 을 수행하고, JavaScript function 을 호출한다. &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -66,6 +65,39 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/05/17/cve-2014-1776/">CVE-2014-1776</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-05-17T09:11:24+09:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>17</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>9:11 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><a href="http://h30499.www3.hp.com/t5/HP-Security-Research-Blog/The-mechanism-behind-Internet-Explorer-CVE-2014-1776-exploits/ba-p/6476220">The mechanism behind Internet Explorer CVE-2014-1776 exploits</a></p>
+
+<p>Matt Oh 의 CVE-2014-1776 분석.</p>
+
+<p>Flash 가 heap spraying 을 수행하고, JavaScript function 을 호출한다. DOM emulator + V8 honeypot 으로는 놓칠 수 밖에 없다.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -940,79 +972,6 @@ document.location = 'chromehtml:"80%20javascript:document.write(sneaky)"';
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/04/18/android-code-injection/">Android: Code Injection</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2014-04-18T18:51:50+09:00'><span class='date'><span class='date-month'>Apr</span> <span class='date-day'>18</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>6:51 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>smali 코딩할때 예제가 필요하면,</p>
-
-<pre><code>inject_log% javac x.java
-inject_log% dx --dex --output=x.dex x.class
-inject_log% java -jar ../baksmali-2.0.3.jar -a 10 x.dex
-</code></pre>
-
-<p>smali 작업을 해서 묶어서 다시 인스톨해서 테스트하고&hellip; 하는 작업을 여러번하다보니 스크립트를 만들어야겠다는 생각이 들었다.</p>
-
-<pre><code>java -jar apktool_2.0.0b7.jar b com.babo.babophone-1
-jarsigner -verbose -keystore my-release-key.keystore ./com.babo.babophone-1/dist/com.babo.babophone-1.apk babo
-echo "copy..."
-adb push com.babo.babophone-1/dist/com.babo.babophone-1.apk /sdcard/
-echo "uninstall..."
-adb shell pm uninstall com.babo.babophone
-echo "install..."
-adb shell pm install /sdcard/com.babo.babophone-1.apk
-</code></pre>
-
-<p>그리고,</p>
-
-<p>nAction 을 logging 하는 smali 코드를 작성해봤다. smali 는 Java Jasmine 부터 보는게 좋다.</p>
-
-<pre><code>.method public getURL(IZ)Ljava/lang/String;
-    .locals 3
-    .param p1, "nAction"    # I
-    .param p2, "bSupportAES"    # Z
-
-    .prologue
-    .line 87
-
-    move v0, p1
-    invoke-static {v0}, Ljava/lang/String;-&gt;valueOf(I)Ljava/lang/String;
-    move-result-object v1
-
-    const-string v0, "getURL: nAction"
-
-    invoke-static {v0, v1}, Lcom/acme/util/DebugPrint;-&gt;printDebug(Ljava/lang/String;Ljava/lang/String;)V
-
-    const-string v0, ""
-
-    .line 89
-    .local v0, "strURL":Ljava/lang/String;
-    packed-switch p1, :pswitch_data_0
-</code></pre>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/18">&larr; Older</a>
@@ -1030,6 +989,10 @@ adb shell pm install /sdcard/com.babo.babophone-1.apk
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/07/02/aes-in-python/">AES in Python</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/06/20/iphone-security/">iPhone Security</a>
       </li>
     
@@ -1043,10 +1006,6 @@ adb shell pm install /sdcard/com.babo.babophone-1.apk
     
       <li class="post">
         <a href="/blog/2016/06/14/plaidctf-ctf-2015-plaiddb/">PlaidCTF CTF 2015: PlaidDB</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/06/14/hitcon-ctf-2014-unexploitable-heap-overflow/">HITCON CTF 2014 'Unexploitable' Heap Overflow</a>
       </li>
     
   </ul>
