@@ -4,7 +4,7 @@
   <title><![CDATA[KC's blog]]></title>
   <link href="http://zomo.heroku.com/atom.xml" rel="self"/>
   <link href="http://zomo.heroku.com/"/>
-  <updated>2016-08-24T15:19:49+09:00</updated>
+  <updated>2016-08-24T15:24:12+09:00</updated>
   <id>http://zomo.heroku.com/</id>
   <author>
     <name><![CDATA[KC]]></name>
@@ -48,7 +48,7 @@
 </span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
 
 
-<p>여기서 만약, <code>state-&gt;perm[x]</code> 이 <code>x</code> 고, <code>state-&gt;perm[y]</code> 가 <code>y</code> 라면? 위의 코드가 아래와 같이 단순해진다.</p>
+<p>여기서 만약, <code>state-&gt;perm[x]</code> 이 <code>x</code> 고, <code>state-&gt;perm[y]</code> 가 <code>y</code> 라면? 위의 코드가 아래와 같이 단순해진다. state[n] 은 n 으로 초기화되고 나서, key 에 따라서 swap 되는 과정을 거치는데, 한번도 swap 안되고 초기화된 n 으로 남아있는 경우. 즉 <code>x=n</code> 이라고 할 때, <code>0..n-1</code> 까지 iteration 에서 한번도 <code>y</code> 로 addressing 된 적이 없어야 한다. 초기 몇바이트의 경우 이럴 가능성이 상당히 있을 것이라 직관적으로도 알 수 있다.</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
