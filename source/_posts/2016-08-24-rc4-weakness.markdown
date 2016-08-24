@@ -15,6 +15,33 @@ RC4 공격 역사를 정리해보면, state 테이블의 처음 몇 바이트가
 
 state 의 첫 몇 바이트는 `state[n] == sum_0_to_nth_bytes(key) + n*(n+1)/2` 일 가능성이 37% 에 달한다고 Andrew Roos 가 포스팅함.
 
+```
+for (x=0;x<256;x++) state->perm[x] = x;
+
+for (x=0;x<256;
+    x++,
+    k = (k+1) % keylen) {
+    y += state->perm[x] + key[k];
+    swap_bytes(&state->perm[x], &state->perm[y]);
+}
+```
+
+여기서 만약, `state->perm[x]` 이 `x` 고, `state->perm[y]` 가 `y` 라면? 위의 코드가 아래와 같이 단순해진다.
+
+```
+for (x=0;x<256;
+    x++,
+    k = (k+1) % keylen) {
+    y += x + key[k];
+    state->perm[x] = y;
+    state->perm[y] = x;
+}
+```
+
+이걸 loop 를 풀면,  `state->perm[x] = sum_0_to_xth_bytes(key) + x*(x+1)/2` 가 된다.
+
+그래서, 실제로 random 으로 80-bit key 를 만들어서 state 를 그 key 로 init 하고나서 저 공식으로 구한 값과 같은가 다른가를 비교하는 시뮬레이션을 십만번을 돌렸더니, state 의 0th~7th 바이트는 약 32~37% 가 저 공식의 값과 같았다고. 즉 의미있는 확률로 state 의 첫부분이 key 가 correlate 되있다는 것.
+
 그 다음에 Paul, Rathi, Maitra 가 논문을 publish.
 
 ``` c rc4.c
@@ -55,7 +82,6 @@ void rc4_init(struct rc4_state *const state,
         swap_bytes(&state->perm[x], &state->perm[y]);
     }
 }
-
 void
 rc4_crypt(struct rc4_state *const state,
             const u_char *inbuf,
