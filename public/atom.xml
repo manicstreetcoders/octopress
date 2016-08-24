@@ -4,7 +4,7 @@
   <title><![CDATA[KC's blog]]></title>
   <link href="http://zomo.heroku.com/atom.xml" rel="self"/>
   <link href="http://zomo.heroku.com/"/>
-  <updated>2016-08-24T10:10:51+09:00</updated>
+  <updated>2016-08-24T10:35:35+09:00</updated>
   <id>http://zomo.heroku.com/</id>
   <author>
     <name><![CDATA[KC]]></name>
@@ -154,7 +154,7 @@
 </span><span class='line'>    <span class="k">for</span> <span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">x</span><span class="o">&lt;</span><span class="mi">256</span><span class="p">;</span>
 </span><span class='line'>            <span class="n">x</span><span class="o">++</span><span class="p">,</span>
 </span><span class='line'>            <span class="n">k</span> <span class="o">=</span> <span class="p">(</span><span class="n">k</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="n">keylen</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>  <span class="n">y</span> <span class="o">+=</span> <span class="n">state</span><span class="o">-&gt;</span><span class="n">perm</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="o">+</span> <span class="n">key</span><span class="p">[</span><span class="n">k</span><span class="p">];</span>
+</span><span class='line'>        <span class="n">y</span> <span class="o">+=</span> <span class="n">state</span><span class="o">-&gt;</span><span class="n">perm</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="o">+</span> <span class="n">key</span><span class="p">[</span><span class="n">k</span><span class="p">];</span>
 </span><span class='line'>        <span class="n">swap_bytes</span><span class="p">(</span><span class="o">&amp;</span><span class="n">state</span><span class="o">-&gt;</span><span class="n">perm</span><span class="p">[</span><span class="n">x</span><span class="p">],</span> <span class="o">&amp;</span><span class="n">state</span><span class="o">-&gt;</span><span class="n">perm</span><span class="p">[</span><span class="n">y</span><span class="p">]);</span>
 </span><span class='line'>    <span class="p">}</span>
 </span><span class='line'><span class="p">}</span>

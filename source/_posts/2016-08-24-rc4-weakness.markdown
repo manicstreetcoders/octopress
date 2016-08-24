@@ -51,7 +51,7 @@ void rc4_init(struct rc4_state *const state,
     for (x=0;x<256;
             x++, 
             k = (k+1) % keylen) {
-	y += state->perm[x] + key[k];
+        y += state->perm[x] + key[k];
         swap_bytes(&state->perm[x], &state->perm[y]);
     }
 }
