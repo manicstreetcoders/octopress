@@ -4,7 +4,7 @@
   <title><![CDATA[KC's blog]]></title>
   <link href="http://zomo.heroku.com/atom.xml" rel="self"/>
   <link href="http://zomo.heroku.com/"/>
-  <updated>2016-08-24T10:38:40+09:00</updated>
+  <updated>2016-08-24T14:38:30+09:00</updated>
   <id>http://zomo.heroku.com/</id>
   <author>
     <name><![CDATA[KC]]></name>
@@ -26,7 +26,7 @@
 </ul>
 
 
-<p>RC4 공격 역사를 정리해보면, state 테이블에 key 를 장착하고 난 이후 내용이 어느정도 예측가능하다는 포스팅이 sci.crypt 에 올라온게 처음인 것 같다.</p>
+<p>RC4 공격 역사를 정리해보면, state 테이블의 처음 몇 바이트가 key 와 상관도가 높다는 포스팅이 sci.crypt 에 올라온게 처음인 것 같다.</p>
 
 <p>state 의 첫 몇 바이트는 <code>state[n] == sum_0_to_nth_bytes(key) + n*(n+1)/2</code> 일 가능성이 37% 에 달한다고 Andrew Roos 가 포스팅함.</p>
 

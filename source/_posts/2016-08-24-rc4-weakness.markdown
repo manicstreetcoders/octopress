@@ -11,7 +11,7 @@ categories:
 * key 를 장착하는 단계. 
 * 그리고 p-table 을 바꿔가면서 keystream 을 만들어 XOR 하는 암복호화하는 단계.
 
-RC4 공격 역사를 정리해보면, state 테이블에 key 를 장착하고 난 이후 내용이 어느정도 예측가능하다는 포스팅이 sci.crypt 에 올라온게 처음인 것 같다.
+RC4 공격 역사를 정리해보면, state 테이블의 처음 몇 바이트가 key 와 상관도가 높다는 포스팅이 sci.crypt 에 올라온게 처음인 것 같다.
 
 state 의 첫 몇 바이트는 `state[n] == sum_0_to_nth_bytes(key) + n*(n+1)/2` 일 가능성이 37% 에 달한다고 Andrew Roos 가 포스팅함.
 
