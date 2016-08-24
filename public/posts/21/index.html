@@ -9,7 +9,10 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="Unix shell initialization Shell modes login shell - e.g. when you login from another host, or login at the text console of a local unix machine &hellip;">
+  <meta name="description" content="Job 1,2,3,&hellip; 가 있고,
+각각의 weight 가 w1,w2,w3,&hellip;
+각각의 length 가 l1,l2,l3,&hellip;
+Job completion time 이 c1,c2,c3,&hellip; 가 있을때, w_i * c_i 의 합을 &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -65,6 +68,175 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/09/06/job-scheduling-algorithm/">Job Scheduling Algorithm</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-09-06T11:02:00+09:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>6</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>11:02 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><ul>
+<li>Job 1,2,3,&hellip; 가 있고,</li>
+<li>각각의 weight 가 w1,w2,w3,&hellip;</li>
+<li>각각의 length 가 l1,l2,l3,&hellip;</li>
+<li>Job completion time 이 c1,c2,c3,&hellip;</li>
+</ul>
+
+
+<p>가 있을때, w_i * c_i 의 합을 최소화하는 문제.</p>
+
+<p>w_i/l_i 의 decreasing order 로 job 을 스케쥴링하는 알고리즘을 디자인하고, 옵티멀하다는 것을 증명</p>
+
+<p>assumptions</p>
+
+<ol>
+<li>w_i/l_i 가 같은 Job 은 없다고 가정</li>
+<li>w_i/l_i 의 desc order 로 정렬하고, 각각을 Job 1,2,3,&hellip; 로 명명</li>
+<li>약속에 따라 w_i/l_i > w_j/l_j if i > j</li>
+<li>w_1/l_1 > w_2/l_2 > w_3/l_3 &hellip;</li>
+</ol>
+
+
+<p>proof by contradiction 으로 증명.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/09/05/java-generic-array/">Java Generic Array</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-09-05T15:59:00+09:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>5</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>3:59 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><a href="http://stackoverflow.com/a/2931240">Generic Array 를 new 할 수 없는 이유</a></p>
+
+<pre><code>It's because Java's array (unlinke generics) contain, at runtime, information
+about its component type. So you must know the component type when you create
+the array. Since you don't know what `E` is at runtime, you can't create the
+array.
+</code></pre>
+
+<p>테스트해본다.</p>
+
+<pre><code>public class GenericSet&lt;E&gt; {
+    private E a[];
+    public GenericSet() {
+        a = new E[1];
+    }
+}
+</code></pre>
+
+<p>역시 에러가 난다.</p>
+
+<pre><code>code $ !javac
+javac GenericSet.java
+GenericSet.java:4: error: generic array creation
+        a = new E[1];
+            ^
+1 error
+</code></pre>
+
+<p>Effective Java 를 찾아보았다.</p>
+
+<p>Generic 의 array 생성이 허용되면 발생할 문제를 적어놓았다.</p>
+
+<pre><code>import java.util.List;
+import java.util.Arrays;
+
+// Why generic array creation is illegal - won't compile!
+List&lt;String&gt;[] stringLists = new List&lt;String&gt;[1];   // (1) 실제 컴파일하면 에러
+List&lt;Integer&gt; intList = Arrays.asList(42);          // (2)
+Object[] objects = stringLists;                     // (3)
+objects[0] = intList;                               // (4)
+String s = stringList[0].get(0);                    // (5)
+</code></pre>
+
+<ul>
+<li>Line 3: legal (Arrays are covariant.)</li>
+<li>Line 4: legal (The runtime type of a <code>List&lt;Integer&gt;</code> instance is <code>List</code>, and the runtime type of a List<Integer>[] instance is <code>List[]</code>, and the runtime type of a <code>List&lt;String&gt;</code> instance is <code>List[]</code>.)</li>
+<li>Line 5: ClassCastException (The compiler automatically casts the retrieved element to <code>String</code>, but it&rsquo;s an <code>Integer</code>.)</li>
+</ul>
+
+
+<p><a href="http://docs.oracle.com/javase/tutorial/java/generics/erasure.html">Type Erasure: 컴파일타임때의 Generic 타입 정보가 runtime 때 사라지기때문에</a></p>
+
+<p>즉, <code>List&lt;String&gt;</code> 과 <code>List&lt;Integer&gt;</code> 의 runtime type 은 모두 <code>List</code> 이다.</p>
+
+<p>Java documentation 에서는 <a href="http://docs.oracle.com/javase/tutorial/java/generics/nonReifiableVarargsType.html#non-reifiable-types">Non-Reifiable Types</a> 라고 부르고 있다.</p>
+
+<p>Stackoverflow 의 질문: <a href="http://stackoverflow.com/questions/529085/java-how-to-generic-array-creation">Java how to: Generic Array creation</a></p>
+
+<p>Typecasting 을 해보았다.</p>
+
+<pre><code>public class GenericSet&lt;E&gt; {
+    private E a[];
+    public GenericSet() {
+        a = (E[]) new Object[1];
+    }
+}
+code $ !j
+javac GenericSet.java
+Note: GenericSet.java uses unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.
+</code></pre>
+
+<p>unchecked warning 이 나온다.</p>
+
+<p><code>@SuppressWarnings({"unchecked"})</code> 을 사용.</p>
+
+<pre><code>@SuppressWarnings({"unchecked"})
+public class GenericSet&lt;E&gt; {
+    private E a[];
+    public GenericSet() {
+        a = (E[]) new Object[1];
+    }
+}
+code $ !j
+javac GenericSet.java
+</code></pre>
+
+<p>Generic Array Creation 에 대해서 너무 타이트하게 컴파일타임에 규제하는게 아닌가 싶다.</p>
+
+<p>어쨌든 Reflection 을 사용해서 Generic type array 를 만들어 본다.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -767,872 +939,6 @@ Detour 로 뛰었다가, 다시 원래 코드로 돌아가야 한다.</p>
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2013/06/23/antlr-and-language-implementation-patterns/">ANTLR &amp; Language Implementation Patterns</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2013-06-23T11:26:00+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>23</span><span class='date-suffix'>rd</span>, <span class='date-year'>2013</span></span> <span class='time'>11:26 am</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>ANTLR 의 개발자 T.P. 가 Pragmatic 에서 책을 두 권 출판했다.</p>
-
-<p>처음 예제는 List Parser 를 만드는 것.</p>
-
-<p>리스트라 함은.</p>
-
-<p>[ a,b,c] 나 [a, [x,y,z], b, c]</p>
-
-<p>같은 것들.</p>
-
-<h3>Token</h3>
-
-<p>Token 을 보관하는 데이터 구조.</p>
-
-<p>Type 과 Text 로 이루어져있고,</p>
-
-<p>Type 으로는</p>
-
-<pre><code>T_EOF
-T_NAME
-T_COMMA
-T_LBRACK
-T_RBRACK
-</code></pre>
-
-<p>등이 있다.</p>
-
-<p>Text 에는 &ldquo;<EOF>&rdquo;, &ldquo;NAME&rdquo;, &ldquo;COMMA&rdquo;, &ldquo;LBRACK&rdquo;, &ldquo;RBRACK&rdquo; 등이.</p>
-
-<p>Token class 의 method 로는,</p>
-
-<p>new_token / print_token 정도.</p>
-
-<h3>LL(1) Parser</h3>
-
-<p>기본적인 사상은,</p>
-
-<p>lookahead 오퍼레이션과 consume 을 분리하는 것.</p>
-
-<p>LL(1) Parser 에서는 말장난같지만, LL(k) Parser 로 가면 개념이 명료해짐.</p>
-
-<p>기본적인 함수는 nextToken() - 버퍼를 tokenize 하는 함수.</p>
-
-<p>whitespace 는 consume 해버린다.</p>
-
-<p>&lsquo;,&rsquo;, &lsquo;[&rsquo;, &lsquo;]&rsquo; 을 만나면, consume 하고, 새로운 토큰을</p>
-
-<pre><code>new_token(T_LBRACK, "[") 
-new_token(T_RBRACK, "]") 
-new_token(T_COMMA, ",") 
-</code></pre>
-
-<p>등으로 만들어 리턴.</p>
-
-<p>Character buffer 를 tokenizing 해서 token stream 으로 변환.</p>
-
-<h3>LL(k) Parser</h3>
-
-<p>LL(k) Parser 는 lookahead 를 몇 개 앞의 토큰까지 보고 판단하느냐가 핵심.</p>
-
-<p>1 개의 lookahead 만 가지고 파싱을 진행할 수 있는 문법이 있는가하면,</p>
-
-<p>불가능한 문법도 있기 때문에, LL(k) Parser 가 필요.</p>
-
-<p>LL(1) 에서는 lookahead 토큰 하나만 가지고 했다면, LL(4) 에서는 4 개의 lookahead 토큰을 가지고 파싱 작업을 수행하게 된다.</p>
-
-<p>LIST 를 그래머로 기술하면,</p>
-
-<pre><code>list : '[' elements ']' ;
-elements : element (',' element)* ;
-element : NAME | list
-
-[ a, b, c ] 
-[ a, [ x, y, z ], b ] 
-</code></pre>
-
-<p>등을 기술할 수 있다.</p>
-
-<p>위의 그래머는 다음 코드로 변환된다.</p>
-
-<pre><code>list() { match(T_LBRACK); elements(); match(T_RBRACK); }
-elements() { element(); if (lookahead.type == T_COMMA) { match(T_COMMA); elements(); } }
-element() { 
-  if (lookahead.type == T_NAME) match(T_NAME);
-  else if (lookahead.type == T_LBRACK) list();
-  else throw new Error("unexpeced: " + lookahead.type);
-}
-</code></pre>
-
-<p>결국 해보니, 위의 그래머는 lookahead 하나만 가지고 구현 가능하다. LL(1).</p>
-
-<p>그럼 LL(2) 파서가 필요한 그래머를 만들어본다.</p>
-
-<pre><code>list : '[' elements ']' ;
-elements : element (',' element)* ;
-element : NAME '=' NAME | NAME | list ;
-</code></pre>
-
-<p><code>NAME = NAME</code> 과 <code>NAME</code> 이 동일한 <code>NAME</code> 으로 시작하기때문에, one lookahead 만으로는
-파싱이 불가능하다. two lookaheads 를 유지하도록 한다.</p>
-
-<p>Circular Lookahead Buffer 를 만들어 관리.</p>
-
-<p>[a,b,c] 를 LL(4) 에서 예제.</p>
-
-<pre><code>lookahead[0] '[' &lt;-- bp
-lookahead[1] 'a'
-lookahead[2] ','
-lookahead[3] 'b'
-</code></pre>
-
-<p>가 초기 상태. 4 개의 lookahead 를 가지게 된다.</p>
-
-<p>초기 lookahead 버퍼를 셋업하는 방법은,</p>
-
-<pre><code>lookahead[bp] = lexer.getToken();
-bp = (bp+1) % k;
-</code></pre>
-
-<p>를 k 번 만큼하면, <code>lookahead[0]</code> ~  <code>lookahead[k-1]</code> 까지의 버퍼가 토큰으로 채워지고, bp 는 0 으로 돌아와서, 처음을 가리키게 된다.
-버퍼도 채우고, 맨 처음도 가리키고.</p>
-
-<p>consume 을 한번 하면.</p>
-
-<pre><code>lookahead[0] ','
-lookahead[1] 'a' &lt;-- bp
-lookahead[2] ','
-lookahead[3] 'b'
-</code></pre>
-
-<p>첫 &lsquo;[&rsquo; 는 discard 되고, base pointer 가 전진했으며, 4 개의 lookahead 를 maintain 하기 위해, 새로운 &lsquo;,&rsquo; 가 들어왔다.</p>
-
-<pre><code>lookahead = new Token[4];
-for (i=0;i&lt;4;i++) lookahead[i] = lexer.nextToken();
-bp = 0;
-</code></pre>
-
-<p>하면 초기 CLB 셋업이 끝난다.</p>
-
-<pre><code>consume() { lookahead[bp] = lexer.nextToken(); bp = (bp + 1) % 4; }
-</code></pre>
-
-<p>를 하면 자연스럽게 가장 오래된 것을 버리고, 새로운 토큰을 맨 뒤에 넣고, base pointer 는 circular buffer 의 처음을 가리키게 된다.</p>
-
-<pre><code>LT(i) { return lookahead[bp + i - 1]; }
-</code></pre>
-
-<p>하면 1 번째, 2 번째 등등의 lookahead 를 할 수 있게 된다.</p>
-
-<pre><code>"To visualize parsing decisions, imagine a maze with a single entrance and a
-single exit that has words written on the floor. Every sequence of words along
-a path from entrance to exit represents a sentence. The structure of the maze
-is analogous to the rules in a grammar that define a language. To test a sentence
-for membership in a language, we compare the sentence's words with
-the words along the floor as we traverse the maze. If we can get to the exit by
-following the sentence's words, that sentence is valid."
-</code></pre>
-
-<h3>JSON Grammar</h3>
-
-<p>예제삼아 JSON 을 ANTLR 그래머로 기술해본다.</p>
-
-<pre><code>object
-    : '{' pair (',' pair)* '}'
-    | '{' '}'
-    ;
-
-array
-    : '[' value (',' value)* ']'
-    | '[' ']'
-    ;
-
-value
-    : STRING
-    | NUMBER
-    | object
-    | array
-    | 'true'
-    | 'false'
-    | 'null'
-    ;
-</code></pre>
-
-<h3>Building AST</h3>
-
-<p>ANTLR 를 사용하지 않고, 손으로 AST 를 만들어보았다.</p>
-
-<p>AST 는 Homogeneous AST / Normalized Heterogeneous AST / Irregular Heterogeneous AST 정도로
-나눌 수 있는데, 간단한 Homogeneous AST 를 만들어 보았다.</p>
-
-<p>Recursive 하게 decent 하는 파서의 특성을 활용하면, <code>AST.addChild(parent, int astType, Token token)</code>
-정도의 콜을 적절히 달아주는 것으로 트리 빌딩이 가능하다.</p>
-
-<pre><code>public class AST {
-    Token token;
-    List&lt;AST&gt; children;
-    public AST(Token token) { this.token = token; }
-    public void addChild(AST t) { 
-        if (children == null) children = new ArrayList&lt;AST&gt;();
-        children.add(t);
-    }
-}
-</code></pre>
-
-<p>일단 하나의 클래스로 모든 노드를 담는다.
-하나의 타입만 있으니까, children 을 <code>List&lt;AST&gt; children</code> 으로 관리할 수 있다.
-AST 를 만들기 위해, 3 lookaheads 를 사용하였다.</p>
-
-<pre><code>$ java Test '[1,x=2,[3,4]]'
-match LBRACK
-match NAME
-match COMMA
-match NAME
-match EQUALS
-match NAME
-match COMMA
-match LBRACK
-match NAME
-match COMMA
-match NAME
-match RBRACK
-match RBRACK
-AST Type: AST_ROOT
-    AST Type: AST_LIST
-        AST Type: AST_NAME
-            Token: NAME : 1
-        AST Type: AST_ASSIGN
-            AST Type: AST_IDENTIFIER
-                Token: NAME : x
-            AST Type: AST_VALUE
-                Token: NAME : 2
-        AST Type: AST_LIST
-            AST Type: AST_NAME
-                Token: NAME : 3
-            AST Type: AST_NAME
-                Token: NAME : 4
-</code></pre>
-
-<h3>Building AST with ANTLR</h3>
-
-<p>벡터 계산에 관한 문법을 만들고, ANTLR 를 가지고 AST 를 build 한다.</p>
-
-<pre><code>x = 1+2
-y = 1*2+3
-z = [1,2] + [3,4]
-a = [1,2] . [3,4]
-b = 3 * [1,2]
-print x+2
-
-statline : stat+ ;
-stat: ID '=' expr | 'print' expr ;
-expr: multExpr ('+' multExpr)* ; // E.g., "3*4 + 9"
-multExpr: primary (('*'|'.') primary)* ;
-primary : INT | ID | '[' expr (',' expr)* ']'
-</code></pre>
-
-<p>우선 <code>output=AST;</code> 로 AST 를 빌드 모드로.</p>
-
-<pre><code>grammar VecMathAST;
-options {output=AST;}
-tokens {VEC;}
-</code></pre>
-
-<p>그리고 기존 문법에 AST rewrite 를 위한 규칙을 추가한다. 예를 들어</p>
-
-<pre><code>statlist : stat+ ;
-stat: ID '=' expr
-</code></pre>
-
-<p>같은 경우 <code>stat: ID '=' expr</code> 에 AST rewrite 규칙을 추가한다.</p>
-
-<pre><code>statlist : stat+ ;
-stat: ID '=' expr -&gt; ^('=' ID expr)
-</code></pre>
-
-<p><code>^('=' ID expr)</code> 은, <code>'='</code> 가 subtree 의 root 고, <code>ID</code>, <code>expr</code> 가 children 으로,
-AST 를 구성하라는 rewriting rule 이 된다.</p>
-
-<p>Antlr 의 AST rewriting 을 이해하기 위해 참조한 블로그는 <a href="http://bkiers.blogspot.kr/2011/03/5-building-ast.html">Bart&rsquo;s Blog</a> 임.</p>
-
-<pre><code>bar : A B C D -&gt; ^(B A C) ;
-</code></pre>
-
-<p>을 하면, B 가 root 가 되고, A, C 가 children 이 되고, D 는 없어진다.</p>
-
-<p>다른 예.</p>
-
-<pre><code>addExpr : multiplyExpr (('+' | '-') multiplyExpr)* ;
-
-addExpr : multiplyExpr (('+' | '-')^ multiplyExpr)* ;
-</code></pre>
-
-<p>을 하면, &lsquo;+&rsquo;, &lsquo;-&rsquo; 가 root 가 되고 multiplyExpr 2 개가 children 이 된다.</p>
-
-<p>root 로 할만한 적당한 녀석이 없을 경우에는 하나 만들면 된다.</p>
-
-<pre><code>block : (statement | funcitonDecl)* (Return expression ';')? ;
-
-block : 
-    (statement | functionDecl)* (Return expression ';')?
-        -&gt; ^(BLOCK ^(STATEMENTS statement*) ^(RETURN expression?))
-    ;
-</code></pre>
-
-<p>을 하면, 모든 block 은 STATEMENTS, RETURN 이라는 2 개의 children 을 가지게 된다.</p>
-
-<p>본격적으로 AST rewriting rule 을 추가하면,</p>
-
-<pre><code>// START: header
-grammar VecMathAST;
-options {output=AST;} // we want to create ASTs
-tokens {VEC;} // define imaginary token for vector literal
-// END: header
-
-// START: stat
-statlist : stat+ ;                    // builds list of stat trees
-stat: ID '=' expr  -&gt; ^('=' ID expr)  // '=' is operator subtree root
-    | 'print' expr -&gt; ^('print' expr) // 'print' is subtree root
-    ;
-// END: stat
-
-// START: expr
-expr:   multExpr ('+'^ multExpr)* ;        // '+' is root node
-multExpr: primary (('*'^|'.'^) primary)* ; // '*', '.' are roots
-primary
-    :   INT   // automatically create AST node from INT's text
-    |   ID    // automatically create AST node from ID's text
-    |   '[' expr (',' expr)* ']' -&gt; ^(VEC expr+)
-    ;
-// END: expr
-
-ID  :   'a'..'z'+ ;
-INT :   '0'..'9'+ ;
-WS  :   (' '|'\r'|'\n')+ {skip();} ;
-</code></pre>
-
-<h3>Parse Tree</h3>
-
-<p>AST 와 Parse Tree 의 차이점이 <a href="http://stackoverflow.com/questions/5026517/whats-the-difference-between-parse-tree-and-ast">What&rsquo;s the difference between parse tree and AST?</a> 에 정리되어 있다.</p>
-
-<pre><code>The AST only contains all 'useful' elements that will be used for further processing,
-while the parse tree contains all the artifacts (spaces, brackets, ...)
-from the original document you parse
-</code></pre>
-
-<h3>Backtracking Parser &amp; Memoizing Parser</h3>
-
-<p>LL(k) 파서로 판단하기 어려운 모호성이 존재할 때, 쓰는 기법.</p>
-
-<pre><code>The easiest way to implement a backtracking strategy for a parsing
-decision is to speculatively attempt the alternatives in order until we
-find one that matches. Upon success, the parser rewinds the input and 
-parses the alternative normally. Upon failing to match an alternative,
-the parser rewinds the input and tries the next one. If the parser can't 
-find any matching alternative, it throws a "no viable alternative" 
-exception.
-</code></pre>
-
-<p>다음과 같은 문법을 보자. Python 과 같이 <code>[a,b] = [c,d]</code> 와 같은 리스트 어사인을 지원하는 문법이다.</p>
-
-<pre><code>stat    : list EOF | assign EOF ;
-assign  : list '=' list ;
-list    : '[' elements ']' ;
-elements    : element (',' element)* ;
-element     : NAME '=' NAME | NAME | list
-</code></pre>
-
-<p>stat 의 경우, list 인지 assign 인지 정하기 위해서는 리스트를 파싱하고 나서, 토큰 하나를 더 봐야
-알 수 있다.</p>
-
-<p>얼터너티브를 시도해보면서, 경우에 따라 백트래킹하는 코드.</p>
-
-<pre><code>public void statement() throws RecognitionException {
-    if ( speculate_stat_alt1() ) { list(); match(Lexer.EOF_TYPE); }
-    else if ( speculate_stat_alt2() ) { assign(); match(Lexer.EOF_TYPE); }
-    else throw new NoViableAltException("expecting stat found " + LT(1));
-}
-
-public boolean speculate_stat_al1() {
-    boolean success = true;
-    mark();
-    try { list(); match(Lexer.EOF_TYPE); }
-    catch (RecognitionException e) { success = false; }
-    release();
-    return success;
-}
-public boolean speculate_stat_al2() {
-    boolean success = true;
-    mark();
-    try { assign(); match(Lexer.EOF_TYPE); }
-    catch (RecognitionException e) { success = false; }
-    release();
-    return success;
-}
-</code></pre>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2013/06/12/tmux-pane-setting/">Tmux Pane Setting</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2013-06-12T20:02:00+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>12</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>8:02 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>tmux 와 vimrc 에 몇가지를 추가했는데.</p>
-
-<h3>tmux</h3>
-
-<p>pane 을 vi key 로 옮겨다니기 위해서</p>
-
-<pre>
-unbind j
-unbind k
-unbind h
-unbind l
-bind j select-pane -D
-bind k select-pane -U
-bind h select-pane -L
-bind l select-pane -R
-</pre>
-
-
-<p>를 해서 자판에서 손을 안떼고 움직일 수 있게 하였다.</p>
-
-<p>그리고,</p>
-
-<pre>
-bind / command-prompt "split-window 'exec %%'"
-</pre>
-
-
-<p>를 추가해서 간단한 shell command 를 tmux 안에서 날릴 수 있게 하였다.</p>
-
-<p>C-a / 를 누르고 ping localhost 를 때리면, pane 이 하나 열리고 ping 이 실행된다.</p>
-
-<pre><code>bind a send-prefix
-</code></pre>
-
-<p>로 Ctrl-a a 로 Ctrl-a 기능을 살린다. Ctrl-a / Ctrl-e / Ctrl-b 등의 Emacs 스타일 cursor moving 을 자주 쓴다면 필요.</p>
-
-<p>그리고 tmux 가 최근에 1.8 로 업글되었다.
-Ubuntu 의 경우 패키지로 아직 repo 에 안올라와서, source 를 컴파일해야 한다.
-OS X 의 경우 brew 에 1.8 패키지가 올라왔다. <code>brew install tmux</code> 또는 <code>brew upgrade tmux</code> 하면 된다.
-1.8 의 큰 장점은 pane zoom 이 된다는 것. 그 전까지는 꽁수로 했었는데, 이제는 native 하게 된다.
-<code>Ctrl-a z</code> 로 zoom 을 토글할 수 있다. 줌기능 대박이다.</p>
-
-<p>Ubuntu 에서 tmux 카피 버퍼와 OS 클립보드를 통합하는 방법:</p>
-
-<pre><code>$ sudo apt-get install xclip
-
-bind C-c run "tmux save-buffer - |xclip -i -sel clipboard"
-bind C-v run "tmux set-buffer \"$(xclip -o -sel clipboard)\"; tmux paste-buffer"
-</code></pre>
-
-<p>OS X 에서 통합하는 방법:</p>
-
-<pre><code>$ git clone https://github.com/ChrisJohnsen/tmux-MacOSX-pasteboard.git
-$ cd tmux-MacOSX-pasteboard
-$ make reattach-to-user-namespace
-$ mv reattach-to-user-namespace /usr/local/bin
-$ export PATH="/usr/local/bin:$PATH"
-
-set -g default-command "reattach-to-user-namespace -l /bin/zsh"
-bind C-c run "tmux save-buffer - | reattach-to-user-namespace pbcopy"
-bind C-v run "tmux set-buffer $(reattach-to-user-namespace pbpaste); tmux paste-buffer"
-</code></pre>
-
-<p>이제 C-a C-c 로 tmux buffer -> OS X clipboard 로 카피할 수 있다.</p>
-
-<h3>vim</h3>
-
-<p>만약 Solarized 를 안쓴다면, TabLine 을 바꾸는 것이 좋다.</p>
-
-<p>.vimrc 에</p>
-
-<pre>
-hi TabLineSel ctermfg=Red ctermbg=Yellow
-hi TabLine ctermfg=Blue ctermbg=Yellow
-hi TabLineFill ctermfg=LightGreen ctermbg=DarkGreen
-</pre>
-
-
-<p>ftplugin 으로 안하고, 그냥 .vimrc 에 때려박은 것들이 있는데,</p>
-
-<pre><code>autocmd FileType python set sts=4|set sw=4|set expandtab
-autocmd FileType ruby set sts=2|set sw=2|set expandtab
-</code></pre>
-
-<p>나중에 filetype plugin 으로 정리할 생각.</p>
-
-<p>사람들이 잘 모르는 것이 sts 와 ts 와 sw 의 차이.</p>
-
-<p>expandtab 을 할 경우에는 ts 를 할 필요없이 sts 만 해줘도 된다.</p>
-
-<p>그리고</p>
-
-<pre>
-noremap &lt;CR> :
-</pre>
-
-
-<p>를 했는데.</p>
-
-<p>ESC : 로 커맨드모드를 진입하면 : 를 누를때 SHIFT 를 같이 눌러야해서,
-손이 아팠는데, 이제는 ESC ENTER 로 커맨드모드 진입이 가능해진다.</p>
-
-<p>손이 한결 편해진다.</p>
-
-<h4>10 J</h4>
-
-<p>그리고 vim 에서 흔히 텐제이라고 부르는 매핑.</p>
-
-<pre>
-map &lt;C-j> 10j
-map &lt;C-k> 10k
-</pre>
-
-
-<p>로 빠르게 상하이동이 가능하다. Ctrl + J / Ctrl + K</p>
-
-<h4>Indentation</h4>
-
-<p>Code indentation 은 visual mode 에서 &lt; &lt; 로 할 수 있는데, 좀 더 편하게 하기 위해서
-visual mode non-recursive mapping 을 추가한다.</p>
-
-<pre><code>vnoremap &lt; &lt;gv
-vnoremap &gt; &gt;gv
-</code></pre>
-
-<p>이렇게 하면, Visual mode 에서 &lt; 를 연속으로 눌러 indentation 을 들이거나 낼 수 있다.
-파이썬같이 인덴테이션이 중요한 언어에서는 꼭 필요한 매핑이다.</p>
-
-<p>vim 팁으로는,</p>
-
-<p>코드 인덴팅할때, 편리한 vim 커맨드.</p>
-
-<pre>
-5&lt;&lt;
-Vjj&lt;
-&lt;%
-]p
-</pre>
-
-
-<h4>.vimrc</h4>
-
-<pre><code>nnoremap &lt;leader&gt;ev :vsplit $MYVIMRC&lt;cr&gt;
-</code></pre>
-
-<p>하면 편하게 .vimrc 를 에디팅할 수 있다.</p>
-
-<h4>Rails</h4>
-
-<p>Rails 를 사용한다면, route 화일이나 DB 스키마를 에디트할 경우가 많다. 그래서 다음 매크로가 유용하다.</p>
-
-<pre><code>command! Rroutes :e config/routes.rb
-command! Rschema :e db/schema.rb
-</code></pre>
-
-<h4>Vim Plugin</h4>
-
-<p>vim plugin 중에서는 Command-T, Solarized, YouCompleteMe, Taglist 를 사용.</p>
-
-<p>Taglist 를 쓸 경우, .vimrc 에 (OS X 에서 brew 로 Exuberant ctags 를 깔았을 경우)</p>
-
-<pre><code>nnoremap &lt;silent&gt; &lt;F8&gt; :TlistToggle&lt;CR&gt;
-let Tlist_Ctags_Cmd='/usr/local/Cellar/ctags/5.8/bin/ctags'
-</code></pre>
-
-<p><F8> 로 클래스/함수 pane 을 on/off 시킬 수 있다.</p>
-
-<p>YouCompleteMe 때문에, OS X 에서는 MacVim 에 딸려오는 Vim 을 사용한다 (nogui). 만약 SIGSEGV 가 발생하면, 아마 python library 가 잘못 링크되었을 경우인데, 임시로 brew unlink python 으로 python 라이브러리 쫑나는 것 해결할 수 있다.</p>
-
-<p>MacVim 은 <a href="http://github.com/b4winckler/macvim/downloads">여기서</a> 다운받아 컴파일한다.</p>
-
-<p>Ubuntu 에서는 ruby 와 python 써포트를 On 하고, 링크되는 라이브러리에 신경을 써서 새로 컴파일하는 것이 좋다. 12.04 에 딸려오는 vim 이 너무 구식이라.</p>
-
-<p>OS X iTerm2 터미널도 Solarize 할 수 있는 스크립이 찾아보면 있으니. <a href="altercation/solarized/iterm2-colors-solarized">https://github.com/altercation/solarized</a></p>
-
-<p>그리고, Linux gnome 의 경우도 github 에 <a href="sigurdga/gnome-terminal-colors-solarized">https://github.com/sigurdga/gnome-terminal-colors-solarized</a> 로 찾으면 나옴.</p>
-
-<p>vim colorscheme 만 solarized 를 쓰면 terminal 로 돌아올때 번쩍해서 눈이 피곤하다. 둘 다 맞춰주는 것이 좋다.</p>
-
-<p>Command-T 를 설치할 때, Linux 는 간단한데, OS X 는 약간 까다롭다.</p>
-
-<p>$ vim &ndash;version 으로 vim 컴파일에 사용된 FLAG 랑 맞춰주는 것이 기본인데,
-OS X Mountain Lion 에서는
-처음에 아무생각없이 build 했다가 SIGSEGV 이 발생해서,</p>
-
-<pre>
-vim --version|grep arch
-vim --version|grep ruby
-ARCHFLAGS="-arch x86_64"
-rbenv local system 
-ruby --version
-ruby extconf.rb
-make
-</pre>
-
-
-<p>rbenv 로 /usr/bin/ruby 가 실행되게 하는 것.
-ruby 버전이 1.8.7 인지 확인하는 것.
-vim 이 컴파일된 아키텍쳐와 루비 써포트를 확인하는 것.</p>
-
-<p>vim 이 +ruby 가 아니라면, <a href="http://stackoverflow.com/questions/3794895/installing-vim-with-ruby-support-ruby">Installing vim with ruby support (+ruby)</a> 참조.</p>
-
-<p>15 인치 노트북에서 화면 가득한 iTerm 을 띄워놓고,
-vim window + vim tab + tmux pane + tmux screen 을 활용하면,
-마우스나 트랙패드를 사용할 필요가 없다.</p>
-
-<p>iTerm 과 크롬을 한개씩 띄워놓고 개발이 가능해진다.</p>
-
-<p>CMD-TAB 과 크롬 단축기를 사용하면, 키보드에서 손을 뗄 필요가 없어진다.</p>
-
-<p>참고로 iTerm 의 경우 CMD+OPTION+1 등으로 윈도우를 선택할 수 있다.</p>
-
-<h4>Vim Key Mapping</h4>
-
-<p>그리고 vim key mapping 에 관한 좋은 글
-Mapping keys in Vim - Tutorial -
-<a href="http://vim.wikia.com/wiki/Mapping_keys_in_Vim_-_Tutorial_(Part_1)">here</a></p>
-
-<p>vim 으로 hex edit 하는 법</p>
-
-<pre><code>:%!xxd
-:%!xxd -r
-</code></pre>
-
-<p>다량의 Tab 을 열어놓고 작업하다가 한꺼번에 닫고 나갈때,</p>
-
-<pre><code>:qa
-:wqa
-</code></pre>
-
-<p>하면 된다.</p>
-
-<h3>irb</h3>
-
-<p>ruby 를 사용하면 irb 를 많이 쓰게되는데, irb 에서 vi key 를 쓰는 방법.</p>
-
-<pre><code>$ vim ~/.editrc
-bind -v
-bind \\t rl_complete
-</code></pre>
-
-<p>이렇게 하면 ESC i j k l 등으로 이동할 수 있고, TAB 으로 completion 을 할 수 있다.</p>
-
-<p>python REPL 에서도 먹는다. Emacs 스타일보다 Vim 스타일이 더 편하다.</p>
-
-<h3>ctags &amp; cscope</h3>
-
-<p>Python 코딩은 OS X 보다는 Linux 에서 작업하는데,</p>
-
-<pre><code>sudo apt-get install ctags 
-</code></pre>
-
-<p>~/.ctags 에다가</p>
-
-<pre><code>--python-kinds=-i
-</code></pre>
-
-<p>그리고 .vimrc 에다가</p>
-
-<pre><code>set tags=./mytags
-</code></pre>
-
-<p>그리고</p>
-
-<pre><code>ctags -R -o ./mytags ~/code
-</code></pre>
-
-<p>를 해두면,</p>
-
-<p>vim 에서,</p>
-
-<pre><code>vim -t &lt;tag name&gt;
-Ctrl-] / Ctrl-T
-:tselect / :stselect
-:tnext / :tprev
-:help tags
-</code></pre>
-
-<p>으로 tag 들을 navigating 할 수 있다.</p>
-
-<p>그리고 ctags v.s. cscope 에 관한 좋은 글 <a href="http://stackoverflow.com/questions/934233/cscope-or-ctags-why-choose-one-over-the-other">cscope or ctags why choose one over the other?</a></p>
-
-<p>그리고, OS X 에서 Exuberant ctags 를 사용해서 python 등을 코딩하고 싶다면,
-Homebrew 를 사용해 인스톨한다. 오리지널 ctags 는 /usr/bin/ctags 에 있을 것이고,
-새로 인스톨된 것은 /usr/local 아래 어딘가 있을 듯.</p>
-
-<pre><code>$ brew install ctags-exuberant
-</code></pre>
-
-<p>/usr/local/bin/ctags 가 실행되도록 확인하고, 마찬가지로 ~/.ctags 에</p>
-
-<pre><code>--python-kinds=-i
-</code></pre>
-
-<p>추가.</p>
-
-<p>ctags 에 관한 좋은 블로그 <a href="http://www.scholarslab.org/research-and-development/code-spelunking-with-ctags-and-vim/">Code Spelunking with Ctags and Vim</a></p>
-
-<p>그리고 pycscope 을 쓸수도 있는데,</p>
-
-<p>OS X 에서는 <code>brew install cscope</code> 해주고, cscope_maps.vim 을 ~/vim/plugin 아래에 설치한다.
-그리고 pycscope 도 설치한다. <code>pycscope -R .</code> cscope_maps.vim 도 추가.</p>
-
-<p><a href="http://cscope.sourceforge.net/cscope_vim_tutorial.html">The Vim/Cscope tutorial</a></p>
-
-<p>개인적으로는 cscope 이 ctags 보다 편하다.</p>
-
-<p><code>Ctrl-\</code>+<code>c</code> 나 <code>Ctrl-\</code>+<code>s</code> 그리고, <code>Ctrl-\</code>+<code>d</code></p>
-
-<h3>ack &amp; z jumper</h3>
-
-<p>ack 가 grep 보다 소스코드에서 뭐 찾을때 훨 편하다.</p>
-
-<p>그리고 디렉토리 navigation 은 z jumper 가 최고다. 예전의 노턴 ncd 같은 녀석.</p>
-
-<h3>bash</h3>
-
-<p>스크린캐스트에서 본 쉘 커맨드.</p>
-
-<pre><code>~/code/jade[master]% find . -iname "*.rb" | 
-xargs grep -h '^[[:space:]]*class\|module\b' | 
-sed 's/^[[:space:]]*//' | grep -v '^#' | cut -d ' ' -f 2 | 
-while read class; 
-do echo `grep -rl "\b$class\b" app lib --include "*.rb" |wc -l` $class ; 
-done | sort -n
-</code></pre>
-
-<p>한 줄이다. ruby 의 클래스를 참조하는 화일 갯수를 세는건데.</p>
-
-<ul>
-<li>grep -l 옵션은 화일에서 패턴 존재가 확인되면 그냥 스킵. 존재 여부를 확인할때.</li>
-<li>grep -r 은 디렉토리 리커시브.</li>
-<li>grep -v 는 패턴이 없는 라인을 출력.</li>
-<li>grep -h 는 화일 이름을 출력 안함.</li>
-<li>find &hellip; | xargs 가 find &hellip; -exec 보다 빠르다.</li>
-<li>sort -n 은 numerical sort 를 하란 것인데, 그냥 sort 하면 &ldquo;10&rdquo; 이 &ldquo;2&rdquo; 보다 앞에 나온다. -n 을 해주면 &ldquo;2&rdquo; 가 &ldquo;10&rdquo; 보다 먼저 나오게 된다.</li>
-</ul>
-
-
-<h3>zsh</h3>
-
-<p>zsh 에서는 Global alias 이용해</p>
-
-<pre><code>alias -g G='|grep '
-</code></pre>
-
-<p>하면</p>
-
-<pre>
-cat log G ERROR
-</pre>
-
-
-<p>와 같은 커맨드가 가능하다.</p>
-
-<h3>bash I/O redirection</h3>
-
-<p><a href="http://www.cyberciti.biz/faq/bash-while-loop/">Bash While Loop Example</a> 에서.</p>
-
-<pre><code>cmd &gt;&gt;file.txt 2&gt;&amp;1
-</code></pre>
-
-<p> stderr, stdout 을 함께 화일에 append 할 때.</p>
-
-<pre><code>#!/bin/bash
-FILE=$1
-exec 3&lt;&amp;0
-exec 0&lt;$FILE
-while read line
-do
-  echo $line
-done
-exec 0&lt;&amp;3
-</code></pre>
-
-<p> stdin 을 3 에 카피해놓고, 화일을 stdin 으로 돌리고, 나중에 원복.</p>
-
-<pre><code>#!/bin/bash
-x=1
-while [ $x -le 5 ]
-do
-  echo "$x times"
-  x=$(( $x + 1 ))
-done
-</code></pre>
-
-<p>bash 의 arithmetic operator 는 (( )) 이다.</p>
-
-<pre><code>#!/bin/sh
-counter=$1
-factorial=1
-while [ $counter -gt 0 ]
-do
-  factorial=$(( $factorial * $counter ))
-  counter=$(( $counter - 1 ))
-done
-echo $factorial
-</code></pre>
-
-<p>factorial 구하는 것.</p>
-
-<pre><code>#!/bin/sh
-while :
-do
-  read -p "Enter two numbers ( -1 to quit ) : " a b
-  if [ $a -eq -1 ]
-  then
-    break
-  fi
-  ans=$(( a + b ))
-  echo $and
-done
-</code></pre>
-
-<p>읽을만한 shell scripting 문서: <a href="http://bash.cyberciti.biz/guide/Main_Page">Linux Shell Scripting Tutorial (LSST) v2.0</a></p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/22">&larr; Older</a>
@@ -1650,6 +956,14 @@ done
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/08/24/rc4-weakness/">RC4 Weakness</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/07/06/cve-2016-2434/">CVE-2016-2434</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/07/02/aes-in-python/">AES in Python</a>
       </li>
     
@@ -1659,14 +973,6 @@ done
     
       <li class="post">
         <a href="/blog/2016/06/17/cve-2016-0728/">CVE-2016-0728</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/06/14/the-poisoned-nul-byte/">The Poisoned NUL Byte</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/06/14/plaidctf-ctf-2015-plaiddb/">PlaidCTF CTF 2015: PlaidDB</a>
       </li>
     
   </ul>

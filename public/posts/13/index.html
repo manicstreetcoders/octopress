@@ -9,7 +9,7 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="vic.c 이제 vulnerable 한 실행화일을 외부에서 exploit 해보자. 일단 우분투에서 echo 0 | sudo tee /proc/sys/kernel/randomize_va_space 커맨드로 ASLR 을 끄고, -fno-stack-protector -z &hellip;">
+  <meta name="description" content="Off-by-one 이제, size check 가 들어가는데 체크를 잘못해서, Off-by-one 에러가 날 경우를 정리해본다. 다음과 같은 체크가 들어간다고 한다. if (strlen(av[1])&gt;512){ printf("Buffer overflow &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -65,6 +65,211 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/11/10/linux-x86-64-shellcode-7/">Linux X86_64 Shellcode 7</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-11-10T22:28:09+09:00'><span class='date'><span class='date-month'>Nov</span> <span class='date-day'>10</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>10:28 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h4>Off-by-one</h4>
+
+<p>이제, size check 가 들어가는데 체크를 잘못해서, Off-by-one 에러가 날 경우를 정리해본다.</p>
+
+<p>다음과 같은 체크가 들어간다고 한다.</p>
+
+<pre><code>if (strlen(av[1])&gt;512){
+    printf("Buffer overflow attempt!\n");
+    exit(1);
+}
+strcpy(buf,av[1]);
+</code></pre>
+
+<p>512 bytes 로 payload 를 맞추면, saved 된 <code>%rbp</code> 의 1 byte 를 0 으로 overwrite 할 수 있다.
+saved 된 <code>%rbp</code> 는 사실 윗단계 depth 함수에서 사용하는 frame 포인터이다.</p>
+
+<p>function epilogue 에서 <code>leave</code> 를 해주면 <code>mov %rbp,%rsp</code> <code>pop %rbp</code> 를 해주면서 corrupt 된 rbp 값이 <code>%rbp</code> 에 세팅되고 return 하여, 이제 잘못된 <code>%rbp</code> 를 가지고 프로그램이 돌아간다.</p>
+
+<p><code>%rbp</code> 의 최하위 byte 가 0 가 되버려서 최대 255 bytes 만큼 lower address 로 떨어지게 된다.</p>
+
+<pre><code>void b(char *s)
+{
+    char buf[512];
+
+    if (strlen(s) &gt; 512) {
+        printf("Buffer overflow attempt!\n");
+        exit(1);
+    }
+    strcpy(buf,s); // 여기서 b() 스택프레임의 saved %rbp 가 깨지고
+    // mov %rbp,%rsp; pop %rbp 에서 깨진 값이 %rbp 로 들어가고
+}
+void a(char *s)
+{
+    b(s);
+    // mov %rbp,%rsp; 에서 깨진 값이 %rsp 로 들어서 %rsp 가 망가지고
+    // pop %rbp 를 거쳐서 
+    // ret 에서 잘못된 return address 로 튀게 된다.
+}
+void main(int ac,char **av)
+{
+    char buf[128];
+    strcpy(buf,"dummy\x00");
+    if (ac&gt;1) a(av[1]);
+}
+</code></pre>
+
+<p>이제 컴파일해서 실행해보자.</p>
+
+<pre><code>$ gcc -fno-stack-protector -zexecstack -f off off.c
+$ ./off $(printf "0513x" 0)
+Buffer overflow attempt!
+$ ./off $(printf "0512x" 0)
+Segmentation fault (core dumped)
+</code></pre>
+
+<p>에를 들어 <code>0x00007fffffffdc60</code> 가 saved ebp 였는데, 이게 buf[512] 랑 붙어있다가, 가장 가깝게 붙어 있던 0x60 이 0x00 으로 깨져버리면서, 이제 saved ebp 가 <code>0x00007fffffffdc00</code> 가 되버렸다.</p>
+
+<p>a() 가 수행되고 나서 돌아갈 어드레스는 <code>0x00007fffffffdc60</code> 의 바로 위에 저장되어있었는데, 이제 a() 가 수행되고 나서 <code>0x00007fffffffdc00</code> 의 바로 위에 저장된 값을 return address 로 해서 튀게 된다.</p>
+
+<p>a() 가 실행되고 나서 main() 으로 돌아가야하는데, 이제 엉뚱한대로 튀게 되는것.</p>
+
+<p>정리하면, <code>strlen(s) &gt; 512-1</code> 이 아니라 <code>strlen(s) &gt; 512</code> 라고 쓰는 바람에</p>
+
+<ul>
+<li>로컬변수에 대해 작업하다가 1 byte 삑사리가 났다.</li>
+<li>상단의 saved %rbp 가 깨진다. (상위함수 프레임 포인터)</li>
+<li>leaveq 에서, <code>pop %rbp</code> 때문에 이제 %rbp 레지스터 값이 깨진다.</li>
+<li>retq 로 상위함수로 돌아온다.</li>
+<li>이제 남은 코드들이 깨진 %rbp 로 로컬 변수를 참조하게 된다.</li>
+<li>이제 이 함수도 return 하게 되는데&hellip;</li>
+<li>leaveq 에서 <code>mov %rbp,%rsp</code> 때문에 이제 %rsp 레지스터 값이 깨진다.</li>
+<li>leaveq 에서 <code>pop %rbp</code> 를 해서 <code>%rsp += 8</code> 이 된다.</li>
+<li>retq 에서 %rsp 가 point 하는 메모리값으로 %rip 를 세팅하니 이번에는 %rip 가 깨진다.</li>
+<li>%rsp 가 최대 255 bytes 만큼 아래로 떨어지니, 우리가 컨트롤할 수 있는 변수 영역으로 %rsp 가 떨어질 가능성이 있다.</li>
+<li>이렇게 되면 %rip 를 컨트롤 할 수 있을 가능성이 있다.</li>
+</ul>
+
+
+<p>디스어셈블해보자.</p>
+
+<pre><code>(gdb) disas
+Dump of assembler code for function a:
+0x4005fd &lt;+0&gt;:  push    %rbp            // 이전 frame 을 세이브하고
+0x4005fe &lt;+1&gt;:  mov     %rsp,%rbp       // 새로운 frame 을 셋업하고`
+0x400601 &lt;+4&gt;:  sub     $0x10,%rsp
+0x400605 &lt;+8&gt;:  mov     %rdi,-0x8(%rbp)
+0x400609 &lt;+12&gt;: mov     -0x8(%rbp),%rax
+0x40060d &lt;+16&gt;: mov     %rax,%rdi
+0x400610 &lt;+19&gt;: callq   0x400584 &lt;b&gt;
+0x400615 &lt;+24&gt;: leaveq
+0x400616 &lt;+25&gt;: retq
+
+(gdb) break b
+(gdb) run
+(gdb) break *0x4005f6 // strcpy() 에 브레이크를 건다.
+Breakpoint 2 at 0x4005f6: file off.c, line 8.
+(gdb) cont
+Continuing.
+
+Breakpoint 2, 0x4005f6 in b at off.c:8
+(gdb) p $rbp
+$1 = (void *) 0x7fffffffdd70
+(gdb) x $rbp // %rbp 가 가리키는 메모리에는 상위 스택프레임 %rbp 가 저장되어있다.
+0x7fffffffdd70: 0xffffdd90 // 상위 스택프레임 %rbp 는 0x7fffffffdd90
+0x7fffffffdd74: 0x00007fff
+(gdb) step // strcpy() 수행
+9       }
+(gdb) x $rbp 
+0x7fffffffdd70: 0xffffdd00 // 이제 0x7fffffffdd00 으로 깨졌다. 90 bytes 가 날아갔다. 다운.
+(gdb)
+0x7fffffffdd74: 0x00007fff
+(gdb) x 0x7fffffffdd08 // %rbp + 8 에 return address 가 저장되니까
+0x7fffffffdd08: 0x30303030 // 0x30 이 나오는 것으로 봐서 우리가 %rip 를 컨트롤 할 수 있다.
+(gdb) 
+0x7fffffffdd0c: 0x30303030
+(gdb)
+</code></pre>
+
+<p>return address 에 0x30 이 나오는 것으로 봐서 우리가 %rip 를 컨트롤 할 수 있다.</p>
+
+<h4>결론</h4>
+
+<ul>
+<li>스택에 저장된 return address 까지가 아니더라도, saved %rbp 의 일부만 corrupt 시킬 수 있어도, %rip 를 컨트롤 할 수 있는 경우가 있다. 정도?</li>
+</ul>
+
+
+<h4>참고</h4>
+
+<ul>
+<li><a href="http://seclists.org/bugtraq/1998/Oct/109">The poisoned NUL byte</a></li>
+<li><a href="http://www.intelligentexploit.com/articles/Linux-Off-By-One-Vulnerabilities.pdf">Off-by-One exploitation tutorial</a></li>
+<li><a href="https://www.google.co.kr/webhp?sourceid=chrome-instant&amp;ion=1&amp;espv=2&amp;ie=UTF-8#newwindow=1&amp;q=halvar+flake+Third+generation+exploitation">Third Generation Exploitation by Halvar Flake</a></li>
+<li><a href="http://www.youtube.com/watch?v=ZLQ4x2CQ8fk">YouTube: Black Hat USA 2002 - Third Generation Exploitation</a></li>
+<li><a href="">Modeling the Exploitation and Mitigation of Memory Safety Vulnerabilities, Breakpoint 2012, Matt Miller, MSEC</a></li>
+<li><a href="">Memory Corruption Exploitation in Internet Explorer, Moti Joseph</a></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/11/10/linux-x86-64-shellcode-6/">Linux X86_64 Shellcode 6</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-11-10T22:26:49+09:00'><span class='date'><span class='date-month'>Nov</span> <span class='date-day'>10</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>10:26 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h4>ret2libc</h4>
+
+<p>이제 바로 system() 으로 튀는 경우를 상정해본다.</p>
+
+<h4>참고</h4>
+
+<ul>
+<li><a href="http://seclists.org/bugtraq/1997/Aug/63">Solar Designer: Getting around non-executable stack (and fix)</a></li>
+<li><a href="http://phrack.org/issues/58/4.html">Nergal: Advanced return-into-lib&copy; exploits (PaX case study)</a></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -856,116 +1061,6 @@ public class Main {
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/10/18/sslv3-poodle-attack/">SSLv3 POODLE Attack</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2014-10-18T09:20:32+09:00'><span class='date'><span class='date-month'>Oct</span> <span class='date-day'>18</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>9:20 am</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><ul>
-<li>Adam Langley 의 <a href="https://www.imperialviolet.org/2014/10/14/poodle.html">POODLE Attacks on SSLv3</a></li>
-<li>Matthew Green 의 <a href="http://blog.cryptographyengineering.com/2014/10/attack-of-week-poodle.html">Attack of the week: POODLE</a></li>
-<li>Bodo Möller, Thai Duong, Krzysztof Kotowicz 의 <a href="https://www.openssl.org/~bodo/ssl-poodle.pdf">This POODLE Bites: Exploiting The SSL 3.0 Fallback</a></li>
-</ul>
-
-
-<p>을 읽고 정리해본다.</p>
-
-<h4>Objective</h4>
-
-<ul>
-<li>공격의 목표는 HTTP header 의 cookie 를 읽어서, facebook.com 에 로그인할 수 있는 세션아이디를 알아내는 것이라고 하자.</li>
-</ul>
-
-
-<h4>Assumptions</h4>
-
-<ul>
-<li>Man-in-the-middle 포지션을 가지고 있어야 한다.</li>
-<li>Victim 브라우저에 JavaScript 을 돌릴 수 있어야 한다.</li>
-<li>Fallback 을 시키든 어떻게든 SSLv3 로 다운그레이딩시킬 수 있다고 가정한다. 그리고 block cipher 는 CBC 모드를 쓴다고 가정.</li>
-<li>facebook.com 은 그냥 예일뿐이다. 이 버그를 가지고 있는지 없는지 모른다.</li>
-</ul>
-
-
-<h4>Steps</h4>
-
-<ol>
-<li><p>유저가 이상한 링크를 클릭하거나, 아니면 Man-in-the-middle 포지션을 활용해서 강제로 HTTP redirect 를 보내서</p></li>
-<li><p>www.hacker.com 으로 redirect 시킨다.</p></li>
-<li><p>JavaScript 를 내려보내서 브라우저를 뺑뺑이 돌리는데, facebook.com 을 향해 수천 번의 https open request 를 감행하게 된다.</p></li>
-<li><p><code>GET /a HTTP/1.1 Cookie: ABCDE This_is_content MAC PADDING</code> 이 plaintext 가 될텐데, 이런 request 를 평균 256번 돌려서 cookie 1 글자를 recover 한다.</p></li>
-<li><p>SSLv3 의 Block cipher 로 암호화 블럭을 만들었을때, 마지막이 padding 만으로 이루어지도록 plaintext 의 length 를 조절한다. i.e. 128 bit block cipher 를 쓸 경우, 16 byte 로 떨어지면 null padding 이 붙게 된다. 즉 padding block 이 &lsquo;00 00 00 00 00 00 &hellip; 00 15&rsquo; 되게 plaintext 의 length 를 조절한다. 이로서 ciphertext 의 마지막 바이트를 15 로 통제할 수 있다.</p></li>
-<li><p>Man-in-the-middle 포지션을 활용해서, 통과하는 암호 스트림을 관찰하다가 마지막 padding 블럭을 조작한다. 어떻게 조작하냐면, 암호화된 cookie block 으로 overwrite 한다. 자기 아이디가지고 facebook.com 에 로그인해서, proxy 를 걸고, ciphertext 와 plaintext 를 비교해보면, cookie block 의 offset 정도는 알 수 있을 것이다.</p></li>
-<li><p>서버가 decrypt 에 성공하는지 관찰한다.</p></li>
-<li><p>SSLv3 가 제대로 구현되었다면, 무조건 decrypt 에러를 내는게 맞다. 하지만 (대부분의) SSLv3 구현은 padding length 만 사용하지, padding 값이 무엇인지는 상관안한다고 한다. 여기서 문제가 시작되는 것이다.</p></li>
-<li><p>서버가 SSL 에러를 안내면, 조작한 마지막 블럭의 마지막 바이트가 15 로 decrypt 되어 SSL error 가 나지 않은 경우이니, 마지막 바이트를 decrypt (and xor) 한 것이 15 라는 것을 알게되고.</p></li>
-<li><p>(Decrypted) Padding size byte > 15 면 SSL_PADDING_LENGTH_ERROR (or whatever) 가 날 것이고, padding size byte &lt; 15 면 padding 앞의 MAC 이 뒤로 밀리면서 SSL_MAC_ERROR (or whatever) 가 날 것이다.</p></li>
-<li><p>만약 SSL 에러가 나면, JavaScript 를 이용해서, 다시 https request 를 돌리고, SSL symmetric cipher 의 키는 random 으로 만들어지니, 언젠가는 15 와 맞아떨어지겠지 하면서, 서버가 decrypt 에 성공할때까지 돌린다.</p></li>
-<li><p>만약 서버가 decrypt 에 성공하면, CBC 모드의 특성상, decrypt(cookie 의 마지막 바이트) xor (끝에서 두번째 블럭의 ciphertext) == 15 란 이야기고, <code>끝에서 두번째 블럭의 ciphertext</code>는 네트워크에서 관찰하여 알 수 있으니, cookie 의 마지막 바이트는 recover 가능하다.</p></li>
-<li><p><code>GET /a HTTP/1.1 Cookie: ABCDE This_is_content MAC PADDING</code> -> <code>GET /ab HTTP/1.1 Cookie: ABCDE This_is_conten MAC PADDING</code> 와 같이 URI 는 <code>/ab</code> 로 1 글자 늘이고, HTTP content 부분은 1 글자 줄여서 Cookie: ABCDE 를 1 byte 오른쪽으로 shift 한다. 이제 <code>E</code> 는 recover 했고, block boundary 에 <code>...ABCD</code> 가 걸려서 D 가 끝이라고 가정하자. 전체 length 는 변하지 않았기 때문에, 원래가 마지막이 padding only 였다면, 이렇게 shift 한 것도 padding only 가 된다.</p></li>
-<li><p>이제 4. 로 돌아가서 다시 한글자를 브포한다.</p></li>
-</ol>
-
-
-<p>1 글자 recover 하는데 256 번 브포를 한다고 치면, cookie length * 256 번의 https negotiation 이 필요한 작업.</p>
-
-<h4>Moral of the story</h4>
-
-<p>SSLv3 가 padding length 만 체크하지, padding 의 내용을 확인하지 않아서 생기는 문제.</p>
-
-<p>Router 등을 장악해서 Man-in-the-middle 포지션을 확보했으면, 다른 더 좋은 공격 방법도 많을 것이라서, 굳이&hellip; 이렇게까지&hellip; 라는 생각은 든다.</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/09/22/android-sop-bypass/">Android SOP Bypass</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2014-09-22T09:40:47+09:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>22</span><span class='date-suffix'>nd</span>, <span class='date-year'>2014</span></span> <span class='time'>9:40 am</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content">
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/14">&larr; Older</a>
@@ -983,6 +1078,14 @@ public class Main {
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/08/24/rc4-weakness/">RC4 Weakness</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/07/06/cve-2016-2434/">CVE-2016-2434</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/07/02/aes-in-python/">AES in Python</a>
       </li>
     
@@ -992,14 +1095,6 @@ public class Main {
     
       <li class="post">
         <a href="/blog/2016/06/17/cve-2016-0728/">CVE-2016-0728</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/06/14/the-poisoned-nul-byte/">The Poisoned NUL Byte</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/06/14/plaidctf-ctf-2015-plaiddb/">PlaidCTF CTF 2015: PlaidDB</a>
       </li>
     
   </ul>

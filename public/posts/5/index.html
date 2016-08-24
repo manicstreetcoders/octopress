@@ -9,16 +9,7 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="REPNZ SCAS Assembly Instruction Specifics 스택오버플로우에서 strlen(s) 의 idiom 을 보게되었다. REPNE SCASB 1
-2
-3
-4
-5
-6
-7
-8
-9
-while (ecx != 0) { ZF = (al == *(BYTE *) &hellip;">
+  <meta name="description" content="USENIX 2015 에 발표된, Type Casting Verification: Stopping an Emerging Attack Vector. C++ Bad-casting Demystified 논문에 나온 코드. Downcasting 을 잘못해서 memory &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -74,6 +65,218 @@ while (ecx != 0) { ZF = (al == *(BYTE *) &hellip;">
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/08/20/type-casting-verification-stopping-an-emerging-attack-vector/">Type Casting Verification: Stopping an Emerging Attack Vector</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-08-20T17:23:58+09:00'><span class='date'><span class='date-month'>Aug</span> <span class='date-day'>20</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>5:23 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>USENIX 2015 에 발표된, Type Casting Verification: Stopping an Emerging Attack Vector.</p>
+
+<h4>C++ Bad-casting Demystified</h4>
+
+<p>논문에 나온 코드. Downcasting 을 잘못해서 memory 에러가 나오는 경우를 예로 든다.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>class SVGElement: public Element { ... };
+</span><span class='line'>
+</span><span class='line'>Element *pDom = new Element();
+</span><span class='line'>SVGElement *pCanvas = new SVGElement();
+</span><span class='line'>
+</span><span class='line'>// valid upcast
+</span><span class='line'>Element *pEle = static_cast&lt;Element*&gt;(pCanvas);
+</span><span class='line'>
+</span><span class='line'>// valid downcast
+</span><span class='line'>SVGElement *pCanvasAgain = static_cast&lt;SVGElement*&gt;(pEle);
+</span><span class='line'>
+</span><span class='line'>// invlaid downcast
+</span><span class='line'>SVGElement *p = static_cast&lt;SVGElement*&gt;(pDom);
+</span><span class='line'>
+</span><span class='line'>// leads to memory corruption
+</span><span class='line'>p-&gt;m_className = "my-canvas";
+</span><span class='line'>
+</span><span class='line'>// invalid downcast with dynamic_cast, but no corruption
+</span><span class='line'>SVGElement *p = dynamic_cast&lt;SVGElement*&gt;(pDom);
+</span><span class='line'>if (p) {
+</span><span class='line'>    p-&gt;m_className = "my-canvas";
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>Bad-casting: CVE-2013-0912</h4>
+
+<p>논문에서는 Pwn2Own 2013 에서 Chrome 을 깨는데 사용되었던 CVE-2013-0912 를 예로.</p>
+
+<ul>
+<li>HTML5 에서, SVG 이미지는 svg 태그를 사용해 HTML 에 Embed 될 수 있다.</li>
+<li>svg 는 SVGElement class 로 구현된다.</li>
+<li>SVGElement 는 Element 의 child class 이다.</li>
+<li>Unknown tag 는 HTMLUnknownElement 로 구현.</li>
+<li>만약, HTMLUnknownElement 가 Element 로 upcasting 된다음에, SVGElement 로 downcasting 된다면? (SVG rendering 을 위해서)</li>
+<li>SVGElement 오브젝 사이즈는 160 bytes > HTMLUnknownElement 오브젝트의 사이즈는 96 bytes.</li>
+<li>HTMLUnknownElement 로 alloc 받아서, SVGElement 로 casting 해서 쓰면, 97~160 bytes 를 더 addressing 할 수 있다.</li>
+<li>이걸 활용해서, 가까이 있는 오브젝의 vtable 포인터를 오염시켜서 control-flow 하이재킹을 수행.</li>
+<li>HTMLUnknownElement 는 sibling 이 56 개 이상. Element class 는 parent 가 10 개 이상.</li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/08/05/setting-up-l2tp-vpn/">Setting Up L2TP VPN</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-08-05T16:25:16+09:00'><span class='date'><span class='date-month'>Aug</span> <span class='date-day'>5</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>4:25 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><ul>
+<li><p><a href="https://gist.github.com/hwdsl2/9030462">IPsec L2TP VPN Auto Install Script for Ubuntu 14.04 &amp; 12.04 and Debian 8 &amp; 7</a></p></li>
+<li><p><a href="https://wordpress.update.sh/archives/16">PPTP VPN 서버</a></p></li>
+<li><a href="http://thuannvn.blogspot.kr/2009/03/how-to-setup-poptop-pptpd-vpn-server-on.html">How to setup Poptop (pptpd) VPN server on Linux</a></li>
+<li><a href="https://kldp.org/node/73417">pptpd vpn 서버접속후 특정 web 사이트가 안여리는 증상 도움 부탁 드립니다.</a></li>
+<li><a href="http://guni.tistory.com/326">CentOS에서 PPTP 및 L2TP/IPSec 프로토콜을 이용한 VPN 서버 구축하기</a></li>
+<li><a href="http://www.myhowto.org/java/81-intercepting-and-decrypting-ssl-communications-between-android-phone-and-3rd-party-server/">Intercepting and decrypting SSL communications between Android phone and 3rd party server</a></li>
+<li><a href="http://security.stackexchange.com/questions/33374/whats-an-easy-way-to-perform-a-man-in-the-middle-attack-on-ssl">What&rsquo;s an easy way to perform a man-in-the-middle attack on SSL?</a></li>
+</ul>
+
+
+<h4>Forging Certificates (by blukat29)</h4>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ openssl genrsa -des3 -out ca.key 4096
+</span><span class='line'>$ openssl req -new -x509 -days 365 -key ca.key -out ca.crt
+</span><span class='line'>$ openssl genrsa -des3 -out server.key 4096
+</span><span class='line'>$ openssl req -new -key server.key -out server.csr
+</span><span class='line'>$ openssl x509 -req -days 365 -in server.csr -CA ca.crt -CAkey ca.key -set_serial 01 -out server.crt</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>socat</h4>
+
+<p>socat 옵션.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>root@zomo:~# socat -v OPENSSL-LISTEN:4443,reuseaddr,verify=0,cert=./server.crt,key=./server.kecafile=./ca.crt,debug,fork OPENSSL:api.xxx.com:443,verify=0</span></code></pre></td></tr></table></div></figure>
+
+
+<p>nat 쪽 iptable</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>root@zomo:~# ip -t nat -L
+</span><span class='line'>Chain PREROUTING (policy ACCEPT)
+</span><span class='line'>target     prot opt source               destination
+</span><span class='line'>REDIRECT   tcp  --  anywhere             anywhere             tcp dpt:https redir ports 4443
+</span><span class='line'>
+</span><span class='line'>Chain INPUT (policy ACCEPT)
+</span><span class='line'>target     prot opt source               destination
+</span><span class='line'>
+</span><span class='line'>Chain OUTPUT (policy ACCEPT)
+</span><span class='line'>target     prot opt source               destination
+</span><span class='line'>
+</span><span class='line'>Chain POSTROUTING (policy ACCEPT)
+</span><span class='line'>target     prot opt source               destination
+</span><span class='line'>MASQUERADE  all  --  anywhere             anywhere</span></code></pre></td></tr></table></div></figure>
+
+
+<p>iptable</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>root@zomo:~# ip -L
+</span><span class='line'>Chain INPUT (policy ACCEPT)
+</span><span class='line'>target     prot opt source               destination
+</span><span class='line'>DROP       all  --  43.0.0.0/8           anywhere
+</span><span class='line'>
+</span><span class='line'>Chain FORWARD (policy ACCEPT)
+</span><span class='line'>target     prot opt source               destination
+</span><span class='line'>
+</span><span class='line'>Chain OUTPUT (policy ACCEPT)
+</span><span class='line'>target     prot opt source               destination</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1754,116 +1957,6 @@ while (ecx != 0) { ZF = (al == *(BYTE *) &hellip;">
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/07/17/significant-flash-exploit-mitigations-are-live-in-v18-dot-0-0-dot-209/">Significant Flash Exploit Mitigations Are Live in v18.0.0.209</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2015-07-17T15:38:05+09:00'><span class='date'><span class='date-month'>Jul</span> <span class='date-day'>17</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>3:38 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Project Zero 의 Flash mitigation 에 관한 글을 요약 정리해본다.</p>
-
-<p>이번에 버전업된 18.0.0.209 의 경우.</p>
-
-<p><a href="http://googleprojectzero.blogspot.kr/2015/07/significant-flash-exploit-mitigations_16.html">Significant Flash exploit mitigations are live v18.0.0.209</a></p>
-
-<h4>최근의 Flash exploit 경향</h4>
-
-<p>heap 에서 앞쪽의 버퍼를 overflow 시켜서, 뒤쪽에 위치한 <code>Vector.&lt;uint&gt;</code> 를 overwrite 한다. <code>Vector.&lt;uint&gt;</code> 의 앞 4 바이트는 <code>length</code> 이다. 이 <code>length</code> 를 무지하게 큰 수로 만들어서 메모리 대부분을 read/write 할 수 있는 list 를 만든다.</p>
-
-<p>또는 use-after-free 를 이용해서 <code>Vector.&lt;uint&gt;</code> 의 <code>length</code> 를 overwrite 한다. ByteArray 로 heap chunk 를 pointing 하게 셋업하고, free 시키고 <code>Vector.&lt;uint&gt;</code> 를 그 자리에 alloc 하고, 앞서 만든 ByteArray pointer 를 사용해 memory write 를 만들어낸다. 원래 heap chunk 는 free 되버리고, 이상한 녀석이 그 자리에 들어와있는데, memory write 가 일어나니, <code>Vector.&lt;uint&gt;</code> 의 <code>length</code> 에 write 가 일어나버리고, 역시 마찬가지로 <code>length</code> 가 무지하게 커져버린 전천후 list 가 만들어진다.</p>
-
-<p>최근 공개된 Hacking Team 의 Flash 0day 들도 비슷한 use-after-free 방식.</p>
-
-<h4>Mitigation: <code>Vector.&lt;uint&gt;</code> buffer heap partitioning</h4>
-
-<p>Adobe Flash 18.0.0.209 에서는 Heap partitioning 을 도입했다. <code>Vector.&lt;uint&gt;</code> 가 alloc 되는 heap 을 별도로 마련한것.</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>_bigVec = new Vector.&lt;uint&gt;;
-</span><span class='line'>_bigVec.length = ((512 * 1024 * 1024) - 500) / 4;
-</span><span class='line'>_bigVec[0] = 0xf2f2f2f2;
-</span><span class='line'>_bigArr = new ByteArray();
-</span><span class='line'>_bigArr.length = 512 * 1024 * 1024;
-</span><span class='line'>_bigArr[0] = 0xf1;</span></code></pre></td></tr></table></div></figure>
-
-
-<p>을 해서, 프로세스 메모리 맵을 보면 <code>_bigVec</code> 과 <code>_bigArr</code> 는 꽤 떨어진 영역에 위치하게 된다.</p>
-
-<h4>Mitigations: stronger randomization for the Flash heap</h4>
-
-<h4>Mitigations: <code>Vector.&lt;*&gt;</code> length validation</h4>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/07/17/http-strict-transport-security/">HTTP Strict Transport Security</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2015-07-17T15:04:07+09:00'><span class='date'><span class='date-month'>Jul</span> <span class='date-day'>17</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>3:04 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><h4>HTTP Strict Transport Security</h4>
-
-<p>HSTS 를 안쓰면, HTTP -> 301 Moved Permanently -> HTTPS 로 바꿔야한다.</p>
-
-<p>HSTS 를 쓰면, HTTP -> 307 Internal Redirect -> HTTPS 로 간다.</p>
-
-<p>HSTS 의 경우 Chrome 이 request 조차 보내지 않는다.</p>
-
-<p><code>Strict-Transport-Security: max-age=31536000; includeSubdomains; preload</code> 와 같은 헤더때문인데.</p>
-
-<p>웹사이트가 HSTS 인지 아닌지 처음엔 모르기때문에, 첫 커넥션까지 HTTPS 로 가게 하려면,</p>
-
-<p><a href="https://hstspreload.appspot.com">https://hstspreload.appspot.com</a> 에 등록해야한다.</p>
-
-<h4>HTTP Public Key Pinning</h4>
-
-<p>HTTP Public Key Pinning 의 경우도 중요한 기술.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/6">&larr; Older</a>
@@ -1881,6 +1974,14 @@ while (ecx != 0) { ZF = (al == *(BYTE *) &hellip;">
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/08/24/rc4-weakness/">RC4 Weakness</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/07/06/cve-2016-2434/">CVE-2016-2434</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/07/02/aes-in-python/">AES in Python</a>
       </li>
     
@@ -1890,14 +1991,6 @@ while (ecx != 0) { ZF = (al == *(BYTE *) &hellip;">
     
       <li class="post">
         <a href="/blog/2016/06/17/cve-2016-0728/">CVE-2016-0728</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/06/14/the-poisoned-nul-byte/">The Poisoned NUL Byte</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/06/14/plaidctf-ctf-2015-plaiddb/">PlaidCTF CTF 2015: PlaidDB</a>
       </li>
     
   </ul>

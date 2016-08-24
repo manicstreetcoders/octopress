@@ -9,7 +9,7 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="Bits, Please! 블로그에 올라온 Unlocking the Motorola Bootloader 를 읽어보았다. 모토로라 휴대폰의 부트체인은, PBL (Primary Boot Loader) -> SBL1 (Secondary Boot Loader) -> SBL2 &hellip;">
+  <meta name="description" content="shellphish team 에서 github 에 공개한 Educational Heap Exploitation 을 정리한다. Understanding glibc malloc first_fit.c first_fit.c malloc() allocator 의 &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -65,6 +65,221 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2016/02/11/how2heap/">How2heap</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2016-02-11T17:45:34+09:00'><span class='date'><span class='date-month'>Feb</span> <span class='date-day'>11</span><span class='date-suffix'>th</span>, <span class='date-year'>2016</span></span> <span class='time'>5:45 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>shellphish team 에서 github 에 공개한 <a href="https://github.com/shellphish/how2heap">Educational Heap Exploitation</a> 을 정리한다.</p>
+
+<ul>
+<li><a href="https://sploitfun.wordpress.com/2015/02/10/understanding-glibc-malloc/">Understanding glibc malloc</a></li>
+</ul>
+
+
+<h3>first_fit.c</h3>
+
+<p><a href="https://github.com/shellphish/how2heap/blob/master/first_fit.c">first_fit.c</a></p>
+
+<p>malloc() allocator 의 behavior 때문에 생기는 use after free 상황을 설명하기 위한 예제.</p>
+
+<p>malloc() 후에, free() 하고 다시 malloc() 을 했더니, 두 개의 포인터가 동일한 위치를 가리킨다. 편의상 포인터를 A,B 라고 하자. A 는 free 된 포인터, B 는 legitimate 한 포인터. B 를 통해 메모리 내용을 조작한다음에 A 가 사용되면 A object 의 context 에서 메모리내용이 해석되기때문에, 의도치않은 코드가 수행될 수 있다.</p>
+
+<h3>unsafe_unlink.c</h3>
+
+<p><a href="https://github.com/shellphish/how2heap/blob/master/unsafe_unlink.c">unsafe_unlink.c</a></p>
+
+<h3>house_of_spirit.c</h3>
+
+<p><a href="https://github.com/shellphish/how2heap/blob/master/house_of_spirit.c">house of spirit</a></p>
+
+<p>House of spirit 공격을 설명하기 위한 예제.</p>
+
+<p>House of spirit 공격을 요약하면.</p>
+
+<ul>
+<li>House of spirit 공격은 다른 heap 공격과는 달리, 메타데이터를 overwrite 하는 것이 목적이 아니다.</li>
+<li>malloc() 에서 return 되는 address 를 컨트롤 할 수 있다.</li>
+<li><code>p = malloc(...); memcpy(p, user_supplied_data, 128);</code> 에서 p 의 값을 컨트롤 할 수 있다면, code execution 은 어렵지 않다. 임의의 주소에 임의의 값을 쓸 수 있는 primitive 를 얻게 되는 셈이니.</li>
+<li>p 를 컨트롤하는 방법은, 가짜 chunk 주소를 fastbin 에 밀어넣어서, 다음 malloc 때 저 chunk 가 리턴되게 하는 것.</li>
+<li>가짜 chunk 주소를 fastbin 에 밀어넣는 방법은, free() 를 통해서.</li>
+<li>정상적으로 malloc() 을 통해서 받아온 pointer <code>p</code> 를 free() 의 인자로 주는 것이 아니라, 공격하고 싶은 메모리 주소를 fastbin 에 밀어넣기 위한 조작된 데이터를 free() 의 인자로 넘긴다.</li>
+<li>즉 <code>free(a); p = malloc(128); memcpy(p, user_supplied_data, 128);</code> 라는 시퀀스를 공격하는 것이다.</li>
+</ul>
+
+
+<p>즉 요약하면, <code>dlmalloc</code> 이나, <code>glmalloc</code> 등이 OS 에서 <code>sbrk()</code> 나 <code>mmap()</code> 으로 받아온 메모리가 아니라, 임의의 메모리가 malloc() 의 리턴값으로 떨어지게 만드는 공격 방법. 이를 레버리지해서 임의의 주소에 원하는 값을 쓰는 식으로 발전한다.</p>
+
+<ul>
+<li><a href="https://gbmaster.wordpress.com/2015/07/21/x86-exploitation-101-house-of-spirit-friendly-stack-overflow/">GB_MASTER&rsquo;s /dev/null</a></li>
+</ul>
+
+
+<p>blackngel &amp; gb_master 의 vuln.c 를 들여다봤다.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>#include &lt;stdio.h&gt;
+</span><span class='line'>#include &lt;string.h&gt;
+</span><span class='line'>#include &lt;stdlib.h&gt;
+</span><span class='line'>
+</span><span class='line'>void fvuln(char *str1, int age)
+</span><span class='line'>{
+</span><span class='line'>  char *ptr1, name[32];
+</span><span class='line'>  int local_age;
+</span><span class='line'>  char *ptr2;
+</span><span class='line'>
+</span><span class='line'>  local_age = age;
+</span><span class='line'>
+</span><span class='line'>  ptr1 = (char *) malloc(256);
+</span><span class='line'>  printf("PTR1 = [ %p ]\n", ptr1);
+</span><span class='line'>  strcpy(name, str1); // &lt;----- (1)
+</span><span class='line'>  printf("PTR1 = [ %p ]\n", ptr1);
+</span><span class='line'>  free(ptr1); // &lt;----- (2)
+</span><span class='line'>
+</span><span class='line'>  ptr2 = (char *) malloc(40); // &lt;----- (3)
+</span><span class='line'>  snprintf(ptr2, 40-1, "%s is %d years old", name, local_age); // &lt;----- (4)
+</span><span class='line'>  printf("%s\n", ptr2);
+</span><span class='line'>}
+</span><span class='line'>int main(int argc, char *argv[])
+</span><span class='line'>{
+</span><span class='line'>  int pad[10] = { 0,0,0,0,0,0,0,10,0,0};
+</span><span class='line'>  if (argc == 3)
+</span><span class='line'>      fvuln(argv[1], atoi(argv[2]));
+</span><span class='line'>  return 0;
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Malloc Des-Maleficarum 의 흐름을 정리하면,</p>
+
+<ul>
+<li>(1) 에서 ptr1 에 대한 overwrite 가 일어난다.</li>
+<li>(2) 에서 잘못된 주소가 fastbin 에 들어간다.</li>
+<li>(3) 에서 (2) 의 주소가 return 된다.</li>
+<li>(4) 에서 잘못된 주소에 잘못된 데이터가 써진다.</li>
+</ul>
+
+
+<p>이걸 exploit 하기 위해, 저자는 ASLR off, noexec=off, GCC stack protection off 를 해주었다고. 그리고, stack 의 return address 를 overwrite 했음.</p>
+
+<p>우선 ptr1 overwrite 를 테스트하기 위해,</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ ./hos `perl -e 'print "A"x32 . "BBBB" . "CCCC"'` 20
+</span><span class='line'>PTR1 = [ 0x804b008 ]
+</span><span class='line'>PTR1 = [ 0x43434343 ]
+</span><span class='line'>Segmentation fault</span></code></pre></td></tr></table></div></figure>
+
+
+<p>메모리 주소들을 떠보면, (저자는 PTR2 가 왜 저기 끼어들어갔는지 모르겠다고, gcc 탓을 한다)</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>RET      -&gt; 0xFFFFCF2C
+</span><span class='line'>EBP       -&gt; 0xFFFFCF28
+</span><span class='line'>local_age -&gt; 0xFFFFCF24 (overwritten with a NUL)
+</span><span class='line'>PTR1      -&gt; 0xFFFFCF20 [0x43434343]에 위치
+</span><span class='line'>PTR2      -&gt; 0xFFFFCF1C [0x42424242]
+</span><span class='line'>name      -&gt; 0xFFFFCEFC</span></code></pre></td></tr></table></div></figure>
+
+
+<p>즉, name[32] 가 overflow 나서, ptr1 &amp; ptr2 가 overwrite 된 상황.</p>
+
+<ul>
+<li>chunk 주소를 0xffffCF20 으로 하고, ptr1 을 0xffffCF28 로 (+8) overwrite 하면</li>
+<li>chunk->size 의 주소는 0xffffCF24 가 되고, 여기를 0x30 으로 overwrite 시켜야함.</li>
+<li>_int_free() 의 fastbin check code 를 통과하기 위해서는, next chunk (chunk addr + size) 의 size 도 세팅해줘야함. (나중에 확인해보자)</li>
+<li>두번째 malloc() 에서는 0xffffCF28 이 돌아오게 될 것임</li>
+<li><code>snprintf(0xffffCF28, 39, "%s ...", name, ...)</code> 이 되니까, RET 를 overwrite 하기 위해서는 name[4],name[5],name[6],name[7] 에 원하는 return 주소가 담겨야함. 즉 RET 를 0xffffCEFC (name 이 위치한 곳) 로 overwrite. 그리고 이 주소에 shellcode 도입부가 위치함.</li>
+<li>쉘코드는 &ldquo;4 bytes JMP 코드 + 4 byte the new RET value + shellcode&rdquo; 로 구성.</li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2016/02/11/racing-midi-messages-in-chrome/">Racing MIDI Messages in Chrome</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2016-02-11T17:36:37+09:00'><span class='date'><span class='date-month'>Feb</span> <span class='date-day'>11</span><span class='date-suffix'>th</span>, <span class='date-year'>2016</span></span> <span class='time'>5:36 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>PZ 블로그에 새로 올라온 글, <a href="http://googleprojectzero.blogspot.kr/2016/02/racing-midi-messages-in-chrome.html">Racing MIDI messages in Chrome</a>를 읽었다. 정리해본다.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -475,128 +690,6 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/12/23/on-the-juniper-backdoor/">On the Juniper Backdoor</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2015-12-23T16:09:25+09:00'><span class='date'><span class='date-month'>Dec</span> <span class='date-day'>23</span><span class='date-suffix'>rd</span>, <span class='date-year'>2015</span></span> <span class='time'>4:09 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Matthew Green 블로그에 올라온 Juniper 장비 백도어에 대해 정리해본다.</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/12/07/trustnone/">TRUSTNONE</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2015-12-07T17:14:52+09:00'><span class='date'><span class='date-month'>Dec</span> <span class='date-day'>7</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>5:14 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Sean Beaupre 씨가 쓴 글, <a href="http://theroot.ninja/disclosures/TRUSTNONE_1.0-11282015.pdf">TRUSTNONE</a> 을 읽고 정리해본다.</p>
-
-<p>스냅드래곤 805 트러스트존 커널의 메모리/레지스터를 읽고 쓸 수 있다.</p>
-
-<h4>백그라운드</h4>
-
-<p><code>tzbsp_smmu_fault_regs_dump</code> 라는 시스템콜에 버그가 있어서.</p>
-
-<ol>
-<li>4 개의 인자를 기대하는데.</li>
-<li><code>R4-R8</code> 과 링크 레지스터를 스택에 저장하고</li>
-<li><code>R0</code>,<code>R1</code>,<code>R2</code>,<code>R3</code> 에 담긴 arg0, arg1, arg2, arg3 를 <code>R5-R8</code> 에 옮기고. 이때 <code>adds</code> 로 <code>R2</code> 가 0 인지 아닌지를 체크하고</li>
-<li><code>BEQ</code> 로 <code>R2 != 0</code> 이면 <code>is_debugging_disabled</code> 체크하는 루틴으로 뛰고</li>
-<li><code>CBZ</code> 로, <code>is_debugging_disabled</code> 가 1 이면 <code>loc_FE85881E</code> 로 뛰고</li>
-<li><code>do_regs_dump</code> 를 호출하는데.</li>
-<li><code>do_regs_dump</code> 에서 <code>validate_input</code> 을 부른다</li>
-<li><code>validate_input</code> 에서 <code>do_sloppy_signed_comparison</code> 을 부르는데</li>
-<li><code>do_sloppy_signed_comparison</code> 은 <code>CMP R0, #7</code> <code>BGE loc_FE863164</code> 로 흘러간다</li>
-<li>BGE 일 경우, #0 을 돌려주고, 아니면 1 을 돌려준다</li>
-<li>그런데 THUMB BGE 명령어는 signed comparison 이다</li>
-<li>R0 가 0~6 이면 당연히 #1 을 돌려주지만, minus 일경우에도 #1 을 돌려준다</li>
-<li>minus 값으로 체크를 통과하는 듯</li>
-<li>validate_something_else 가 불리는데</li>
-</ol>
-
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>R0 = arg0;
-</span><span class='line'>R1 = arg1;
-</span><span class='line'>R0 = R0 * 0x11;
-</span><span class='line'>uint *R2 = (uint *)0xFE8282CC; /* this is in a data segment in TrustZone kernel */
-</span><span class='line'>R2 = *R2; /* in the TrustZone image I'm testing with, this value = 0xFE827B58 */
-</span><span class='line'>R0 = 4 + (R0 * 0x10);
-</span><span class='line'>R0 = *(R0 + R2);
-</span><span class='line'>if (R0 &lt; R1) return 0; /* fail - we need to return 1, thus R0 needs to be &gt; R1 */</span></code></pre></td></tr></table></div></figure>
-
-
-<p><code>do_sloppy_signed_comparison</code> 에서 <code>R0</code> 가 0~6 사이의 값일 것을 검사했지만, 사실 0x80000000 ~ 0xFFFFFFFF 사이의 음수라도 검사를 통과할 수 있었다. R0 가 음수일 경우를 가정해보자. 예를 들어, 0x88888888 이라면?</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>R0 = arg0 = 0x88888888;
-</span><span class='line'>R1 = arg1;
-</span><span class='line'>R0 = R0 * 0x11; /* 0x11111108 */
-</span><span class='line'>R2 = 0xFE8282CC;
-</span><span class='line'>R2 = *(uint *)R2; /* 0xFE827B58 */
-</span><span class='line'>R0 = 4 + (R0 * 0x10); /* 0x11111084 */
-</span><span class='line'>R0 = *(R0 + R2); /* R0 now is loaded with the data contained at physical address 0x11111084 + 0xFE827B58 = 0x0F938BDC /* &lt;&lt; This memory location is NOT secure, we can control it! */ 
-</span><span class='line'>if (R0 &lt; R1) return 0;</span></code></pre></td></tr></table></div></figure>
-
-
-<p>validate_input 에서 돌아오면, 비슷한 계산을 또 하는데.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/4">&larr; Older</a>
@@ -614,6 +707,14 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/08/24/rc4-weakness/">RC4 Weakness</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/07/06/cve-2016-2434/">CVE-2016-2434</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/07/02/aes-in-python/">AES in Python</a>
       </li>
     
@@ -623,14 +724,6 @@
     
       <li class="post">
         <a href="/blog/2016/06/17/cve-2016-0728/">CVE-2016-0728</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/06/14/the-poisoned-nul-byte/">The Poisoned NUL Byte</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/06/14/plaidctf-ctf-2015-plaiddb/">PlaidCTF CTF 2015: PlaidDB</a>
       </li>
     
   </ul>

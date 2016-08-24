@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>http://zomo.heroku.com/blog/2016/08/24/rc4-weakness/</loc>
+    <lastmod>2016-08-24T10:02:02+09:00</lastmod>
+  </url>
+  <url>
+    <loc>http://zomo.heroku.com/blog/2016/07/06/cve-2016-2434/</loc>
+    <lastmod>2016-07-06T09:32:33+09:00</lastmod>
+  </url>
+  <url>
     <loc>http://zomo.heroku.com/blog/2016/07/02/aes-in-python/</loc>
     <lastmod>2016-07-02T11:51:42+09:00</lastmod>
   </url>

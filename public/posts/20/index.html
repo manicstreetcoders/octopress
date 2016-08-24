@@ -9,7 +9,9 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="Breadth first search. 우선 BFS. class Vertex: def __init__(self, i): self.index = i self.adjacency = [] self.visited = False self.distance = 0 def &hellip;">
+  <meta name="description" content="Problem 도둑이 크기 W 의 자루를 들고 남의 집에 들어가, 자루에 물건을 담아 훔쳐가려고 한다.
+집에 물건은 n 개가 있고, 각각 다른 크기를 가지고 있다. 편의상 물건들의 크기를 더해서
+전체 크기를 계산할 수 있다고 가정할때, 어떻게 집어넣어야 값어치가 가장 &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -65,6 +67,334 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/09/26/the-knapsack-problem/">The Knapsack Problem</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-09-26T11:04:00+09:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>26</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>11:04 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h4>Problem</h4>
+
+<p>도둑이 크기 W 의 자루를 들고 남의 집에 들어가, 자루에 물건을 담아 훔쳐가려고 한다.
+집에 물건은 n 개가 있고, 각각 다른 크기를 가지고 있다. 편의상 물건들의 크기를 더해서
+전체 크기를 계산할 수 있다고 가정할때, 어떻게 집어넣어야 값어치가 가장 크겠는가?</p>
+
+<h4>Problem Definition</h4>
+
+<p>Input: n items. Each has a value:</p>
+
+<ul>
+<li>value v_i (non-negative)</li>
+<li>size w_i (non-negative and integer)</li>
+<li>capacity W (a non-negative integer)</li>
+</ul>
+
+
+<p>Output: a subset S of {1,2,3,&hellip;,n} that maximize sum v_i subject to sum w_i &lt;= W</p>
+
+<h4>Developing a Dynamic Programming Algorithm</h4>
+
+<p>첫번째, 두번째, &hellip;, n 번째 아이템이 있을때,</p>
+
+<p>m[i,w] 를 다음과 같이 정의한다.</p>
+
+<ol>
+<li>0 번째부터 i 번째까지의 아이템을 집어 넣을 수 있다.</li>
+<li>집어넣은 아이템 전체 weight 는 w 보다 작거나 같아야 한다.</li>
+<li>이때 취할 수 있는 최대 value 가 m[i,w] 라고 하자.</li>
+</ol>
+
+
+<p>그러면 원래 문제는 m[n,W] 가 된다.</p>
+
+<p>sub-problem 으로는 m[1,W] 를 생각해보자. 첫번째 아이템만만 사용할 수 있는 경우인데,
+해답은 굉장히 간단하다. 첫번째 아이템의 크기가 W 보다 작다면 무조건 취하고, 크다면 넣지 못한다.
+각각의 경우, 자루의 값어치는 v_1 또는 0 이 된다.</p>
+
+<p>m[1,W] 에서 문제 크기를 조금 위로 올려서 sub-problem m[n-1,W] 를 생각해보자.
+m[n-1,W] -> m[n,W] 로 확장될 때, n 번째 아이템을 취해야 하는가? 라는 문제가 되는데.
+우선, n 번째 아이템이 너무 커서 고려할 가치가 없는 경우가 있을 수 있다.
+<code>weight of n &gt; W</code> 인 경우 => <code>m[n,W] = m[n-1,W]</code> 가 된다.
+아니면, n 번째 아이템을 넣었을 경우와 뺐을 경우를 비교해서 큰 쪽을 선택하면 된다.
+m[n-1,w] 가 뺐을 경우. m[n-1,w-w_n] + v_n 이 집어 넣었을 경우가 된다.</p>
+
+<ul>
+<li>m[i,w] = m[i-1,w] if w_i > w (the new item is more than the current weight limit)</li>
+<li>m[i,w] = max ( m[i-1,w] , m[i-1,w-w_i] + v_i) if w_i &lt;= w</li>
+</ul>
+
+
+<p>memoization 과 sub-problem 을 사용해서.</p>
+
+<pre><code>for w from 0 to W do
+    m[0,w] = 0
+end
+for i from 1 to n do // enlarge available items
+    for j from 0 to W do
+        if j &gt;= w[i] then
+            m[i,j] = max( m[i-1,j], m[i-1,j-w[i]] + v[i] )
+        else
+            m[i,j] = m[i-1,j]
+        end
+    end
+end
+</code></pre>
+
+<p>그런데 증명해야 할 부분이 있다.</p>
+
+<blockquote><p>아이템 n 이 최적해 S 에 들어있다고 가정하자. 그렇다면, S - {n} 은
+first (n-1) 아이템들과 capacity W - w_n 의 문제의 최적해라는 것을 증명해야 한다.</p></blockquote>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/09/24/sok-eternal-war-in-memory/">SoK: Eternal War in Memory</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2013-09-24T17:54:00+09:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>24</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>5:54 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Browser fingerprinting, JavaScript obfuscation, IE exploit PoC 들은 어느정도 파악되었으니,
+Windows system programming 쪽으로 이동한다. 최종 목표는 DbD 와 APT 를 수행할 수 있는
+툴셋 확보.</p>
+
+<p>다음 단계 일들은 API Hooking, DLL Injection 분야.</p>
+
+<p>그 전에 메모리 관련 exploit 의 역사를 정리해보기로 하였다.</p>
+
+<p>정리가 잘 되어 있는 SoK: Eternal War in Memory 라는 논문을 시작점 삼아 진행한다.</p>
+
+<ul>
+<li>James P. Anderson. Computer Security Technology Planning Study, 1972</li>
+<li>AlephOne, Phrack article &ldquo;Smashing the Stack for Fun and Profit&rdquo;</li>
+<li>return-into-libc</li>
+<li>advanced return-into-libc</li>
+<li>jump oriented programming</li>
+<li>return oriented programming</li>
+<li>integer overflow</li>
+<li>use-after-free</li>
+<li>heap overflow</li>
+<li>vtable</li>
+<li>heap spraying</li>
+<li>stack protection</li>
+<li>heap protection</li>
+<li>SafeSEH</li>
+<li>DEP</li>
+<li>ASLR</li>
+</ul>
+
+
+<p>등을 다뤄보겠다.</p>
+
+<p>메모리 공격에 관한 중요한 마일스톤을 적어놓은 <a href="http://zynamics.files.wordpress.com/2010/02/code_reuse_timeline1.png">타임라인</a>을 보면 창과 방패의 공방이 이해가 빠를 것.
+(1972 년에 미정부가 진행한 연구 &ldquo;Computer Security Technology Planning Study&rdquo; 에 buffer overflow 공격에 대해 기술되어 있다는 점이 흥미롭다.)</p>
+
+<h3>Smashing the Stack</h3>
+
+<p>TBD</p>
+
+<h3>W-xor-X a.k.a Data Execution Prevention</h3>
+
+<p>TBD</p>
+
+<h3>return-into-libc</h3>
+
+<p><code>W^X</code> 를 피해가기 위해, <a href="http://seclists.org/bugtraq/1997/Aug/63">return-into-libc</a> 가 개발되었다.</p>
+
+<p><code>W^X</code> 때문에, writable 한 buffer 에 i.e. system(&ldquo;/bin/sh&rdquo;) 과 같은 코드를 집어넣고 수행시키는 것이
+불가능해졌다. 메모리에 shellcode instruction 을 집어넣을 수 있다 하더라도,
+CPU 가 수행을 안해버리니 난감한 상황이 벌어진 것.</p>
+
+<p>이에 대항하여 return-into-libc 라는 기법이 Solar Designer 에 의해 제시되었다.</p>
+
+<p>return-into-libc 는 excutable 하다고 마킹된 기존의 코드를 재활용하는 컨셉이다.</p>
+
+<p>메모리에 로드되는 libc 코드에서 system() 의 위치와 &ldquo;/bin/sh&rdquo; 의 위치를 찾을 수 있고,
+stack frame 을 overwrite 할 수 있다면, 다음과 같이 stack frame 을 overwrite 해서,
+shellcode 를 제공하지 않고도 exploit 을 성공시킬 수 있다.</p>
+
+<pre><code>[ pointer to "/bin/sh" ]
+[ dummy_ret_address    ]
+[ pointer to system()  ] &lt;- this int32 should overwrite return address of a vulnerable function
+</code></pre>
+
+<h3>The advanced return-into-libc</h3>
+
+<p>여러개의 함수를 호출해야 하는 경우를 위해 <a href="http://www.phrack.com/issues.html?issue=58&amp;id=4">고도화된 버전</a>이 제시되었다.</p>
+
+<h4>&ldquo;esp lifting&rdquo; 기법</h4>
+
+<p><code>-fomit-frame-pointer</code> 로 컴파일된 바이너리를 공격하기 위해 개발된 기법이다.
+이 경우 함수의 return 부분이 다음과 같이 생성되는데,</p>
+
+<pre><code>eplg:
+        addl $LOCAL_VARS_SIZE,%esp
+        ret
+</code></pre>
+
+<p>이제 아래와 같이 stack frame 을 overwrite 할 수 있다면, 2 개의 함수를 호출하는 것이
+가능하다.</p>
+
+<pre><code>[ pointer to "/bin/sh" ]
+[ dummy_ret_address    ]
+[ pointer to system()  ]
+[ PAD                  ]
+[ 0                    ]
+[ pointer to eplg      ]
+[ pointer to setuid()  ] &lt;- this int32 should overwrite return address of a vulnerable function
+</code></pre>
+
+<p>취약점을 가지고 있는 함수가 ret 하면 setuid() 로 뛰게 되고 setuid(0) 가 수행되며,
+setuid() 는 eplg 로 return 하게 된다.</p>
+
+<p>eplg 는 addl $LOCAL_VARS_SIZE,%esp 로 [ 0 ] 과 [ PAD ] 를 날리고, system() 으로 ret 하게 된다.
+system() 은 &ldquo;/bin/sh&rdquo; 을 arg 로 받아 수행하게 된다.</p>
+
+<h4>pop+ret method</h4>
+
+<p>address space 에서 pop+ret 인스트럭션이 있는 주소를 찾아서,</p>
+
+<pre><code>pop-ret:
+        popl any_reg
+        ret
+</code></pre>
+
+<p>다음과 같이 stack frame 을 overwrite 한다.</p>
+
+<pre><code>[ pointer to "/bin/sh" ] &lt;- arg1 for system()
+[ dummy_ret_address    ] &lt;- ret address for system(). doesn't matter in this stage.
+[ pointer to system()  ] &lt;- supply ret address for pop+ret
+[ 0                    ] &lt;- arg1 for setuid(). will be pop'ed by pop+ret
+[ pointer to pop+ret   ] &lt;- supply ret address for setuid()
+[ pointer to setuid()  ] &lt;- this int32 should overwrite return address of a vulnerable function
+</code></pre>
+
+<p>취약점을 가지고 있는 함수가 ret 하면 setuid(0) 로 튀게 된다.
+그리고 setuid(0) 가 끝나면 pop-ret 인스트럭션이 있는 주소로 튀게 된다.
+pop-ret 은 [ 0 ] 을 날리고, system() 으로 튀게 된다.</p>
+
+<p>만약 setuid() 가 아니라 argument 를 2 개 먹는 함수를 호출해야 한다면,</p>
+
+<pre><code>pop-ret2:
+        popl any_reg
+        popl any_reg
+        ret
+</code></pre>
+
+<p>이런 인스트럭션의 조합을 어드레스 스페이스에서 찾아서 그 주소를 사용해야 한다.</p>
+
+<h3>Return Oriented Programming</h3>
+
+<p>Multiple functions 을 수행하는 지경까지 가니까, 굳이 function 단위로 수행할 필요가 있겠는가?
+인스트럭션을 여기저기서 모아서 짜깁기해서 돌려보자&hellip; 로 발전한 것은 어찌보면 당연하다 하겠다.</p>
+
+<p>ROP 란 ret 으로 끝나는 인스트럭션 셋 (gadget 이라 칭함) 들을 여기저기서 모아서 조립하는 식이다.</p>
+
+<pre><code>684a0f4e:
+    pop eax
+    ret
+
+684a2367:
+    pop ecx
+    ret
+
+684a123a:
+    mov [ecx],eax
+    ret
+</code></pre>
+
+<p>란 instruction set 들을 모아서 스택에서 조립한다.</p>
+
+<pre><code>[0x684a123a] &lt;- mov [ecx],eax
+[0x684a2367] &lt;- pop ecx
+[0x684a0f4e] &lt;- pop eax
+</code></pre>
+
+<p>로 스택을 조립하면, pop eax 를 하고 ret 해서 pop ecx 로 튀고, 다음에는 mov[ecx],eax 로 튀는 식이다.</p>
+
+<p>이런 다양한 gadget 들을 exploit 하려는 process 의 어드레스 스페이스에서 찾아낼 수 있다면,
+shellcode 를 공급하지 않고도, malicious computation 을 수행할 수 있게 되는 것이다.</p>
+
+<p>address space 에서 ret (opcode: 0xc3) 을 찾아서 그 앞쪽으로 써치해가면
+사용할 수 있는 gadget 들이 어떤 것인지를 파악할 수 있게 된다.</p>
+
+<p>(적절한 기존 코드가 있다면 ROP 를 사용해서) 기존 프로그래밍 랭귀지와 동등하게
+computational problem solving 이 가능한 code 를 제작할 수 있다는 의미에서
+ROP 가 Turing Complete 라고도 이야기한다.</p>
+
+<p>Turing Complete 라는 의미에서 기존의 EIP 기반의 instruction 수행이
+ESP 기반의 ROP 에서 어떻게 매핑되는지 보겠다.</p>
+
+<h4>NOP</h4>
+
+<p>TBD</p>
+
+<h4>Immediate Constants</h4>
+
+<p>TBD</p>
+
+<h4>Control Flow</h4>
+
+<p>TBD</p>
+
+<h3>Jump-Oriented Programming</h3>
+
+<p>TBD</p>
+
+<h3>ASLR</h3>
+
+<p>TBD</p>
+
+<h3>참고 문헌</h3>
+
+<ul>
+<li>Solar Designer. Getting around non-executable stack (and fix)</li>
+<li>Nergal. The Advanced Return-into-libc Exploits: PaX Case Study. Phrack Magazine, Vol. 11, Issue 0x58, 2001.</li>
+<li>Hovav Shacham, Return-Oriented Programming: Exploits Without Code Injection, Black Hat USA 2008</li>
+<li>Ryan Roemer, Return-Oriented Programming: Systems, Languages, and Applications. ACM</li>
+<li>SoK: Eternal War in Memory</li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1109,175 +1439,6 @@ if __name__ == "__main__":
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2013/09/06/job-scheduling-algorithm/">Job Scheduling Algorithm</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2013-09-06T11:02:00+09:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>6</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>11:02 am</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><ul>
-<li>Job 1,2,3,&hellip; 가 있고,</li>
-<li>각각의 weight 가 w1,w2,w3,&hellip;</li>
-<li>각각의 length 가 l1,l2,l3,&hellip;</li>
-<li>Job completion time 이 c1,c2,c3,&hellip;</li>
-</ul>
-
-
-<p>가 있을때, w_i * c_i 의 합을 최소화하는 문제.</p>
-
-<p>w_i/l_i 의 decreasing order 로 job 을 스케쥴링하는 알고리즘을 디자인하고, 옵티멀하다는 것을 증명</p>
-
-<p>assumptions</p>
-
-<ol>
-<li>w_i/l_i 가 같은 Job 은 없다고 가정</li>
-<li>w_i/l_i 의 desc order 로 정렬하고, 각각을 Job 1,2,3,&hellip; 로 명명</li>
-<li>약속에 따라 w_i/l_i > w_j/l_j if i > j</li>
-<li>w_1/l_1 > w_2/l_2 > w_3/l_3 &hellip;</li>
-</ol>
-
-
-<p>proof by contradiction 으로 증명.</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2013/09/05/java-generic-array/">Java Generic Array</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2013-09-05T15:59:00+09:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>5</span><span class='date-suffix'>th</span>, <span class='date-year'>2013</span></span> <span class='time'>3:59 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p><a href="http://stackoverflow.com/a/2931240">Generic Array 를 new 할 수 없는 이유</a></p>
-
-<pre><code>It's because Java's array (unlinke generics) contain, at runtime, information
-about its component type. So you must know the component type when you create
-the array. Since you don't know what `E` is at runtime, you can't create the
-array.
-</code></pre>
-
-<p>테스트해본다.</p>
-
-<pre><code>public class GenericSet&lt;E&gt; {
-    private E a[];
-    public GenericSet() {
-        a = new E[1];
-    }
-}
-</code></pre>
-
-<p>역시 에러가 난다.</p>
-
-<pre><code>code $ !javac
-javac GenericSet.java
-GenericSet.java:4: error: generic array creation
-        a = new E[1];
-            ^
-1 error
-</code></pre>
-
-<p>Effective Java 를 찾아보았다.</p>
-
-<p>Generic 의 array 생성이 허용되면 발생할 문제를 적어놓았다.</p>
-
-<pre><code>import java.util.List;
-import java.util.Arrays;
-
-// Why generic array creation is illegal - won't compile!
-List&lt;String&gt;[] stringLists = new List&lt;String&gt;[1];   // (1) 실제 컴파일하면 에러
-List&lt;Integer&gt; intList = Arrays.asList(42);          // (2)
-Object[] objects = stringLists;                     // (3)
-objects[0] = intList;                               // (4)
-String s = stringList[0].get(0);                    // (5)
-</code></pre>
-
-<ul>
-<li>Line 3: legal (Arrays are covariant.)</li>
-<li>Line 4: legal (The runtime type of a <code>List&lt;Integer&gt;</code> instance is <code>List</code>, and the runtime type of a List<Integer>[] instance is <code>List[]</code>, and the runtime type of a <code>List&lt;String&gt;</code> instance is <code>List[]</code>.)</li>
-<li>Line 5: ClassCastException (The compiler automatically casts the retrieved element to <code>String</code>, but it&rsquo;s an <code>Integer</code>.)</li>
-</ul>
-
-
-<p><a href="http://docs.oracle.com/javase/tutorial/java/generics/erasure.html">Type Erasure: 컴파일타임때의 Generic 타입 정보가 runtime 때 사라지기때문에</a></p>
-
-<p>즉, <code>List&lt;String&gt;</code> 과 <code>List&lt;Integer&gt;</code> 의 runtime type 은 모두 <code>List</code> 이다.</p>
-
-<p>Java documentation 에서는 <a href="http://docs.oracle.com/javase/tutorial/java/generics/nonReifiableVarargsType.html#non-reifiable-types">Non-Reifiable Types</a> 라고 부르고 있다.</p>
-
-<p>Stackoverflow 의 질문: <a href="http://stackoverflow.com/questions/529085/java-how-to-generic-array-creation">Java how to: Generic Array creation</a></p>
-
-<p>Typecasting 을 해보았다.</p>
-
-<pre><code>public class GenericSet&lt;E&gt; {
-    private E a[];
-    public GenericSet() {
-        a = (E[]) new Object[1];
-    }
-}
-code $ !j
-javac GenericSet.java
-Note: GenericSet.java uses unchecked or unsafe operations.
-Note: Recompile with -Xlint:unchecked for details.
-</code></pre>
-
-<p>unchecked warning 이 나온다.</p>
-
-<p><code>@SuppressWarnings({"unchecked"})</code> 을 사용.</p>
-
-<pre><code>@SuppressWarnings({"unchecked"})
-public class GenericSet&lt;E&gt; {
-    private E a[];
-    public GenericSet() {
-        a = (E[]) new Object[1];
-    }
-}
-code $ !j
-javac GenericSet.java
-</code></pre>
-
-<p>Generic Array Creation 에 대해서 너무 타이트하게 컴파일타임에 규제하는게 아닌가 싶다.</p>
-
-<p>어쨌든 Reflection 을 사용해서 Generic type array 를 만들어 본다.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/21">&larr; Older</a>
@@ -1295,6 +1456,14 @@ javac GenericSet.java
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/08/24/rc4-weakness/">RC4 Weakness</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/07/06/cve-2016-2434/">CVE-2016-2434</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/07/02/aes-in-python/">AES in Python</a>
       </li>
     
@@ -1304,14 +1473,6 @@ javac GenericSet.java
     
       <li class="post">
         <a href="/blog/2016/06/17/cve-2016-0728/">CVE-2016-0728</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/06/14/the-poisoned-nul-byte/">The Poisoned NUL Byte</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/06/14/plaidctf-ctf-2015-plaiddb/">PlaidCTF CTF 2015: PlaidDB</a>
       </li>
     
   </ul>

