@@ -9,10 +9,7 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="Building a platform API on rails
-If you&rsquo;re using to_json, you&rsquo;re doing it wrong way
-RailsCasts #322 RABL
-Rendering errors in json with &hellip;">
+  <meta name="description" content="hi. i&rsquo;m naveen. 에서 필요한 bookmarklets 를 발견했다. 위 blog 에는 del.icio.us 버전이 적혀있는데 javascript:(function(){l=location.href;t=document.title;if(!t) t = &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -68,6 +65,59 @@ Rendering errors in json with &hellip;">
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2012/10/18/pinboard-bookmarklets/">Pinboard Bookmarklets</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2012-10-18T14:45:00+09:00'><span class='date'><span class='date-month'>Oct</span> <span class='date-day'>18</span><span class='date-suffix'>th</span>, <span class='date-year'>2012</span></span> <span class='time'>2:45 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><a href="http://naveenium.com">hi. i&rsquo;m naveen.</a> 에서 필요한 bookmarklets 를 발견했다.</p>
+
+<p>위 blog 에는 del.icio.us 버전이 적혀있는데</p>
+
+<p><code>javascript:(function(){l=location.href;t=document.title;if(!t) t = prompt('title:');tags=prompt('tags:');location.href='https://api.del.icio.us/v1/posts/add?url='+escape(l)+'&amp;description='+escape(t)+'&amp;tags='+escape(tags);})()</code></p>
+
+<p>Pinboard 의 경우 delicious API 를 그대로 지원하므로, 아래와 같이
+<a href="https://api.del.icio.us/v1">https://api.del.icio.us/v1</a> 대신에 <a href="https://api.pinboard.in/v1/">https://api.pinboard.in/v1/</a> 사용.</p>
+
+<p><code>javascript:(function(){l=location.href;t=document.title;if(!t) t = prompt('title:');tags=prompt('tags:');location.href='https://api.pinboard.in/v1/posts/add?url='+escape(l)+'&amp;description='+escape(t)+'&amp;tags='+escape(tags);})()</code></p>
+
+<p>크롬을 쓰기 때문에 핫키를 지정하기가 까다로운데, <em>기타 검색엔진</em> 에 등록하기로 했다. CMD-, 를 누르면 설정 페이지가 나오는데, 검색 -> 검색엔진 관리&hellip; 에서 &ldquo;da / da / 그리고 위의 자바스크립코드&rdquo; 를 입력하면 된다.</p>
+
+<p>그 이후에,
+CMD-L 을 누르고 da 라고 치면 tag 를 묻는 prompt 가 뜨고, 바로 pinboard 에 북마크가 추가된다.</p>
+
+<p>P.S. Bookmarklets 가 Pinterest 처럼 여기저기서 이미지나 자료를 모아 큐레이션 하는 사이트에 잘 어울리는 기법인 것 같다.</p>
+
+<h3>Further works:</h3>
+
+<ul>
+<li>Pinterest 의 <em>Pin it</em> bookmarklets 의 코드도 한번 봐야겠다.</li>
+<li><a href="http://www.hongkiat.com/blog/100-useful-bookmarklets-for-better-productivity-ultimate-list/">100 useful bookmarklets for better productivity</a></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1511,66 +1561,6 @@ P&amp;L 을 염두에 두고, 이익을 목적으로 비즈니스를 하는 진�
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2012/05/17/legends-of-the-fail/">Legends of the Fail</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2012-05-17T19:27:00+09:00'><span class='date'><span class='date-month'>May</span> <span class='date-day'>17</span><span class='date-suffix'>th</span>, <span class='date-year'>2012</span></span> <span class='time'>7:27 pm</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Paul Krugman 은
-<a href="http://www.nytimes.com/2011/11/11/opinion/legends-of-the-fail.html?_r=1&amp;scp=19&amp;sq=paul%20krugman&amp;st=cse">Legends of the Fail</a> 에서</p>
-
-<p>유로의 탄생은 이데올로기 양편을 가로지르는 아이디어였다고 이야기함.</p>
-
-<blockquote><p>First things first: The attempt to create a common European currency was one of those ideas that cut across the usual ideological lines. It was cheered on by American right-wingers, who saw it as the next best thing to a revived gold standard, and by Britain’s left, which saw it as a big step toward a social-democratic Europe.</p></blockquote>
-
-<p><br />
-미국 우파 + 영국 좌파 | 영국 보수파 + 미국 리버럴 로 쪼개버렸기 때문에,
-기존 대립각을 골때리게 관통.</p>
-
-<blockquote><p>But it was opposed by British conservatives, who also saw it as a step toward a social-democratic Europe. And it was questioned by American liberals, who worried — rightly, I’d say (but then I would, wouldn’t I?) — about what would happen if countries couldn’t use monetary and fiscal policy to fight recessions.</p></blockquote>
-
-<p><br />
-유로 사태를 정치적으로 이용하려는 세력들이 준동. 복지를 깐다던가. 정부의 재정정책을 깐다던가.</p>
-
-<blockquote><p>The euro crisis, then, says nothing about the sustainability of the welfare state. But does it make the case for belt-tightening in a depressed economy?</p></blockquote>
-
-<p><br />
-과분한 복지와는 아무런 상관이 없다고 이야기함.</p>
-
-<blockquote><p>Oh, and Canada, which has universal health care and much more generous aid to the poor than the United States, has weathered the crisis better than we have.</p></blockquote>
-
-<p><br />
-자국의 통화로 돈을 빌릴 수 있느냐 없느냐가 핵심. 일본은 계속 국채 발행하고 저금리로 국채에 대한 이자 부담을 최소화하고 있음.</p>
-
-<blockquote><p>First, if you look around the world you see that the big determining factor for interest rates isn’t the level of government debt but whether a government borrows in its own currency. Japan is much more deeply in debt than Italy, but the interest rate on long-term Japanese bonds is only about 1 percent to Italy’s 7 percent. Britain’s fiscal prospects look worse than Spain’s, but Britain can borrow at just a bit over 2 percent, while Spain is paying almost 6 percent.</p></blockquote>
-
-<p><br />
-스페인, 이탈리아는 자국 통화 표시 국채발행으로 자금 조달이 안되는 제3세계 국가의 처지로 전락. 국가 단위에서 유로 돈 찍어낼 권한도 없음.</p>
-
-<blockquote><p>What has happened, it turns out, is that by going on the euro, Spain and Italy in effect reduced themselves to the status of third-world countries that have to borrow in someone else’s currency, with all the loss of flexibility that implies. In particular, since euro-area countries can’t print money even in an emergency, they’re subject to funding disruptions in a way that nations that kept their own currencies aren’t — and the result is what you see right now. America, which borrows in dollars, doesn’t have that problem.</p></blockquote>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/24">&larr; Older</a>
@@ -1588,6 +1578,10 @@ P&amp;L 을 염두에 두고, 이익을 목적으로 비즈니스를 하는 진�
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2017/02/21/attacking-microsoft-kerberoskicking-the-guide-dog-of-hades/">Attacking Microsoft KerberosKicking the Guide Dog of Hades</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/08/24/rc4-weakness/">RC4 Weakness</a>
       </li>
     
@@ -1603,10 +1597,6 @@ P&amp;L 을 염두에 두고, 이익을 목적으로 비즈니스를 하는 진�
         <a href="/blog/2016/06/20/iphone-security/">iPhone Security</a>
       </li>
     
-      <li class="post">
-        <a href="/blog/2016/06/17/cve-2016-0728/">CVE-2016-0728</a>
-      </li>
-    
   </ul>
 </section>
 
@@ -1620,7 +1610,7 @@ P&amp;L 을 염두에 두고, 이익을 목적으로 비즈니스를 하는 진�
     </div>
   </div>
   <footer role="contentinfo"><p>
-  Copyright &copy; 2016 - KC -
+  Copyright &copy; 2017 - KC -
   <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
 </p>
 

